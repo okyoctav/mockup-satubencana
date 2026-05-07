@@ -29,6 +29,7 @@ interface BnpbLayer {
   color: string;
   emoji: string;
   url: string;
+  type?: 'MapServer' | 'ImageServer';
 }
 
 const BASEMAPS = [
@@ -70,6 +71,7 @@ const BASEMAPS = [
 const BNPB_BASE = 'https://gis.bnpb.go.id/server/rest/services/inarisk';
 
 const BNPB_LAYERS: BnpbLayer[] = [
+  { id: 'cuaca_ekstrim_img', label: 'Cuaca Ekstrim',      color: '#06B6D4', emoji: '🌪️', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/layer_bahaya_cuaca_ekstrim/ImageServer', type: 'ImageServer' },
   { id: 'banjir',        label: 'Bahaya Banjir',      color: '#0EA5E9', emoji: '🌊', url: `${BNPB_BASE}/layer_bahaya_banjir_30/MapServer` },
   { id: 'banjir_bandang',label: 'Banjir Bandang',     color: '#0369A1', emoji: '💧', url: `${BNPB_BASE}/layer_bahaya_banjir_bandang_30/MapServer` },
   { id: 'longsor',       label: 'Tanah Longsor',       color: '#F97316', emoji: '⛰️', url: `${BNPB_BASE}/layer_bahaya_tanah_longsor_30/MapServer` },
@@ -78,7 +80,7 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'gunungapi',     label: 'Letusan Gunung Api',  color: '#8B5CF6', emoji: '🌋', url: `${BNPB_BASE}/layer_bahaya_letusan_gunungapi/MapServer` },
   { id: 'karhutla',      label: 'Kebakaran Hutan',     color: '#F59E0B', emoji: '🔥', url: `${BNPB_BASE}/layer_bahaya_kebakaran_hutan_dan_lahan_30/MapServer` },
   { id: 'kekeringan',    label: 'Kekeringan',          color: '#D97706', emoji: '☀️', url: `${BNPB_BASE}/layer_bahaya_kekeringan_30/MapServer` },
-  { id: 'cuaca_ekstrim', label: 'Cuaca Ekstrim',       color: '#06B6D4', emoji: '🌪️', url: `${BNPB_BASE}/layer_bahaya_cuaca_ekstrim_30/MapServer` },
+  { id: 'cuaca_ekstrim', label: 'Cuaca Ekstrim (MS)',  color: '#0891B2', emoji: '⛅', url: `${BNPB_BASE}/layer_bahaya_cuaca_ekstrim_30/MapServer` },
 ];
 
 const JENIS_COLOR: Record<string, string> = {
@@ -112,18 +114,27 @@ function tileToBbox3857(x: number, y: number, z: number): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number): any {
+function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, isImageServer = false): any {
   const ArcLayer = L.GridLayer.extend({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     createTile(coords: { x: number; y: number; z: number }, done: (e: Error | null, t: HTMLImageElement) => void): HTMLImageElement {
       const img = document.createElement('img');
       img.alt = '';
-      const params = new URLSearchParams({
-        bbox: tileToBbox3857(coords.x, coords.y, coords.z),
-        bboxSR: '3857', imageSR: '3857', size: '256,256',
-        layers: 'show:0', format: 'png32', transparent: 'true', f: 'image',
-      });
-      img.src = `${serviceUrl}/export?${params}`;
+      if (isImageServer) {
+        const params = new URLSearchParams({
+          bbox: tileToBbox3857(coords.x, coords.y, coords.z),
+          bboxSR: '3857', imageSR: '3857', size: '256,256',
+          format: 'png', transparent: 'true', f: 'image',
+        });
+        img.src = `${serviceUrl}/exportImage?${params}`;
+      } else {
+        const params = new URLSearchParams({
+          bbox: tileToBbox3857(coords.x, coords.y, coords.z),
+          bboxSR: '3857', imageSR: '3857', size: '256,256',
+          layers: 'show:0', format: 'png32', transparent: 'true', f: 'image',
+        });
+        img.src = `${serviceUrl}/export?${params}`;
+      }
       img.onload = () => done(null, img);
       img.onerror = () => done(new Error('err'), img);
       return img;
@@ -152,7 +163,7 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
   const activeDrawRef = useRef<any>(null);
 
   const [activeBasemap, setActiveBasemap] = useState('esri_imagery');
-  const [activeOverlays, setActiveOverlays] = useState<string[]>([]);
+  const [activeOverlays, setActiveOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const [activeDraw, setActiveDraw] = useState<string | null>(null);
 
@@ -271,7 +282,7 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
       if (bnpbLayersRef.current[id]) return;
       const def = BNPB_LAYERS.find((l) => l.id === id);
       if (!def) return;
-      bnpbLayersRef.current[id] = createArcGISExportLayer(L, def.url, 0.72);
+      bnpbLayersRef.current[id] = createArcGISExportLayer(L, def.url, 0.72, def.type === 'ImageServer');
       bnpbLayersRef.current[id].addTo(map);
     });
   }, [activeOverlays]);
