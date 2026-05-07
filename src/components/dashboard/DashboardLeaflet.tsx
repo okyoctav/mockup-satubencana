@@ -44,6 +44,22 @@ const BASEMAPS = [
     ],
   },
   {
+    id: 'openstreetmap',
+    label: 'OpenStreetMap',
+    emoji: '🗺️',
+    layers: [
+      { url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attr: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' },
+    ],
+  },
+  {
+    id: 'big_rbi',
+    label: 'RBI Indonesia (BIG)',
+    emoji: '🏛️',
+    layers: [
+      { url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/Rupabumi_Indonesia/MapServer/tile/{z}/{y}/{x}', attr: '© Badan Informasi Geospasial (BIG)' },
+    ],
+  },
+  {
     id: 'esri_topo',
     label: 'Topografi',
     emoji: '🏔️',
@@ -184,28 +200,45 @@ function buildImpactHtml(d: ImpactData): string {
     if (n >= 1e6)  return `Rp ${(n / 1e6).toFixed(0)} Jt`;
     return `Rp ${n.toLocaleString('id')}`;
   };
-  const cards = [
-    { icon: '\u{1F465}', label: 'Orang Terdampak',   value: loading ? '\u23F3' : d.orng.toLocaleString('id'),              unit: loading ? 'menghitung\u2026' : 'jiwa',               color: '#EF4444' },
-    { icon: '\u{1F3E0}', label: 'Bangunan',           value: loading ? '\u23F3' : d.rumah.toLocaleString('id'),             unit: loading ? 'menghitung\u2026' : 'unit (Meta/OSM)',    color: '#F97316' },
-    { icon: '\u{1F3DB}\uFE0F', label: 'Fasilitas Umum', value: loading ? '\u23F3' : (d.fasumReal ?? d.fasum).toLocaleString('id'), unit: loading ? 'menghitung\u2026' : `gedung (${d.fasumSource})`, color: '#8B5CF6' },
-    { icon: '\u{1F4B0}', label: 'Est. Kerugian',      value: loading ? '\u23F3' : fmtRp(d.kerugian),                       unit: loading ? 'menghitung\u2026' : '48\u201360 jt/unit', color: '#10b981' },
+  const rows = [
+    { icon: '👥', label: 'Orang Terdampak', value: loading ? '⏳' : d.orng.toLocaleString('id'),                        unit: 'jiwa',  color: '#EF4444' },
+    { icon: '🏠', label: 'Bangunan',        value: loading ? '⏳' : d.rumah.toLocaleString('id'),                       unit: 'unit',  color: '#F97316' },
+    { icon: '🏛️', label: 'Fasilitas Umum', value: loading ? '⏳' : (d.fasumReal ?? d.fasum).toLocaleString('id'),       unit: 'gedung',color: '#8B5CF6' },
+    { icon: '💰', label: 'Est. Kerugian',   value: loading ? '⏳' : fmtRp(d.kerugian),                                  unit: '',      color: '#10B981' },
   ];
-  return `<div style="width:272px;font-family:system-ui,sans-serif">
-    <div style="margin-bottom:10px">
-      <div style="font-size:10px;color:#0EA5E9;font-weight:700;text-transform:uppercase;letter-spacing:.8px">\u{1F4D0} Analisis Area Terdampak</div>
-      ${d.area !== '\u2014' ? `<div style="font-size:10px;color:#94A3B8;margin-top:2px">Estimasi luas \u2248 ${d.area} km\u00B2</div>` : ''}
+  return `<div style="width:268px;font-family:system-ui,sans-serif;color:#0F172A">
+    <div style="margin-bottom:8px;padding-bottom:7px;border-bottom:1.5px solid #E2E8F0">
+      <div style="font-size:11px;color:#0EA5E9;font-weight:700;text-transform:uppercase;letter-spacing:.8px">📐 Analisis Area Terdampak</div>
+      ${d.area !== '—' ? `<div style="font-size:10px;color:#64748B;margin-top:3px">Estimasi luas ≈ <strong style="color:#0F172A">${d.area} km²</strong></div>` : ''}
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-      ${cards.map(c => `<div style="background:${c.color}18;border:1px solid ${c.color}35;border-left:3px solid ${c.color};border-radius:8px;padding:8px 10px">
-        <div style="font-size:15px;margin-bottom:3px">${c.icon}</div>
-        <div style="font-size:15px;font-weight:800;color:${c.color};line-height:1">${c.value}</div>
-        <div style="font-size:9px;color:#94A3B8;margin-top:2px">${c.unit}</div>
-        <div style="font-size:9px;color:#94A3B8;margin-top:3px;line-height:1.3">${c.label}</div>
-      </div>`).join('')}
+    <table style="width:100%;border-collapse:collapse">
+      <tbody>
+        ${rows.map((r, i) => `<tr style="border-bottom:${i < rows.length - 1 ? '1px solid #F1F5F9' : 'none'}">
+          <td style="padding:6px 4px 6px 0;color:#475569;font-size:11px;white-space:nowrap">${r.icon} ${r.label}</td>
+          <td style="padding:6px 0 6px 8px;text-align:right;white-space:nowrap">
+            <span style="font-size:13px;font-weight:700;color:${r.color}">${r.value}</span>
+            ${r.unit ? `<span style="font-size:9px;color:#94A3B8;margin-left:2px">${r.unit}</span>` : ''}
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="margin-top:8px;padding-top:6px;border-top:1px solid #E2E8F0;font-size:9px;color:#94A3B8;line-height:1.5">
+      ${loading ? '🔄 Mengambil data dari OpenStreetMap (Meta Building Footprints)…' : '⚠️ Estimasi berdasarkan Meta Building Footprints (OSM) — bukan data resmi BNPB'}
     </div>
-    <div style="font-size:9px;color:#94A3B8;border-top:1px solid rgba(100,116,139,0.2);padding-top:7px;line-height:1.5">
-      ${loading ? '\u{1F504} Mengambil data bangunan dari OpenStreetMap (Meta Building Footprints)\u2026' : '\u26A0\uFE0F Sumber: Meta Building Footprints (OSM) \u2014 estimasi, bukan data resmi BNPB'}
+  </div>`;
+}
+
+function buildFailureHtml(area: string): string {
+  return `<div style="width:268px;font-family:system-ui,sans-serif;color:#0F172A">
+    <div style="margin-bottom:8px;padding-bottom:7px;border-bottom:1.5px solid #E2E8F0">
+      <div style="font-size:11px;color:#0EA5E9;font-weight:700;text-transform:uppercase;letter-spacing:.8px">📐 Analisis Area Terdampak</div>
+      ${area !== '—' ? `<div style="font-size:10px;color:#64748B;margin-top:3px">Estimasi luas ≈ <strong style="color:#0F172A">${area} km²</strong></div>` : ''}
     </div>
+    <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 12px;margin-bottom:6px">
+      <div style="font-size:13px;font-weight:700;color:#DC2626;margin-bottom:4px">⚠️ Gagal Mengambil Data</div>
+      <div style="font-size:11px;color:#7F1D1D;line-height:1.5">Data bangunan Meta/OSM tidak tersedia saat ini. Coba gambar ulang atau pilih area yang lebih kecil.</div>
+    </div>
+    <div style="font-size:9px;color:#94A3B8;line-height:1.5">Layanan Overpass API tidak dapat dijangkau</div>
   </div>`;
 }
 
@@ -452,12 +485,28 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
         // --- Estimate area ---
         let area = '—';
         try {
-          const b = layer.getBounds?.();
-          if (b) {
-            const sw = b.getSouthWest(); const ne = b.getNorthEast();
-            const dLat = Math.abs(ne.lat - sw.lat) * 111;
-            const dLng = Math.abs(ne.lng - sw.lng) * 111 * Math.cos(((ne.lat + sw.lat) / 2) * Math.PI / 180);
-            area = (dLat * dLng).toFixed(1);
+          if (e.layerType === 'circle') {
+            const r = layer.getRadius(); // meters
+            const areaKm2 = Math.PI * (r / 1000) * (r / 1000);
+            area = areaKm2 < 0.01 ? areaKm2.toFixed(3) : areaKm2.toFixed(2);
+          } else {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const pts: any[] = layer.getLatLngs()[0];
+            if (Array.isArray(pts) && pts.length >= 3) {
+              const n = pts.length;
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const avgLat = pts.reduce((s: number, p: any) => s + p.lat, 0) / n;
+              const mPerDegLat = 111320;
+              const mPerDegLng = 111320 * Math.cos(avgLat * Math.PI / 180);
+              let A = 0;
+              for (let i = 0; i < n; i++) {
+                const j = (i + 1) % n;
+                A += (pts[i].lng * mPerDegLng) * (pts[j].lat * mPerDegLat);
+                A -= (pts[j].lng * mPerDegLng) * (pts[i].lat * mPerDegLat);
+              }
+              const areaKm2 = Math.abs(A) / 2 / 1e6;
+              area = areaKm2 < 0.01 ? areaKm2.toFixed(3) : areaKm2.toFixed(2);
+            }
           }
         } catch { /* */ }
 
@@ -558,10 +607,7 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
             if (popupRef.current) popup.setContent(buildImpactHtml(finalState));
           })
           .catch(() => {
-            const rumahFb  = Math.floor(Math.random() * 1000 + 100);
-            const multi    = 3 + Math.random();
-            const fbState: ImpactData = { orng: Math.round(rumahFb * multi), rumah: rumahFb, kerugian: Math.round(rumahFb * (48_000_000 + Math.random() * 12_000_000)), fasum: Math.max(1, Math.floor(Math.random() * 5)), fasumReal: null, fasumLoading: false, fasumSource: 'estimasi', area, layerType: e.layerType };
-            if (popupRef.current) popup.setContent(buildImpactHtml(fbState));
+            if (popupRef.current) popup.setContent(buildFailureHtml(area));
           });
       });
     };
