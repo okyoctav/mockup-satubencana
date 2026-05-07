@@ -176,6 +176,22 @@ function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, is
   return new ArcLayer({ opacity, attribution: '© BNPB InARISK', tileSize: 256 });
 }
 
+function formatRupiah(n: number): string {
+  if (n >= 1_000_000_000_000) return `Rp ${(n / 1_000_000_000_000).toFixed(2)} T`;
+  if (n >= 1_000_000_000)     return `Rp ${(n / 1_000_000_000).toFixed(1)} M`;
+  if (n >= 1_000_000)         return `Rp ${(n / 1_000_000).toFixed(0)} Jt`;
+  return `Rp ${n.toLocaleString('id')}`;
+}
+
+interface ImpactData {
+  orng: number;
+  rumah: number;
+  kerugian: number;
+  fasum: number;
+  area: string;
+  layerType: string;
+}
+
 type ActivePanel = 'basemap' | 'layers' | 'legend' | 'draw' | null;
 
 export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
@@ -199,6 +215,7 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
   const [activeOverlays, setActiveOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const [activeDraw, setActiveDraw] = useState<string | null>(null);
+  const [impactData, setImpactData] = useState<ImpactData | null>(null);
 
   // Load Leaflet.draw CSS+JS once
   useEffect(() => {
@@ -358,35 +375,87 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
   useEffect(() => {
     const L = leafletRef.current; const map = mapRef.current;
     if (!L || !map) return;
+    // cancel any active draw handler
     if (activeDrawRef.current) {
       try { activeDrawRef.current.disable(); } catch { /* */ }
       activeDrawRef.current = null;
     }
     if (!activeDraw || !drawLayerRef.current) return;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const D = (L as any).Draw;
-    if (!D) return; // leaflet.draw not loaded yet
+    const activateDrawTool = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const D = (L as any).Draw;
+      if (!D) {
+        // leaflet.draw not yet loaded — retry on script load
+        const el = document.getElementById('leaflet-draw-js');
+        if (el) { el.addEventListener('load', activateDrawTool, { once: true }); }
+        else { setTimeout(activateDrawTool, 300); }
+        return;
+      }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let handler: any;
-    const opts = { shapeOptions: { color: '#0EA5E9', weight: 2 } };
-    if (activeDraw === 'polyline')     handler = new D.Polyline(map, opts);
-    if (activeDraw === 'polygon')      handler = new D.Polygon(map, opts);
-    if (activeDraw === 'rectangle')    handler = new D.Rectangle(map, opts);
-    if (activeDraw === 'circle')       handler = new D.Circle(map, opts);
-    if (activeDraw === 'marker')       handler = new D.Marker(map, {});
-    if (activeDraw === 'circlemarker') handler = new D.CircleMarker(map, opts);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let handler: any;
+      const opts = { shapeOptions: { color: '#0EA5E9', weight: 2, fillOpacity: 0.15 } };
+      if (activeDraw === 'polyline')     handler = new D.Polyline(map, { ...opts, shapeOptions: { color: '#0EA5E9', weight: 2 } });
+      if (activeDraw === 'polygon')      handler = new D.Polygon(map, opts);
+      if (activeDraw === 'rectangle')    handler = new D.Rectangle(map, opts);
+      if (activeDraw === 'circle')       handler = new D.Circle(map, opts);
+      if (activeDraw === 'marker')       handler = new D.Marker(map, {});
+      if (activeDraw === 'circlemarker') handler = new D.CircleMarker(map, opts);
+      if (!handler) return;
 
-    if (!handler) return;
-    handler.enable();
-    activeDrawRef.current = handler;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    map.once('draw:created', (e: any) => {
-      drawLayerRef.current.addLayer(e.layer);
-      setActiveDraw(null);
-      activeDrawRef.current = null;
-    });
+      handler.enable();
+      activeDrawRef.current = handler;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      map.once('draw:created', (e: any) => {
+        const layer = e.layer;
+        drawLayerRef.current.addLayer(layer);
+        setActiveDraw(null);
+        activeDrawRef.current = null;
+
+        // Skip impact for point types
+        if (e.layerType === 'marker' || e.layerType === 'circlemarker' || e.layerType === 'polyline') return;
+
+        // Find kejadian inside the drawn shape
+        let inside: typeof data = [];
+        try {
+          if (e.layerType === 'circle') {
+            const center = layer.getLatLng();
+            const radius = layer.getRadius();
+            inside = data.filter((k) => L.latLng(k.lat, k.lng).distanceTo(center) <= radius);
+          } else {
+            const bounds = layer.getBounds();
+            inside = data.filter((k) => bounds.contains(L.latLng(k.lat, k.lng)));
+          }
+        } catch { /* */ }
+
+        // Compute stats (real from markers + dummy multiplier for full population)
+        const realPengungsi = inside.reduce((s, k) => s + k.pengungsi, 0);
+        const realKorban   = inside.reduce((s, k) => s + k.korban_jiwa, 0);
+        // Multiply marker data ~3x to simulate wider population impact
+        const orng    = realPengungsi > 0 ? realPengungsi * 3 + Math.floor(Math.random() * 5000) : Math.floor(Math.random() * 40000 + 8000);
+        const rumah   = realKorban > 0 ? Math.floor(orng * 0.22 + inside.length * 80) : Math.floor(Math.random() * 3000 + 500);
+        const kerugian = Math.floor(rumah * (180_000_000 + Math.random() * 120_000_000));
+        const fasum   = Math.max(2, Math.floor(orng / 600 + Math.random() * 8));
+
+        // Estimate area from bounding box (km²)
+        let area = '—';
+        try {
+          const b = layer.getBounds?.();
+          if (b) {
+            const sw = b.getSouthWest(); const ne = b.getNorthEast();
+            const dLat = Math.abs(ne.lat - sw.lat) * 111;
+            const dLng = Math.abs(ne.lng - sw.lng) * 111 * Math.cos(((ne.lat + sw.lat) / 2) * Math.PI / 180);
+            area = (dLat * dLng).toFixed(1);
+          }
+        } catch { /* */ }
+
+        setImpactData({ orng, rumah, kerugian, fasum, area, layerType: e.layerType });
+      });
+    };
+
+    activateDrawTool();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeDraw]);
 
@@ -436,6 +505,59 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       <div ref={containerRef} style={{ width: '100%', height: '100%', borderRadius: 14, overflow: 'hidden' }} />
+
+      {/* Impact Analysis Panel */}
+      {impactData && (
+        <div style={{
+          position: 'absolute', bottom: 16, left: 16, zIndex: 1000,
+          background: isDark ? 'rgba(8,18,36,0.97)' : 'rgba(255,255,255,0.97)',
+          border: `1.5px solid ${panelBorder}`,
+          borderRadius: 14, padding: '16px 18px', width: 300,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
+          backdropFilter: 'blur(14px)',
+        }}>
+          {/* Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+            <div>
+              <div style={{ fontSize: 10, color: '#0EA5E9', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>📐 Analisis Area Terdampak</div>
+              {impactData.area !== '—' && (
+                <div style={{ fontSize: 10, color: panelMuted, marginTop: 2 }}>Estimasi luas ≈ {impactData.area} km²</div>
+              )}
+            </div>
+            <button
+              onClick={() => setImpactData(null)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: panelMuted, fontSize: 16, padding: 0, lineHeight: 1 }}
+            >✕</button>
+          </div>
+
+          {/* Stat grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+            {[
+              { label: 'Orang Terdampak', value: impactData.orng.toLocaleString('id'), unit: 'jiwa', color: '#EF4444', icon: '👥' },
+              { label: 'Rumah Terdampak', value: impactData.rumah.toLocaleString('id'), unit: 'unit', color: '#F97316', icon: '🏠' },
+              { label: 'Bangunan Fasum', value: impactData.fasum.toLocaleString('id'), unit: 'gedung', color: '#8B5CF6', icon: '🏛️' },
+              { label: 'Est. Kerugian Aset', value: formatRupiah(impactData.kerugian), unit: '', color: '#10b981', icon: '💰' },
+            ].map((s) => (
+              <div key={s.label} style={{
+                background: `${s.color}12`,
+                border: `1px solid ${s.color}30`,
+                borderRadius: 10, padding: '10px 12px',
+                borderLeft: `3px solid ${s.color}`,
+              }}>
+                <div style={{ fontSize: 16, marginBottom: 4 }}>{s.icon}</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</div>
+                {s.unit && <div style={{ fontSize: 9, color: panelMuted, marginTop: 2 }}>{s.unit}</div>}
+                <div style={{ fontSize: 9, color: panelMuted, marginTop: 4, lineHeight: 1.3 }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Footer note */}
+          <div style={{ fontSize: 9, color: panelMuted, borderTop: `1px solid ${panelBorder}`, paddingTop: 8, lineHeight: 1.5 }}>
+            ⚠️ Data estimasi model dampak — bukan data resmi BNPB
+          </div>
+        </div>
+      )}
 
       {/* Right toolbar */}
       <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 800, display: 'flex', flexDirection: 'column', gap: 6 }}>
