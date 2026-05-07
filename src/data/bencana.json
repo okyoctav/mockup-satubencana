@@ -1,0 +1,129 @@
+{
+  "kejadian": [
+    {
+      "id": 1,
+      "nama": "Banjir Bandang Lembah Harau",
+      "provinsi": "Sumatera Barat",
+      "kabupaten": "Lima Puluh Kota",
+      "lat": -0.3333,
+      "lng": 100.75,
+      "jenis": "banjir",
+      "tanggal": "2024-05-07",
+      "korban_jiwa": 67,
+      "pengungsi": 4500,
+      "status": "pasca",
+      "level": "tinggi"
+    },
+    {
+      "id": 2,
+      "nama": "Banjir Bandang Agam",
+      "provinsi": "Sumatera Barat",
+      "kabupaten": "Agam",
+      "lat": -0.2,
+      "lng": 100.4,
+      "jenis": "banjir",
+      "tanggal": "2024-05-11",
+      "korban_jiwa": 19,
+      "pengungsi": 2100,
+      "status": "pasca",
+      "level": "tinggi"
+    },
+    {
+      "id": 3,
+      "nama": "Longsor Tanah Datar",
+      "provinsi": "Sumatera Barat",
+      "kabupaten": "Tanah Datar",
+      "lat": -0.45,
+      "lng": 100.62,
+      "jenis": "longsor",
+      "tanggal": "2024-05-12",
+      "korban_jiwa": 11,
+      "pengungsi": 890,
+      "status": "pasca",
+      "level": "sedang"
+    },
+    {
+      "id": 4,
+      "nama": "Gempa Pasaman Barat",
+      "provinsi": "Sumatera Barat",
+      "kabupaten": "Pasaman Barat",
+      "lat": 0.1,
+      "lng": 99.8,
+      "jenis": "gempa",
+      "tanggal": "2022-02-25",
+      "korban_jiwa": 25,
+      "pengungsi": 6200,
+      "status": "pasca",
+      "level": "tinggi"
+    },
+    {
+      "id": 5,
+      "nama": "Banjir Aceh Tamiang",
+      "provinsi": "Aceh",
+      "kabupaten": "Aceh Tamiang",
+      "lat": 4.18,
+      "lng": 97.9,
+      "jenis": "banjir",
+      "tanggal": "2024-11-03",
+      "korban_jiwa": 0,
+      "pengungsi": 12000,
+      "status": "saat",
+      "level": "tinggi"
+    },
+    {
+      "id": 6,
+      "nama": "Banjir Medan",
+      "provinsi": "Sumatera Utara",
+      "kabupaten": "Kota Medan",
+      "lat": 3.595,
+      "lng": 98.672,
+      "jenis": "banjir",
+      "tanggal": "2024-12-01",
+      "korban_jiwa": 2,
+      "pengungsi": 3400,
+      "status": "pasca",
+      "level": "sedang"
+    },
+    {
+      "id": 7,
+      "nama": "Longsor Nias",
+      "provinsi": "Sumatera Utara",
+      "kabupaten": "Nias Selatan",
+      "lat": 0.6,
+      "lng": 97.72,
+      "jenis": "longsor",
+      "tanggal": "2025-01-15",
+      "korban_jiwa": 5,
+      "pengungsi": 700,
+      "status": "pasca",
+      "level": "sedang"
+    },
+    {
+      "id": 8,
+      "nama": "Kebakaran Hutan Aceh",
+      "provinsi": "Aceh",
+      "kabupaten": "Aceh Besar",
+      "lat": 5.35,
+      "lng": 95.6,
+      "jenis": "kebakaran",
+      "tanggal": "2025-08-20",
+      "korban_jiwa": 0,
+      "pengungsi": 0,
+      "status": "pra",
+      "level": "rendah"
+    }
+  ],
+  "statistik": {
+    "total_kejadian_2024": 342,
+    "total_korban": 127,
+    "total_pengungsi": 89340,
+    "provinsi_terdampak": 8,
+    "jenis_bencana": {
+      "banjir": 156,
+      "longsor": 89,
+      "gempa": 34,
+      "kebakaran": 48,
+      "lainnya": 15
+    }
+  }
+}

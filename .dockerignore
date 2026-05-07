@@ -1,0 +1,9 @@
+.next
+.git
+*.md
+.env*
+!.env.example
+.dockerignore
+docker-compose.yml
+README.md
+konsep.md

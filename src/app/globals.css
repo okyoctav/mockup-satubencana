@@ -2,26 +2,143 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================
+   DARK THEME (default)
+   ============================================================ */
+:root,
+html[data-theme="dark"] {
+  --bg-primary: #061a24;
+  --bg-secondary: #0a2535;
+  --bg-page: #061a24;
+  --bg-section: #051520;
+  --bg-section-alt: #072030;
+  --bg-card: rgba(0, 50, 73, 0.85);
+  --bg-navbar: rgba(6, 26, 36, 0.92);
+  --bg-navbar-solid: rgba(6, 26, 36, 0.97);
+  --text-primary: #ccdbdc;
+  --text-secondary: #35a7ff;
+  --text-muted: #5a8a9c;
+  --text-feature: #b8cfd0;
+  --border-subtle: rgba(53, 167, 255, 0.2);
+  --border-faint: rgba(53, 167, 255, 0.1);
+  --card-border-red: rgba(255, 127, 17, 0.35);
+  --card-border-blue: rgba(53, 167, 255, 0.3);
+  --card-border-orange: rgba(255, 127, 17, 0.35);
+  --chart-bg: #061a24;
+  --chart-grid: #38618c;
+  --chart-text: #7aaab8;
+  --chart-tooltip-bg: #003249;
+  --chart-tooltip-border: #38618c;
+  --hero-bg: linear-gradient(135deg, #061a24 0%, #003249 50%, #061a24 100%);
+  --footer-bg: linear-gradient(180deg, #38618c 0%, #003249 100%);
+  --section-gradient: linear-gradient(180deg, #051520 0%, #061a24 50%, #051520 100%);
+  --mitra-bg: rgba(53, 167, 255, 0.05);
+  --mitra-border: rgba(53, 167, 255, 0.15);
+  --accent-blue: #35a7ff;
+  --accent-orange: #ff7f11;
+  --accent-green: #35a7ff;
+  --accent-red: #ff7f11;
+  --glass-bg: rgba(0, 50, 73, 0.6);
+  --glass-border: rgba(53, 167, 255, 0.3);
+  --scrollbar-track: #061a24;
+  --toggle-bg: rgba(204, 219, 220, 0.1);
+  --toggle-border: rgba(204, 219, 220, 0.2);
+  --toggle-icon: #ff7f11;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ============================================================
+   LIGHT THEME
+   ============================================================ */
+html[data-theme="light"] {
+  --bg-primary: #f0f5f7;
+  --bg-secondary: #dce9ed;
+  --bg-page: #f0f5f7;
+  --bg-section: #e4edf1;
+  --bg-section-alt: #d8e8ec;
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-navbar: rgba(240, 245, 247, 0.95);
+  --bg-navbar-solid: rgba(240, 245, 247, 0.99);
+  --text-primary: #003249;
+  --text-secondary: #38618c;
+  --text-muted: #5a7d8a;
+  --text-feature: #003249;
+  --border-subtle: rgba(56, 97, 140, 0.3);
+  --border-faint: rgba(56, 97, 140, 0.15);
+  --card-border-red: rgba(255, 127, 17, 0.35);
+  --card-border-blue: rgba(53, 167, 255, 0.3);
+  --card-border-orange: rgba(255, 127, 17, 0.35);
+  --chart-bg: #ffffff;
+  --chart-grid: #ccdbdc;
+  --chart-text: #38618c;
+  --chart-tooltip-bg: #ffffff;
+  --chart-tooltip-border: #ccdbdc;
+  --hero-bg: linear-gradient(135deg, #f0f5f7 0%, #dce9ed 50%, #f0f5f7 100%);
+  --footer-bg: linear-gradient(180deg, #dce9ed 0%, #ccdbdc 100%);
+  --section-gradient: linear-gradient(180deg, #e4edf1 0%, #f0f5f7 50%, #e4edf1 100%);
+  --mitra-bg: rgba(53, 167, 255, 0.06);
+  --mitra-border: rgba(53, 167, 255, 0.2);
+  --accent-blue: #35a7ff;
+  --accent-orange: #ff7f11;
+  --accent-green: #35a7ff;
+  --accent-red: #ff7f11;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(56, 97, 140, 0.25);
+  --scrollbar-track: #f0f5f7;
+  --toggle-bg: rgba(0, 50, 73, 0.08);
+  --toggle-border: rgba(0, 50, 73, 0.15);
+  --toggle-icon: #ff7f11;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-blue);
+  border-radius: 3px;
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+  }
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(53, 167, 255, 0.3);
+  }
+  .glow-orange {
+    box-shadow: 0 0 20px rgba(255, 127, 17, 0.3);
+  }
+  .text-gradient {
+    background: linear-gradient(135deg, #35a7ff, #ccdbdc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .section-padding {
+    padding: 5rem 1.5rem;
   }
 }
+
