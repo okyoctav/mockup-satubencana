@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import AlertTicker from '@/components/dashboard/AlertTicker';
@@ -12,7 +12,7 @@ import AnalysisModelsSection from '@/components/dashboard/AnalysisModelsSection'
 import bencanaData from '@/data/bencana.json';
 import { Wilayah } from '@/data/wilayah';
 
-const allData = bencanaData.kejadian as {
+type Kejadian = {
   id: number;
   nama: string;
   provinsi: string;
@@ -25,15 +25,23 @@ const allData = bencanaData.kejadian as {
   pengungsi: number;
   status: string;
   level: string;
-}[];
+};
+
+const allData = bencanaData.kejadian as Kejadian[];
 
 export default function DashboardPage() {
   const { theme } = useTheme();
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [filters, setFilters] = useState({ jenis: 'Semua', status: 'Semua', level: 'Semua' });
+  const [searchWilayah, setSearchWilayah] = useState<Wilayah | null>(null);
 
   const handleSearch = (w: Wilayah) => {
     setFlyTo({ lat: w.lat, lng: w.lng, zoom: w.zoom });
+    setSearchWilayah(w);
+  };
+
+  const handleClearSearch = () => {
+    setSearchWilayah(null);
   };
 
   const handleAlertClick = (lat: number, lng: number) => {
@@ -44,12 +52,30 @@ export default function DashboardPage() {
     setFlyTo({ lat, lng, zoom: 13 });
   };
 
-  const filteredData = allData.filter((k) => {
-    if (filters.jenis !== 'Semua' && k.jenis !== filters.jenis) return false;
-    if (filters.status !== 'Semua' && k.status !== filters.status) return false;
-    if (filters.level !== 'Semua' && k.level !== filters.level) return false;
-    return true;
-  });
+  // Filter by region first
+  const regionFilteredData = useMemo<Kejadian[]>(() => {
+    if (!searchWilayah) return allData;
+    const q = searchWilayah.nama.toLowerCase();
+    if (searchWilayah.tipe === 'provinsi') {
+      return allData.filter((k) => k.provinsi.toLowerCase().includes(q));
+    }
+    // kabupaten / kota — match by kabupaten name
+    return allData.filter(
+      (k) =>
+        k.kabupaten.toLowerCase().includes(q) ||
+        k.provinsi.toLowerCase() === searchWilayah.provinsi.toLowerCase()
+    );
+  }, [searchWilayah]);
+
+  // Then apply jenis/status/level filters on top
+  const filteredData = useMemo<Kejadian[]>(() => {
+    return regionFilteredData.filter((k) => {
+      if (filters.jenis !== 'Semua' && k.jenis !== filters.jenis) return false;
+      if (filters.status !== 'Semua' && k.status !== filters.status) return false;
+      if (filters.level !== 'Semua' && k.level !== filters.level) return false;
+      return true;
+    });
+  }, [regionFilteredData, filters]);
 
   return (
     <div
@@ -68,7 +94,12 @@ export default function DashboardPage() {
       </div>
 
       {/* Stat Cards */}
-      <StatCards status={filters.status} />
+      <StatCards
+        status={filters.status}
+        regionData={searchWilayah ? regionFilteredData : undefined}
+        regionLabel={searchWilayah ? searchWilayah.nama : undefined}
+        onClearRegion={searchWilayah ? handleClearSearch : undefined}
+      />
 
       {/* Map + Filter Panel — fixed height section */}
       <div
@@ -122,7 +153,7 @@ export default function DashboardPage() {
           }}
         >
           <FilterPanel
-            data={allData}
+            data={regionFilteredData}
             filters={filters}
             onFilter={setFilters}
             onEventClick={handleEventClick}

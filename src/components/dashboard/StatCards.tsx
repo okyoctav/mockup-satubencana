@@ -3,52 +3,130 @@
 import { useState } from 'react';
 import { DIBI_TOTAL } from '@/data/dibiStats';
 
-const CARDS = [
+type Kejadian = {
+  korban_jiwa: number;
+  pengungsi: number;
+};
+
+const NATIONAL_CARDS = [
   {
     label: 'Total Kejadian',
     sublabel: 'Data DIBI 2011–2026',
-    value: DIBI_TOTAL.kejadian.toLocaleString('id'),
+    getValue: () => DIBI_TOTAL.kejadian.toLocaleString('id'),
     unit: 'kejadian',
     icon: '📋',
     accent: '#35a7ff',
-    trend: '50.000 record bencana',
+    getTrend: () => '50.000 record bencana',
     trendUp: true,
   },
   {
     label: 'Meninggal & Hilang',
     sublabel: 'Korban Jiwa',
-    value: (DIBI_TOTAL.meninggal + DIBI_TOTAL.hilang).toLocaleString('id'),
+    getValue: () => (DIBI_TOTAL.meninggal + DIBI_TOTAL.hilang).toLocaleString('id'),
     unit: 'jiwa',
     icon: '👤',
     accent: '#ff7f11',
-    trend: `${DIBI_TOTAL.luka.toLocaleString('id')} luka/sakit`,
+    getTrend: () => `${DIBI_TOTAL.luka.toLocaleString('id')} luka/sakit`,
     trendUp: false,
   },
   {
     label: 'Menderita & Mengungsi',
     sublabel: 'Total Pengungsi',
-    value: (DIBI_TOTAL.pengungsi / 1_000_000).toFixed(1) + ' Jt',
+    getValue: () => (DIBI_TOTAL.pengungsi / 1_000_000).toFixed(1) + ' Jt',
     unit: 'jiwa',
     icon: '🏕',
     accent: '#ff7f11',
-    trend: `82,7 juta total pengungsi`,
+    getTrend: () => '82,7 juta total pengungsi',
     trendUp: false,
   },
   {
     label: 'Rumah Terdampak',
     sublabel: 'Rusak + Terendam',
-    value: (DIBI_TOTAL.rumah_terdampak / 1_000_000).toFixed(2) + ' Jt',
+    getValue: () => (DIBI_TOTAL.rumah_terdampak / 1_000_000).toFixed(2) + ' Jt',
     unit: 'unit',
     icon: '🏠',
     accent: '#35a7ff',
-    trend: `11,8 juta unit rumah`,
+    getTrend: () => '11,8 juta unit rumah',
     trendUp: true,
   },
 ];
 
-export default function StatCards({ status }: { status?: string }) {
+interface Props {
+  status?: string;
+  regionData?: Kejadian[];
+  regionLabel?: string;
+  onClearRegion?: () => void;
+}
+
+export default function StatCards({ status, regionData, regionLabel, onClearRegion }: Props) {
   const [showRehabModal, setShowRehabModal] = useState(false);
   const showRehab = status === 'pasca';
+
+  // Compute dynamic stats from region-filtered data
+  const regionStats = regionData
+    ? {
+        kejadian: regionData.length,
+        korban_jiwa: regionData.reduce((s, k) => s + k.korban_jiwa, 0),
+        pengungsi: regionData.reduce((s, k) => s + k.pengungsi, 0),
+      }
+    : null;
+
+  // Build display cards
+  const cards = regionStats
+    ? [
+        {
+          label: 'Total Kejadian',
+          sublabel: regionLabel ?? 'Wilayah Terpilih',
+          value: regionStats.kejadian.toLocaleString('id'),
+          unit: 'kejadian',
+          icon: '📋',
+          accent: '#35a7ff',
+          trend: `dari ${DIBI_TOTAL.kejadian.toLocaleString('id')} nasional`,
+          trendUp: true,
+        },
+        {
+          label: 'Meninggal & Hilang',
+          sublabel: 'Korban Jiwa',
+          value: regionStats.korban_jiwa.toLocaleString('id'),
+          unit: 'jiwa',
+          icon: '👤',
+          accent: '#ff7f11',
+          trend: 'berdasarkan data lokal',
+          trendUp: false,
+        },
+        {
+          label: 'Menderita & Mengungsi',
+          sublabel: 'Total Pengungsi',
+          value: regionStats.pengungsi >= 1_000_000
+            ? (regionStats.pengungsi / 1_000_000).toFixed(1) + ' Jt'
+            : regionStats.pengungsi.toLocaleString('id'),
+          unit: 'jiwa',
+          icon: '🏕',
+          accent: '#ff7f11',
+          trend: 'berdasarkan data lokal',
+          trendUp: false,
+        },
+        {
+          label: 'Rumah Terdampak',
+          sublabel: 'Rusak + Terendam',
+          value: '—',
+          unit: '',
+          icon: '🏠',
+          accent: '#35a7ff',
+          trend: 'data tidak tersedia per wilayah',
+          trendUp: true,
+        },
+      ]
+    : NATIONAL_CARDS.map((c) => ({
+        label: c.label,
+        sublabel: c.sublabel,
+        value: c.getValue(),
+        unit: c.unit,
+        icon: c.icon,
+        accent: c.accent,
+        trend: c.getTrend(),
+        trendUp: c.trendUp,
+      }));
 
   const REHAB_ROWS = [
     { provinsi: 'Aceh', program: 5240, a2026: 'Rp 24.413.584.187.060', a2027: 'Rp 18.700.109.534.662', a2028: 'Rp 15.884.670.865.237', total: 'Rp 58.998.364.586.959' },
@@ -58,6 +136,24 @@ export default function StatCards({ status }: { status?: string }) {
 
   return (
     <>
+      {/* Region filter badge */}
+      {regionLabel && (
+        <div style={{ padding: '4px 16px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '4px 12px', borderRadius: 20,
+            background: 'rgba(14,165,233,0.12)', border: '1px solid rgba(14,165,233,0.3)',
+            fontSize: 11, color: '#0EA5E9', fontWeight: 600,
+          }}>
+            <span>📍 Filter Wilayah: {regionLabel}</span>
+            <button
+              onClick={onClearRegion}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0EA5E9', fontSize: 13, padding: 0, lineHeight: 1, opacity: 0.7 }}
+              title="Hapus filter wilayah"
+            >✕</button>
+          </div>
+        </div>
+      )}
       <div
         style={{
           display: 'grid',
@@ -121,7 +217,7 @@ export default function StatCards({ status }: { status?: string }) {
           </div>
         )}
 
-        {CARDS.map((c) => (
+        {cards.map((c) => (
           <div
             key={c.label}
             style={{

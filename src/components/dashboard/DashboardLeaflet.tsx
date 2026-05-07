@@ -29,7 +29,8 @@ interface BnpbLayer {
   color: string;
   emoji: string;
   url: string;
-  type?: 'MapServer' | 'ImageServer';
+  type?: 'MapServer' | 'ImageServer' | 'VectorTileServer';
+  group?: string;
 }
 
 const BASEMAPS = [
@@ -71,17 +72,49 @@ const BASEMAPS = [
 const BNPB_BASE = 'https://gis.bnpb.go.id/server/rest/services/inarisk';
 
 const BNPB_LAYERS: BnpbLayer[] = [
-  { id: 'cuaca_ekstrim_img', label: 'Cuaca Ekstrim',      color: '#06B6D4', emoji: '🌪️', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/layer_bahaya_cuaca_ekstrim/ImageServer', type: 'ImageServer' },
-  { id: 'banjir',        label: 'Bahaya Banjir',      color: '#0EA5E9', emoji: '🌊', url: `${BNPB_BASE}/layer_bahaya_banjir_30/MapServer` },
-  { id: 'banjir_bandang',label: 'Banjir Bandang',     color: '#0369A1', emoji: '💧', url: `${BNPB_BASE}/layer_bahaya_banjir_bandang_30/MapServer` },
-  { id: 'longsor',       label: 'Tanah Longsor',       color: '#F97316', emoji: '⛰️', url: `${BNPB_BASE}/layer_bahaya_tanah_longsor_30/MapServer` },
-  { id: 'gempa',         label: 'Gempa Bumi',          color: '#EF4444', emoji: '📳', url: `${BNPB_BASE}/layer_bahaya_gempabumi_30/MapServer` },
-  { id: 'tsunami',       label: 'Tsunami',             color: '#EC4899', emoji: '🌊', url: `${BNPB_BASE}/layer_bahaya_tsunami_30/MapServer` },
-  { id: 'gunungapi',     label: 'Letusan Gunung Api',  color: '#8B5CF6', emoji: '🌋', url: `${BNPB_BASE}/layer_bahaya_letusan_gunungapi/MapServer` },
-  { id: 'karhutla',      label: 'Kebakaran Hutan',     color: '#F59E0B', emoji: '🔥', url: `${BNPB_BASE}/layer_bahaya_kebakaran_hutan_dan_lahan_30/MapServer` },
-  { id: 'kekeringan',    label: 'Kekeringan',          color: '#D97706', emoji: '☀️', url: `${BNPB_BASE}/layer_bahaya_kekeringan_30/MapServer` },
-  { id: 'cuaca_ekstrim', label: 'Cuaca Ekstrim (MS)',  color: '#0891B2', emoji: '⛅', url: `${BNPB_BASE}/layer_bahaya_cuaca_ekstrim_30/MapServer` },
+  // BIG — Badan Informasi Geospasial
+  { id: 'big_rbi_sulawesi_lot1',       label: 'RBI Sulawesi 2024 Lot 1',      color: '#A855F7', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI_5K_Sulawesi_2024_Lot_1_Jul/VectorTileServer',         type: 'VectorTileServer', group: 'BIG' },
+  { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
+  { id: 'big_bangunan_fasum_sulawesi', label: 'Bangunan Fasum Sulawesi 2024', color: '#F59E0B', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_BANGUNAN_FASUM_SULAWESI_2024/VectorTileServer', type: 'VectorTileServer', group: 'BIG' },
+  // BNPB InARISK
+  { id: 'cuaca_ekstrim_img', label: 'Cuaca Ekstrim',      color: '#06B6D4', emoji: '🌪️', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/layer_bahaya_cuaca_ekstrim/ImageServer', type: 'ImageServer', group: 'BNPB' },
+  { id: 'banjir',        label: 'Bahaya Banjir',      color: '#0EA5E9', emoji: '🌊', url: `${BNPB_BASE}/layer_bahaya_banjir_30/MapServer`, group: 'BNPB' },
+  { id: 'banjir_bandang',label: 'Banjir Bandang',     color: '#0369A1', emoji: '💧', url: `${BNPB_BASE}/layer_bahaya_banjir_bandang_30/MapServer`, group: 'BNPB' },
+  { id: 'longsor',       label: 'Tanah Longsor',       color: '#F97316', emoji: '⛰️', url: `${BNPB_BASE}/layer_bahaya_tanah_longsor_30/MapServer`, group: 'BNPB' },
+  { id: 'gempa',         label: 'Gempa Bumi',          color: '#EF4444', emoji: '📳', url: `${BNPB_BASE}/layer_bahaya_gempabumi_30/MapServer`, group: 'BNPB' },
+  { id: 'tsunami',       label: 'Tsunami',             color: '#EC4899', emoji: '🌊', url: `${BNPB_BASE}/layer_bahaya_tsunami_30/MapServer`, group: 'BNPB' },
+  { id: 'gunungapi',     label: 'Letusan Gunung Api',  color: '#8B5CF6', emoji: '🌋', url: `${BNPB_BASE}/layer_bahaya_letusan_gunungapi/MapServer`, group: 'BNPB' },
+  { id: 'karhutla',      label: 'Kebakaran Hutan',     color: '#F59E0B', emoji: '🔥', url: `${BNPB_BASE}/layer_bahaya_kebakaran_hutan_dan_lahan_30/MapServer`, group: 'BNPB' },
+  { id: 'kekeringan',    label: 'Kekeringan',          color: '#D97706', emoji: '☀️', url: `${BNPB_BASE}/layer_bahaya_kekeringan_30/MapServer`, group: 'BNPB' },
+  { id: 'cuaca_ekstrim', label: 'Cuaca Ekstrim (MS)',  color: '#0891B2', emoji: '⛅', url: `${BNPB_BASE}/layer_bahaya_cuaca_ekstrim_30/MapServer`, group: 'BNPB' },
 ];
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createVectorTileLayer(L: any, serviceUrl: string, color: string): any {
+  // ArcGIS VectorTileServer: tile/{z}/{y}/{x}.pbf  (row then col)
+  const tileUrl = `${serviceUrl}/tile/{z}/{y}/{x}.pbf`;
+  // vectorGrid is injected onto window.L by the non-bundled CDN script
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const VG = (L as any).vectorGrid ?? (window as any).L?.vectorGrid;
+  if (!VG) return null;
+  return VG.protobuf(tileUrl, {
+    // render all sub-layers with a single style so features are visible
+    vectorTileLayerStyles: new Proxy({}, {
+      get: () => ({
+        weight: 1,
+        color,
+        fillColor: color,
+        fillOpacity: 0.35,
+        opacity: 0.8,
+        fill: true,
+      }),
+    }),
+    interactive: false,
+    attribution: '© BIG RBI',
+    maxNativeZoom: 14,
+    maxZoom: 20,
+  });
+}
 
 const JENIS_COLOR: Record<string, string> = {
   banjir: '#0EA5E9', gempa: '#EF4444', longsor: '#F97316',
@@ -167,18 +200,20 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const [activeDraw, setActiveDraw] = useState<string | null>(null);
 
-  // Load Leaflet.draw assets once
+  // Load Leaflet.draw CSS+JS once
   useEffect(() => {
-    if (typeof window === 'undefined' || document.getElementById('leaflet-draw-css')) return;
-    const link = document.createElement('link');
-    link.id = 'leaflet-draw-css';
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css';
-    document.head.appendChild(link);
-    const script = document.createElement('script');
-    script.id = 'leaflet-draw-js';
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js';
-    document.head.appendChild(script);
+    if (typeof window === 'undefined') return;
+    if (!document.getElementById('leaflet-draw-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-draw-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css';
+      document.head.appendChild(link);
+      const script = document.createElement('script');
+      script.id = 'leaflet-draw-js';
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js';
+      document.head.appendChild(script);
+    }
   }, []);
 
   // Init map
@@ -187,6 +222,16 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
     import('leaflet').then((L) => {
       if (!mounted || !containerRef.current || mapRef.current) return;
       leafletRef.current = L;
+      // Expose our imported L as window.L so non-bundled vectorgrid CDN can extend it
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).L = L;
+      // Load non-bundled vectorgrid AFTER window.L is set so it extends our instance
+      if (!document.getElementById('leaflet-vectorgrid-js')) {
+        const vgScript = document.createElement('script');
+        vgScript.id = 'leaflet-vectorgrid-js';
+        vgScript.src = 'https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.min.js';
+        document.head.appendChild(vgScript);
+      }
 
       const map = L.map(containerRef.current, {
         center: [-2.5, 118.0], zoom: 5,
@@ -282,8 +327,24 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
       if (bnpbLayersRef.current[id]) return;
       const def = BNPB_LAYERS.find((l) => l.id === id);
       if (!def) return;
-      bnpbLayersRef.current[id] = createArcGISExportLayer(L, def.url, 0.72, def.type === 'ImageServer');
-      bnpbLayersRef.current[id].addTo(map);
+      if (def.type === 'VectorTileServer') {
+        const tryAddVector = () => {
+          if (!mapRef.current || bnpbLayersRef.current[id]) return;
+          const vl = createVectorTileLayer(L, def.url, def.color);
+          if (!vl) {
+            // vectorgrid not loaded yet — wait for script load event
+            const existing = document.getElementById('leaflet-vectorgrid-js');
+            if (existing) existing.addEventListener('load', tryAddVector, { once: true });
+            return;
+          }
+          bnpbLayersRef.current[id] = vl;
+          vl.addTo(mapRef.current);
+        };
+        tryAddVector();
+      } else {
+        bnpbLayersRef.current[id] = createArcGISExportLayer(L, def.url, 0.72, def.type === 'ImageServer');
+        bnpbLayersRef.current[id].addTo(map);
+      }
     });
   }, [activeOverlays]);
 
@@ -405,23 +466,35 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
           <button style={toolBtn(activePanel === 'layers')} onClick={() => togglePanel('layers')} title="Layer Bahaya InARISK">🗺️</button>
           {activePanel === 'layers' && (
             <div style={panel}>
-              <div style={pHead}>Layer Bahaya <span style={{ fontSize: 9, fontWeight: 400, color: panelMuted }}>© BNPB InARISK</span></div>
-              <div style={{ padding: '4px 0' }}>
-                {BNPB_LAYERS.map((layer) => {
-                  const isOn = activeOverlays.includes(layer.id);
-                  return (
-                    <button key={layer.id} onClick={() => setActiveOverlays((p) => isOn ? p.filter((x) => x !== layer.id) : [...p, layer.id])} style={rowBtn(isOn, layer.color)}>
-                      <span style={{ width: 13, height: 13, borderRadius: 3, flexShrink: 0, background: isOn ? layer.color : 'transparent', border: `2px solid ${layer.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {isOn && <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                      </span>
-                      <span style={{ fontSize: 11, color: panelText, fontWeight: isOn ? 600 : 400 }}>{layer.emoji} {layer.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              <div style={pHead}>Layer Peta <span style={{ fontSize: 9, fontWeight: 400, color: panelMuted }}>© BNPB · BIG</span></div>
+              {/* Group by source */}
+              {['BIG', 'BNPB'].map((grp) => {
+                const grpLayers = BNPB_LAYERS.filter((l) => l.group === grp);
+                const grpColor: Record<string, string> = { BIG: '#22C55E', BNPB: '#35a7ff' };
+                return (
+                  <div key={grp}>
+                    <div style={{ padding: '5px 12px 3px', fontSize: 9, fontWeight: 700, color: grpColor[grp] ?? panelMuted, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                      {grp === 'BIG' ? '🌿 BIG — Geospasial' : '⚠️ BNPB — InARISK'}
+                    </div>
+                    {grpLayers.map((layer) => {
+                      const isOn = activeOverlays.includes(layer.id);
+                      const badge = layer.type === 'VectorTileServer' ? 'VT' : layer.type === 'ImageServer' ? 'IS' : 'MS';
+                      return (
+                        <button key={layer.id} onClick={() => setActiveOverlays((p) => isOn ? p.filter((x) => x !== layer.id) : [...p, layer.id])} style={rowBtn(isOn, layer.color)}>
+                          <span style={{ width: 13, height: 13, borderRadius: 3, flexShrink: 0, background: isOn ? layer.color : 'transparent', border: `2px solid ${layer.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {isOn && <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                          </span>
+                          <span style={{ fontSize: 11, color: panelText, fontWeight: isOn ? 600 : 400, flex: 1 }}>{layer.emoji} {layer.label}</span>
+                          <span style={{ fontSize: 8, color: panelMuted, flexShrink: 0 }}>{badge}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })}
               {activeOverlays.length > 0 && (
                 <div style={{ padding: '6px 12px 8px', borderTop: `1px solid ${panelBorder}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 9, color: panelMuted }}>{activeOverlays.length} aktif · 72% opacity</span>
+                  <span style={{ fontSize: 9, color: panelMuted }}>{activeOverlays.length} aktif</span>
                   <button onClick={() => setActiveOverlays([])} style={{ fontSize: 9, color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Reset</button>
                 </div>
               )}
