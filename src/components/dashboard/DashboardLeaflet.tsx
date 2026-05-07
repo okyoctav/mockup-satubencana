@@ -183,6 +183,39 @@ function formatRupiah(n: number): string {
   return `Rp ${n.toLocaleString('id')}`;
 }
 
+function buildImpactHtml(d: ImpactData): string {
+  const loading = d.fasumLoading;
+  const fmtRp = (n: number) => {
+    if (n >= 1e12) return `Rp ${(n / 1e12).toFixed(2)} T`;
+    if (n >= 1e9)  return `Rp ${(n / 1e9).toFixed(1)} M`;
+    if (n >= 1e6)  return `Rp ${(n / 1e6).toFixed(0)} Jt`;
+    return `Rp ${n.toLocaleString('id')}`;
+  };
+  const cards = [
+    { icon: '\u{1F465}', label: 'Orang Terdampak',   value: loading ? '\u23F3' : d.orng.toLocaleString('id'),              unit: loading ? 'menghitung\u2026' : 'jiwa',               color: '#EF4444' },
+    { icon: '\u{1F3E0}', label: 'Bangunan',           value: loading ? '\u23F3' : d.rumah.toLocaleString('id'),             unit: loading ? 'menghitung\u2026' : 'unit (Meta/OSM)',    color: '#F97316' },
+    { icon: '\u{1F3DB}\uFE0F', label: 'Fasilitas Umum', value: loading ? '\u23F3' : (d.fasumReal ?? d.fasum).toLocaleString('id'), unit: loading ? 'menghitung\u2026' : `gedung (${d.fasumSource})`, color: '#8B5CF6' },
+    { icon: '\u{1F4B0}', label: 'Est. Kerugian',      value: loading ? '\u23F3' : fmtRp(d.kerugian),                       unit: loading ? 'menghitung\u2026' : '48\u201360 jt/unit', color: '#10b981' },
+  ];
+  return `<div style="width:272px;font-family:system-ui,sans-serif">
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;color:#0EA5E9;font-weight:700;text-transform:uppercase;letter-spacing:.8px">\u{1F4D0} Analisis Area Terdampak</div>
+      ${d.area !== '\u2014' ? `<div style="font-size:10px;color:#94A3B8;margin-top:2px">Estimasi luas \u2248 ${d.area} km\u00B2</div>` : ''}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      ${cards.map(c => `<div style="background:${c.color}18;border:1px solid ${c.color}35;border-left:3px solid ${c.color};border-radius:8px;padding:8px 10px">
+        <div style="font-size:15px;margin-bottom:3px">${c.icon}</div>
+        <div style="font-size:15px;font-weight:800;color:${c.color};line-height:1">${c.value}</div>
+        <div style="font-size:9px;color:#94A3B8;margin-top:2px">${c.unit}</div>
+        <div style="font-size:9px;color:#94A3B8;margin-top:3px;line-height:1.3">${c.label}</div>
+      </div>`).join('')}
+    </div>
+    <div style="font-size:9px;color:#94A3B8;border-top:1px solid rgba(100,116,139,0.2);padding-top:7px;line-height:1.5">
+      ${loading ? '\u{1F504} Mengambil data bangunan dari OpenStreetMap (Meta Building Footprints)\u2026' : '\u26A0\uFE0F Sumber: Meta Building Footprints (OSM) \u2014 estimasi, bukan data resmi BNPB'}
+    </div>
+  </div>`;
+}
+
 interface ImpactData {
   orng: number;
   rumah: number;
@@ -213,6 +246,10 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
   const drawLayerRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activeDrawRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const buildingLayerRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const popupRef = useRef<any>(null);
 
   const [activeBasemap, setActiveBasemap] = useState('esri_imagery');
   const [activeOverlays, setActiveOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
@@ -453,22 +490,37 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
           }
         } catch { /* */ }
 
-        // Show loading immediately
-        setImpactData({ orng: 0, rumah: 0, kerugian: 0, fasum: 0, fasumReal: null, fasumLoading: true, fasumSource: 'Meta/OSM', area, layerType: e.layerType });
+        // Clear previous building footprint layer
+        if (buildingLayerRef.current) { map.removeLayer(buildingLayerRef.current); buildingLayerRef.current = null; }
+
+        // Open native Leaflet popup at polygon center (loading state)
+        const loadingState: ImpactData = { orng: 0, rumah: 0, kerugian: 0, fasum: 0, fasumReal: null, fasumLoading: true, fasumSource: 'Meta/OSM', area, layerType: e.layerType };
+        const popupCenter = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLng();
+        const popup = L.popup({ maxWidth: 360, minWidth: 300, className: 'impact-popup', closeButton: true, autoClose: false })
+          .setLatLng(popupCenter)
+          .setContent(buildImpactHtml(loadingState))
+          .openOn(map);
+        popupRef.current = popup;
+        popup.on('remove', () => {
+          setImpactData(null);
+          popupRef.current = null;
+          if (buildingLayerRef.current) { map.removeLayer(buildingLayerRef.current); buildingLayerRef.current = null; }
+        });
+        setImpactData(loadingState);
 
         if (!polyStr) {
-          // Fallback dummy if no polygon coords
           const rumahFb = Math.floor(Math.random() * 1000 + 100);
           const multi   = 3 + Math.random();
-          setImpactData({ orng: Math.round(rumahFb * multi), rumah: rumahFb, kerugian: Math.round(rumahFb * (48_000_000 + Math.random() * 12_000_000)), fasum: Math.max(1, Math.floor(Math.random() * 5)), fasumReal: null, fasumLoading: false, fasumSource: 'estimasi', area, layerType: e.layerType });
+          const fb: ImpactData = { orng: Math.round(rumahFb * multi), rumah: rumahFb, kerugian: Math.round(rumahFb * (48_000_000 + Math.random() * 12_000_000)), fasum: Math.max(1, Math.floor(Math.random() * 5)), fasumReal: null, fasumLoading: false, fasumSource: 'estimasi', area, layerType: e.layerType };
+          setImpactData(fb); popup.setContent(buildImpactHtml(fb));
           return;
         }
 
         const OVP = 'https://overpass-api.de/api/interpreter';
         const POLY = `poly:"${polyStr}"`;
-        // Query 1: semua bangunan (Meta donated to OSM)
-        const qBld  = `[out:json][timeout:30];(way[building](${POLY});relation[building](${POLY}););out count;`;
-        // Query 2: fasilitas umum (amenity + building type)
+        // Query 1: building ways with full geometry (for display + count)
+        const qBldGeom = `[out:json][timeout:30];way[building](${POLY});out geom;`;
+        // Query 2: fasilitas umum count
         const qFasum = `[out:json][timeout:30];(
           node[amenity~"^(school|hospital|clinic|mosque|church|place_of_worship|pharmacy|fire_station|police|kindergarten|dentist|doctors|community_centre|library)$"](${POLY});
           way[amenity~"^(school|hospital|clinic|mosque|church|place_of_worship|pharmacy|fire_station|police|kindergarten|dentist|doctors|community_centre|library)$"](${POLY});
@@ -479,26 +531,47 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
         const fetchOvp = (url: string, body: string) =>
           fetch(url, { method: 'POST', body, signal: AbortSignal.timeout(30000) }).then((r) => r.json());
 
-        const parseCount = (json: any): number => // eslint-disable-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const parseCount = (json: any): number =>
           parseInt(json?.elements?.[0]?.tags?.total ?? '0', 10) || 0;
 
         Promise.all([
-          fetchOvp(OVP, qBld).catch(() => fetchOvp('https://overpass.kumi.systems/api/interpreter', qBld)),
+          fetchOvp(OVP, qBldGeom).catch(() => fetchOvp('https://overpass.kumi.systems/api/interpreter', qBldGeom)),
           fetchOvp(OVP, qFasum).catch(() => fetchOvp('https://overpass.kumi.systems/api/interpreter', qFasum)),
         ])
           .then(([bldJson, fsJson]) => {
-            const rumah    = parseCount(bldJson);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const ways = (bldJson?.elements ?? []).filter((el: any) => el.type === 'way' && Array.isArray(el.geometry));
+            const rumah    = ways.length;
             const fasum    = parseCount(fsJson);
-            const multi    = 3 + Math.random();           // 3–4 jiwa/bangunan
+            const multi    = 3 + Math.random();
             const orng     = Math.round(rumah * multi);
-            const kerugian = Math.round(rumah * (48_000_000 + Math.random() * 12_000_000)); // 48–60 jt/unit
-            setImpactData({ orng, rumah, kerugian, fasum, fasumReal: fasum, fasumLoading: false, fasumSource: 'Meta/OSM', area, layerType: e.layerType });
+            const kerugian = Math.round(rumah * (48_000_000 + Math.random() * 12_000_000));
+            // Render building footprints as GeoJSON layer
+            if (ways.length > 0 && !buildingLayerRef.current) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const features = ways.map((el: any) => ({
+                type: 'Feature' as const,
+                geometry: { type: 'Polygon' as const, coordinates: [el.geometry.map((p: any) => [p.lon, p.lat])] },
+                properties: el.tags || {},
+              }));
+              const bldLayer = L.geoJSON(
+                { type: 'FeatureCollection', features },
+                { style: () => ({ color: '#F97316', weight: 1.2, fillColor: '#F97316', fillOpacity: 0.22, opacity: 0.85 }) },
+              );
+              bldLayer.addTo(map);
+              buildingLayerRef.current = bldLayer;
+            }
+            const finalState: ImpactData = { orng, rumah, kerugian, fasum, fasumReal: fasum, fasumLoading: false, fasumSource: 'Meta/OSM', area, layerType: e.layerType };
+            setImpactData(finalState);
+            if (popupRef.current) popup.setContent(buildImpactHtml(finalState));
           })
           .catch(() => {
-            // Full fallback
             const rumahFb  = Math.floor(Math.random() * 1000 + 100);
             const multi    = 3 + Math.random();
-            setImpactData({ orng: Math.round(rumahFb * multi), rumah: rumahFb, kerugian: Math.round(rumahFb * (48_000_000 + Math.random() * 12_000_000)), fasum: Math.max(1, Math.floor(Math.random() * 5)), fasumReal: null, fasumLoading: false, fasumSource: 'estimasi', area, layerType: e.layerType });
+            const fbState: ImpactData = { orng: Math.round(rumahFb * multi), rumah: rumahFb, kerugian: Math.round(rumahFb * (48_000_000 + Math.random() * 12_000_000)), fasum: Math.max(1, Math.floor(Math.random() * 5)), fasumReal: null, fasumLoading: false, fasumSource: 'estimasi', area, layerType: e.layerType };
+            setImpactData(fbState);
+            if (popupRef.current) popup.setContent(buildImpactHtml(fbState));
           });
       });
     };
@@ -553,62 +626,6 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       <div ref={containerRef} style={{ width: '100%', height: '100%', borderRadius: 14, overflow: 'hidden' }} />
-
-      {/* Impact Analysis Panel */}
-      {impactData && (
-        <div style={{
-          position: 'absolute', bottom: 16, left: 16, zIndex: 1000,
-          background: isDark ? 'rgba(8,18,36,0.97)' : 'rgba(255,255,255,0.97)',
-          border: `1.5px solid ${panelBorder}`,
-          borderRadius: 14, padding: '16px 18px', width: 300,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
-          backdropFilter: 'blur(14px)',
-        }}>
-          {/* Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-            <div>
-              <div style={{ fontSize: 10, color: '#0EA5E9', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>📐 Analisis Area Terdampak</div>
-              {impactData.area !== '—' && (
-                <div style={{ fontSize: 10, color: panelMuted, marginTop: 2 }}>Estimasi luas ≈ {impactData.area} km²</div>
-              )}
-            </div>
-            <button
-              onClick={() => setImpactData(null)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: panelMuted, fontSize: 16, padding: 0, lineHeight: 1 }}
-            >✕</button>
-          </div>
-
-          {/* Stat grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
-            {[
-              { label: 'Orang Terdampak',   value: impactData.fasumLoading ? '⏳' : impactData.orng.toLocaleString('id'),  unit: impactData.fasumLoading ? 'menghitung…' : `jiwa (×${(impactData.orng / Math.max(impactData.rumah,1)).toFixed(1)} org/bldg)`, color: '#EF4444', icon: '👥' },
-              { label: 'Bangunan Terdampak', value: impactData.fasumLoading ? '⏳' : impactData.rumah.toLocaleString('id'), unit: impactData.fasumLoading ? 'menghitung…' : 'unit (Meta/OSM)',    color: '#F97316', icon: '🏠' },
-              { label: 'Fasilitas Umum',    value: impactData.fasumLoading ? '⏳' : (impactData.fasumReal ?? impactData.fasum).toLocaleString('id'), unit: impactData.fasumLoading ? 'menghitung…' : `gedung (${impactData.fasumSource})`, color: '#8B5CF6', icon: '🏛️' },
-              { label: 'Est. Kerugian Aset', value: impactData.fasumLoading ? '⏳' : formatRupiah(impactData.kerugian),    unit: impactData.fasumLoading ? 'menghitung…' : '48–60 jt/unit',         color: '#10b981', icon: '💰' },
-            ].map((s) => (
-              <div key={s.label} style={{
-                background: `${s.color}12`,
-                border: `1px solid ${s.color}30`,
-                borderRadius: 10, padding: '10px 12px',
-                borderLeft: `3px solid ${s.color}`,
-              }}>
-                <div style={{ fontSize: 16, marginBottom: 4 }}>{s.icon}</div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</div>
-                {s.unit && <div style={{ fontSize: 9, color: panelMuted, marginTop: 2 }}>{s.unit}</div>}
-                <div style={{ fontSize: 9, color: panelMuted, marginTop: 4, lineHeight: 1.3 }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Footer note */}
-          <div style={{ fontSize: 9, color: panelMuted, borderTop: `1px solid ${panelBorder}`, paddingTop: 8, lineHeight: 1.5 }}>
-            {impactData.fasumLoading
-              ? '🔄 Menghitung bangunan dari OpenStreetMap (Meta Building Footprints)…'
-              : `⚠️ Sumber bangunan: OpenStreetMap / Meta Building Footprints — estimasi dampak, bukan data resmi BNPB`
-            }
-          </div>
-        </div>
-      )}
 
       {/* Right toolbar */}
       <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 800, display: 'flex', flexDirection: 'column', gap: 6 }}>

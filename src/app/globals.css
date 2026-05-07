@@ -142,3 +142,37 @@ body {
   }
 }
 
+/* ============================================================
+   IMPACT POPUP — native Leaflet popup styled for dark/impact UI
+   ============================================================ */
+.impact-popup .leaflet-popup-content-wrapper {
+  background: rgba(8, 18, 36, 0.97);
+  border: 1.5px solid rgba(30, 58, 95, 0.85);
+  border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.55);
+  padding: 14px 16px;
+  color: #f1f5f9;
+}
+.impact-popup .leaflet-popup-content {
+  margin: 0;
+  line-height: 1;
+}
+.impact-popup .leaflet-popup-tip-container {
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
+.impact-popup .leaflet-popup-tip {
+  background: rgba(8, 18, 36, 0.97);
+  border: none;
+}
+.impact-popup .leaflet-popup-close-button {
+  color: #94a3b8 !important;
+  font-size: 18px !important;
+  top: 8px !important;
+  right: 10px !important;
+  font-weight: 400 !important;
+}
+.impact-popup .leaflet-popup-close-button:hover {
+  color: #f1f5f9 !important;
+  background: transparent !important;
+}
+
