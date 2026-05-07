@@ -1,7 +1,7 @@
 'use client';
 
 const JENIS_LIST = ['Semua', 'banjir', 'gempa', 'longsor', 'kebakaran', 'erupsi', 'tsunami'];
-const STATUS_LIST = ['Semua', 'saat', 'pasca', 'pra'];
+const STATUS_LIST = ['Semua', 'pra', 'saat', 'pasca'];
 const LEVEL_LIST = ['Semua', 'tinggi', 'sedang', 'rendah'];
 
 const JENIS_COLOR: Record<string, string> = {

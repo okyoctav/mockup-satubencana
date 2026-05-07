@@ -68,7 +68,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stat Cards */}
-      <StatCards />
+      <StatCards status={filters.status} />
 
       {/* Map + Filter Panel — fixed height section */}
       <div
