@@ -188,6 +188,8 @@ interface ImpactData {
   rumah: number;
   kerugian: number;
   fasum: number;
+  fasumReal: number | null;
+  fasumLoading: boolean;
   area: string;
   layerType: string;
 }
@@ -436,22 +438,49 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
         // Multiply marker data ~3x to simulate wider population impact
         const orng    = realPengungsi > 0 ? realPengungsi * 3 + Math.floor(Math.random() * 5000) : Math.floor(Math.random() * 40000 + 8000);
         const rumah   = realKorban > 0 ? Math.floor(orng * 0.22 + inside.length * 80) : Math.floor(Math.random() * 3000 + 500);
-        const kerugian = Math.floor(rumah * (180_000_000 + Math.random() * 120_000_000));
+        const kerugian = Math.floor(rumah * (50_000_000 + Math.random() * 20_000_000));
         const fasum   = Math.max(2, Math.floor(orng / 600 + Math.random() * 8));
 
         // Estimate area from bounding box (km²)
         let area = '—';
+        let swLng = 0, swLat = 0, neLng = 0, neLat = 0;
         try {
           const b = layer.getBounds?.();
           if (b) {
             const sw = b.getSouthWest(); const ne = b.getNorthEast();
+            swLng = sw.lng; swLat = sw.lat; neLng = ne.lng; neLat = ne.lat;
             const dLat = Math.abs(ne.lat - sw.lat) * 111;
             const dLng = Math.abs(ne.lng - sw.lng) * 111 * Math.cos(((ne.lat + sw.lat) / 2) * Math.PI / 180);
             area = (dLat * dLng).toFixed(1);
           }
         } catch { /* */ }
 
-        setImpactData({ orng, rumah, kerugian, fasum, area, layerType: e.layerType });
+        // Set initial state immediately with loading=true for fasum API
+        setImpactData({ orng, rumah, kerugian, fasum, fasumReal: null, fasumLoading: true, area, layerType: e.layerType });
+
+        // Query BIG FeatureServer for actual bangunan fasum count
+        if (swLng !== 0 || neLng !== 0) {
+          const params = new URLSearchParams({
+            geometry: `${swLng},${swLat},${neLng},${neLat}`,
+            geometryType: 'esriGeometryEnvelope',
+            inSR: '4326',
+            spatialRel: 'esriSpatialRelIntersects',
+            returnCountOnly: 'true',
+            f: 'json',
+          });
+          const apiUrl = `https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_BANGUNAN_FASUM_SULAWESI_2024/FeatureServer/0/query?${params}`;
+          fetch(apiUrl, { signal: AbortSignal.timeout(8000) })
+            .then((r) => r.json())
+            .then((json) => {
+              const count = typeof json.count === 'number' ? json.count : null;
+              setImpactData((prev) => prev ? { ...prev, fasumReal: count, fasumLoading: false } : null);
+            })
+            .catch(() => {
+              setImpactData((prev) => prev ? { ...prev, fasumLoading: false } : null);
+            });
+        } else {
+          setImpactData((prev) => prev ? { ...prev, fasumLoading: false } : null);
+        }
       });
     };
 
@@ -535,7 +564,12 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
             {[
               { label: 'Orang Terdampak', value: impactData.orng.toLocaleString('id'), unit: 'jiwa', color: '#EF4444', icon: '👥' },
               { label: 'Rumah Terdampak', value: impactData.rumah.toLocaleString('id'), unit: 'unit', color: '#F97316', icon: '🏠' },
-              { label: 'Bangunan Fasum', value: impactData.fasum.toLocaleString('id'), unit: 'gedung', color: '#8B5CF6', icon: '🏛️' },
+              { label: 'Bangunan Fasum', value: impactData.fasumLoading
+                  ? '…'
+                  : (impactData.fasumReal !== null
+                      ? impactData.fasumReal.toLocaleString('id')
+                      : impactData.fasum.toLocaleString('id')),
+                unit: impactData.fasumReal !== null ? 'gedung (BIG)' : 'gedung (est.)', color: '#8B5CF6', icon: '🏛️' },
               { label: 'Est. Kerugian Aset', value: formatRupiah(impactData.kerugian), unit: '', color: '#10b981', icon: '💰' },
             ].map((s) => (
               <div key={s.label} style={{
