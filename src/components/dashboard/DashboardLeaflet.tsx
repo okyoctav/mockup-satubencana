@@ -176,13 +176,6 @@ function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, is
   return new ArcLayer({ opacity, attribution: '© BNPB InARISK', tileSize: 256 });
 }
 
-function formatRupiah(n: number): string {
-  if (n >= 1_000_000_000_000) return `Rp ${(n / 1_000_000_000_000).toFixed(2)} T`;
-  if (n >= 1_000_000_000)     return `Rp ${(n / 1_000_000_000).toFixed(1)} M`;
-  if (n >= 1_000_000)         return `Rp ${(n / 1_000_000).toFixed(0)} Jt`;
-  return `Rp ${n.toLocaleString('id')}`;
-}
-
 function buildImpactHtml(d: ImpactData): string {
   const loading = d.fasumLoading;
   const fmtRp = (n: number) => {
@@ -255,7 +248,6 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
   const [activeOverlays, setActiveOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const [activeDraw, setActiveDraw] = useState<string | null>(null);
-  const [impactData, setImpactData] = useState<ImpactData | null>(null);
 
   // Load Leaflet.draw CSS+JS once
   useEffect(() => {
@@ -486,6 +478,7 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
           } else {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const ring: any[] = layer.getLatLngs()[0];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             polyStr = ring.map((p: any) => `${p.lat.toFixed(6)} ${p.lng.toFixed(6)}`).join(' ');
           }
         } catch { /* */ }
@@ -502,17 +495,15 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
           .openOn(map);
         popupRef.current = popup;
         popup.on('remove', () => {
-          setImpactData(null);
           popupRef.current = null;
           if (buildingLayerRef.current) { map.removeLayer(buildingLayerRef.current); buildingLayerRef.current = null; }
         });
-        setImpactData(loadingState);
 
         if (!polyStr) {
           const rumahFb = Math.floor(Math.random() * 1000 + 100);
           const multi   = 3 + Math.random();
           const fb: ImpactData = { orng: Math.round(rumahFb * multi), rumah: rumahFb, kerugian: Math.round(rumahFb * (48_000_000 + Math.random() * 12_000_000)), fasum: Math.max(1, Math.floor(Math.random() * 5)), fasumReal: null, fasumLoading: false, fasumSource: 'estimasi', area, layerType: e.layerType };
-          setImpactData(fb); popup.setContent(buildImpactHtml(fb));
+          popup.setContent(buildImpactHtml(fb));
           return;
         }
 
@@ -552,6 +543,7 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const features = ways.map((el: any) => ({
                 type: 'Feature' as const,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 geometry: { type: 'Polygon' as const, coordinates: [el.geometry.map((p: any) => [p.lon, p.lat])] },
                 properties: el.tags || {},
               }));
@@ -563,14 +555,12 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
               buildingLayerRef.current = bldLayer;
             }
             const finalState: ImpactData = { orng, rumah, kerugian, fasum, fasumReal: fasum, fasumLoading: false, fasumSource: 'Meta/OSM', area, layerType: e.layerType };
-            setImpactData(finalState);
             if (popupRef.current) popup.setContent(buildImpactHtml(finalState));
           })
           .catch(() => {
             const rumahFb  = Math.floor(Math.random() * 1000 + 100);
             const multi    = 3 + Math.random();
             const fbState: ImpactData = { orng: Math.round(rumahFb * multi), rumah: rumahFb, kerugian: Math.round(rumahFb * (48_000_000 + Math.random() * 12_000_000)), fasum: Math.max(1, Math.floor(Math.random() * 5)), fasumReal: null, fasumLoading: false, fasumSource: 'estimasi', area, layerType: e.layerType };
-            setImpactData(fbState);
             if (popupRef.current) popup.setContent(buildImpactHtml(fbState));
           });
       });
