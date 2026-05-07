@@ -2,37 +2,16 @@
 
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell,
+  PieChart, Pie, Cell, LineChart, Line,
 } from 'recharts';
-
-const TREND_DATA = [
-  { tahun: '2016', kejadian: 2342 },
-  { tahun: '2017', kejadian: 2862 },
-  { tahun: '2018', kejadian: 3397 },
-  { tahun: '2019', kejadian: 3814 },
-  { tahun: '2020', kejadian: 4650 },
-  { tahun: '2021', kejadian: 5402 },
-  { tahun: '2022', kejadian: 3578 },
-  { tahun: '2023', kejadian: 4109 },
-  { tahun: '2024', kejadian: 3428 },
-];
-
-const KORBAN_DATA = [
-  { name: 'Banjir',   value: 48, color: '#35A7FF' },
-  { name: 'Gempa',    value: 32, color: '#FF7F11' },
-  { name: 'Longsor',  value: 28, color: '#38618C' },
-  { name: 'Erupsi',   value: 12, color: '#CCDBDC' },
-  { name: 'Tsunami',  value: 5,  color: '#7ec4e8' },
-  { name: 'Lainnya',  value: 2,  color: '#5a7d8a' },
-];
-
-const PENGUNGSI_DATA = [
-  { name: 'Banjir',  value: 62, color: '#35A7FF' },
-  { name: 'Gempa',   value: 18, color: '#FF7F11' },
-  { name: 'Erupsi',  value: 11, color: '#38618C' },
-  { name: 'Longsor', value: 7,  color: '#CCDBDC' },
-  { name: 'Lainnya', value: 2,  color: '#5a7d8a' },
-];
+import {
+  DIBI_PER_TAHUN,
+  DIBI_PER_JENIS,
+  DIBI_TOP_PROVINSI,
+  DIBI_PER_BULAN,
+  KORBAN_DIST,
+  PENGUNGSI_DIST,
+} from '@/data/dibiStats';
 
 interface Props {
   theme: string;
@@ -84,134 +63,189 @@ const PieTooltip = ({ active, payload }: PieTooltipProps) => {
 export default function ChartSection({ theme }: Props) {
   const gridColor = theme === 'dark' ? '#38618c' : '#ccdbdc';
   const textColor = theme === 'dark' ? '#7aaab8' : '#38618c';
+  const topJenis = [...DIBI_PER_JENIS].sort((a, b) => b.kejadian - a.kejadian);
+
+  const CardWrap = ({ title, sub, children, cols = 1 }: { title: string; sub: string; children: React.ReactNode; cols?: number }) => (
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-faint)', borderRadius: 14, padding: '16px 18px', gridColumn: `span ${cols}` }}>
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{title}</div>
+        <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{sub}</div>
+      </div>
+      {children}
+    </div>
+  );
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '2fr 1fr 1fr',
-        gap: 12,
-        padding: '0 16px 16px',
-      }}
-    >
-      {/* Trend Bar Chart */}
-      <div
-        style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-faint)',
-          borderRadius: 14,
-          padding: '16px 18px',
-        }}
-      >
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>
-            Tren Kejadian Bencana
+    <div style={{ padding: '0 16px 32px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+      {/* ── Model 1: Tren + Bulanan ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
+        <CardWrap title="📈 Model 1 — Tren Kejadian Bencana" sub="Jumlah kejadian per tahun (DIBI BNPB 2011–2026)">
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={DIBI_PER_TAHUN} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+              <XAxis dataKey="tahun" tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} interval={1} />
+              <YAxis tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="kejadian" name="Kejadian" radius={[3, 3, 0, 0]}>
+                {DIBI_PER_TAHUN.map((entry, i) => (
+                  <Cell key={i} fill={entry.tahun === '2021' ? '#ff7f11' : i === DIBI_PER_TAHUN.length - 1 ? '#35a7ff' : 'rgba(56,97,140,0.55)'} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </CardWrap>
+        <CardWrap title="📅 Pola Musiman Bulanan" sub="Distribusi kejadian per bulan (semua tahun)">
+          <ResponsiveContainer width="100%" height={180}>
+            <LineChart data={DIBI_PER_BULAN} margin={{ top: 0, right: 4, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+              <XAxis dataKey="bulan" tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} />
+              <Tooltip content={<CustomTooltip />} />
+              <Line type="monotone" dataKey="kejadian" name="Kejadian" stroke="#35a7ff" strokeWidth={2} dot={{ fill: '#35a7ff', r: 3 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardWrap>
+      </div>
+
+      {/* ── Model 5: Jenis Bencana ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+        <CardWrap title="🌊 Model 5 — Kejadian per Jenis" sub="Frekuensi kejadian per jenis bencana">
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={topJenis} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
+              <XAxis type="number" tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="jenis" tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} width={72} />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="kejadian" name="Kejadian" radius={[0, 3, 3, 0]}>
+                {topJenis.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </CardWrap>
+        <CardWrap title="☠ Distribusi Korban Jiwa" sub="% meninggal per jenis bencana (DIBI)">
+          <ResponsiveContainer width="100%" height={165}>
+            <PieChart>
+              <Pie data={KORBAN_DIST} cx="50%" cy="50%" innerRadius={42} outerRadius={64} paddingAngle={2} dataKey="value">
+                {KORBAN_DIST.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+              </Pie>
+              <Tooltip content={<PieTooltip />} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px 10px', justifyContent: 'center' }}>
+            {KORBAN_DIST.map(d => (
+              <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, color: 'var(--text-muted)' }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: d.color, display: 'inline-block' }} />
+                {d.name} {d.value}%
+              </div>
+            ))}
           </div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Jumlah kejadian per tahun (2016–2024)</div>
-        </div>
-        <ResponsiveContainer width="100%" height={160}>
-          <BarChart data={TREND_DATA} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+        </CardWrap>
+        <CardWrap title="🏕 Distribusi Pengungsi" sub="% pengungsi per jenis bencana (DIBI)">
+          <ResponsiveContainer width="100%" height={165}>
+            <PieChart>
+              <Pie data={PENGUNGSI_DIST} cx="50%" cy="50%" innerRadius={42} outerRadius={64} paddingAngle={2} dataKey="value">
+                {PENGUNGSI_DIST.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+              </Pie>
+              <Tooltip content={<PieTooltip />} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px 10px', justifyContent: 'center' }}>
+            {PENGUNGSI_DIST.map(d => (
+              <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 9, color: 'var(--text-muted)' }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: d.color, display: 'inline-block' }} />
+                {d.name} {d.value}%
+              </div>
+            ))}
+          </div>
+        </CardWrap>
+      </div>
+
+      {/* ── Model 3: Dampak Korban & Rumah ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <CardWrap title="💀 Model 3 — Korban Meninggal per Jenis" sub="Total korban meninggal DIBI 2011–2026">
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={topJenis} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
+              <XAxis type="number" tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="jenis" tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} width={72} />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="meninggal" name="Meninggal" radius={[0, 3, 3, 0]}>
+                {topJenis.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </CardWrap>
+        <CardWrap title="🏠 Rumah Rusak per Jenis Bencana" sub="Total unit rumah rusak berat+sedang+ringan">
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={topJenis.filter(j => j.rumah_rusak > 0)} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
+              <XAxis type="number" tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="jenis" tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} width={72} />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="rumah_rusak" name="Rumah Rusak" radius={[0, 3, 3, 0]}>
+                {topJenis.filter(j => j.rumah_rusak > 0).map((entry, i) => <Cell key={i} fill={entry.color} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </CardWrap>
+      </div>
+
+      {/* ── Model 2: Top Provinsi ── */}
+      <CardWrap title="🗺 Model 2 — Sebaran Spasial: Top 10 Provinsi" sub="Provinsi dengan frekuensi kejadian tertinggi (DIBI 2011–2026)">
+        <ResponsiveContainer width="100%" height={180}>
+          <BarChart data={DIBI_TOP_PROVINSI} margin={{ top: 0, right: 0, left: -10, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
-            <XAxis dataKey="tahun" tick={{ fontSize: 10, fill: textColor }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fontSize: 10, fill: textColor }} axisLine={false} tickLine={false} />
+            <XAxis dataKey="provinsi" tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} />
             <Tooltip content={<CustomTooltip />} />
             <Bar dataKey="kejadian" name="Kejadian" radius={[4, 4, 0, 0]}>
-              {TREND_DATA.map((entry, index) => (
-                <Cell
-                  key={index}
-                  fill={index === TREND_DATA.length - 1 ? '#35a7ff' : 'rgba(56, 97, 140, 0.55)'}
-                />
+              {DIBI_TOP_PROVINSI.map((entry, i) => (
+                <Cell key={i} fill={i < 2 ? '#ff7f11' : i < 5 ? '#35a7ff' : 'rgba(56,97,140,0.55)'} />
               ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </div>
+      </CardWrap>
 
-      {/* Korban Donut */}
-      <div
-        style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-faint)',
-          borderRadius: 14,
-          padding: '16px 18px',
-        }}
-      >
-        <div style={{ marginBottom: 8 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>
-            Korban per Jenis
-          </div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Distribusi (%) korban jiwa</div>
-        </div>
-        <ResponsiveContainer width="100%" height={160}>
-          <PieChart>
-            <Pie
-              data={KORBAN_DATA}
-              cx="50%"
-              cy="50%"
-              innerRadius={42}
-              outerRadius={65}
-              paddingAngle={2}
-              dataKey="value"
-            >
-              {KORBAN_DATA.map((entry, i) => (
-                <Cell key={i} fill={entry.color} />
+      {/* ── Model 5: Tabel Ringkasan ── */}
+      <CardWrap title="📊 Tabel Ringkasan Dampak per Jenis Bencana" sub="Sumber: DIBI BNPB 2011–2026 | 50.000 record kejadian bencana">
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border-faint)' }}>
+                {['Jenis Bencana', 'Kejadian', 'Meninggal', 'Pengungsi', 'Rumah Rusak'].map(h => (
+                  <th key={h} style={{ padding: '8px 12px', textAlign: h === 'Jenis Bencana' ? 'left' : 'right', fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.7 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {DIBI_PER_JENIS.map((j, i) => (
+                <tr key={j.jenis} style={{ borderBottom: '1px solid var(--border-faint)', background: i % 2 === 0 ? 'transparent' : 'rgba(53,167,255,0.025)' }}>
+                  <td style={{ padding: '8px 12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ width: 10, height: 10, borderRadius: 3, background: j.color, display: 'inline-block', flexShrink: 0 }} />
+                      <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{j.jenis}</span>
+                    </div>
+                  </td>
+                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 600, color: 'var(--text-secondary)' }}>{j.kejadian.toLocaleString('id')}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'right', color: j.meninggal > 1000 ? '#ff7f11' : 'var(--text-muted)' }}>{j.meninggal.toLocaleString('id')}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'right', color: 'var(--text-muted)' }}>{j.pengungsi.toLocaleString('id')}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'right', color: j.rumah_rusak > 100000 ? '#35a7ff' : 'var(--text-muted)' }}>{j.rumah_rusak.toLocaleString('id')}</td>
+                </tr>
               ))}
-            </Pie>
-            <Tooltip content={<PieTooltip />} />
-          </PieChart>
-        </ResponsiveContainer>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', justifyContent: 'center' }}>
-          {KORBAN_DATA.map((d) => (
-            <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: 'var(--text-muted)' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: d.color, display: 'inline-block' }} />
-              {d.name}
-            </div>
-          ))}
+              <tr style={{ borderTop: '2px solid var(--border-subtle)', background: 'rgba(53,167,255,0.05)' }}>
+                <td style={{ padding: '8px 12px', fontWeight: 800, color: 'var(--text-primary)' }}>TOTAL</td>
+                <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 800, color: '#35a7ff' }}>50.000</td>
+                <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 800, color: '#ff7f11' }}>13.249</td>
+                <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 800, color: 'var(--text-secondary)' }}>82.724.126</td>
+                <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 800, color: '#35a7ff' }}>1.636.683</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      </div>
+      </CardWrap>
 
-      {/* Pengungsi Donut */}
-      <div
-        style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-faint)',
-          borderRadius: 14,
-          padding: '16px 18px',
-        }}
-      >
-        <div style={{ marginBottom: 8 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>
-            Pengungsi per Jenis
-          </div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Distribusi (%) pengungsi</div>
-        </div>
-        <ResponsiveContainer width="100%" height={160}>
-          <PieChart>
-            <Pie
-              data={PENGUNGSI_DATA}
-              cx="50%"
-              cy="50%"
-              innerRadius={42}
-              outerRadius={65}
-              paddingAngle={2}
-              dataKey="value"
-            >
-              {PENGUNGSI_DATA.map((entry, i) => (
-                <Cell key={i} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip content={<PieTooltip />} />
-          </PieChart>
-        </ResponsiveContainer>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', justifyContent: 'center' }}>
-          {PENGUNGSI_DATA.map((d) => (
-            <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: 'var(--text-muted)' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: d.color, display: 'inline-block' }} />
-              {d.name}
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import StatCards from '@/components/dashboard/StatCards';
 import DashboardMap from '@/components/dashboard/DashboardMap';
 import FilterPanel from '@/components/dashboard/FilterPanel';
 import ChartSection from '@/components/dashboard/ChartSection';
+import AnalysisModelsSection from '@/components/dashboard/AnalysisModelsSection';
 import bencanaData from '@/data/bencana.json';
 import { Wilayah } from '@/data/wilayah';
 
@@ -55,31 +56,28 @@ export default function DashboardPage() {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        height: '100vh',
-        overflow: 'hidden',
+        minHeight: '100vh',
         background: 'var(--bg-page)',
         color: 'var(--text-primary)',
       }}
     >
-      {/* Header */}
-      <DashboardHeader onSearch={handleSearch} />
-
-      {/* Alert Ticker */}
-      <AlertTicker onAlertClick={handleAlertClick} />
+      {/* Header — sticky */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 200 }}>
+        <DashboardHeader onSearch={handleSearch} />
+        <AlertTicker onAlertClick={handleAlertClick} />
+      </div>
 
       {/* Stat Cards */}
       <StatCards />
 
-      {/* Main content: Map + Filter Panel */}
+      {/* Map + Filter Panel — fixed height section */}
       <div
         style={{
-          flex: 1,
           display: 'grid',
           gridTemplateColumns: '1fr 280px',
           gap: 10,
-          padding: '0 16px',
-          minHeight: 0,
-          marginBottom: 0,
+          padding: '10px 16px 0',
+          height: 480,
         }}
       >
         {/* Map */}
@@ -92,7 +90,6 @@ export default function DashboardPage() {
             position: 'relative',
           }}
         >
-          {/* Map label */}
           <div
             style={{
               position: 'absolute',
@@ -110,7 +107,7 @@ export default function DashboardPage() {
               letterSpacing: 0.5,
             }}
           >
-            🗺 PETA SEBARAN BENCANA NASIONAL
+            🗺 Model 2 — Peta Sebaran Bencana Nasional
           </div>
           <DashboardMap data={filteredData} flyTo={flyTo} theme={theme} />
         </div>
@@ -133,10 +130,29 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Chart section */}
-      <div style={{ padding: '0 0 12px', marginTop: 10 }}>
-        <ChartSection theme={theme} />
+      {/* Divider label */}
+      <div style={{ padding: '24px 16px 8px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ flex: 1, height: 1, background: 'var(--border-faint)' }} />
+        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.2, whiteSpace: 'nowrap' }}>
+          📊 Analisis Statistik — Sumber: DIBI BNPB 2011–2026
+        </div>
+        <div style={{ flex: 1, height: 1, background: 'var(--border-faint)' }} />
       </div>
+
+      {/* Chart section — scrollable */}
+      <ChartSection theme={theme} />
+
+      {/* Divider label 2 */}
+      <div style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ flex: 1, height: 1, background: 'var(--border-faint)' }} />
+        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.2, whiteSpace: 'nowrap' }}>
+          🛡 Model Kerentanan, Fase Bencana & Respon
+        </div>
+        <div style={{ flex: 1, height: 1, background: 'var(--border-faint)' }} />
+      </div>
+
+      {/* Analysis Models 4, 6, 7 */}
+      <AnalysisModelsSection />
     </div>
   );
 }

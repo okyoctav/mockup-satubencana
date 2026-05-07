@@ -1,56 +1,47 @@
 'use client';
 
-import bencanaData from '@/data/bencana.json';
-
-const stats = bencanaData.statistik as {
-  total_kejadian_2024: number;
-  total_korban: number;
-  total_pengungsi: number;
-  provinsi_terdampak: number;
-  estimasi_kerugian_miliar?: number;
-  rumah_terdampak?: number;
-};
+import { DIBI_TOTAL } from '@/data/dibiStats';
 
 const CARDS = [
   {
     label: 'Total Kejadian',
-    sublabel: 'Tahun Ini',
-    value: stats.total_kejadian_2024?.toLocaleString('id') ?? '342',
-    unit: '',
+    sublabel: 'Data DIBI 2011–2026',
+    value: DIBI_TOTAL.kejadian.toLocaleString('id'),
+    unit: 'kejadian',
     icon: '📋',
     accent: '#35a7ff',
-    trend: '+12% vs tahun lalu',
+    trend: '50.000 record bencana',
     trendUp: true,
   },
   {
-    label: 'Estimasi Kerugian',
-    sublabel: 'Nasional',
-    value: stats.estimasi_kerugian_miliar ? `${stats.estimasi_kerugian_miliar} M` : '250 M',
-    unit: 'IDR',
-    icon: '💰',
+    label: 'Meninggal & Hilang',
+    sublabel: 'Korban Jiwa',
+    value: (DIBI_TOTAL.meninggal + DIBI_TOTAL.hilang).toLocaleString('id'),
+    unit: 'jiwa',
+    icon: '👤',
     accent: '#ff7f11',
-    trend: '-5% vs tahun lalu',
+    trend: `${DIBI_TOTAL.luka.toLocaleString('id')} luka/sakit`,
     trendUp: false,
   },
   {
-    label: 'Jumlah Korban',
-    sublabel: 'Jiwa',
-    value: stats.total_korban ? `${(stats.total_korban / 1000).toFixed(1)}K` : '1,5K',
-    unit: '',
-    icon: '👤',
+    label: 'Menderita & Mengungsi',
+    sublabel: 'Total Pengungsi',
+    value: (DIBI_TOTAL.pengungsi / 1_000_000).toFixed(1) + ' Jt',
+    unit: 'jiwa',
+    icon: '🏕',
     accent: '#ff7f11',
-    trend: '+3% vs tahun lalu',
-    trendUp: true,
+    trend: `82,7 juta total pengungsi`,
+    trendUp: false,
   },
   {
     label: 'Rumah Terdampak',
-    sublabel: 'Unit',
-    value: stats.rumah_terdampak ? `${(stats.rumah_terdampak / 1000).toFixed(0)}K` : '35K',
-    unit: '',
+    sublabel: 'Rusak + Terendam',
+    value: (DIBI_TOTAL.rumah_terdampak / 1_000_000).toFixed(2) + ' Jt',
+    unit: 'unit',
     icon: '🏠',
     accent: '#35a7ff',
-    trend: '-8% vs tahun lalu',
-    trendUp: false,
+    trend: `11,8 juta unit rumah`,
+    trendUp: true,
   },
 ];
 
