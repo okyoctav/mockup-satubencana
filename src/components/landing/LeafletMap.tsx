@@ -73,10 +73,11 @@ export default function LeafletMap({ data }: { data: Kejadian[] }) {
       leafletRef.current = L;
 
       const map = L.map(containerRef.current, {
-        center: [0.5, 101.5],
-        zoom: 6,
+        center: [-2.5, 118.0],
+        zoom: 5,
         scrollWheelZoom: true,
         zoomControl: true,
+        minZoom: 4,
       });
       mapRef.current = map;
 

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@arcgis/core": "^5.0.19",
     "@deck.gl/geo-layers": "^9.3.2",
     "@deck.gl/layers": "^9.3.2",
     "@deck.gl/react": "^9.3.2",

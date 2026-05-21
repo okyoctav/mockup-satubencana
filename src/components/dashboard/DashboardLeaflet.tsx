@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Layers, Map, BarChart2, Activity, Pencil, MapPin } from 'lucide-react';
+import { Layers, Map, BarChart2, Activity, Pencil, MapPin } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 interface Kejadian {
   id: number;

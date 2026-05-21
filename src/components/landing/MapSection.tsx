@@ -77,7 +77,7 @@ export default function MapSection() {
           </span>
         </h2>
         <p className="text-sm md:text-base max-w-2xl mx-auto mb-6" style={{ color: 'var(--text-secondary)' }}>
-          Sebaran lokasi kejadian bencana di Sumatera — klik marker untuk detail
+          Sebaran lokasi kejadian bencana di seluruh Indonesia — klik marker untuk detail
         </p>
 
         {/* Filter buttons */}
@@ -161,7 +161,7 @@ export default function MapSection() {
           className="rounded-2xl overflow-hidden"
           style={{
             border: '1px solid var(--card-border-blue)',
-            height: '500px',
+            height: '560px',
           }}
         >
           <LeafletMap data={filteredData} />
