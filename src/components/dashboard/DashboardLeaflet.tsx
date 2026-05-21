@@ -32,6 +32,15 @@ interface BnpbLayer {
   url: string;
   type?: 'MapServer' | 'ImageServer' | 'VectorTileServer';
   group?: string;
+  useLngLat?: boolean;               // use WGS84 (4326) bbox instead of Web Mercator
+  layersParam?: string;              // override default 'show:0' layers param
+  extent?: [number, number, number, number]; // [minLng, minLat, maxLng, maxLat] for auto-fly
+}
+
+interface MapServerLegendItem {
+  label: string;
+  imageData: string; // base64 PNG from MapServer legend endpoint
+  layerName: string;
 }
 
 interface BmkgGempa {
@@ -106,6 +115,7 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'big_rbi_sulawesi_lot1',       label: 'RBI Sulawesi 2024 Lot 1',      color: '#A855F7', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI_5K_Sulawesi_2024_Lot_1_Jul/VectorTileServer',         type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_bangunan_fasum_sulawesi', label: 'Bangunan Fasum Sulawesi 2024', color: '#F59E0B', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_BANGUNAN_FASUM_SULAWESI_2024/VectorTileServer', type: 'VectorTileServer', group: 'BIG' },
+  { id: 'petadasar_bitung', label: 'Peta Dasar Bitung 2024', color: '#F472B6', emoji: '🏢', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/PETADASAR_SULAWESI_BITUNG_2024_5K/MapServer', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:all', extent: [125.088, 1.375, 125.229, 1.476] },
   // BNPB InARISK
   { id: 'cuaca_ekstrim_img', label: 'Cuaca Ekstrim',      color: '#06B6D4', emoji: '🌪️', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/layer_bahaya_cuaca_ekstrim/ImageServer', type: 'ImageServer', group: 'BNPB' },
   { id: 'banjir',        label: 'Bahaya Banjir',      color: '#0EA5E9', emoji: '🌊', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/INDEKS_BAHAYA_BANJIR/ImageServer', type: 'ImageServer',group: 'BNPB' },
@@ -176,25 +186,36 @@ function tileToBbox3857(x: number, y: number, z: number): string {
   return `${(x/n)*2*R-R},${R-((y+1)/n)*2*R},${((x+1)/n)*2*R-R},${R-(y/n)*2*R}`;
 }
 
+// Convert tile XYZ to WGS84 (lon/lat) bounding box — for services that use geographic CRS
+function tileToBbox4326(x: number, y: number, z: number): string {
+  const n = Math.pow(2, z);
+  const west  = (x / n) * 360 - 180;
+  const east  = ((x + 1) / n) * 360 - 180;
+  const north = (Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))) * 180) / Math.PI;
+  const south = (Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 1) / n))) * 180) / Math.PI;
+  return `${west},${south},${east},${north}`;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, isImageServer = false): any {
+function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, isImageServer = false, useLngLat = false, layersParam = 'show:0'): any {
   const ArcLayer = L.GridLayer.extend({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     createTile(coords: { x: number; y: number; z: number }, done: (e: Error | null, t: HTMLImageElement) => void): HTMLImageElement {
       const img = document.createElement('img');
       img.alt = '';
+      const bbox   = useLngLat ? tileToBbox4326(coords.x, coords.y, coords.z) : tileToBbox3857(coords.x, coords.y, coords.z);
+      const bboxSR = useLngLat ? '4326' : '3857';
+      const imgSR  = useLngLat ? '4326' : '3857';
       if (isImageServer) {
         const params = new URLSearchParams({
-          bbox: tileToBbox3857(coords.x, coords.y, coords.z),
-          bboxSR: '3857', imageSR: '3857', size: '256,256',
+          bbox, bboxSR, imageSR: imgSR, size: '256,256',
           format: 'png', transparent: 'true', f: 'image',
         });
         img.src = `${serviceUrl}/exportImage?${params}`;
       } else {
         const params = new URLSearchParams({
-          bbox: tileToBbox3857(coords.x, coords.y, coords.z),
-          bboxSR: '3857', imageSR: '3857', size: '256,256',
-          layers: 'show:0', format: 'png32', transparent: 'true', f: 'image',
+          bbox, bboxSR, imageSR: imgSR, size: '256,256',
+          layers: layersParam, format: 'png32', transparent: 'true', f: 'image',
         });
         img.src = `${serviceUrl}/export?${params}`;
       }
@@ -203,7 +224,7 @@ function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, is
       return img;
     },
   });
-  return new ArcLayer({ opacity, attribution: '© BNPB InARISK', tileSize: 256 });
+  return new ArcLayer({ opacity, attribution: '© BIG / BNPB', tileSize: 256 });
 }
 
 function buildImpactHtml(d: ImpactData): string {
@@ -302,6 +323,44 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
   const [showBencanaData, setShowBencanaData] = useState(true);
   const [bmkgLastUpdate, setBmkgLastUpdate] = useState<Date | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [mapserverLegends, setMapserverLegends] = useState<Record<string, MapServerLegendItem[]>>({});
+  const fetchedLegendsRef = useRef<Set<string>>(new Set());
+
+  // Fetch MapServer legends dynamically when a MapServer layer is activated
+  useEffect(() => {
+    const msLayers = BNPB_LAYERS.filter(
+      (l) => l.type === 'MapServer' && activeOverlays.includes(l.id)
+    );
+    msLayers.forEach((layer) => {
+      if (fetchedLegendsRef.current.has(layer.id)) return;
+      fetchedLegendsRef.current.add(layer.id);
+      fetch(`${layer.url}/legend?f=pjson`)
+        .then((r) => r.json())
+        .then((json) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const items: MapServerLegendItem[] = [];
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (json?.layers ?? []).forEach((lyr: any) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (lyr.legend ?? []).forEach((item: any) => {
+              if (item.imageData) {
+                items.push({
+                  label: item.label || lyr.layerName || '—',
+                  imageData: item.imageData,
+                  layerName: lyr.layerName ?? '',
+                });
+              }
+            });
+          });
+          setMapserverLegends((p) => ({ ...p, [layer.id]: items }));
+        })
+        .catch(() => {
+          // allow retry on next activation
+          fetchedLegendsRef.current.delete(layer.id);
+        });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeOverlays]);
 
   // Inject BMKG ripple animation CSS once
   useEffect(() => {
@@ -577,8 +636,18 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
         };
         tryAddVector();
       } else {
-        bnpbLayersRef.current[id] = createArcGISExportLayer(L, def.url, 0.72, def.type === 'ImageServer');
+        bnpbLayersRef.current[id] = createArcGISExportLayer(
+          L, def.url, 0.72,
+          def.type === 'ImageServer',
+          def.useLngLat ?? false,
+          def.layersParam ?? 'show:0',
+        );
         bnpbLayersRef.current[id].addTo(map);
+        // Auto-fly to extent when layer first activated and extent is defined
+        if (def.extent && mapRef.current) {
+          const [minLng, minLat, maxLng, maxLat] = def.extent;
+          mapRef.current.flyToBounds([[minLat, minLng], [maxLat, maxLng]], { duration: 1.5, padding: [20, 20] });
+        }
       }
     });
   }, [activeOverlays]);
@@ -939,6 +1008,51 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
                   ))}
                   <div style={{ marginTop: 4, fontSize: 9, color: panelMuted }}>Animasi sinyal = gempa aktif · Klik untuk detail</div>
                 </div>
+                {/* Dynamic MapServer Layer Legends */}
+                {BNPB_LAYERS.filter((l) => l.type === 'MapServer' && activeOverlays.includes(l.id)).map((layer) => {
+                  const items = mapserverLegends[layer.id];
+                  if (items === undefined) {
+                    return (
+                      <div key={layer.id} style={{ borderTop: `1px solid ${panelBorder}`, marginTop: 6, paddingTop: 6 }}>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: layer.color, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                          {layer.emoji} {layer.label}
+                        </div>
+                        <div style={{ fontSize: 10, color: panelMuted }}>⏳ Memuat legenda…</div>
+                      </div>
+                    );
+                  }
+                  if (items.length === 0) return null;
+                  const grouped: Record<string, MapServerLegendItem[]> = {};
+                  items.forEach((item) => {
+                    if (!grouped[item.layerName]) grouped[item.layerName] = [];
+                    grouped[item.layerName].push(item);
+                  });
+                  return (
+                    <div key={layer.id} style={{ borderTop: `1px solid ${panelBorder}`, marginTop: 6, paddingTop: 6 }}>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: layer.color, marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                        {layer.emoji} {layer.label}
+                      </div>
+                      {Object.entries(grouped).map(([grpName, grpItems]) => (
+                        <div key={grpName} style={{ marginBottom: 4 }}>
+                          {grpName && (
+                            <div style={{ fontSize: 9, color: panelMuted, marginBottom: 3, fontStyle: 'italic' }}>{grpName}</div>
+                          )}
+                          {grpItems.map((item, i) => (
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={`data:image/png;base64,${item.imageData}`}
+                                alt={item.label}
+                                style={{ width: 20, height: 20, flexShrink: 0, objectFit: 'contain', imageRendering: 'pixelated' }}
+                              />
+                              <span style={{ fontSize: 10, color: panelText }}>{item.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
