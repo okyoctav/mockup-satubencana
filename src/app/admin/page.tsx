@@ -64,9 +64,7 @@ export default function AdminPage() {
         borderLeft: '4px solid #ff7f11',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #35A7FF, #38618C)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
-            🌋
-          </div>
+          <img src="/logo bappenas.png" alt="Logo Bappenas" style={{ height: 36, width: 'auto', objectFit: 'contain' }} />
           <div>
             <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--text-primary)' }}>SATUBENCANA Admin</div>
             <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Backend Panel</div>

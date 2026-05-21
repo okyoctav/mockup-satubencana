@@ -33,29 +33,11 @@ export default function DashboardHeader({ onSearch }: Props) {
     >
       {/* Brand */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-        <div
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 10,
-            background: 'linear-gradient(135deg, #0EA5E9, #22C55E)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 18,
-            flexShrink: 0,
-          }}
-        >
-          🌋
-        </div>
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: 0.5, lineHeight: 1 }}>
-            SATUBENCANA
-          </div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: 1, textTransform: 'uppercase', lineHeight: 1.4 }}>
-            Executive Disaster Insights
-          </div>
-        </div>
+        <img
+          src="/logo bappenas.png"
+          alt="Logo Bappenas"
+          style={{ height: 40, width: 'auto', objectFit: 'contain', flexShrink: 0 }}
+        />
       </div>
 
       {/* Search */}

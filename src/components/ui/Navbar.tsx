@@ -55,15 +55,11 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <a href="/" className="flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-lg font-bold"
-            style={{ background: 'linear-gradient(135deg, #0EA5E9, #22C55E)' }}
-          >
-            🌋
-          </div>
-          <span className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>
-            DataBencana
-          </span>
+          <img
+            src="/logo bappenas.png"
+            alt="Logo Bappenas"
+            style={{ height: 36, width: 'auto', objectFit: 'contain' }}
+          />
         </a>
 
         {/* Desktop nav */}

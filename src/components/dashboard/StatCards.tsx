@@ -6,6 +6,7 @@ import { DIBI_TOTAL } from '@/data/dibiStats';
 type Kejadian = {
   korban_jiwa: number;
   pengungsi: number;
+  rumah_terdampak?: number;
 };
 
 const NATIONAL_CARDS = [
@@ -68,6 +69,7 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
         kejadian: regionData.length,
         korban_jiwa: regionData.reduce((s, k) => s + k.korban_jiwa, 0),
         pengungsi: regionData.reduce((s, k) => s + k.pengungsi, 0),
+        rumah_terdampak: regionData.reduce((s, k) => s + (k.rumah_terdampak ?? 0), 0),
       }
     : null;
 
@@ -109,11 +111,13 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
         {
           label: 'Rumah Terdampak',
           sublabel: 'Rusak + Terendam',
-          value: '—',
-          unit: '',
+          value: regionStats.rumah_terdampak > 0
+            ? regionStats.rumah_terdampak.toLocaleString('id')
+            : '—',
+          unit: regionStats.rumah_terdampak > 0 ? 'unit' : '',
           icon: '🏠',
           accent: '#35a7ff',
-          trend: 'data tidak tersedia per wilayah',
+          trend: regionStats.rumah_terdampak > 0 ? 'berdasarkan data lokal' : 'data tidak tersedia per wilayah',
           trendUp: true,
         },
       ]

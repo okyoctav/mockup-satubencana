@@ -13,8 +13,17 @@ import {
   PENGUNGSI_DIST,
 } from '@/data/dibiStats';
 
+interface KejadianLocal {
+  jenis: string;
+  korban_jiwa: number;
+  pengungsi: number;
+  tanggal: string;
+}
+
 interface Props {
   theme: string;
+  filteredData?: KejadianLocal[];
+  regionLabel?: string;
 }
 
 interface TooltipProps { active?: boolean; payload?: { name: string; value: number; color?: string }[]; label?: string; }
@@ -60,10 +69,53 @@ const PieTooltip = ({ active, payload }: PieTooltipProps) => {
   );
 };
 
-export default function ChartSection({ theme }: Props) {
+export default function ChartSection({ theme, filteredData, regionLabel }: Props) {
   const gridColor = theme === 'dark' ? '#38618c' : '#ccdbdc';
   const textColor = theme === 'dark' ? '#7aaab8' : '#38618c';
   const topJenis = [...DIBI_PER_JENIS].sort((a, b) => b.kejadian - a.kejadian);
+
+  // When a region filter is active, compute per-jenis from local filteredData
+  const localJenis = filteredData && filteredData.length > 0
+    ? (() => {
+        const map: Record<string, { jenis: string; kejadian: number; korban_jiwa: number; pengungsi: number; color: string }> = {};
+        const COLOR_MAP: Record<string, string> = {
+          banjir: '#35a7ff',
+          longsor: '#a78bfa',
+          gempa: '#ff7f11',
+          kebakaran: '#ef4444',
+          'angin puting beliung': '#06b6d4',
+          tsunami: '#10b981',
+          erupsi: '#f59e0b',
+          kekeringan: '#d97706',
+          lainnya: '#6b7280',
+        };
+        for (const k of filteredData) {
+          if (!map[k.jenis]) {
+            map[k.jenis] = { jenis: k.jenis, kejadian: 0, korban_jiwa: 0, pengungsi: 0, color: COLOR_MAP[k.jenis] ?? '#6b7280' };
+          }
+          map[k.jenis].kejadian++;
+          map[k.jenis].korban_jiwa += k.korban_jiwa;
+          map[k.jenis].pengungsi += k.pengungsi;
+        }
+        return Object.values(map).sort((a, b) => b.kejadian - a.kejadian).map(x => ({
+          ...x,
+          meninggal: x.korban_jiwa,
+          rumah_rusak: 0,
+        }));
+      })()
+    : null;
+
+  // Per-tahun dari filteredData lokal
+  const localPerTahun = filteredData && filteredData.length > 0
+    ? (() => {
+        const map: Record<string, number> = {};
+        for (const k of filteredData) {
+          const tahun = k.tanggal?.slice(0, 4) ?? '?';
+          map[tahun] = (map[tahun] ?? 0) + 1;
+        }
+        return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0])).map(([tahun, kejadian]) => ({ tahun, kejadian }));
+      })()
+    : null;
 
   const CardWrap = ({ title, sub, children, cols = 1 }: { title: string; sub: string; children: React.ReactNode; cols?: number }) => (
     <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-faint)', borderRadius: 14, padding: '16px 18px', gridColumn: `span ${cols}` }}>
@@ -78,18 +130,44 @@ export default function ChartSection({ theme }: Props) {
   return (
     <div style={{ padding: '0 16px 32px', display: 'flex', flexDirection: 'column', gap: 12 }}>
 
+      {/* Filter active banner */}
+      {regionLabel && (
+        <div style={{
+          background: 'rgba(53,167,255,0.1)',
+          border: '1px solid rgba(53,167,255,0.3)',
+          borderRadius: 10,
+          padding: '8px 14px',
+          fontSize: 11,
+          color: '#35a7ff',
+          fontWeight: 600,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <span>🔍</span>
+          <span>Grafik difilter: <strong>{regionLabel}</strong> — menampilkan {filteredData?.length ?? 0} kejadian lokal</span>
+        </div>
+      )}
+
       {/* ── Model 1: Tren + Bulanan ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
-        <CardWrap title="📈 Model 1 — Tren Kejadian Bencana" sub="Jumlah kejadian per tahun (DIBI BNPB 2011–2026)">
+        <CardWrap
+          title="📈 Model 1 — Tren Kejadian Bencana"
+          sub={localPerTahun ? `Data lokal ${regionLabel} per tahun` : 'Jumlah kejadian per tahun (DIBI BNPB 2011–2026)'}
+        >
           <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={DIBI_PER_TAHUN} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+            <BarChart data={localPerTahun ?? DIBI_PER_TAHUN} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
               <XAxis dataKey="tahun" tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} interval={1} />
               <YAxis tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="kejadian" name="Kejadian" radius={[3, 3, 0, 0]}>
-                {DIBI_PER_TAHUN.map((entry, i) => (
-                  <Cell key={i} fill={entry.tahun === '2021' ? '#ff7f11' : i === DIBI_PER_TAHUN.length - 1 ? '#35a7ff' : 'rgba(56,97,140,0.55)'} />
+                {(localPerTahun ?? DIBI_PER_TAHUN).map((entry, i) => (
+                  <Cell key={i} fill={
+                    localPerTahun
+                      ? '#35a7ff'
+                      : ((entry as { tahun: string }).tahun === '2021' ? '#ff7f11' : i === DIBI_PER_TAHUN.length - 1 ? '#35a7ff' : 'rgba(56,97,140,0.55)')
+                  } />
                 ))}
               </Bar>
             </BarChart>
@@ -110,15 +188,18 @@ export default function ChartSection({ theme }: Props) {
 
       {/* ── Model 5: Jenis Bencana ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-        <CardWrap title="🌊 Model 5 — Kejadian per Jenis" sub="Frekuensi kejadian per jenis bencana">
+        <CardWrap
+          title="🌊 Model 5 — Kejadian per Jenis"
+          sub={localJenis ? `Data lokal ${regionLabel}` : 'Frekuensi kejadian per jenis bencana'}
+        >
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={topJenis} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
+            <BarChart data={localJenis ?? topJenis} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
               <XAxis type="number" tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="jenis" tick={{ fontSize: 9, fill: textColor }} axisLine={false} tickLine={false} width={72} />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="kejadian" name="Kejadian" radius={[0, 3, 3, 0]}>
-                {topJenis.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                {(localJenis ?? topJenis).map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>

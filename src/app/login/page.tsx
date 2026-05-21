@@ -54,24 +54,12 @@ export default function LoginPage() {
       >
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
-          <div
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 12,
-              background: 'linear-gradient(135deg, #35A7FF, #38618C)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 20,
-            }}
-          >
-            🌋
-          </div>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--text-primary)' }}>SATUBENCANA</div>
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Admin Login</div>
-          </div>
+          <img
+            src="/logo bappenas.png"
+            alt="Logo Bappenas"
+            style={{ height: 48, width: 'auto', objectFit: 'contain' }}
+          />
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Admin Login</div>
         </div>
 
         <form onSubmit={handleLogin}>

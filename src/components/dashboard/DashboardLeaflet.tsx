@@ -33,6 +33,19 @@ interface BnpbLayer {
   group?: string;
 }
 
+interface BmkgGempa {
+  Tanggal: string;
+  Jam: string;
+  DateTime: string;
+  Coordinates: string; // "lat,lng"
+  Lintang: string;
+  Bujur: string;
+  Magnitude: string;
+  Kedalaman: string;
+  Wilayah: string;
+  Potensi?: string;
+}
+
 const BASEMAPS = [
   {
     id: 'esri_imagery',
@@ -94,8 +107,8 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'big_bangunan_fasum_sulawesi', label: 'Bangunan Fasum Sulawesi 2024', color: '#F59E0B', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_BANGUNAN_FASUM_SULAWESI_2024/VectorTileServer', type: 'VectorTileServer', group: 'BIG' },
   // BNPB InARISK
   { id: 'cuaca_ekstrim_img', label: 'Cuaca Ekstrim',      color: '#06B6D4', emoji: '🌪️', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/layer_bahaya_cuaca_ekstrim/ImageServer', type: 'ImageServer', group: 'BNPB' },
-  { id: 'banjir',        label: 'Bahaya Banjir',      color: '#0EA5E9', emoji: '🌊', url: `${BNPB_BASE}/layer_bahaya_banjir_30/MapServer`, group: 'BNPB' },
-  { id: 'banjir_bandang',label: 'Banjir Bandang',     color: '#0369A1', emoji: '💧', url: `${BNPB_BASE}/layer_bahaya_banjir_bandang_30/MapServer`, group: 'BNPB' },
+  { id: 'banjir',        label: 'Bahaya Banjir',      color: '#0EA5E9', emoji: '🌊', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/INDEKS_BAHAYA_BANJIR/ImageServer', type: 'ImageServer',group: 'BNPB' },
+  { id: 'banjir_bandang',label: 'Banjir Bandang',     color: '#0369A1', emoji: '💧', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/INDEKS_BAHAYA_BANJIRBANDANG/ImageServer', type: 'ImageServer', group: 'BNPB' },
   { id: 'longsor',       label: 'Tanah Longsor',       color: '#F97316', emoji: '⛰️', url: `${BNPB_BASE}/layer_bahaya_tanah_longsor_30/MapServer`, group: 'BNPB' },
   { id: 'gempa',         label: 'Gempa Bumi',          color: '#EF4444', emoji: '📳', url: `${BNPB_BASE}/layer_bahaya_gempabumi_30/MapServer`, group: 'BNPB' },
   { id: 'tsunami',       label: 'Tsunami',             color: '#EC4899', emoji: '🌊', url: `${BNPB_BASE}/layer_bahaya_tsunami_30/MapServer`, group: 'BNPB' },
@@ -254,7 +267,7 @@ interface ImpactData {
   layerType: string;
 }
 
-type ActivePanel = 'basemap' | 'layers' | 'legend' | 'draw' | null;
+type ActivePanel = 'basemap' | 'layers' | 'legend' | 'draw' | 'bmkg' | null;
 
 export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -276,11 +289,148 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
   const buildingLayerRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const popupRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const bmkgMarkersRef = useRef<any[]>([]);
 
   const [activeBasemap, setActiveBasemap] = useState('esri_imagery');
   const [activeOverlays, setActiveOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const [activeDraw, setActiveDraw] = useState<string | null>(null);
+  const [bmkgData, setBmkgData] = useState<BmkgGempa[]>([]);
+  const [showBmkg, setShowBmkg] = useState(true);
+  const [bmkgLastUpdate, setBmkgLastUpdate] = useState<Date | null>(null);
+  const [mapReady, setMapReady] = useState(false);
+
+  // Inject BMKG ripple animation CSS once
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (document.getElementById('bmkg-anim-css')) return;
+    const style = document.createElement('style');
+    style.id = 'bmkg-anim-css';
+    style.textContent = `
+      @keyframes bmkgRipple {
+        0%   { transform: translate(-50%,-50%) scale(0.6); opacity: 0.9; }
+        100% { transform: translate(-50%,-50%) scale(3.6); opacity: 0; }
+      }
+      @keyframes bmkgGlow {
+        0%,100% { box-shadow: 0 0 0 0 rgba(var(--bmkg-rgb),0.7); }
+        50%      { box-shadow: 0 0 0 5px rgba(var(--bmkg-rgb),0); }
+      }
+      .bmkg-wrap { position:relative; display:inline-block; cursor:pointer; }
+      .bmkg-ring {
+        position:absolute; top:50%; left:50%;
+        border-radius:50%; border:2px solid;
+        animation: bmkgRipple 2.2s ease-out infinite;
+        pointer-events:none;
+      }
+      .bmkg-ring:nth-child(2) { animation-delay:0.75s; }
+      .bmkg-ring:nth-child(3) { animation-delay:1.5s; }
+      .bmkg-dot {
+        position:absolute; top:50%; left:50%;
+        transform:translate(-50%,-50%);
+        border-radius:50%;
+        border:2px solid rgba(255,255,255,0.9);
+        z-index:3;
+        animation: bmkgGlow 2s ease-in-out infinite;
+      }
+    `;
+    document.head.appendChild(style);
+  }, []);
+
+  // Fetch BMKG gempa terkini (refresh every 5 min)
+  useEffect(() => {
+    const fetchBmkg = async () => {
+      try {
+        const res = await fetch('https://data.bmkg.go.id/DataMKG/TEWS/gempaterkini.json', {
+          cache: 'no-store',
+        });
+        const json = await res.json();
+        const gempa: BmkgGempa[] = json?.Infogempa?.gempa ?? [];
+        setBmkgData(gempa);
+        setBmkgLastUpdate(new Date());
+      } catch {
+        // silent — network/CORS may fail; markers stay empty
+      }
+    };
+    fetchBmkg();
+    const timer = setInterval(fetchBmkg, 5 * 60 * 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Render BMKG animated markers
+  useEffect(() => {
+    const L = leafletRef.current;
+    const map = mapRef.current;
+    if (!L || !map) return;
+
+    // Remove previous BMKG markers
+    bmkgMarkersRef.current.forEach((m) => map.removeLayer(m));
+    bmkgMarkersRef.current = [];
+    if (!showBmkg || bmkgData.length === 0) return;
+
+    bmkgData.forEach((g) => {
+      const parts = g.Coordinates.split(',');
+      if (parts.length < 2) return;
+      const lat = parseFloat(parts[0]);
+      const lng = parseFloat(parts[1]);
+      if (isNaN(lat) || isNaN(lng)) return;
+
+      const mag = parseFloat(g.Magnitude);
+      const dotPx  = Math.max(8, Math.min(20, mag * 3));
+      const ringPx = dotPx * 2.4;
+      const wrapPx = Math.ceil(ringPx * 3.8);
+
+      // Color by magnitude
+      let color = '#22C55E'; let rgb = '34,197,94';
+      if (mag >= 6)   { color = '#DC2626'; rgb = '220,38,38'; }
+      else if (mag >= 5) { color = '#F97316'; rgb = '249,115,22'; }
+      else if (mag >= 4) { color = '#FBBF24'; rgb = '251,191,36'; }
+
+      const half = wrapPx / 2;
+      const icon = L.divIcon({
+        className: '',
+        html: `<div class="bmkg-wrap" style="width:${wrapPx}px;height:${wrapPx}px;--bmkg-rgb:${rgb}">
+          <div class="bmkg-ring" style="width:${ringPx}px;height:${ringPx}px;border-color:${color};"></div>
+          <div class="bmkg-ring" style="width:${ringPx}px;height:${ringPx}px;border-color:${color};"></div>
+          <div class="bmkg-ring" style="width:${ringPx}px;height:${ringPx}px;border-color:${color};"></div>
+          <div class="bmkg-dot" style="width:${dotPx}px;height:${dotPx}px;background:${color};"></div>
+        </div>`,
+        iconSize: [wrapPx, wrapPx],
+        iconAnchor: [half, half],
+      });
+
+      const isDarkM = theme === 'dark';
+      const popupBg   = isDarkM ? '#0D1F3C' : '#FFFFFF';
+      const popupText = isDarkM ? '#F1F5F9' : '#0F172A';
+      const popupMuted= isDarkM ? '#94A3B8' : '#475569';
+      const potensi   = g.Potensi ?? '';
+      const tsunamiRisk = potensi.toLowerCase().includes('berpotensi tsunami') && !potensi.toLowerCase().includes('tidak');
+
+      const marker = L.marker([lat, lng], { icon, zIndexOffset: 2000 });
+      marker.bindPopup(
+        `<div style="min-width:230px;font-family:system-ui,sans-serif;border-radius:10px;overflow:hidden">
+          <div style="background:${color}20;padding:10px 14px;border-bottom:1.5px solid ${color}40">
+            <div style="font-size:10px;font-weight:800;color:${color};text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">📳 GEMPA TERKINI · BMKG</div>
+            <div style="font-size:17px;font-weight:800;color:${popupText}">M ${g.Magnitude}</div>
+            <div style="font-size:11px;color:${popupMuted};margin-top:2px;line-height:1.4">${g.Wilayah}</div>
+          </div>
+          <div style="padding:10px 14px;background:${popupBg}">
+            <div style="display:flex;gap:12px;margin-bottom:8px;flex-wrap:wrap">
+              <div><div style="font-size:9px;color:${popupMuted};text-transform:uppercase;letter-spacing:.5px">Kedalaman</div><div style="font-size:13px;font-weight:700;color:#0EA5E9">${g.Kedalaman}</div></div>
+              <div><div style="font-size:9px;color:${popupMuted};text-transform:uppercase;letter-spacing:.5px">Lintang</div><div style="font-size:12px;font-weight:600;color:${popupText}">${g.Lintang}</div></div>
+              <div><div style="font-size:9px;color:${popupMuted};text-transform:uppercase;letter-spacing:.5px">Bujur</div><div style="font-size:12px;font-weight:600;color:${popupText}">${g.Bujur}</div></div>
+            </div>
+            ${potensi ? `<div style="background:${tsunamiRisk ? '#FEF2F2' : '#F0FDF4'};border:1px solid ${tsunamiRisk ? '#FECACA' : '#BBF7D0'};border-radius:6px;padding:6px 8px;font-size:10px;color:${tsunamiRisk ? '#DC2626' : '#16A34A'};font-weight:600;margin-bottom:8px">${tsunamiRisk ? '⚠️' : '✅'} ${potensi}</div>` : ''}
+            <div style="font-size:10px;color:${popupMuted};border-top:1px solid ${isDarkM ? '#1E3A5F' : '#E2E8F0'};padding-top:6px">📅 ${g.Tanggal} · ${g.Jam}</div>
+          </div>
+        </div>`,
+        { maxWidth: 300 }
+      );
+      marker.addTo(map);
+      bmkgMarkersRef.current.push(marker);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bmkgData, showBmkg, theme, mapReady]);
 
   // Load Leaflet.draw CSS+JS once
   useEffect(() => {
@@ -321,6 +471,7 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
       });
       L.control.zoom({ position: 'bottomright' }).addTo(map);
       mapRef.current = map;
+      setMapReady(true);
 
       // Draw feature group
       const drawnItems = L.featureGroup().addTo(map);
@@ -754,7 +905,48 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
                   </div>
                   <div style={{ marginTop: 6, fontSize: 9, color: panelMuted }}>Ukuran ∝ skala dampak</div>
                 </div>
+                <div style={{ borderTop: `1px solid ${panelBorder}`, marginTop: 6, paddingTop: 6 }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: panelMuted, marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.5 }}>📳 Gempa Terkini (BMKG)</div>
+                  {[{ label: '≥ M6.0', color: '#DC2626' }, { label: 'M5.0 – 5.9', color: '#F97316' }, { label: 'M4.0 – 4.9', color: '#FBBF24' }, { label: '< M4.0', color: '#22C55E' }].map((item) => (
+                    <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                      <span style={{ position: 'relative', width: 14, height: 14, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ width: 14, height: 14, borderRadius: '50%', border: `2px solid ${item.color}`, position: 'absolute', opacity: 0.5 }} />
+                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: item.color, position: 'absolute' }} />
+                      </span>
+                      <span style={{ fontSize: 10, color: panelText }}>{item.label}</span>
+                    </div>
+                  ))}
+                  <div style={{ marginTop: 4, fontSize: 9, color: panelMuted }}>Animasi sinyal = gempa aktif · Klik untuk detail</div>
+                </div>
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* BMKG Live Earthquakes */}
+        <div style={{ position: 'relative' }}>
+          <button
+            style={toolBtn(showBmkg)}
+            onClick={() => setShowBmkg((v) => !v)}
+            title={showBmkg ? `Sembunyikan gempa BMKG (${bmkgData.length} titik)` : 'Tampilkan gempa terkini BMKG'}
+          >
+            📳
+          </button>
+          {showBmkg && bmkgData.length > 0 && (
+            <div style={{
+              position: 'absolute', top: 0, right: 40,
+              background: '#DC2626', color: '#fff',
+              borderRadius: 10, padding: '2px 6px',
+              fontSize: 9, fontWeight: 700,
+              whiteSpace: 'nowrap', boxShadow: '0 2px 6px rgba(0,0,0,0.35)',
+              pointerEvents: 'none',
+            }}>
+              🔴 LIVE {bmkgData.length}
+              {bmkgLastUpdate && (
+                <span style={{ fontWeight: 400, marginLeft: 4, opacity: 0.85 }}>
+                  {bmkgLastUpdate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              )}
             </div>
           )}
         </div>

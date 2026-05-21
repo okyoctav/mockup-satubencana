@@ -10,7 +10,7 @@ import FilterPanel from '@/components/dashboard/FilterPanel';
 import ChartSection from '@/components/dashboard/ChartSection';
 import AnalysisModelsSection from '@/components/dashboard/AnalysisModelsSection';
 import bencanaData from '@/data/bencana.json';
-import { Wilayah } from '@/data/wilayah';
+import WilayahDropdown, { FilterWilayah } from '@/components/dashboard/WilayahDropdown';
 
 type Kejadian = {
   id: number;
@@ -23,6 +23,7 @@ type Kejadian = {
   tanggal: string;
   korban_jiwa: number;
   pengungsi: number;
+  rumah_terdampak?: number;
   status: string;
   level: string;
 };
@@ -33,15 +34,28 @@ export default function DashboardPage() {
   const { theme } = useTheme();
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [filters, setFilters] = useState({ jenis: 'Semua', status: 'Semua', level: 'Semua' });
-  const [searchWilayah, setSearchWilayah] = useState<Wilayah | null>(null);
+  // Filter aktif: bisa dari text search atau dropdown
+  const [activeFilter, setActiveFilter] = useState<FilterWilayah | null>(null);
 
-  const handleSearch = (w: Wilayah) => {
+  const handleSearch = (w: { tipe: string; nama: string; provinsi: string; lat: number; lng: number; zoom: number }) => {
     setFlyTo({ lat: w.lat, lng: w.lng, zoom: w.zoom });
-    setSearchWilayah(w);
+    // Sinkronkan ke activeFilter
+    setActiveFilter(
+      w.tipe === 'provinsi'
+        ? { tipe: 'provinsi', nama: w.nama, lat: w.lat, lng: w.lng }
+        : { tipe: 'kabupaten', nama: w.nama, provinsi: w.provinsi, lat: w.lat, lng: w.lng }
+    );
   };
 
   const handleClearSearch = () => {
-    setSearchWilayah(null);
+    setActiveFilter(null);
+  };
+
+  const handleDropdownFilter = (f: FilterWilayah | null) => {
+    setActiveFilter(f);
+    if (f) {
+      setFlyTo({ lat: f.lat, lng: f.lng, zoom: f.tipe === 'provinsi' ? 8 : 11 });
+    }
   };
 
   const handleAlertClick = (lat: number, lng: number) => {
@@ -52,20 +66,17 @@ export default function DashboardPage() {
     setFlyTo({ lat, lng, zoom: 13 });
   };
 
-  // Filter by region first
+  // Filter by region first (pakai activeFilter, bisa dari search atau dropdown)
   const regionFilteredData = useMemo<Kejadian[]>(() => {
-    if (!searchWilayah) return allData;
-    const q = searchWilayah.nama.toLowerCase();
-    if (searchWilayah.tipe === 'provinsi') {
-      return allData.filter((k) => k.provinsi.toLowerCase().includes(q));
+    if (!activeFilter) return allData;
+    if (activeFilter.tipe === 'provinsi') {
+      const q = activeFilter.nama.toLowerCase();
+      return allData.filter((k) => k.provinsi.toLowerCase() === q || k.provinsi.toLowerCase().includes(q));
     }
-    // kabupaten / kota — match by kabupaten name
-    return allData.filter(
-      (k) =>
-        k.kabupaten.toLowerCase().includes(q) ||
-        k.provinsi.toLowerCase() === searchWilayah.provinsi.toLowerCase()
-    );
-  }, [searchWilayah]);
+    // kabupaten — exact match kabupaten name saja
+    const q = activeFilter.nama.toLowerCase();
+    return allData.filter((k) => k.kabupaten.toLowerCase() === q || k.kabupaten.toLowerCase().includes(q));
+  }, [activeFilter]);
 
   // Then apply jenis/status/level filters on top
   const filteredData = useMemo<Kejadian[]>(() => {
@@ -93,12 +104,33 @@ export default function DashboardPage() {
         <AlertTicker onAlertClick={handleAlertClick} />
       </div>
 
+      {/* Filter Bar — dropdown pilih provinsi/kab */}
+      <div
+        style={{
+          padding: '8px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          background: theme === 'dark' ? 'rgba(5,14,31,0.8)' : 'rgba(236,245,255,0.9)',
+          borderBottom: '1px solid var(--border-faint)',
+          flexWrap: 'wrap',
+        }}
+      >
+        <WilayahDropdown onSelect={handleDropdownFilter} theme={theme} />
+        {activeFilter && (
+          <span style={{ fontSize: 11, color: '#35a7ff', fontWeight: 600 }}>
+            🔍 {activeFilter.tipe === 'provinsi' ? 'Provinsi' : 'Kab/Kota'}: <strong>{activeFilter.nama}</strong>
+            {' '}— {regionFilteredData.length} kejadian
+          </span>
+        )}
+      </div>
+
       {/* Stat Cards */}
       <StatCards
         status={filters.status}
-        regionData={searchWilayah ? regionFilteredData : undefined}
-        regionLabel={searchWilayah ? searchWilayah.nama : undefined}
-        onClearRegion={searchWilayah ? handleClearSearch : undefined}
+        regionData={activeFilter ? regionFilteredData : undefined}
+        regionLabel={activeFilter?.nama}
+        onClearRegion={activeFilter ? handleClearSearch : undefined}
       />
 
       {/* Map + Filter Panel — fixed height section */}
@@ -171,7 +203,11 @@ export default function DashboardPage() {
       </div>
 
       {/* Chart section — scrollable */}
-      <ChartSection theme={theme} />
+      <ChartSection
+        theme={theme}
+        filteredData={activeFilter ? filteredData : undefined}
+        regionLabel={activeFilter?.nama}
+      />
 
       {/* Divider label 2 */}
       <div style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
