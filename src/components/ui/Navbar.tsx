@@ -113,6 +113,19 @@ export default function Navbar() {
             >
               Dashboard
             </a>
+            <a
+              href="https://inarisk.bnpb.go.id/databencana/webgis/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:scale-105"
+              style={{
+                background: 'linear-gradient(135deg, #F97316, #EA580C)',
+                color: '#fff',
+                border: 'none'
+              }}
+            >
+              WebGIS
+            </a>
           </div>
         </div>
 
@@ -177,6 +190,16 @@ export default function Navbar() {
                 onClick={() => setMenuOpen(false)}
               >
                 Dashboard
+              </a>
+              <a
+                href="https://inarisk.bnpb.go.id/databencana/webgis/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-3 rounded-full text-sm font-semibold text-white text-center"
+                style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}
+                onClick={() => setMenuOpen(false)}
+              >
+                WebGIS
               </a>
             </div>
           </nav>

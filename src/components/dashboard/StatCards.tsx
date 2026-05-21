@@ -1,7 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { ClipboardList, Users, Tent, Home, Building2, MapPin } from 'lucide-react';
 import { DIBI_TOTAL } from '@/data/dibiStats';
+
+type CardIcon = React.ReactNode;
 
 type Kejadian = {
   korban_jiwa: number;
@@ -15,7 +18,7 @@ const NATIONAL_CARDS = [
     sublabel: 'Data DIBI 2011–2026',
     getValue: () => DIBI_TOTAL.kejadian.toLocaleString('id'),
     unit: 'kejadian',
-    icon: '📋',
+    icon: <ClipboardList size={20} /> as CardIcon,
     accent: '#35a7ff',
     getTrend: () => '50.000 record bencana',
     trendUp: true,
@@ -25,7 +28,7 @@ const NATIONAL_CARDS = [
     sublabel: 'Korban Jiwa',
     getValue: () => (DIBI_TOTAL.meninggal + DIBI_TOTAL.hilang).toLocaleString('id'),
     unit: 'jiwa',
-    icon: '👤',
+    icon: <Users size={20} /> as CardIcon,
     accent: '#ff7f11',
     getTrend: () => `${DIBI_TOTAL.luka.toLocaleString('id')} luka/sakit`,
     trendUp: false,
@@ -35,7 +38,7 @@ const NATIONAL_CARDS = [
     sublabel: 'Total Pengungsi',
     getValue: () => (DIBI_TOTAL.pengungsi / 1_000_000).toFixed(1) + ' Jt',
     unit: 'jiwa',
-    icon: '🏕',
+    icon: <Tent size={20} /> as CardIcon,
     accent: '#ff7f11',
     getTrend: () => '82,7 juta total pengungsi',
     trendUp: false,
@@ -45,7 +48,7 @@ const NATIONAL_CARDS = [
     sublabel: 'Rusak + Terendam',
     getValue: () => (DIBI_TOTAL.rumah_terdampak / 1_000_000).toFixed(2) + ' Jt',
     unit: 'unit',
-    icon: '🏠',
+    icon: <Home size={20} /> as CardIcon,
     accent: '#35a7ff',
     getTrend: () => '11,8 juta unit rumah',
     trendUp: true,
@@ -81,7 +84,7 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
           sublabel: regionLabel ?? 'Wilayah Terpilih',
           value: regionStats.kejadian.toLocaleString('id'),
           unit: 'kejadian',
-          icon: '📋',
+          icon: <ClipboardList size={20} /> as CardIcon,
           accent: '#35a7ff',
           trend: `dari ${DIBI_TOTAL.kejadian.toLocaleString('id')} nasional`,
           trendUp: true,
@@ -91,7 +94,7 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
           sublabel: 'Korban Jiwa',
           value: regionStats.korban_jiwa.toLocaleString('id'),
           unit: 'jiwa',
-          icon: '👤',
+          icon: <Users size={20} /> as CardIcon,
           accent: '#ff7f11',
           trend: 'berdasarkan data lokal',
           trendUp: false,
@@ -103,7 +106,7 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
             ? (regionStats.pengungsi / 1_000_000).toFixed(1) + ' Jt'
             : regionStats.pengungsi.toLocaleString('id'),
           unit: 'jiwa',
-          icon: '🏕',
+          icon: <Tent size={20} /> as CardIcon,
           accent: '#ff7f11',
           trend: 'berdasarkan data lokal',
           trendUp: false,
@@ -115,7 +118,7 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
             ? regionStats.rumah_terdampak.toLocaleString('id')
             : '—',
           unit: regionStats.rumah_terdampak > 0 ? 'unit' : '',
-          icon: '🏠',
+          icon: <Home size={20} /> as CardIcon,
           accent: '#35a7ff',
           trend: regionStats.rumah_terdampak > 0 ? 'berdasarkan data lokal' : 'data tidak tersedia per wilayah',
           trendUp: true,
@@ -149,7 +152,7 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
             background: 'rgba(14,165,233,0.12)', border: '1px solid rgba(14,165,233,0.3)',
             fontSize: 11, color: '#0EA5E9', fontWeight: 600,
           }}>
-            <span>📍 Filter Wilayah: {regionLabel}</span>
+            <MapPin size={13} /> Filter Wilayah: {regionLabel}
             <button
               onClick={onClearRegion}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0EA5E9', fontSize: 13, padding: 0, lineHeight: 1, opacity: 0.7 }}
@@ -201,11 +204,11 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 18,
+                color: '#10b981',
                 flexShrink: 0,
               }}
             >
-              🏗
+              <Building2 size={20} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 2 }}>
@@ -254,7 +257,7 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 18,
+                color: c.accent,
                 flexShrink: 0,
               }}
             >

@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Wilayah } from '@/data/wilayah';
+import { Database, Lock, ArrowLeft, Map, Sun, Moon } from 'lucide-react';
 
 const SearchDaerah = dynamic(() => import('./SearchDaerah'), { ssr: false });
 
@@ -32,12 +33,16 @@ export default function DashboardHeader({ onSearch }: Props) {
       }}
     >
       {/* Brand */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
         <img
           src="/logo bappenas.png"
           alt="Logo Bappenas"
           style={{ height: 40, width: 'auto', objectFit: 'contain', flexShrink: 0 }}
         />
+        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+          <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: 0.2 }}>Satudata</span>
+          <span style={{ fontSize: 11, fontWeight: 600, color: '#0EA5E9' }}>Bencana</span>
+        </div>
       </div>
 
       {/* Search */}
@@ -86,14 +91,14 @@ export default function DashboardHeader({ onSearch }: Props) {
             border: '1.5px solid var(--toggle-border)',
             background: 'var(--toggle-bg)',
             cursor: 'pointer',
-            fontSize: 16,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'transform 0.2s',
+            color: 'var(--text-secondary)',
           }}
         >
-          {theme === 'dark' ? '☀️' : '🌙'}
+          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
         </button>
 
         {/* Button group: Management Data, Login, Kembali */}
@@ -115,7 +120,7 @@ export default function DashboardHeader({ onSearch }: Props) {
               transition: 'background 0.2s',
             }}
           >
-            🗄 Management Data
+            <Database size={13} /> Management Data
           </a>
           <a
             href="/login"
@@ -134,7 +139,7 @@ export default function DashboardHeader({ onSearch }: Props) {
               transition: 'background 0.2s',
             }}
           >
-            🔐 Login
+            <Lock size={13} /> Login
           </a>
           <a
             href="/"
@@ -153,7 +158,28 @@ export default function DashboardHeader({ onSearch }: Props) {
               transition: 'background 0.2s',
             }}
           >
-            ← Kembali
+            <ArrowLeft size={13} /> Kembali
+          </a>
+          <a
+            href="https://inarisk.bnpb.go.id/databencana/webgis/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              padding: '6px 12px',
+              borderRadius: 8,
+              background: 'linear-gradient(135deg, #F97316, #EA580C)',
+              border: 'none',
+              color: '#fff',
+              fontSize: 11,
+              fontWeight: 600,
+              textDecoration: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              transition: 'opacity 0.2s',
+            }}
+          >
+            <Map size={13} /> WebGIS
           </a>
         </div>
       </div>

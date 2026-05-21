@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { Layers, Map, BarChart2, Activity, Pencil, MapPin } from 'lucide-react';
 
 interface Kejadian {
   id: number;
@@ -298,6 +299,7 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
   const [activeDraw, setActiveDraw] = useState<string | null>(null);
   const [bmkgData, setBmkgData] = useState<BmkgGempa[]>([]);
   const [showBmkg, setShowBmkg] = useState(true);
+  const [showBencanaData, setShowBencanaData] = useState(true);
   const [bmkgLastUpdate, setBmkgLastUpdate] = useState<Date | null>(null);
   const [mapReady, setMapReady] = useState(false);
 
@@ -587,6 +589,19 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
     mapRef.current.flyTo([flyTo.lat, flyTo.lng], flyTo.zoom, { duration: 1.5 });
   }, [flyTo]);
 
+  // Toggle bencana.json markers
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    markersRef.current.forEach((m) => {
+      if (showBencanaData) {
+        if (!map.hasLayer(m)) m.addTo(map);
+      } else {
+        if (map.hasLayer(m)) map.removeLayer(m);
+      }
+    });
+  }, [showBencanaData, mapReady]);
+
   // Draw tools
   useEffect(() => {
     const L = leafletRef.current; const map = mapRef.current;
@@ -819,7 +834,9 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
 
         {/* Basemap selector */}
         <div style={{ position: 'relative' }}>
-          <button style={toolBtn(activePanel === 'basemap')} onClick={() => togglePanel('basemap')} title="Pilih Basemap">🛰️</button>
+          <button style={toolBtn(activePanel === 'basemap')} onClick={() => togglePanel('basemap')} title="Pilih Basemap">
+            <Layers size={16} />
+          </button>
           {activePanel === 'basemap' && (
             <div style={panel}>
               <div style={pHead}>Pilih Basemap</div>
@@ -840,7 +857,9 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
 
         {/* BNPB Layers */}
         <div style={{ position: 'relative' }}>
-          <button style={toolBtn(activePanel === 'layers')} onClick={() => togglePanel('layers')} title="Layer Bahaya InARISK">🗺️</button>
+          <button style={toolBtn(activePanel === 'layers')} onClick={() => togglePanel('layers')} title="Layer Bahaya InARISK">
+            <Map size={16} />
+          </button>
           {activePanel === 'layers' && (
             <div style={panel}>
               <div style={pHead}>Layer Peta <span style={{ fontSize: 9, fontWeight: 400, color: panelMuted }}>© BNPB · BIG</span></div>
@@ -881,7 +900,9 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
 
         {/* Legend */}
         <div style={{ position: 'relative' }}>
-          <button style={toolBtn(activePanel === 'legend')} onClick={() => togglePanel('legend')} title="Legenda">📊</button>
+          <button style={toolBtn(activePanel === 'legend')} onClick={() => togglePanel('legend')} title="Legenda">
+            <BarChart2 size={16} />
+          </button>
           {activePanel === 'legend' && (
             <div style={{ ...panel, width: 186 }}>
               <div style={pHead}>Legenda</div>
@@ -930,7 +951,7 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
             onClick={() => setShowBmkg((v) => !v)}
             title={showBmkg ? `Sembunyikan gempa BMKG (${bmkgData.length} titik)` : 'Tampilkan gempa terkini BMKG'}
           >
-            📳
+            <Activity size={16} />
           </button>
           {showBmkg && bmkgData.length > 0 && (
             <div style={{
@@ -951,9 +972,34 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
           )}
         </div>
 
+        {/* Toggle Bencana Data */}
+        <div style={{ position: 'relative' }}>
+          <button
+            style={toolBtn(showBencanaData)}
+            onClick={() => setShowBencanaData((v) => !v)}
+            title={showBencanaData ? 'Sembunyikan data bencana.json' : 'Tampilkan data bencana.json'}
+          >
+            <MapPin size={16} />
+          </button>
+          {showBencanaData && (
+            <div style={{
+              position: 'absolute', top: 0, right: 40,
+              background: '#0EA5E9', color: '#fff',
+              borderRadius: 10, padding: '2px 6px',
+              fontSize: 9, fontWeight: 700,
+              whiteSpace: 'nowrap', boxShadow: '0 2px 6px rgba(0,0,0,0.35)',
+              pointerEvents: 'none',
+            }}>
+              {data.length} Kejadian
+            </div>
+          )}
+        </div>
+
         {/* Draw tools */}
         <div style={{ position: 'relative' }}>
-          <button style={toolBtn(activePanel === 'draw' || activeDraw !== null)} onClick={() => { togglePanel('draw'); if (activeDraw) { if (activeDrawRef.current) { try { activeDrawRef.current.disable(); } catch{/**/ } activeDrawRef.current=null; } setActiveDraw(null); } }} title="Alat Gambar">✏️</button>
+          <button style={toolBtn(activePanel === 'draw' || activeDraw !== null)} onClick={() => { togglePanel('draw'); if (activeDraw) { if (activeDrawRef.current) { try { activeDrawRef.current.disable(); } catch{/**/ } activeDrawRef.current=null; } setActiveDraw(null); } }} title="Alat Gambar">
+            <Pencil size={16} />
+          </button>
           {activePanel === 'draw' && (
             <div style={{ ...panel, width: 194 }}>
               <div style={pHead}>

@@ -6,7 +6,7 @@ services:
     container_name: databencana-landing
     restart: unless-stopped
     ports:
-      - "19000:3000"    # host:container — port 67+3000 = 63000 (sesuai konvensi port 67 prefix)
+      - "19001:3000"    # host:container — port 67+3000 = 63000 (sesuai konvensi port 67 prefix)
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1

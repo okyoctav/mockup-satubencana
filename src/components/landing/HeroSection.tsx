@@ -107,6 +107,18 @@ export default function HeroSection() {
           >
             Lihat Dashboard →
           </button>
+          <a
+            href="https://inarisk.bnpb.go.id/databencana/webgis/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 hover:scale-105"
+            style={{
+              background: 'linear-gradient(135deg, #F97316, #EA580C)',
+              boxShadow: '0 0 30px rgba(249,115,22,0.4)',
+            }}
+          >
+            WebGIS
+          </a>
         </div>
       </div>
 
