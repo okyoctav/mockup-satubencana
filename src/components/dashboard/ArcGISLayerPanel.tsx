@@ -13,6 +13,7 @@ const TYPE_LABEL: Record<string, string> = {
   MapServer: 'MapServer',
   VectorTileServer: 'VectorTile',
   WebTileLayer: 'WebTile',
+  FeatureLayer: 'FeatureLayer',
 };
 
 const TYPE_COLOR: Record<string, string> = {
@@ -20,6 +21,7 @@ const TYPE_COLOR: Record<string, string> = {
   MapServer: '#F97316',
   VectorTileServer: '#10B981',
   WebTileLayer: '#A78BFA',
+  FeatureLayer: '#3B82F6',
 };
 
 export default function ArcGISLayerPanel({ theme, activeLayers, onToggle }: Props) {

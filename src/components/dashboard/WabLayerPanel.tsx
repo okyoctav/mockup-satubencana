@@ -14,6 +14,7 @@ const TYPE_LABEL: Record<string, string> = {
   ImageServer: 'IS',
   FeatureServer: 'FS',
   VectorTileServer: 'VT',
+  FeatureLayer: 'FL',
 };
 
 const TYPE_COLOR: Record<string, string> = {
@@ -21,6 +22,7 @@ const TYPE_COLOR: Record<string, string> = {
   ImageServer: '#0EA5E9',
   FeatureServer: '#22C55E',
   VectorTileServer: '#F59E0B',
+  FeatureLayer: '#3B82F6',
 };
 
 export default function WabLayerPanel({ theme }: Props) {
@@ -57,6 +59,7 @@ export default function WabLayerPanel({ theme }: Props) {
   const groupColors: Record<string, string> = {
     'Bahaya': '#EF4444',
     'Geospasial Dasar (BIG)': '#22C55E',
+    'Kependudukan (Kemendagri)': '#3B82F6',
   };
 
   return (
@@ -117,7 +120,7 @@ export default function WabLayerPanel({ theme }: Props) {
               position: 'sticky', top: 0,
               background: panelBg, zIndex: 1,
             }}>
-              {grpName === 'Bahaya' ? '⚠️ ' : '🌿 '}{grpName}
+              {grpName === 'Bahaya' ? '⚠️ ' : grpName === 'Geospasial Dasar (BIG)' ? '🌿 ' : '👥 '}{grpName}
             </div>
 
             {layers.map((layer) => {

@@ -236,71 +236,95 @@ function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, is
   return new ArcLayer({ opacity, attribution: '© BIG / BNPB', tileSize: 256 });
 }
 
-function buildImpactHtml(d: ImpactData): string {
-  const loading = d.fasumLoading;
-  const fmtRp = (n: number) => {
-    if (n >= 1e12) return `Rp ${(n / 1e12).toFixed(2)} T`;
-    if (n >= 1e9)  return `Rp ${(n / 1e9).toFixed(1)} M`;
-    if (n >= 1e6)  return `Rp ${(n / 1e6).toFixed(0)} Jt`;
-    return `Rp ${n.toLocaleString('id')}`;
-  };
-  const rows = [
-    { icon: '👥', label: 'Orang Terdampak', value: loading ? '⏳' : d.orng.toLocaleString('id'),                        unit: 'jiwa',  color: '#EF4444' },
-    { icon: '🏠', label: 'Bangunan',        value: loading ? '⏳' : d.rumah.toLocaleString('id'),                       unit: 'unit',  color: '#F97316' },
-    { icon: '🏛️', label: 'Fasilitas Umum', value: loading ? '⏳' : (d.fasumReal ?? d.fasum).toLocaleString('id'),       unit: 'gedung',color: '#8B5CF6' },
-    { icon: '💰', label: 'Est. Kerugian',   value: loading ? '⏳' : fmtRp(d.kerugian),                                  unit: '',      color: '#10B981' },
-  ];
-  return `<div style="width:268px;font-family:system-ui,sans-serif;color:#0F172A">
-    <div style="margin-bottom:8px;padding-bottom:7px;border-bottom:1.5px solid #E2E8F0">
-      <div style="font-size:11px;color:#0EA5E9;font-weight:700;text-transform:uppercase;letter-spacing:.8px">📐 Analisis Area Terdampak</div>
-      ${d.area !== '—' ? `<div style="font-size:10px;color:#64748B;margin-top:3px">Estimasi luas ≈ <strong style="color:#0F172A">${d.area} km²</strong></div>` : ''}
-    </div>
-    <table style="width:100%;border-collapse:collapse">
-      <tbody>
-        ${rows.map((r, i) => `<tr style="border-bottom:${i < rows.length - 1 ? '1px solid #F1F5F9' : 'none'}">
-          <td style="padding:6px 4px 6px 0;color:#475569;font-size:11px;white-space:nowrap">${r.icon} ${r.label}</td>
-          <td style="padding:6px 0 6px 8px;text-align:right;white-space:nowrap">
-            <span style="font-size:13px;font-weight:700;color:${r.color}">${r.value}</span>
-            ${r.unit ? `<span style="font-size:9px;color:#94A3B8;margin-left:2px">${r.unit}</span>` : ''}
-          </td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-    <div style="margin-top:8px;padding-top:6px;border-top:1px solid #E2E8F0;font-size:9px;color:#94A3B8;line-height:1.5">
-      ${loading ? '🔄 Mengambil data dari OpenStreetMap (Meta Building Footprints)…' : '⚠️ Estimasi berdasarkan Meta Building Footprints (OSM) — bukan data resmi BNPB'}
-    </div>
-  </div>`;
-}
-
-function buildFailureHtml(area: string): string {
-  return `<div style="width:268px;font-family:system-ui,sans-serif;color:#0F172A">
-    <div style="margin-bottom:8px;padding-bottom:7px;border-bottom:1.5px solid #E2E8F0">
-      <div style="font-size:11px;color:#0EA5E9;font-weight:700;text-transform:uppercase;letter-spacing:.8px">📐 Analisis Area Terdampak</div>
-      ${area !== '—' ? `<div style="font-size:10px;color:#64748B;margin-top:3px">Estimasi luas ≈ <strong style="color:#0F172A">${area} km²</strong></div>` : ''}
-    </div>
-    <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 12px;margin-bottom:6px">
-      <div style="font-size:13px;font-weight:700;color:#DC2626;margin-bottom:4px">⚠️ Gagal Mengambil Data</div>
-      <div style="font-size:11px;color:#7F1D1D;line-height:1.5">Data bangunan Meta/OSM tidak tersedia saat ini. Coba gambar ulang atau pilih area yang lebih kecil.</div>
-    </div>
-    <div style="font-size:9px;color:#94A3B8;line-height:1.5">Layanan Overpass API tidak dapat dijangkau</div>
-  </div>`;
-}
-
-interface ImpactData {
-  orng: number;
-  rumah: number;
-  kerugian: number;
-  fasum: number;
-  fasumReal: number | null;
-  fasumLoading: boolean;
-  fasumSource: string;
+interface ImpactDataK3 {
+  loading: boolean;
+  totalPenduduk: number;
+  totalPria: number;
+  totalWanita: number;
+  totalKK: number;
+  kelurahans: string[];
   area: string;
   layerType: string;
 }
 
+function buildImpactHtmlK3(d: ImpactDataK3): string {
+  const loading = d.loading;
+  return `<div style="width:280px;font-family:system-ui,sans-serif;color:#0F172A">
+    <div style="margin-bottom:8px;padding-bottom:7px;border-bottom:1.5px solid #E2E8F0">
+      <div style="font-size:11px;color:#0EA5E9;font-weight:700;text-transform:uppercase;letter-spacing:.8px">📐 Estimasi Demografi Terdampak</div>
+      ${d.area !== '—' ? `<div style="font-size:10px;color:#64748B;margin-top:3px">Estimasi luas ≈ <strong style="color:#0F172A">${d.area} km²</strong></div>` : ''}
+    </div>
+    
+    ${loading ? `
+      <div style="padding:16px 0;text-align:center;color:#64748B;font-size:12px">
+        <span style="display:inline-block;animation:spin 1s linear infinite;margin-bottom:8px;font-size:16px">⏳</span>
+        <div>Menghubungi Dukcapil GIS Service...</div>
+      </div>
+    ` : `
+      <table style="width:100%;border-collapse:collapse;margin-bottom:8px">
+        <tbody>
+          <tr style="border-bottom:1px solid #F1F5F9">
+            <td style="padding:6px 4px 6px 0;color:#475569;font-size:11px;white-space:nowrap">👥 Total Penduduk</td>
+            <td style="padding:6px 0 6px 8px;text-align:right;white-space:nowrap">
+              <span style="font-size:13px;font-weight:700;color:#EF4444">${d.totalPenduduk.toLocaleString('id')}</span>
+              <span style="font-size:9px;color:#94A3B8;margin-left:2px">jiwa</span>
+            </td>
+          </tr>
+          <tr style="border-bottom:1px solid #F1F5F9">
+            <td style="padding:6px 4px 6px 0;color:#475569;font-size:11px;white-space:nowrap">👨 Pria</td>
+            <td style="padding:6px 0 6px 8px;text-align:right;white-space:nowrap">
+              <span style="font-size:12px;font-weight:600;color:#35A7FF">${d.totalPria.toLocaleString('id')}</span>
+              <span style="font-size:9px;color:#94A3B8;margin-left:2px">jiwa</span>
+            </td>
+          </tr>
+          <tr style="border-bottom:1px solid #F1F5F9">
+            <td style="padding:6px 4px 6px 0;color:#475569;font-size:11px;white-space:nowrap">👩 Wanita</td>
+            <td style="padding:6px 0 6px 8px;text-align:right;white-space:nowrap">
+              <span style="font-size:12px;font-weight:600;color:#EC4899">${d.totalWanita.toLocaleString('id')}</span>
+              <span style="font-size:9px;color:#94A3B8;margin-left:2px">jiwa</span>
+            </td>
+          </tr>
+          <tr style="border-bottom:1px solid #F1F5F9">
+            <td style="padding:6px 4px 6px 0;color:#475569;font-size:11px;white-space:nowrap">🏠 Jumlah KK</td>
+            <td style="padding:6px 0 6px 8px;text-align:right;white-space:nowrap">
+              <span style="font-size:12px;font-weight:600;color:#F97316">${d.totalKK.toLocaleString('id')}</span>
+              <span style="font-size:9px;color:#94A3B8;margin-left:2px">kk</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div style="margin-top:6px;max-height:80px;overflow-y:auto;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:6px 8px">
+        <div style="font-size:9px;font-weight:700;color:#475569;margin-bottom:3px">🚩 Kelurahan Terdampak (${d.kelurahans.length}):</div>
+        <div style="font-size:10px;color:#0F172A;line-height:1.4">
+          ${d.kelurahans.length > 0 ? d.kelurahans.join(', ') : '<span style="color:#94A3B8">Tidak ada kelurahan terdeteksi</span>'}
+        </div>
+      </div>
+    `}
+    
+    <div style="margin-top:8px;padding-top:6px;border-top:1px solid #E2E8F0;font-size:8.5px;color:#94A3B8;line-height:1.4">
+      ⚠️ Data kependudukan bersumber langsung dari Dukcapil ArcGIS MapServer.
+    </div>
+  </div>`;
+}
+
+function buildFailureHtmlK3(area: string, errorMsg?: string): string {
+  return `<div style="width:280px;font-family:system-ui,sans-serif;color:#0F172A">
+    <div style="margin-bottom:8px;padding-bottom:7px;border-bottom:1.5px solid #E2E8F0">
+      <div style="font-size:11px;color:#0EA5E9;font-weight:700;text-transform:uppercase;letter-spacing:.8px">📐 Estimasi Demografi Terdampak</div>
+      ${area !== '—' ? `<div style="font-size:10px;color:#64748B;margin-top:3px">Estimasi luas ≈ <strong style="color:#0F172A">${area} km²</strong></div>` : ''}
+    </div>
+    <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 12px;margin-bottom:6px">
+      <div style="font-size:13px;font-weight:700;color:#DC2626;margin-bottom:4px">⚠️ Gagal Mengambil Data</div>
+      <div style="font-size:11px;color:#7F1D1D;line-height:1.5">${errorMsg || 'Layanan GIS Dukcapil tidak merespon saat ini. Pastikan Anda terhubung ke internet dan coba lagi.'}</div>
+    </div>
+    <div style="font-size:9px;color:#94A3B8;line-height:1.5">Dukcapil MapServer Query Error</div>
+  </div>`;
+}
+
 type ActivePanel = 'basemap' | 'layers' | 'legend' | 'draw' | 'bmkg' | null;
 
-export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
+export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapRef = useRef<any>(null);
@@ -764,37 +788,63 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
           }
         } catch { /* */ }
 
-        // --- Build Overpass poly string from drawn shape ---
-        let polyStr = '';
+        // --- Build Esri JSON Geometry ---
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let esriGeometry: any = null;
         try {
           if (e.layerType === 'circle') {
             const center = layer.getLatLng();
             const r = layer.getRadius(); // meters
-            const pts: string[] = [];
-            for (let i = 0; i < 16; i++) {
-              const angle = (i / 16) * 2 * Math.PI;
+            const rings: number[][] = [];
+            for (let i = 0; i <= 32; i++) {
+              const angle = (i / 32) * 2 * Math.PI;
               const lat = center.lat + (r / 111320) * Math.cos(angle);
               const lng = center.lng + (r / (111320 * Math.cos(center.lat * Math.PI / 180))) * Math.sin(angle);
-              pts.push(`${lat.toFixed(6)} ${lng.toFixed(6)}`);
+              rings.push([lng, lat]);
             }
-            polyStr = pts.join(' ');
+            esriGeometry = {
+              rings: [rings],
+              spatialReference: { wkid: 4326 }
+            };
           } else {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const ring: any[] = layer.getLatLngs()[0];
+            const pts: any[] = layer.getLatLngs()[0];
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            polyStr = ring.map((p: any) => `${p.lat.toFixed(6)} ${p.lng.toFixed(6)}`).join(' ');
+            const rings = pts.map((p: any) => [p.lng, p.lat]);
+            if (rings.length > 0) {
+              const first = rings[0];
+              const last = rings[rings.length - 1];
+              if (first[0] !== last[0] || first[1] !== last[1]) {
+                rings.push([first[0], first[1]]);
+              }
+            }
+            esriGeometry = {
+              rings: [rings],
+              spatialReference: { wkid: 4326 }
+            };
           }
-        } catch { /* */ }
+        } catch (err) {
+          console.error("Error building Esri geometry:", err);
+        }
 
         // Clear previous building footprint layer
         if (buildingLayerRef.current) { map.removeLayer(buildingLayerRef.current); buildingLayerRef.current = null; }
 
         // Open native Leaflet popup at polygon center (loading state)
-        const loadingState: ImpactData = { orng: 0, rumah: 0, kerugian: 0, fasum: 0, fasumReal: null, fasumLoading: true, fasumSource: 'Meta/OSM', area, layerType: e.layerType };
+        const loadingState: ImpactDataK3 = {
+          loading: true,
+          totalPenduduk: 0,
+          totalPria: 0,
+          totalWanita: 0,
+          totalKK: 0,
+          kelurahans: [],
+          area,
+          layerType: e.layerType
+        };
         const popupCenter = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLng();
         const popup = L.popup({ maxWidth: 360, minWidth: 300, className: 'impact-popup', closeButton: true, autoClose: false })
           .setLatLng(popupCenter)
-          .setContent(buildImpactHtml(loadingState))
+          .setContent(buildImpactHtmlK3(loadingState))
           .openOn(map);
         popupRef.current = popup;
         popup.on('remove', () => {
@@ -802,66 +852,135 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
           if (buildingLayerRef.current) { map.removeLayer(buildingLayerRef.current); buildingLayerRef.current = null; }
         });
 
-        if (!polyStr) {
-          const rumahFb = Math.floor(Math.random() * 1000 + 100);
-          const multi   = 3 + Math.random();
-          const fb: ImpactData = { orng: Math.round(rumahFb * multi), rumah: rumahFb, kerugian: Math.round(rumahFb * (48_000_000 + Math.random() * 12_000_000)), fasum: Math.max(1, Math.floor(Math.random() * 5)), fasumReal: null, fasumLoading: false, fasumSource: 'estimasi', area, layerType: e.layerType };
-          popup.setContent(buildImpactHtml(fb));
+        if (!esriGeometry) {
+          popup.setContent(buildFailureHtmlK3(area, "Gagal membuat geometri untuk query."));
           return;
         }
 
-        const OVP = 'https://overpass-api.de/api/interpreter';
-        const POLY = `poly:"${polyStr}"`;
-        // Query 1: building ways with full geometry (for display + count)
-        const qBldGeom = `[out:json][timeout:30];way[building](${POLY});out geom;`;
-        // Query 2: fasilitas umum count
-        const qFasum = `[out:json][timeout:30];(
-          node[amenity~"^(school|hospital|clinic|mosque|church|place_of_worship|pharmacy|fire_station|police|kindergarten|dentist|doctors|community_centre|library)$"](${POLY});
-          way[amenity~"^(school|hospital|clinic|mosque|church|place_of_worship|pharmacy|fire_station|police|kindergarten|dentist|doctors|community_centre|library)$"](${POLY});
-          way[building~"^(school|hospital|mosque|church|clinic|kindergarten|public)$"](${POLY});
-          way[leisure~"^(sports_centre|stadium)$"](${POLY});
-        );out count;`;
+        const queryUrl = 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/services/AGR_VISUAL_KEL_FIX/MapServer/0/query';
+        const params = new URLSearchParams();
+        params.append('where', '1=1');
+        params.append('geometryType', 'esriGeometryPolygon');
+        params.append('spatialRel', 'esriSpatialRelIntersects');
+        params.append('outFields', 'JUMLAH_PENDUDUK,JUMLAH_KK,PRIA,WANITA,NAMA_KEL');
+        params.append('inSR', '4326');
+        params.append('outSR', '4326');
+        params.append('f', 'json');
+        params.append('returnGeometry', 'true');
+        params.append('geometry', JSON.stringify(esriGeometry));
 
-        const fetchOvp = (url: string, body: string) =>
-          fetch(url, { method: 'POST', body, signal: AbortSignal.timeout(30000) }).then((r) => r.json());
-
+        // Case-insensitive helpers
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const parseCount = (json: any): number =>
-          parseInt(json?.elements?.[0]?.tags?.total ?? '0', 10) || 0;
+        const getAttrVal = (attrs: any, fieldName: string) => {
+          if (!attrs) return 0;
+          const key = Object.keys(attrs).find(k => k.toLowerCase() === fieldName.toLowerCase());
+          return key ? (parseInt(attrs[key], 10) || 0) : 0;
+        };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const getAttrStr = (attrs: any, fieldName: string) => {
+          if (!attrs) return '';
+          const key = Object.keys(attrs).find(k => k.toLowerCase() === fieldName.toLowerCase());
+          return key ? (attrs[key] ?? '') : '';
+        };
 
-        Promise.all([
-          fetchOvp(OVP, qBldGeom).catch(() => fetchOvp('https://overpass.kumi.systems/api/interpreter', qBldGeom)),
-          fetchOvp(OVP, qFasum).catch(() => fetchOvp('https://overpass.kumi.systems/api/interpreter', qFasum)),
-        ])
-          .then(([bldJson, fsJson]) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const ways = (bldJson?.elements ?? []).filter((el: any) => el.type === 'way' && Array.isArray(el.geometry));
-            const rumah    = ways.length;
-            const fasum    = parseCount(fsJson);
-            const multi    = 3 + Math.random();
-            const orng     = Math.round(rumah * multi);
-            const kerugian = Math.round(rumah * (48_000_000 + Math.random() * 12_000_000));
-            // Render building footprints as GeoJSON layer
-            if (ways.length > 0 && !buildingLayerRef.current) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const features = ways.map((el: any) => ({
-                type: 'Feature' as const,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                geometry: { type: 'Polygon' as const, coordinates: [el.geometry.map((p: any) => [p.lon, p.lat])] },
-                properties: el.tags || {},
-              }));
-              const bldLayer = L.geoJSON(
-                { type: 'FeatureCollection', features },
-                { style: () => ({ color: '#F97316', weight: 1.2, fillColor: '#F97316', fillOpacity: 0.22, opacity: 0.85 }) },
-              );
-              bldLayer.addTo(map);
-              buildingLayerRef.current = bldLayer;
-            }
-            const finalState: ImpactData = { orng, rumah, kerugian, fasum, fasumReal: fasum, fasumLoading: false, fasumSource: 'Meta/OSM', area, layerType: e.layerType };
-            if (popupRef.current) popup.setContent(buildImpactHtml(finalState));
+        fetch(queryUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: params.toString(),
+          signal: AbortSignal.timeout(30000)
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+            return res.json();
           })
-          .catch(() => {
-            if (popupRef.current) popup.setContent(buildFailureHtml(area));
+          .then((data) => {
+            const features = data?.features ?? [];
+            
+            // Calculate sums
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const totalPenduduk = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, 'JUMLAH_PENDUDUK'), 0);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const totalKK = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, 'JUMLAH_KK'), 0);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const totalPria = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, 'PRIA'), 0);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const totalWanita = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, 'WANITA'), 0);
+            
+            // Collect unique kelurahan names
+            const kelList: string[] = [];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            features.forEach((f: any) => {
+              const name = getAttrStr(f.attributes, 'NAMA_KEL');
+              if (name && !kelList.includes(name)) {
+                kelList.push(name);
+              }
+            });
+            kelList.sort();
+
+            // Render Kelurahan boundary highlights
+            if (features.length > 0 && !buildingLayerRef.current) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const geojsonFeatures: any[] = [];
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              features.forEach((f: any) => {
+                if (f.geometry && Array.isArray(f.geometry.rings)) {
+                  geojsonFeatures.push({
+                    type: 'Feature',
+                    geometry: {
+                      type: 'Polygon',
+                      coordinates: f.geometry.rings
+                    },
+                    properties: f.attributes
+                  });
+                }
+              });
+
+              if (geojsonFeatures.length > 0) {
+                const bldLayer = L.geoJSON(
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  { type: 'FeatureCollection', features: geojsonFeatures } as any,
+                  {
+                    style: () => ({
+                      color: '#0EA5E9',
+                      weight: 2,
+                      fillColor: '#35A7FF',
+                      fillOpacity: 0.2,
+                      dashArray: '4, 4',
+                      opacity: 0.85
+                    }),
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    onEachFeature: (feature: any, layer: any) => {
+                      const kelName = getAttrStr(feature.properties, 'NAMA_KEL');
+                      const pop = getAttrVal(feature.properties, 'JUMLAH_PENDUDUK');
+                      layer.bindTooltip(`<strong>Kel. ${kelName}</strong><br/>Penduduk: ${pop.toLocaleString('id')} jiwa`, {
+                        sticky: true,
+                        className: 'kel-tooltip'
+                      });
+                    }
+                  }
+                );
+                bldLayer.addTo(map);
+                buildingLayerRef.current = bldLayer;
+              }
+            }
+
+            const finalState: ImpactDataK3 = {
+              loading: false,
+              totalPenduduk,
+              totalPria,
+              totalWanita,
+              totalKK,
+              kelurahans: kelList,
+              area,
+              layerType: e.layerType
+            };
+            if (popupRef.current) popup.setContent(buildImpactHtmlK3(finalState));
+          })
+          .catch((err) => {
+            console.error("Dukcapil Service error:", err);
+            if (popupRef.current) popup.setContent(buildFailureHtmlK3(area, "Tidak dapat menghubungi Dukcapil GIS Service atau query gagal. Silakan coba beberapa saat lagi."));
           });
       });
     };

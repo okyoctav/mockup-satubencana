@@ -128,15 +128,27 @@ export default function DashboardK2Page() {
         <span style={{ fontSize: 10, color: isDark ? '#94A3B8' : '#64748B' }}>
           {wabConfig.appTitle} · {wabConfig.layers.length} layer tersedia
         </span>
-        <a
-          href="/dashboard"
-          style={{
-            marginLeft: 'auto', fontSize: 10, color: '#0EA5E9',
-            textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4,
-          }}
-        >
-          ← Kembali ke Konsep 1 (Leaflet)
-        </a>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 12 }}>
+          <a
+            href="/dashboard"
+            style={{
+              fontSize: 10, color: '#0EA5E9',
+              textDecoration: 'none', fontWeight: 600,
+            }}
+          >
+            Konsep 1 (Leaflet)
+          </a>
+          <span style={{ color: 'var(--border-subtle)', fontSize: 10 }}>|</span>
+          <a
+            href="/dashboard_k3"
+            style={{
+              fontSize: 10, color: '#0EA5E9',
+              textDecoration: 'none', fontWeight: 600,
+            }}
+          >
+            Konsep 3 (Dukcapil Service)
+          </a>
+        </div>
       </div>
 
       {/* Filter bar */}

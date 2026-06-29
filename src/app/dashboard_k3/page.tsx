@@ -5,7 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import AlertTicker from '@/components/dashboard/AlertTicker';
 import StatCards from '@/components/dashboard/StatCards';
-import DashboardMap from '@/components/dashboard/DashboardMap';
+import DashboardMapK3 from '@/components/dashboard/DashboardMapK3';
 import FilterPanel from '@/components/dashboard/FilterPanel';
 import ChartSection from '@/components/dashboard/ChartSection';
 import AnalysisModelsSection from '@/components/dashboard/AnalysisModelsSection';
@@ -30,7 +30,7 @@ type Kejadian = {
 
 const allData = bencanaData.kejadian as Kejadian[];
 
-export default function DashboardPage() {
+export default function DashboardK3Page() {
   const { theme } = useTheme();
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [filters, setFilters] = useState({ jenis: 'Semua', status: 'Semua', level: 'Semua' });
@@ -104,28 +104,38 @@ export default function DashboardPage() {
         <AlertTicker onAlertClick={handleAlertClick} />
       </div>
 
-      {/* K1 badge bar */}
+      {/* K3 badge bar */}
       <div style={{
         padding: '6px 16px',
         display: 'flex', alignItems: 'center', gap: 10,
         background: theme === 'dark'
-          ? 'linear-gradient(90deg, rgba(53,167,255,0.18), rgba(14,165,233,0.08))'
-          : 'linear-gradient(90deg, rgba(53,167,255,0.10), rgba(14,165,233,0.04))',
-        borderBottom: '1px solid rgba(53,167,255,0.2)',
+          ? 'linear-gradient(90deg, rgba(14,165,233,0.18), rgba(53,167,255,0.08))'
+          : 'linear-gradient(90deg, rgba(14,165,233,0.10), rgba(53,167,255,0.04))',
+        borderBottom: '1px solid rgba(14,165,233,0.2)',
       }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 6,
-          background: 'linear-gradient(135deg, #35A7FF, #38618C)',
+          background: 'linear-gradient(135deg, #0EA5E9, #2563EB)',
           color: '#fff', borderRadius: 20,
           padding: '3px 12px', fontSize: 10, fontWeight: 800,
           letterSpacing: 0.6,
         }}>
-          ⚡ KONSEP 1 — Leaflet Map (Meta Footprints)
+          ⚡ KONSEP 3 — Dukcapil Feature Service Estimator
         </div>
         <span style={{ fontSize: 10, color: theme === 'dark' ? '#94A3B8' : '#64748B' }}>
-          Estimasi Terdampak Berbasis OSM & Meta Footprints
+          Estimasi Kependudukan Real-time Terbencana
         </span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 12 }}>
+          <a
+            href="/dashboard"
+            style={{
+              fontSize: 10, color: '#0EA5E9',
+              textDecoration: 'none', fontWeight: 600,
+            }}
+          >
+            Konsep 1 (Leaflet)
+          </a>
+          <span style={{ color: 'var(--border-subtle)', fontSize: 10 }}>|</span>
           <a
             href="/dashboard_k2"
             style={{
@@ -134,16 +144,6 @@ export default function DashboardPage() {
             }}
           >
             Konsep 2 (ArcGIS Native)
-          </a>
-          <span style={{ color: 'var(--border-subtle)', fontSize: 10 }}>|</span>
-          <a
-            href="/dashboard_k3"
-            style={{
-              fontSize: 10, color: '#0EA5E9',
-              textDecoration: 'none', fontWeight: 600,
-            }}
-          >
-            Konsep 3 (Dukcapil Service)
           </a>
         </div>
       </div>
@@ -214,9 +214,9 @@ export default function DashboardPage() {
               letterSpacing: 0.5,
             }}
           >
-            🗺 Model 2 — Peta Sebaran Bencana Nasional
+            🗺 Model 3 — Peta Sebaran Bencana Nasional (Dukcapil Service)
           </div>
-          <DashboardMap data={filteredData} flyTo={flyTo} theme={theme} />
+          <DashboardMapK3 data={filteredData} flyTo={flyTo} theme={theme} />
         </div>
 
         {/* Filter Panel */}

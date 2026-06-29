@@ -92,6 +92,7 @@ export default function ArcGISMapView({ theme, activeLayers }: Props) {
         { default: Map },
         { default: MapView },
         { default: MapImageLayer },
+        { default: FeatureLayer },
         { default: ImageryLayer },
         { default: VectorTileLayer },
         { default: WebTileLayer },
@@ -109,6 +110,7 @@ export default function ArcGISMapView({ theme, activeLayers }: Props) {
         import('@arcgis/core/Map'),
         import('@arcgis/core/views/MapView'),
         import('@arcgis/core/layers/MapImageLayer'),
+        import('@arcgis/core/layers/FeatureLayer'),
         import('@arcgis/core/layers/ImageryLayer'),
         import('@arcgis/core/layers/VectorTileLayer'),
         import('@arcgis/core/layers/WebTileLayer'),
@@ -144,6 +146,8 @@ export default function ArcGISMapView({ theme, activeLayers }: Props) {
           layer = new ImageryLayer(opts);
         } else if (cfg.type === 'VectorTileServer') {
           layer = new VectorTileLayer(opts);
+        } else if (cfg.type === 'FeatureLayer') {
+          layer = new FeatureLayer(opts);
         } else if (cfg.type === 'WebTileLayer') {
           // XYZ/WMTS tiles — gunakan urlTemplate dengan {level}/{col}/{row}
           layer = new WebTileLayer({

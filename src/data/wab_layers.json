@@ -231,6 +231,18 @@
       "source": "KLHK SIDIK",
       "description": "Indeks kerentanan ekosistem Indonesia — SIDIK KLHK",
       "visible": false
+    },
+    {
+      "id": "dukcapil_kel_fix",
+      "group": "Kependudukan (Kemendagri)",
+      "name": "Kependudukan Kelurahan",
+      "emoji": "👥",
+      "color": "#3B82F6",
+      "type": "FeatureLayer",
+      "url": "https://gis.dukcapil.kemendagri.go.id/arcgis/rest/services/AGR_VISUAL_KEL_FIX/MapServer/0",
+      "source": "Kemendagri Dukcapil",
+      "description": "Visualisasi data kependudukan tingkat kelurahan seluruh Indonesia",
+      "visible": false
     }
   ]
 }
