@@ -16,9 +16,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id">
-      <head>
-        <link rel="stylesheet" href="/leaflet.css" />
-      </head>
       <body className="antialiased">
         <ThemeProvider>
           {children}

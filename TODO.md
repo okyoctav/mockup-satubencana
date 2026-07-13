@@ -1,0 +1,25 @@
+# TODO Implementasi Supabase + ACL + Ant Design Admin
+
+- [x] Tambah dependency: `@supabase/supabase-js`, `antd`, `@ant-design/icons`
+- [x] Buat util Supabase client/server dan helper auth/role
+  - [x] `src/lib/supabase/client.ts`
+  - [x] `src/lib/supabase/server.ts`
+  - [x] helper `getUserRole`, `requireAdmin` (server-side/guards)
+- [x] Buat SQL migration Supabase (schema, enum role/tabel role, RLS, trigger, seed default role)
+  - [x] `supabase/migrations/0001_init_acl.sql`
+- [x] Refactor halaman login ke Supabase Auth (email/password)
+  - [x] `src/app/login/page.tsx`
+- [x] Refactor proteksi halaman admin dari sessionStorage ke Supabase session
+  - [x] `src/app/admin/page.tsx`
+- [x] Bangun layout admin Ant Design (sidebar kiri, header, konten)
+  - [x] `src/app/admin/AdminLayout.tsx` (Layout shell)
+- [x] Integrasi halaman /admin ke layout baru (landing setelah login)
+  - [x] `src/app/admin/page.tsx` (hanya content)
+- [x] Integrasi /management ke tampilan Ant Design
+  - [x] `src/app/management/page.tsx` (wrap dengan AdminLayout)
+- [x] Tambah halaman Users/Roles management (CRUD role + active flag)
+  - [x] `src/app/admin/roles/page.tsx`
+- [x] Uji build/lint dan rapikan dokumentasi setup env + migration
+  - [x] `npm run lint`
+  - [x] `npm run build`
+  - [x] update `README.md`

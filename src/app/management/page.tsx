@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { AdminLayout } from '@/app/admin/AdminLayout';
 
 const INARISK_BASE = 'https://gis.bnpb.go.id/server/rest/services/inarisk';
 
@@ -71,44 +72,8 @@ export default function ManagementPage() {
   }, [search, kategoriFilter, typeFilter]);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-page)', color: 'var(--text-primary)' }}>
-      {/* Header */}
-      <header style={{
-        background: 'var(--bg-card)',
-        borderBottom: '1px solid var(--border-faint)',
-        padding: '0 32px',
-        height: 64,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        borderLeft: '4px solid #35a7ff',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #35A7FF, #38618C)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
-            🗄
-          </div>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--text-primary)' }}>Management Data</div>
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Layanan Geospasial Inarisk — BNPB</div>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <a href="/admin" style={{ padding: '6px 14px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-faint)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>
-            🖥 Admin
-          </a>
-          <a href="/dashboard" style={{ padding: '6px 14px', borderRadius: 8, background: 'rgba(53,167,255,0.12)', border: '1px solid rgba(53,167,255,0.3)', color: '#35a7ff', fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>
-            📊 Dashboard
-          </a>
-          <a href="/" style={{ padding: '6px 14px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-faint)', color: 'var(--text-muted)', fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>
-            ← Kembali
-          </a>
-        </div>
-      </header>
-
-      <div style={{ padding: '28px 32px' }}>
+    <AdminLayout title="Management Data" subtitle="Layanan Geospasial Inarisk — BNPB">
+      <div style={{ padding: '8px 0' }}>
         {/* Stats row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24 }}>
           {[
@@ -237,6 +202,6 @@ export default function ManagementPage() {
           )}
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }

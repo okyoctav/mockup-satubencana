@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-
-const ADMIN_EMAIL = 'admin@admin.com';
-const ADMIN_PASSWORD = 'admin123@';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,21 +11,31 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setTimeout(() => {
-      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('isAdmin', '1');
-        }
-        router.push('/admin');
-      } else {
-        setError('Email atau password salah.');
+
+    try {
+      const client = getSupabaseBrowserClient();
+      if (!client) {
+        throw new Error('Konfigurasi Supabase belum tersedia.');
       }
+
+      const { error } = await client.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      router.push('/admin');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal masuk. Coba lagi.';
+      setError(message);
+    } finally {
       setLoading(false);
-    }, 600);
+    }
   };
 
   return (

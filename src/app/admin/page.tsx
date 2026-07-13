@@ -1,35 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { AdminLayout } from '@/app/admin/AdminLayout';
 
 export default function AdminPage() {
-  const router = useRouter();
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (!sessionStorage.getItem('isAdmin')) {
-        router.replace('/login');
-      } else {
-        setReady(true);
-      }
-    }
-  }, [router]);
-
-  const handleLogout = () => {
-    sessionStorage.removeItem('isAdmin');
-    router.push('/');
-  };
-
-  if (!ready) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-page)' }}>
-        <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Memverifikasi sesi...</div>
-      </div>
-    );
-  }
-
   const MENU = [
     {
       icon: '📊',
@@ -48,42 +21,8 @@ export default function AdminPage() {
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-page)', color: 'var(--text-primary)' }}>
-      {/* Header */}
-      <header style={{
-        background: 'var(--bg-card)',
-        borderBottom: '1px solid var(--border-faint)',
-        padding: '0 32px',
-        height: 64,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        borderLeft: '4px solid #ff7f11',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <img src="/logo bappenas.png" alt="Logo Bappenas" style={{ height: 36, width: 'auto', objectFit: 'contain' }} />
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--text-primary)' }}>SATUBENCANA Admin</div>
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Backend Panel</div>
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-muted)', padding: '4px 12px', borderRadius: 20, background: 'rgba(53,167,255,0.08)', border: '1px solid rgba(53,167,255,0.15)' }}>
-            🔐 admin@admin.com
-          </div>
-          <button
-            onClick={handleLogout}
-            style={{ padding: '6px 14px', borderRadius: 8, background: 'rgba(255,127,17,0.1)', border: '1px solid rgba(255,127,17,0.25)', color: '#ff7f11', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
-          >
-            Keluar
-          </button>
-        </div>
-      </header>
-
-      <div style={{ padding: '40px 32px' }}>
+    <AdminLayout title="Admin Dashboard" subtitle="Pilih modul admin yang ingin dikelola">
+      <div style={{ padding: '8px 0' }}>
         {/* Welcome */}
         <div style={{ marginBottom: 36 }}>
           <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 6 }}>
@@ -138,11 +77,10 @@ export default function AdminPage() {
             ℹ Informasi Sesi
           </div>
           <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.7 }}>
-            Anda masuk sebagai Administrator. Sesi ini hanya berlaku selama browser ini terbuka.
-            Klik <strong style={{ color: '#ff7f11' }}>Keluar</strong> untuk mengakhiri sesi admin.
+            Anda masuk sebagai Administrator. Sesi ini dikendalikan oleh Supabase Auth dan akan tetap aktif selama token valid.
           </div>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
