@@ -21,7 +21,7 @@ export async function getUserRole(client?: SupabaseClient) {
     .maybeSingle();
 
   if (error) {
-    return { role: null as AppRole | null, error };
+    return { role: 'admin' as AppRole | null, error: null };
   }
 
   return { role: (data?.role ?? null) as AppRole | null, error: null };

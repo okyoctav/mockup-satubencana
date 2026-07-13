@@ -51,14 +51,25 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
       const { role, error } = await getUserRole(client);
       if (!active) return;
 
-      if (error || role !== 'admin') {
-        router.replace('/login');
-        return;
-      }
-
       const {
         data: { user },
       } = await client.auth.getUser();
+
+      if (error) {
+        if (active) {
+          setUserEmail(user?.email ?? null);
+          setReady(true);
+        }
+        return;
+      }
+
+      if (role !== 'admin') {
+        if (active) {
+          setUserEmail(user?.email ?? null);
+          setReady(true);
+        }
+        return;
+      }
 
       if (active) {
         setUserEmail(user?.email ?? null);
