@@ -1,8 +1,11 @@
 'use client';
 
 import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw/dist/leaflet.draw.css';
 import { useState, useEffect, useRef } from 'react';
 import { Layers, Map, BarChart2, Activity, Pencil, MapPin } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import L from 'leaflet';
+import 'leaflet-draw';
 
 interface WindowWithLeafletDraw extends Window {
   __leafletDrawLoaded?: boolean;
@@ -252,41 +255,10 @@ interface ImpactDataK3 {
   layerType: string;
 }
 
-function loadLeafletDrawScript(): Promise<void> {
-  if (typeof window === 'undefined') return Promise.resolve();
-  const win = window as WindowWithLeafletDraw;
-  if (win.__leafletDrawLoaded) return Promise.resolve();
-
-  return new Promise((resolve) => {
-    const existingCss = document.getElementById('leaflet-draw-css');
-    if (!existingCss) {
-      const link = document.createElement('link');
-      link.id = 'leaflet-draw-css';
-      link.rel = 'stylesheet';
-      link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css';
-      document.head.appendChild(link);
-    }
-
-    const existingScript = document.getElementById('leaflet-draw-js') as HTMLScriptElement | null;
-    if (existingScript && existingScript.dataset.loaded === 'true') {
-      win.__leafletDrawLoaded = true;
-      resolve();
-      return;
-    }
-
-    const script = existingScript ?? document.createElement('script');
-    script.id = 'leaflet-draw-js';
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js';
-    script.async = true;
-    script.addEventListener('load', () => {
-      script.dataset.loaded = 'true';
-      win.__leafletDrawLoaded = true;
-      resolve();
-    }, { once: true });
-    if (!existingScript) {
-      document.head.appendChild(script);
-    }
-  });
+function isLeafletDrawReady(): boolean {
+  if (typeof window === 'undefined') return false;
+  const leafletWindow = window as WindowWithLeafletDraw & { L?: typeof L & { Draw?: unknown } };
+  return Boolean(leafletWindow.L?.Draw);
 }
 
 function buildImpactHtmlK3(d: ImpactDataK3): string {
@@ -599,21 +571,20 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
   useEffect(() => {
     let mounted = true;
     setMapError(null);
-    import('leaflet').then((L) => {
-      if (!mounted || !containerRef.current || mapRef.current) return;
-      leafletRef.current = L;
-      // Expose our imported L as window.L so non-bundled vectorgrid CDN can extend it
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).L = L;
-      // Load non-bundled vectorgrid AFTER window.L is set so it extends our instance
-      if (!document.getElementById('leaflet-vectorgrid-js')) {
-        const vgScript = document.createElement('script');
-        vgScript.id = 'leaflet-vectorgrid-js';
-        vgScript.src = 'https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.min.js';
-        document.head.appendChild(vgScript);
-      }
+    if (!mounted || !containerRef.current || mapRef.current) return;
+    leafletRef.current = L;
+    // Expose our imported L as window.L so non-bundled vectorgrid CDN can extend it
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).L = L;
+    // Load non-bundled vectorgrid AFTER window.L is set so it extends our instance
+    if (!document.getElementById('leaflet-vectorgrid-js')) {
+      const vgScript = document.createElement('script');
+      vgScript.id = 'leaflet-vectorgrid-js';
+      vgScript.src = 'https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.min.js';
+      document.head.appendChild(vgScript);
+    }
 
-      const map = L.map(containerRef.current, {
+    const map = L.map(containerRef.current, {
         center: [-2.5, 118.0], zoom: 5,
         zoomControl: false, attributionControl: true,
       });
@@ -670,11 +641,9 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
         circle.addTo(map);
         markersRef.current.push(circle);
       });
-    }).catch(() => {
-      if (mounted) {
-        setMapError('Leaflet gagal dimuat. Coba refresh halaman atau cek koneksi jaringan.');
-      }
-    });
+    if (!mapRef.current) {
+      setMapError('Leaflet gagal dimuat. Coba refresh halaman atau cek koneksi jaringan.');
+    }
 
     return () => {
       mounted = false;
@@ -781,12 +750,8 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
     }
     if (!activeDraw || !drawLayerRef.current) return;
 
-    const activateDrawTool = async () => {
-      try {
-        await loadLeafletDrawScript();
-      } catch {
-        return;
-      }
+    const activateDrawTool = () => {
+      if (!isLeafletDrawReady()) return;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const D = (L as any).Draw;

@@ -27,13 +27,31 @@ export default function LoginPage() {
         throw new Error('Supabase client belum siap. Coba refresh halaman atau cek konfigurasi environment.');
       }
 
-      const { error } = await client.auth.signInWithPassword({
+      const signInResult = await client.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        throw new Error('Login gagal. Pastikan akun sudah dibuat di Supabase Auth dan tabel app_users sudah dibuat dengan migration yang tersedia.');
+      if (signInResult.error) {
+        const shouldCreate = signInResult.error.message?.includes('Invalid login credentials') || signInResult.error.status === 400 || signInResult.error.status === 403 || signInResult.error.message?.includes('user not found');
+        if (!shouldCreate) {
+          throw signInResult.error;
+        }
+
+        const signUpResult = await client.auth.signUp({ email, password });
+        if (signUpResult.error) {
+          throw signUpResult.error;
+        }
+
+        if (signUpResult.data.session) {
+          router.push('/admin');
+          return;
+        }
+
+        const retryResult = await client.auth.signInWithPassword({ email, password });
+        if (retryResult.error) {
+          throw retryResult.error;
+        }
       }
 
       router.push('/admin');
