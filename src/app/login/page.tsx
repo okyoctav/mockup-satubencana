@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const isConfigured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,9 +18,13 @@ export default function LoginPage() {
     setError('');
 
     try {
+      if (!isConfigured) {
+        throw new Error('Supabase belum dikonfigurasi di Vercel. Tambahkan NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_ANON_KEY.');
+      }
+
       const client = getSupabaseBrowserClient();
       if (!client) {
-        throw new Error('Konfigurasi Supabase belum tersedia.');
+        throw new Error('Supabase client belum siap. Coba refresh halaman atau cek konfigurasi environment.');
       }
 
       const { error } = await client.auth.signInWithPassword({
@@ -81,6 +86,7 @@ export default function LoginPage() {
               onChange={e => setEmail(e.target.value)}
               placeholder="admin@admin.com"
               required
+              disabled={!isConfigured}
               style={{
                 width: '100%',
                 padding: '10px 14px',
@@ -105,6 +111,7 @@ export default function LoginPage() {
               onChange={e => setPassword(e.target.value)}
               placeholder="••••••••"
               required
+              disabled={!isConfigured}
               style={{
                 width: '100%',
                 padding: '10px 14px',
@@ -127,7 +134,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !isConfigured}
             style={{
               width: '100%',
               padding: '11px',
@@ -141,7 +148,7 @@ export default function LoginPage() {
               transition: 'opacity 0.2s',
             }}
           >
-            {loading ? 'Memverifikasi...' : 'Masuk'}
+            {loading ? 'Memverifikasi...' : isConfigured ? 'Masuk' : 'Konfigurasi belum siap'}
           </button>
         </form>
 

@@ -1,5 +1,6 @@
 'use client';
 
+import 'leaflet/dist/leaflet.css';
 import { useEffect, useRef, useState } from 'react';
 
 const JENIS_COLOR: Record<string, string> = {
@@ -80,6 +81,7 @@ export default function LeafletMap({ data }: { data: Kejadian[] }) {
         minZoom: 4,
       });
       mapRef.current = map;
+      requestAnimationFrame(() => map.invalidateSize());
 
       // Initial basemap
       const bm = BASEMAPS.find((b) => b.id === 'esri')!;
