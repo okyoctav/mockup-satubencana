@@ -32,7 +32,9 @@ export default function LoginPage() {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        throw new Error('Login gagal. Pastikan akun sudah dibuat di Supabase Auth dan tabel app_users sudah dibuat dengan migration yang tersedia.');
+      }
 
       router.push('/admin');
     } catch (err: unknown) {

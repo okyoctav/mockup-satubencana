@@ -20,7 +20,9 @@ export async function getUserRole(client?: SupabaseClient) {
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (error) return { role: null as AppRole | null, error };
+  if (error) {
+    return { role: null as AppRole | null, error };
+  }
 
   return { role: (data?.role ?? null) as AppRole | null, error: null };
 }

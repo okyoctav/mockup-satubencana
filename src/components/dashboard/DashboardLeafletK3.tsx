@@ -1,7 +1,12 @@
 'use client';
 
+import 'leaflet/dist/leaflet.css';
 import { useState, useEffect, useRef } from 'react';
 import { Layers, Map, BarChart2, Activity, Pencil, MapPin } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
+
+interface WindowWithLeafletDraw extends Window {
+  __leafletDrawLoaded?: boolean;
+}
 
 interface Kejadian {
   id: number;
@@ -247,6 +252,43 @@ interface ImpactDataK3 {
   layerType: string;
 }
 
+function loadLeafletDrawScript(): Promise<void> {
+  if (typeof window === 'undefined') return Promise.resolve();
+  const win = window as WindowWithLeafletDraw;
+  if (win.__leafletDrawLoaded) return Promise.resolve();
+
+  return new Promise((resolve) => {
+    const existingCss = document.getElementById('leaflet-draw-css');
+    if (!existingCss) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-draw-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css';
+      document.head.appendChild(link);
+    }
+
+    const existingScript = document.getElementById('leaflet-draw-js') as HTMLScriptElement | null;
+    if (existingScript && existingScript.dataset.loaded === 'true') {
+      win.__leafletDrawLoaded = true;
+      resolve();
+      return;
+    }
+
+    const script = existingScript ?? document.createElement('script');
+    script.id = 'leaflet-draw-js';
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js';
+    script.async = true;
+    script.addEventListener('load', () => {
+      script.dataset.loaded = 'true';
+      win.__leafletDrawLoaded = true;
+      resolve();
+    }, { once: true });
+    if (!existingScript) {
+      document.head.appendChild(script);
+    }
+  });
+}
+
 function buildImpactHtmlK3(d: ImpactDataK3): string {
   const loading = d.loading;
   return `<div style="width:280px;font-family:system-ui,sans-serif;color:#0F172A">
@@ -356,6 +398,7 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
   const [showBencanaData, setShowBencanaData] = useState(true);
   const [bmkgLastUpdate, setBmkgLastUpdate] = useState<Date | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
   const [mapserverLegends, setMapserverLegends] = useState<Record<string, MapServerLegendItem[]>>({});
   const fetchedLegendsRef = useRef<Set<string>>(new Set());
 
@@ -555,6 +598,7 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
   // Init map
   useEffect(() => {
     let mounted = true;
+    setMapError(null);
     import('leaflet').then((L) => {
       if (!mounted || !containerRef.current || mapRef.current) return;
       leafletRef.current = L;
@@ -573,6 +617,10 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
         center: [-2.5, 118.0], zoom: 5,
         zoomControl: false, attributionControl: true,
       });
+      const handleResize = () => map.invalidateSize();
+      requestAnimationFrame(handleResize);
+      window.addEventListener('resize', handleResize);
+      (map as unknown as { __resizeHandler?: () => void }).__resizeHandler = handleResize;
       L.control.zoom({ position: 'bottomright' }).addTo(map);
       mapRef.current = map;
       setMapReady(true);
@@ -622,11 +670,19 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
         circle.addTo(map);
         markersRef.current.push(circle);
       });
+    }).catch(() => {
+      if (mounted) {
+        setMapError('Leaflet gagal dimuat. Coba refresh halaman atau cek koneksi jaringan.');
+      }
     });
 
     return () => {
       mounted = false;
       if (mapRef.current) {
+        const handleResize = (mapRef.current as unknown as { __resizeHandler?: () => void }).__resizeHandler;
+        if (handleResize) {
+          window.removeEventListener('resize', handleResize);
+        }
         mapRef.current.remove();
         mapRef.current = null;
         markersRef.current = [];
@@ -725,16 +781,16 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
     }
     if (!activeDraw || !drawLayerRef.current) return;
 
-    const activateDrawTool = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const D = (L as any).Draw;
-      if (!D) {
-        // leaflet.draw not yet loaded — retry on script load
-        const el = document.getElementById('leaflet-draw-js');
-        if (el) { el.addEventListener('load', activateDrawTool, { once: true }); }
-        else { setTimeout(activateDrawTool, 300); }
+    const activateDrawTool = async () => {
+      try {
+        await loadLeafletDrawScript();
+      } catch {
         return;
       }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const D = (L as any).Draw;
+      if (!D) return;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let handler: any;
@@ -1035,6 +1091,11 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       <div ref={containerRef} style={{ width: '100%', height: '100%', borderRadius: 14, overflow: 'hidden' }} />
+      {mapError && (
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(2,6,23,0.85)', color: '#f8fafc', fontSize: 12, padding: 20, textAlign: 'center', zIndex: 1500 }}>
+          {mapError}
+        </div>
+      )}
 
       {/* Right toolbar */}
       <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 800, display: 'flex', flexDirection: 'column', gap: 6 }}>
