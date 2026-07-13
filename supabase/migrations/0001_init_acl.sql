@@ -81,53 +81,9 @@ where au.user_id = u.id
 -- Ensure bcrypt support is available for password hashing
 create extension if not exists pgcrypto;
 
--- Create a default admin auth user for email/password login.
--- Email: admin@admin.com
--- Password: admin123
--- If the user already exists, the password will be reset to admin123.
-do $$
-begin
-  if not exists (select 1 from auth.users where lower(email) = lower('admin@admin.com')) then
-    insert into auth.users (
-      instance_id,
-      id,
-      aud,
-      role,
-      email,
-      encrypted_password,
-      email_confirmed_at,
-      created_at,
-      updated_at,
-      raw_app_meta_data,
-      raw_user_meta_data,
-      is_super_admin,
-      is_sso_user
-    )
-    values (
-      '00000000-0000-0000-0000-000000000000',
-      gen_random_uuid(),
-      'authenticated',
-      'authenticated',
-      'admin@admin.com',
-      crypt('admin123', gen_salt('bf')),
-      now(),
-      now(),
-      now(),
-      '{}'::jsonb,
-      '{}'::jsonb,
-      false,
-      false
-    );
-  end if;
-end $$;
-
-update auth.users
-set encrypted_password = crypt('admin123', gen_salt('bf')),
-    email_confirmed_at = coalesce(email_confirmed_at, now()),
-    updated_at = now()
-where lower(email) = lower('admin@admin.com');
-
--- Seed app-level admin role for that Auth user
+-- Seed app-level admin role for any existing Supabase Auth user.
+-- For a new admin account, create the user via Supabase Auth (sign-up/dashboard)
+-- and then assign the role in public.app_users.
 insert into public.app_users (user_id, email, role)
 select u.id, u.email, 'admin'
 from auth.users u
@@ -202,22 +158,10 @@ for select
 using (not public.is_admin() and active = true);
 
 -- =========================
--- Trigger: seed app_users row on signup
+-- Optional signup sync
 -- =========================
-create or replace function public.handle_new_user()
-returns trigger as $$
-begin
-  insert into public.app_users (user_id, email, role)
-  values (new.id, new.email, 'viewer')
-  on conflict (user_id) do update
-  set email = excluded.email;
-  return new;
-end;
-$$ language plpgsql security definer;
-
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-after insert on auth.users
-for each row execute function public.handle_new_user();
+-- Keep this disabled to avoid interfering with Supabase Auth internals.
+-- If you need to create app_users rows automatically, do it from your app
+-- or a server-side service-role flow instead of a trigger on auth.users.
 
 commit;
