@@ -253,6 +253,39 @@ interface ImpactDataK3 {
   kelurahans: string[];
   area: string;
   layerType: string;
+  history?: Kejadian[];
+}
+
+function pointInPolygon(point: L.LatLng, polygon: L.LatLng[]): boolean {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const xi = polygon[i].lng;
+    const yi = polygon[i].lat;
+    const xj = polygon[j].lng;
+    const yj = polygon[j].lat;
+    const intersect = ((yi > point.lat) !== (yj > point.lat))
+      && (point.lng < ((xj - xi) * (point.lat - yi)) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function isPointInsideLayer(layer: any, point: L.LatLng): boolean {
+  if (!layer || !point) return false;
+  if (layer instanceof L.Circle) {
+    return layer.getLatLng().distanceTo(point) <= layer.getRadius();
+  }
+  if (layer instanceof L.Polygon) {
+    // Polygon and rectangle both inherit from L.Polygon.
+    const latlngs = layer.getLatLngs();
+    if (!Array.isArray(latlngs) || !latlngs[0]) return false;
+    const ring = Array.isArray(latlngs[0]) ? latlngs[0] as L.LatLng[] : latlngs as L.LatLng[];
+    return pointInPolygon(point, ring as L.LatLng[]);
+  }
+  if (layer.getBounds) {
+    return layer.getBounds().contains(point);
+  }
+  return false;
 }
 
 function isLeafletDrawReady(): boolean {
@@ -263,6 +296,8 @@ function isLeafletDrawReady(): boolean {
 
 function buildImpactHtmlK3(d: ImpactDataK3): string {
   const loading = d.loading;
+  const historyItems = d.history ?? [];
+  const hasHistory = !loading && historyItems.length > 0;
   return `<div style="width:280px;font-family:system-ui,sans-serif;color:#0F172A">
     <div style="margin-bottom:8px;padding-bottom:7px;border-bottom:1.5px solid #E2E8F0">
       <div style="font-size:11px;color:#0EA5E9;font-weight:700;text-transform:uppercase;letter-spacing:.8px">📐 Estimasi Demografi Terdampak</div>
@@ -314,10 +349,26 @@ function buildImpactHtmlK3(d: ImpactDataK3): string {
           ${d.kelurahans.length > 0 ? d.kelurahans.join(', ') : '<span style="color:#94A3B8">Tidak ada kelurahan terdeteksi</span>'}
         </div>
       </div>
+      ${hasHistory ? `
+        <div style="margin-top:8px;padding:10px 10px 6px;border-radius:10px;background:#F8F8FF;border:1px solid #E2E8F0;max-height:130px;overflow-y:auto">
+          <div style="font-size:9px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">📰 Riwayat Bencana di Area Ini (${historyItems.length})</div>
+          ${historyItems.slice(0, 3).map((item) => `
+            <div style="margin-bottom:8px">
+              <div style="font-size:11px;font-weight:700;color:#0F172A">${item.nama}</div>
+              <div style="font-size:10px;color:#475569;margin-top:2px">${item.provinsi}, ${item.kabupaten} · ${new Date(item.tanggal).toLocaleDateString('id-ID')}</div>
+            </div>
+          `).join('')}
+          ${historyItems.length > 3 ? `<div style="font-size:10px;color:#64748B;padding-top:4px;border-top:1px solid #E2E8F0">Menampilkan 3 kejadian pertama. Gunakan data internal untuk riwayat bencana lokal.</div>` : ''}
+        </div>
+      ` : `
+        <div style="margin-top:8px;padding:10px;border-radius:10px;background:#F8FAFC;border:1px solid #E2E8F0;font-size:10px;color:#64748B">
+          Tidak ada riwayat bencana tercatat di area ini dalam dataset lokal.
+        </div>
+      `}
     `}
     
     <div style="margin-top:8px;padding-top:6px;border-top:1px solid #E2E8F0;font-size:8.5px;color:#94A3B8;line-height:1.4">
-      ⚠️ Data kependudukan bersumber langsung dari Dukcapil ArcGIS MapServer.
+      ⚠️ Data kependudukan bersumber langsung dari Dukcapil ArcGIS MapServer. Riwayat bencana berasal dari dataset lokal aplikasi.
     </div>
   </div>`;
 }
@@ -880,9 +931,13 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
           layerType: e.layerType
         };
         const popupCenter = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLng();
+        const searchHistory = data.filter((item) => {
+          const point = L.latLng(item.lat, item.lng);
+          return isPointInsideLayer(layer, point);
+        });
         const popup = L.popup({ maxWidth: 360, minWidth: 300, className: 'impact-popup', closeButton: true, autoClose: false })
           .setLatLng(popupCenter)
-          .setContent(buildImpactHtmlK3(loadingState))
+          .setContent(buildImpactHtmlK3({ ...loadingState, history: searchHistory }))
           .openOn(map);
         popupRef.current = popup;
         popup.on('remove', () => {
