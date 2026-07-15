@@ -8,11 +8,10 @@ function InteractiveParticles() {
   const pointsRef = useRef<THREE.Points>(null);
   const count = 1800;
 
-  // Generate random positions, sizes, and colors for particles
-  const { positions, colors, sizes } = useMemo(() => {
+  // Generate random positions and colors for particles
+  const { positions, colors } = useMemo(() => {
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
-    const sizes = new Float32Array(count);
 
     // Dark-themed palette with neon accents
     const palette = [
@@ -37,11 +36,9 @@ function InteractiveParticles() {
       colors[i * 3] = color.r;
       colors[i * 3 + 1] = color.g;
       colors[i * 3 + 2] = color.b;
-
-      sizes[i] = 0.05 + Math.random() * 0.12;
     }
 
-    return { positions, colors, sizes };
+    return { positions, colors };
   }, []);
 
   useFrame((state) => {
@@ -90,32 +87,28 @@ function InteractiveParticles() {
 function FloatingConstellations() {
   const lineRef = useRef<THREE.LineSegments>(null);
 
-  const { points, nodes } = useMemo(() => {
+  const points = useMemo(() => {
     const nodeCount = 35;
-    const nodes: THREE.Vector3[] = [];
-    const points: THREE.Vector3[] = [];
+    const graphNodes: THREE.Vector3[] = Array.from({ length: nodeCount }, () => (
+      new THREE.Vector3(
+        (Math.random() - 0.5) * 24,
+        (Math.random() - 0.5) * 16,
+        (Math.random() - 0.5) * 10
+      )
+    ));
 
-    // Place key structural nodes
-    for (let i = 0; i < nodeCount; i++) {
-      nodes.push(
-        new THREE.Vector3(
-          (Math.random() - 0.5) * 24,
-          (Math.random() - 0.5) * 16,
-          (Math.random() - 0.5) * 10
-        )
-      );
-    }
+    const connectionPoints: THREE.Vector3[] = [];
 
     // Connect nodes close to each other
-    for (let i = 0; i < nodeCount; i++) {
-      for (let j = i + 1; j < nodeCount; j++) {
-        if (nodes[i].distanceTo(nodes[j]) < 5.5) {
-          points.push(nodes[i], nodes[j]);
+    for (let i = 0; i < graphNodes.length; i++) {
+      for (let j = i + 1; j < graphNodes.length; j++) {
+        if (graphNodes[i].distanceTo(graphNodes[j]) < 5.5) {
+          connectionPoints.push(graphNodes[i], graphNodes[j]);
         }
       }
     }
 
-    return { points, nodes };
+    return connectionPoints;
   }, []);
 
   const geometry = useMemo(() => {
