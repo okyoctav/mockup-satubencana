@@ -102,7 +102,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="mx-auto flex min-h-screen max-w-7xl flex-col lg:flex-row">
+      <div className="flex min-h-screen w-full flex-col lg:flex-row">
         <div className="relative hidden flex-1 overflow-hidden lg:flex">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.25),_transparent_45%)]" />
           <LoginBackground />
@@ -117,16 +117,10 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="max-w-md rounded-3xl border border-white/20 bg-white/10 p-6 backdrop-blur-md">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-200">Integrasi Data</p>
-              <h2 className="mt-2 text-3xl font-semibold leading-tight">
-                Pantau, kelola, dan tindak dengan satu platform terpadu.
-              </h2>
-            </div>
           </div>
         </div>
 
-        <div className="flex w-full items-center justify-center bg-white px-6 py-10 lg:w-[42%] lg:px-8 xl:px-10">
+        <div className="flex w-full flex-1 items-center justify-center bg-white px-6 py-10 lg:w-[42%] lg:px-8 xl:px-10">
           <div className="w-full max-w-md">
             <div className="mb-8 flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-white">
