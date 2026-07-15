@@ -254,6 +254,29 @@ interface ImpactDataK3 {
   history: Array<{ nama: string; jenis: string; tanggal: string }>;
   area: string;
   layerType: string;
+  note?: string;
+}
+
+function buildAreaFallbackK3(area: string): ImpactDataK3 {
+  const parsedArea = parseFloat(area);
+  const areaValue = Number.isFinite(parsedArea) && parsedArea > 0 ? parsedArea : 0.8;
+  const totalPenduduk = Math.max(1200, Math.round(areaValue * 14000));
+  const totalPria = Math.round(totalPenduduk * 0.51);
+  const totalWanita = totalPenduduk - totalPria;
+  const totalKK = Math.max(1, Math.round(totalPenduduk / 3.4));
+
+  return {
+    loading: false,
+    totalPenduduk,
+    totalPria,
+    totalWanita,
+    totalKK,
+    kelurahans: ['Estimasi sementara berdasarkan luas area'],
+    history: [],
+    area,
+    layerType: 'fallback',
+    note: 'Layer Dukcapil belum memberi data yang cukup. Menampilkan estimasi berbasis luas area yang digambar.',
+  };
 }
 
 function isLeafletDrawReady(): boolean {
@@ -277,6 +300,7 @@ function buildImpactHtmlK3(d: ImpactDataK3): string {
         <div>Menghubungi Dukcapil GIS Service...</div>
       </div>
     ` : `
+      ${d.note ? `<div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:6px;padding:6px 8px;font-size:10px;color:#9A2C00;margin-bottom:8px;line-height:1.4">${d.note}</div>` : ''}
       <table style="width:100%;border-collapse:collapse;margin-bottom:8px">
         <tbody>
           <tr style="border-bottom:1px solid #F1F5F9">
@@ -331,22 +355,8 @@ function buildImpactHtmlK3(d: ImpactDataK3): string {
     `}
     
     <div style="margin-top:8px;padding-top:6px;border-top:1px solid #E2E8F0;font-size:8.5px;color:#94A3B8;line-height:1.4">
-      ⚠️ Data kependudukan bersumber langsung dari Dukcapil ArcGIS MapServer.
+      📍 Sumber utama: layer Dukcapil yang sedang aktif di peta.
     </div>
-  </div>`;
-}
-
-function buildFailureHtmlK3(area: string, errorMsg?: string): string {
-  return `<div style="width:280px;font-family:system-ui,sans-serif;color:#0F172A">
-    <div style="margin-bottom:8px;padding-bottom:7px;border-bottom:1.5px solid #E2E8F0">
-      <div style="font-size:11px;color:#0EA5E9;font-weight:700;text-transform:uppercase;letter-spacing:.8px">📐 Estimasi Demografi Terdampak</div>
-      ${area !== '—' ? `<div style="font-size:10px;color:#64748B;margin-top:3px">Estimasi luas ≈ <strong style="color:#0F172A">${area} km²</strong></div>` : ''}
-    </div>
-    <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 12px;margin-bottom:6px">
-      <div style="font-size:13px;font-weight:700;color:#DC2626;margin-bottom:4px">⚠️ Gagal Mengambil Data</div>
-      <div style="font-size:11px;color:#7F1D1D;line-height:1.5">${errorMsg || 'Layanan GIS Dukcapil tidak merespon saat ini. Pastikan Anda terhubung ke internet dan coba lagi.'}</div>
-    </div>
-    <div style="font-size:9px;color:#94A3B8;line-height:1.5">Dukcapil MapServer Query Error</div>
   </div>`;
 }
 
@@ -965,7 +975,13 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
         });
 
         if (!esriGeometry) {
-          popup.setContent(buildFailureHtmlK3(area, "Gagal membuat geometri untuk query."));
+          if (popupRef.current) popup.setContent(buildImpactHtmlK3(buildAreaFallbackK3(area)));
+          return;
+        }
+
+        const useDukcapilLayer = activeOverlays.includes('dukcapil_kel_fix');
+        if (!useDukcapilLayer) {
+          if (popupRef.current) popup.setContent(buildImpactHtmlK3(buildAreaFallbackK3(area)));
           return;
         }
 
@@ -987,9 +1003,7 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
 
         fetch(requestUrl, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             where: '1=1',
             geometryType: 'esriGeometryPolygon',
@@ -1001,6 +1015,7 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
             returnGeometry: 'true',
             geometry: esriGeometry,
           }),
+          cache: 'no-store',
           signal: AbortSignal.timeout(30000)
         })
           .then((res) => {
@@ -1009,6 +1024,9 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
           })
           .then((data) => {
             const features = data?.features ?? [];
+            if (features.length === 0) {
+              throw new Error('No features returned from Dukcapil layer');
+            }
             
             // Calculate sums
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1087,13 +1105,16 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
               kelurahans: kelList,
               history: getHistoryForGeometry(layer, e.layerType, data),
               area,
-              layerType: e.layerType
+              layerType: e.layerType,
+              note: 'Menggunakan data layer Dukcapil yang aktif di peta.'
             };
             if (popupRef.current) popup.setContent(buildImpactHtmlK3(finalState));
           })
           .catch((err) => {
-            console.error("Dukcapil Service error:", err);
-            if (popupRef.current) popup.setContent(buildFailureHtmlK3(area, "Tidak dapat menghubungi Dukcapil GIS Service atau query gagal. Silakan coba beberapa saat lagi."));
+            console.error("Dukcapil data unavailable:", err);
+            const fallbackState = buildAreaFallbackK3(area);
+            fallbackState.history = getHistoryForGeometry(layer, e.layerType, data);
+            if (popupRef.current) popup.setContent(buildImpactHtmlK3(fallbackState));
           });
       });
     };
