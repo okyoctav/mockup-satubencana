@@ -334,10 +334,10 @@ function buildImpactHtmlK3(d: ImpactDataK3): string {
         </tbody>
       </table>
       
-      <div style="margin-top:6px;max-height:80px;overflow-y:auto;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:6px 8px">
-        <div style="font-size:9px;font-weight:700;color:#475569;margin-bottom:3px">🚩 Kelurahan Terdampak (${d.kelurahans.length}):</div>
-        <div style="font-size:10px;color:#0F172A;line-height:1.4">
-          ${d.kelurahans.length > 0 ? d.kelurahans.join(', ') : '<span style="color:#94A3B8">Tidak ada kelurahan terdeteksi</span>'}
+      <div style="margin-top:6px;max-height:90px;overflow-y:auto;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:6px 8px">
+        <div style="font-size:9px;font-weight:700;color:#475569;margin-bottom:4px">🚩 Kelurahan / Desa Terdampak (${d.kelurahans.length}):</div>
+        <div style="font-size:10px;color:#0F172A;line-height:1.4;display:flex;flex-direction:column;gap:3px">
+          ${d.kelurahans.length > 0 ? d.kelurahans.map((item) => `<div style="padding:2px 0;border-bottom:1px solid #E2E8F0">• ${item}</div>`).join('') : '<span style="color:#94A3B8">Tidak ada kelurahan terdeteksi</span>'}
         </div>
       </div>
 
