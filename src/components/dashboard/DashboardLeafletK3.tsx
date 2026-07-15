@@ -372,6 +372,9 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [mapserverLegends, setMapserverLegends] = useState<Record<string, MapServerLegendItem[]>>({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchStatus, setSearchStatus] = useState('');
+  const [searchResults, setSearchResults] = useState<Array<{ display_name: string; lat: string; lon: string }>>([]);
   const fetchedLegendsRef = useRef<Set<string>>(new Set());
 
   // Fetch MapServer legends dynamically when a MapServer layer is activated
@@ -593,6 +596,20 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
       window.addEventListener('resize', handleResize);
       (map as unknown as { __resizeHandler?: () => void }).__resizeHandler = handleResize;
       L.control.zoom({ position: 'bottomright' }).addTo(map);
+      L.control.scale({ position: 'bottomleft', maxWidth: 140 }).addTo(map);
+      const compassControl = L.Control.extend({
+        options: { position: 'bottomright' },
+        onAdd: () => {
+          const div = L.DomUtil.create('div');
+          div.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:999px;background:${theme === 'dark' ? 'rgba(8,18,36,0.94)' : 'rgba(255,255,255,0.95)'};border:1px solid ${theme === 'dark' ? 'rgba(30,58,95,0.8)' : 'rgba(0,0,0,0.12)'};box-shadow:0 4px 12px rgba(0,0,0,0.22);color:${theme === 'dark' ? '#f8fafc' : '#0f172a'};font-weight:800;font-size:16px;">
+              N
+            </div>
+          `;
+          return div;
+        },
+      });
+      new compassControl().addTo(map);
       mapRef.current = map;
       setMapReady(true);
 
@@ -1013,6 +1030,37 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
   const togglePanel = (panel: ActivePanel) =>
     setActivePanel((prev) => (prev === panel ? null : panel));
 
+  const handleSearchLocation = async () => {
+    const query = searchQuery.trim();
+    if (!query) {
+      setSearchStatus('Ketik lokasi yang ingin dicari.');
+      return;
+    }
+
+    try {
+      setSearchStatus('Mencari lokasi...');
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&q=${encodeURIComponent(query)}`);
+      const results = (await response.json()) as Array<{ display_name: string; lat: string; lon: string }>;
+
+      if (!results.length) {
+        setSearchResults([]);
+        setSearchStatus('Lokasi tidak ditemukan.');
+        return;
+      }
+
+      setSearchResults(results);
+      const [first] = results;
+      const lat = parseFloat(first.lat);
+      const lon = parseFloat(first.lon);
+      if (!Number.isNaN(lat) && !Number.isNaN(lon) && mapRef.current) {
+        mapRef.current.flyTo([lat, lon], 13, { duration: 1.5 });
+        setSearchStatus(`Memfokuskan ke ${first.display_name}`);
+      }
+    } catch {
+      setSearchStatus('Gagal mencari lokasi. Coba lagi.');
+    }
+  };
+
   const isDark = theme === 'dark';
   const panelBg    = isDark ? 'rgba(8,18,36,0.97)'     : 'rgba(255,255,255,0.97)';
   const panelText  = isDark ? '#F1F5F9'                 : '#0F172A';
@@ -1055,6 +1103,52 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+      <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 1000, width: 280, maxWidth: 'calc(100% - 24px)' }}>
+        <div style={{ display: 'flex', gap: 8, background: isDark ? 'rgba(8,18,36,0.92)' : 'rgba(255,255,255,0.95)', border: `1px solid ${isDark ? 'rgba(30,58,95,0.8)' : 'rgba(0,0,0,0.12)'}`, borderRadius: 14, padding: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.2)', backdropFilter: 'blur(10px)' }}>
+          <input
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                void handleSearchLocation();
+              }
+            }}
+            placeholder="Cari lokasi, contoh: Ciomas Bogor"
+            style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', color: panelText, fontSize: 12 }}
+          />
+          <button
+            type="button"
+            onClick={() => void handleSearchLocation()}
+            style={{ border: 'none', borderRadius: 10, background: '#0EA5E9', color: '#fff', padding: '8px 10px', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}
+          >
+            Cari
+          </button>
+        </div>
+        {searchStatus ? (
+          <div style={{ marginTop: 6, fontSize: 11, color: isDark ? '#cbd5e1' : '#475569', paddingLeft: 2 }}>{searchStatus}</div>
+        ) : null}
+        {searchResults.length > 0 ? (
+          <div style={{ marginTop: 8, borderRadius: 12, overflow: 'hidden', border: `1px solid ${isDark ? 'rgba(30,58,95,0.8)' : 'rgba(0,0,0,0.12)'}`, background: isDark ? 'rgba(8,18,36,0.92)' : 'rgba(255,255,255,0.95)' }}>
+            {searchResults.map((item) => (
+              <button
+                key={`${item.display_name}-${item.lat}-${item.lon}`}
+                type="button"
+                onClick={() => {
+                  const lat = parseFloat(item.lat);
+                  const lon = parseFloat(item.lon);
+                  if (!Number.isNaN(lat) && !Number.isNaN(lon) && mapRef.current) {
+                    mapRef.current.flyTo([lat, lon], 13, { duration: 1.5 });
+                    setSearchStatus(`Memfokuskan ke ${item.display_name}`);
+                  }
+                }}
+                style={{ width: '100%', textAlign: 'left', padding: '8px 10px', border: 'none', background: 'transparent', color: panelText, cursor: 'pointer', fontSize: 11 }}
+              >
+                {item.display_name}
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </div>
       <div ref={containerRef} style={{ width: '100%', height: '100%', borderRadius: 14, overflow: 'hidden' }} />
       {mapError && (
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(2,6,23,0.85)', color: '#f8fafc', fontSize: 12, padding: 20, textAlign: 'center', zIndex: 1500 }}>

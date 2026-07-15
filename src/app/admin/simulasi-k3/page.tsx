@@ -46,31 +46,20 @@ export default function SimulasiK3Page() {
 
   return (
     <AdminLayout title="Simulasi K3" subtitle="Peta interaktif fullscreen untuk simulasi dampak wilayah">
-      <div className="flex h-full min-h-[calc(100vh-10rem)] flex-col gap-4">
-        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">Mode simulasi</p>
-              <h2 className="mt-1 text-xl font-semibold text-slate-900">Peta Leaflet K3 dalam area konten admin</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Menampilkan data kejadian dan layer dukcapil secara fullscreen di dalam body dashboard admin.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <div className="rounded-2xl bg-slate-100 px-3 py-2 text-sm text-slate-600">
-                Total kejadian: <span className="ml-1 font-semibold text-slate-900">{stats.total}</span>
-              </div>
-              <div className="rounded-2xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-                Aktif saat ini: <span className="ml-1 font-semibold">{stats.aktif}</span>
-              </div>
-              <div className="rounded-2xl bg-amber-50 px-3 py-2 text-sm text-amber-700">
-                Prioritas tinggi: <span className="ml-1 font-semibold">{stats.tinggi}</span>
-              </div>
-            </div>
+      <div className="flex h-full min-h-[calc(100vh-10rem)] flex-col">
+        <div className="mb-3 flex flex-wrap gap-2">
+          <div className="rounded-2xl bg-slate-100 px-3 py-2 text-sm text-slate-600">
+            Total kejadian: <span className="ml-1 font-semibold text-slate-900">{stats.total}</span>
+          </div>
+          <div className="rounded-2xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+            Aktif saat ini: <span className="ml-1 font-semibold">{stats.aktif}</span>
+          </div>
+          <div className="rounded-2xl bg-amber-50 px-3 py-2 text-sm text-amber-700">
+            Prioritas tinggi: <span className="ml-1 font-semibold">{stats.tinggi}</span>
           </div>
         </div>
 
-        <div className="relative min-h-[640px] flex-1 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
+        <div className="relative min-h-[680px] flex-1 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
           <DashboardLeafletK3 data={allData} flyTo={flyTo} theme={theme} />
         </div>
       </div>
