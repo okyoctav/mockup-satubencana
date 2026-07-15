@@ -889,6 +889,13 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
           popupRef.current = null;
           if (buildingLayerRef.current) { map.removeLayer(buildingLayerRef.current); buildingLayerRef.current = null; }
         });
+        layer.bindPopup(popup);
+        layer.on('click', () => {
+          if (!popupRef.current) {
+            popupRef.current = popup;
+          }
+          layer.openPopup();
+        });
 
         if (!esriGeometry) {
           popup.setContent(buildFailureHtmlK3(area, "Gagal membuat geometri untuk query."));
