@@ -1,86 +1,101 @@
 'use client';
 
+import { Card, Row, Col, Typography, Space, Alert, Button } from 'antd';
+import { 
+  DashboardOutlined, 
+  DatabaseOutlined, 
+  ArrowRightOutlined,
+  InfoCircleOutlined
+} from '@ant-design/icons';
+import { useRouter } from 'next/navigation';
 import { AdminLayout } from '@/app/admin/AdminLayout';
 
+const { Title, Paragraph, Text } = Typography;
+
 export default function AdminPage() {
+  const router = useRouter();
+
   const MENU = [
     {
-      icon: '📊',
-      label: 'Dashboard',
-      desc: 'Lihat executive dashboard data bencana nasional secara real-time.',
+      icon: <DashboardOutlined style={{ fontSize: 28, color: '#1677ff' }} />,
+      label: 'Dashboard Bencana',
+      desc: 'Lihat executive dashboard data bencana nasional secara real-time dan analisis spasial.',
       href: '/dashboard',
-      accent: '#35a7ff',
+      accent: '#1677ff',
     },
     {
-      icon: '🗄',
+      icon: <DatabaseOutlined style={{ fontSize: 28, color: '#722ed1' }} />,
       label: 'Management Data',
-      desc: 'Kelola dan lihat daftar layanan geospasial Inarisk BNPB.',
+      desc: 'Kelola dan lihat daftar layanan geospasial Inarisk BNPB, parameter bencana, dan metadata.',
       href: '/management',
-      accent: '#38618c',
+      accent: '#722ed1',
     },
   ];
 
   return (
-    <AdminLayout title="Admin Dashboard" subtitle="Pilih modul admin yang ingin dikelola">
-      <div style={{ padding: '8px 0' }}>
-        {/* Welcome */}
-        <div style={{ marginBottom: 36 }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 6 }}>
-            Selamat datang, Admin 👋
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-            Pilih menu di bawah untuk mengelola dashboard dan data bencana nasional.
-          </div>
+    <AdminLayout title="Admin Console" subtitle="Pilih modul admin yang ingin dikelola">
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '12px 0' }}>
+        
+        {/* Welcome Section */}
+        <div style={{ marginBottom: 32 }}>
+          <Space direction="vertical" size={4}>
+            <Title level={2} style={{ margin: 0 }}>
+              Selamat datang, Admin 👋
+            </Title>
+            <Text type="secondary" style={{ fontSize: 14 }}>
+              Gunakan panel kontrol ini untuk mengarahkan manajemen dan visibilitas data bencana nasional.
+            </Text>
+          </Space>
         </div>
 
-        {/* Menu cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, maxWidth: 700 }}>
+        {/* Menu Cards */}
+        <Row gutter={[20, 20]} style={{ marginBottom: 40 }}>
           {MENU.map(m => (
-            <a
-              key={m.label}
-              href={m.href}
-              style={{
-                background: 'var(--bg-card)',
-                border: '1px solid var(--border-faint)',
-                borderRadius: 18,
-                padding: '28px 28px',
-                borderLeft: `4px solid ${m.accent}`,
-                textDecoration: 'none',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
-                transition: 'transform 0.18s, box-shadow 0.18s',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)';
-                (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 32px ${m.accent}25`;
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
-                (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-              }}
-            >
-              <div style={{ fontSize: 32 }}>{m.icon}</div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)' }}>{m.label}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6 }}>{m.desc}</div>
-              <div style={{ fontSize: 11, color: m.accent, fontWeight: 600, marginTop: 4 }}>
-                Buka {m.label} →
-              </div>
-            </a>
+            <Col xs={24} sm={12} key={m.label}>
+              <Card
+                hoverable
+                style={{
+                  height: '100%',
+                  borderRadius: 16,
+                  borderLeft: `4px solid ${m.accent}`,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                  transition: 'transform 0.2s',
+                }}
+                styles={{ body: { padding: 24, display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' } }}
+                onClick={() => router.push(m.href)}
+              >
+                <div>
+                  <div style={{ marginBottom: 16 }}>{m.icon}</div>
+                  <Title level={4} style={{ margin: '0 0 8px 0' }}>{m.label}</Title>
+                  <Paragraph type="secondary" style={{ fontSize: 13, lineHeight: 1.6, minHeight: 48, marginBottom: 0 }}>
+                    {m.desc}
+                  </Paragraph>
+                </div>
+                <div style={{ marginTop: 12 }}>
+                  <Button 
+                    type="link" 
+                    icon={<ArrowRightOutlined />} 
+                    style={{ padding: 0, color: m.accent, fontWeight: 600 }}
+                  >
+                    Buka Modul
+                  </Button>
+                </div>
+              </Card>
+            </Col>
           ))}
-        </div>
+        </Row>
 
-        {/* Info box */}
-        <div style={{ marginTop: 48, padding: '16px 20px', borderRadius: 12, background: 'rgba(53,167,255,0.06)', border: '1px solid rgba(53,167,255,0.15)', maxWidth: 600 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#35a7ff', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>
-            ℹ Informasi Sesi
-          </div>
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.7 }}>
-            Anda masuk sebagai Administrator. Sesi ini dikendalikan oleh Supabase Auth dan akan tetap aktif selama token valid.
-          </div>
-        </div>
+        {/* Info Box */}
+        <Alert
+          message="Informasi Sesi Administrator"
+          description="Sesi Anda dikendalikan menggunakan Supabase Auth dan ACL (Access Control List). Hak akses administrator Anda diverifikasi di server untuk menjamin keamanan operasional data."
+          type="info"
+          showIcon
+          icon={<InfoCircleOutlined />}
+          style={{ borderRadius: 12, padding: '16px 20px' }}
+        />
       </div>
     </AdminLayout>
   );
 }
+
