@@ -251,32 +251,8 @@ interface ImpactDataK3 {
   totalWanita: number;
   totalKK: number;
   kelurahans: string[];
-  history: Array<{ nama: string; jenis: string; tanggal: string }>;
   area: string;
   layerType: string;
-  note?: string;
-}
-
-function buildAreaFallbackK3(area: string): ImpactDataK3 {
-  const parsedArea = parseFloat(area);
-  const areaValue = Number.isFinite(parsedArea) && parsedArea > 0 ? parsedArea : 0.8;
-  const totalPenduduk = Math.max(1200, Math.round(areaValue * 14000));
-  const totalPria = Math.round(totalPenduduk * 0.51);
-  const totalWanita = totalPenduduk - totalPria;
-  const totalKK = Math.max(1, Math.round(totalPenduduk / 3.4));
-
-  return {
-    loading: false,
-    totalPenduduk,
-    totalPria,
-    totalWanita,
-    totalKK,
-    kelurahans: ['Estimasi sementara berdasarkan luas area'],
-    history: [],
-    area,
-    layerType: 'fallback',
-    note: 'Layer Dukcapil belum memberi data yang cukup. Menampilkan estimasi berbasis luas area yang digambar.',
-  };
 }
 
 function isLeafletDrawReady(): boolean {
@@ -287,7 +263,6 @@ function isLeafletDrawReady(): boolean {
 
 function buildImpactHtmlK3(d: ImpactDataK3): string {
   const loading = d.loading;
-  const historyItems = (d.history ?? []).slice(0, 6);
   return `<div style="width:280px;font-family:system-ui,sans-serif;color:#0F172A">
     <div style="margin-bottom:8px;padding-bottom:7px;border-bottom:1.5px solid #E2E8F0">
       <div style="font-size:11px;color:#0EA5E9;font-weight:700;text-transform:uppercase;letter-spacing:.8px">📐 Estimasi Demografi Terdampak</div>
@@ -300,7 +275,6 @@ function buildImpactHtmlK3(d: ImpactDataK3): string {
         <div>Menghubungi Dukcapil GIS Service...</div>
       </div>
     ` : `
-      ${d.note ? `<div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:6px;padding:6px 8px;font-size:10px;color:#9A2C00;margin-bottom:8px;line-height:1.4">${d.note}</div>` : ''}
       <table style="width:100%;border-collapse:collapse;margin-bottom:8px">
         <tbody>
           <tr style="border-bottom:1px solid #F1F5F9">
@@ -334,176 +308,32 @@ function buildImpactHtmlK3(d: ImpactDataK3): string {
         </tbody>
       </table>
       
-      <div style="margin-top:6px;max-height:90px;overflow-y:auto;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:6px 8px">
-        <div style="font-size:9px;font-weight:700;color:#475569;margin-bottom:4px">🚩 Kelurahan / Desa Terdampak (${d.kelurahans.length} terpilih):</div>
-        <div style="font-size:10px;color:#0F172A;line-height:1.4;display:flex;flex-direction:column;gap:3px">
-          ${d.kelurahans.length > 0 ? d.kelurahans.map((item) => `<div style="padding:2px 0;border-bottom:1px solid #E2E8F0">• ${item}</div>`).join('') : '<span style="color:#94A3B8">Tidak ada kelurahan/desa terpilih</span>'}
-        </div>
-      </div>
-
-      <div style="margin-top:6px;max-height:100px;overflow-y:auto;background:#FFF7ED;border:1px solid #FED7AA;border-radius:6px;padding:6px 8px">
-        <div style="font-size:9px;font-weight:700;color:#C2410C;margin-bottom:4px">🕘 Riwayat Bencana (${historyItems.length}):</div>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          ${historyItems.length > 0 ? historyItems.map((item) => `
-            <div style="font-size:10px;color:#0F172A;line-height:1.3">
-              <div style="font-weight:700">${item.nama}</div>
-              <div style="color:#64748B">${item.jenis} • ${item.tanggal}</div>
-            </div>
-          `).join('') : '<span style="font-size:10px;color:#94A3B8">Tidak ada riwayat bencana pada area ini.</span>'}
+      <div style="margin-top:6px;max-height:80px;overflow-y:auto;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:6px 8px">
+        <div style="font-size:9px;font-weight:700;color:#475569;margin-bottom:3px">🚩 Kelurahan Terdampak (${d.kelurahans.length}):</div>
+        <div style="font-size:10px;color:#0F172A;line-height:1.4">
+          ${d.kelurahans.length > 0 ? d.kelurahans.join(', ') : '<span style="color:#94A3B8">Tidak ada kelurahan terdeteksi</span>'}
         </div>
       </div>
     `}
     
     <div style="margin-top:8px;padding-top:6px;border-top:1px solid #E2E8F0;font-size:8.5px;color:#94A3B8;line-height:1.4">
-      📍 Sumber utama: layer Dukcapil yang sedang aktif di peta.
+      ⚠️ Data kependudukan bersumber langsung dari Dukcapil ArcGIS MapServer.
     </div>
   </div>`;
 }
 
-function pointInPolygon(point: [number, number], polygon: Array<[number, number]>): boolean {
-  const [x, y] = point;
-  let inside = false;
-  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-    const [xi, yi] = polygon[i];
-    const [xj, yj] = polygon[j];
-    const intersects = ((yi > y) !== (yj > y)) && (x < ((xj - xi) * (y - yi)) / (yj - yi) + xi);
-    if (intersects) inside = !inside;
-  }
-  return inside;
-}
-
-function getPolygonFromLayer(layer: { getLatLng?: () => { lat: number; lng: number }; getRadius?: () => number; getLatLngs?: () => unknown; getBounds?: () => { getSouthWest: () => { lat: number; lng: number }; getNorthEast: () => { lat: number; lng: number } } } | null, layerType: string): Array<[number, number]> {
-  if (!layer) return [];
-
-  if (layerType === 'circle') {
-    const center = layer.getLatLng?.();
-    const radiusMeters = layer.getRadius?.();
-    if (!center || typeof radiusMeters !== 'number') return [];
-    const points: Array<[number, number]> = [];
-    for (let i = 0; i <= 32; i++) {
-      const angle = (i / 32) * 2 * Math.PI;
-      const lat = center.lat + (radiusMeters / 111320) * Math.cos(angle);
-      const lng = center.lng + (radiusMeters / (111320 * Math.cos(center.lat * Math.PI / 180))) * Math.sin(angle);
-      points.push([lat, lng]);
-    }
-    return points;
-  }
-
-  const latLngs = layer.getLatLngs?.();
-  if (Array.isArray(latLngs)) {
-    const first = latLngs[0];
-    if (Array.isArray(first)) {
-      return first.map((item: { lat: number; lng: number }) => [item.lat, item.lng]);
-    }
-  }
-
-  const bounds = layer.getBounds?.();
-  if (bounds) {
-    const sw = bounds.getSouthWest();
-    const ne = bounds.getNorthEast();
-    return [
-      [sw.lat, sw.lng],
-      [sw.lat, ne.lng],
-      [ne.lat, ne.lng],
-      [ne.lat, sw.lng],
-    ];
-  }
-
-  return [];
-}
-
-function buildEnvelopeGeometryFromLayer(layer: { getLatLng?: () => { lat: number; lng: number }; getRadius?: () => number; getLatLngs?: () => unknown; getBounds?: () => { getSouthWest: () => { lat: number; lng: number }; getNorthEast: () => { lat: number; lng: number } } } | null, layerType: string): { rings?: Array<Array<[number, number]>>; xmin?: number; ymin?: number; xmax?: number; ymax?: number; spatialReference: { wkid: number } } | null {
-  const bounds = layer?.getBounds?.();
-  if (bounds) {
-    const sw = bounds.getSouthWest();
-    const ne = bounds.getNorthEast();
-    return {
-      xmin: sw.lng,
-      ymin: sw.lat,
-      xmax: ne.lng,
-      ymax: ne.lat,
-      spatialReference: { wkid: 4326 },
-    };
-  }
-
-  if (layerType === 'circle') {
-    const center = layer?.getLatLng?.();
-    const radiusMeters = layer?.getRadius?.();
-    if (!center || typeof radiusMeters !== 'number') return null;
-    const latDelta = radiusMeters / 111320;
-    const lngDelta = radiusMeters / (111320 * Math.cos(center.lat * Math.PI / 180));
-    return {
-      xmin: center.lng - lngDelta,
-      ymin: center.lat - latDelta,
-      xmax: center.lng + lngDelta,
-      ymax: center.lat + latDelta,
-      spatialReference: { wkid: 4326 },
-    };
-  }
-
-  return null;
-}
-
-function polygonIntersectsSelectedFeature(featurePolygon: Array<[number, number]>, selectedPolygon: Array<[number, number]>): boolean {
-  if (featurePolygon.length === 0 || selectedPolygon.length === 0) return false;
-  const centroid = featurePolygon.reduce((acc, [lat, lng]) => [acc[0] + lat, acc[1] + lng], [0, 0] as [number, number]);
-  const center: [number, number] = [centroid[0] / featurePolygon.length, centroid[1] / featurePolygon.length];
-  if (pointInPolygon(center, selectedPolygon)) return true;
-
-  for (const point of featurePolygon) {
-    if (pointInPolygon(point, selectedPolygon)) return true;
-  }
-  for (const point of selectedPolygon) {
-    if (pointInPolygon(point, featurePolygon)) return true;
-  }
-  return false;
-}
-
-function getHistoryForGeometry<T extends { lat: number; lng: number; nama: string; jenis: string; tanggal: string }>(
-  layer: { getLatLng?: () => { lat: number; lng: number }; getRadius?: () => number; getLatLngs?: () => unknown; getBounds?: () => { getSouthWest: () => { lat: number; lng: number }; getNorthEast: () => { lat: number; lng: number } } } | null,
-  layerType: string,
-  points: T[],
-): Array<{ nama: string; jenis: string; tanggal: string }> {
-  if (!layer || points.length === 0) return [];
-
-  if (layerType === 'circle') {
-    const center = layer?.getLatLng?.();
-    const radiusMeters = layer?.getRadius?.();
-    if (!center || typeof radiusMeters !== 'number') return [];
-    return points.filter((item) => {
-      const dist = Math.sqrt((item.lat - center.lat) ** 2 + (item.lng - center.lng) ** 2) * 111320;
-      return dist <= radiusMeters;
-    }).slice(0, 8).map((item) => ({ nama: item.nama, jenis: item.jenis, tanggal: item.tanggal }));
-  }
-
-  const latLngs = layer.getLatLngs?.();
-  let polygon: Array<[number, number]> = [];
-  if (Array.isArray(latLngs)) {
-    const first = latLngs[0];
-    if (Array.isArray(first)) {
-      polygon = first.map((item: { lat: number; lng: number }) => [item.lat, item.lng]);
-    } else if (first && typeof first === 'object') {
-      polygon = [first.lat, first.lng] as unknown as Array<[number, number]>;
-    }
-  }
-
-  if (polygon.length < 3) {
-    const bounds = layer.getBounds?.();
-    if (bounds) {
-      const sw = bounds.getSouthWest();
-      const ne = bounds.getNorthEast();
-      polygon = [
-        [sw.lat, sw.lng],
-        [sw.lat, ne.lng],
-        [ne.lat, ne.lng],
-        [ne.lat, sw.lng],
-      ];
-    }
-  }
-
-  if (polygon.length < 3) return [];
-
-  return points.filter((item) => pointInPolygon([item.lat, item.lng], polygon)).slice(0, 8).map((item) => ({ nama: item.nama, jenis: item.jenis, tanggal: item.tanggal }));
+function buildFailureHtmlK3(area: string, errorMsg?: string): string {
+  return `<div style="width:280px;font-family:system-ui,sans-serif;color:#0F172A">
+    <div style="margin-bottom:8px;padding-bottom:7px;border-bottom:1.5px solid #E2E8F0">
+      <div style="font-size:11px;color:#0EA5E9;font-weight:700;text-transform:uppercase;letter-spacing:.8px">📐 Estimasi Demografi Terdampak</div>
+      ${area !== '—' ? `<div style="font-size:10px;color:#64748B;margin-top:3px">Estimasi luas ≈ <strong style="color:#0F172A">${area} km²</strong></div>` : ''}
+    </div>
+    <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 12px;margin-bottom:6px">
+      <div style="font-size:13px;font-weight:700;color:#DC2626;margin-bottom:4px">⚠️ Gagal Mengambil Data</div>
+      <div style="font-size:11px;color:#7F1D1D;line-height:1.5">${errorMsg || 'Layanan GIS Dukcapil tidak merespon saat ini. Pastikan Anda terhubung ke internet dan coba lagi.'}</div>
+    </div>
+    <div style="font-size:9px;color:#94A3B8;line-height:1.5">Dukcapil MapServer Query Error</div>
+  </div>`;
 }
 
 type ActivePanel = 'basemap' | 'layers' | 'legend' | 'draw' | 'bmkg' | null;
@@ -996,15 +826,43 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
           }
         } catch { /* */ }
 
-        // --- Build spatial query geometry ---
+        // --- Build Esri JSON Geometry ---
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let esriGeometry: any = null;
-        let selectedPolygon: Array<[number, number]> = [];
         try {
-          selectedPolygon = getPolygonFromLayer(layer, e.layerType);
-          esriGeometry = buildEnvelopeGeometryFromLayer(layer, e.layerType);
+          if (e.layerType === 'circle') {
+            const center = layer.getLatLng();
+            const r = layer.getRadius(); // meters
+            const rings: number[][] = [];
+            for (let i = 0; i <= 32; i++) {
+              const angle = (i / 32) * 2 * Math.PI;
+              const lat = center.lat + (r / 111320) * Math.cos(angle);
+              const lng = center.lng + (r / (111320 * Math.cos(center.lat * Math.PI / 180))) * Math.sin(angle);
+              rings.push([lng, lat]);
+            }
+            esriGeometry = {
+              rings: [rings],
+              spatialReference: { wkid: 4326 }
+            };
+          } else {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const pts: any[] = layer.getLatLngs()[0];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const rings = pts.map((p: any) => [p.lng, p.lat]);
+            if (rings.length > 0) {
+              const first = rings[0];
+              const last = rings[rings.length - 1];
+              if (first[0] !== last[0] || first[1] !== last[1]) {
+                rings.push([first[0], first[1]]);
+              }
+            }
+            esriGeometry = {
+              rings: [rings],
+              spatialReference: { wkid: 4326 }
+            };
+          }
         } catch (err) {
-          console.error("Error building spatial geometry:", err);
+          console.error("Error building Esri geometry:", err);
         }
 
         // Clear previous building footprint layer
@@ -1018,67 +876,57 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
           totalWanita: 0,
           totalKK: 0,
           kelurahans: [],
-          history: getHistoryForGeometry(layer, e.layerType, data),
           area,
           layerType: e.layerType
         };
         const popupCenter = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLng();
         const popup = L.popup({ maxWidth: 360, minWidth: 300, className: 'impact-popup', closeButton: true, autoClose: false })
           .setLatLng(popupCenter)
-          .setContent(buildImpactHtmlK3(loadingState));
-        layer.bindPopup(popup);
-        layer.openPopup();
+          .setContent(buildImpactHtmlK3(loadingState))
+          .openOn(map);
         popupRef.current = popup;
         popup.on('remove', () => {
+          popupRef.current = null;
           if (buildingLayerRef.current) { map.removeLayer(buildingLayerRef.current); buildingLayerRef.current = null; }
         });
 
         if (!esriGeometry) {
-          if (popupRef.current) popup.setContent(buildImpactHtmlK3(buildAreaFallbackK3(area)));
+          popup.setContent(buildFailureHtmlK3(area, "Gagal membuat geometri untuk query."));
           return;
         }
 
-        const useDukcapilLayer = activeOverlays.includes('dukcapil_kel_fix');
-        if (!useDukcapilLayer) {
-          if (popupRef.current) popup.setContent(buildImpactHtmlK3(buildAreaFallbackK3(area)));
-          return;
-        }
+        const queryUrl = 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/services/AGR_VISUAL_KEL_FIX/MapServer/0/query';
+        const params = new URLSearchParams();
+        params.append('where', '1=1');
+        params.append('geometryType', 'esriGeometryPolygon');
+        params.append('spatialRel', 'esriSpatialRelIntersects');
+        params.append('outFields', 'JUMLAH_PENDUDUK,JUMLAH_KK,PRIA,WANITA,NAMA_KEL');
+        params.append('inSR', '4326');
+        params.append('outSR', '4326');
+        params.append('f', 'json');
+        params.append('returnGeometry', 'true');
+        params.append('geometry', JSON.stringify(esriGeometry));
 
-        const requestUrl = '/api/dukcapil/query';
-
-        // Case-insensitive helpers with multiple field aliases
+        // Case-insensitive helpers
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const getAttrVal = (attrs: any, fieldNames: string[]) => {
+        const getAttrVal = (attrs: any, fieldName: string) => {
           if (!attrs) return 0;
-          const aliases = fieldNames.map((name) => name.toLowerCase());
-          const key = Object.keys(attrs).find((k) => aliases.includes(k.toLowerCase()));
-          const raw = key ? attrs[key] : undefined;
-          return raw === undefined || raw === null || raw === '' ? 0 : (parseInt(String(raw), 10) || 0);
+          const key = Object.keys(attrs).find(k => k.toLowerCase() === fieldName.toLowerCase());
+          return key ? (parseInt(attrs[key], 10) || 0) : 0;
         };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const getAttrStr = (attrs: any, fieldNames: string[]) => {
+        const getAttrStr = (attrs: any, fieldName: string) => {
           if (!attrs) return '';
-          const aliases = fieldNames.map((name) => name.toLowerCase());
-          const key = Object.keys(attrs).find((k) => aliases.includes(k.toLowerCase()));
-          const raw = key ? attrs[key] : undefined;
-          return raw === undefined || raw === null ? '' : String(raw).trim();
+          const key = Object.keys(attrs).find(k => k.toLowerCase() === fieldName.toLowerCase());
+          return key ? (attrs[key] ?? '') : '';
         };
 
-        fetch(requestUrl, {
+        fetch(queryUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            where: '1=1',
-            geometryType: 'esriGeometryEnvelope',
-            spatialRel: 'esriSpatialRelIntersects',
-            outFields: 'JUMLAH_PENDUDUK,JUMLAH_KK,PRIA,WANITA,NAMA_KEL',
-            inSR: '4326',
-            outSR: '4326',
-            f: 'json',
-            returnGeometry: 'true',
-            geometry: esriGeometry,
-          }),
-          cache: 'no-store',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: params.toString(),
           signal: AbortSignal.timeout(30000)
         })
           .then((res) => {
@@ -1087,46 +935,34 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
           })
           .then((data) => {
             const features = data?.features ?? [];
-            if (features.length === 0) {
-              throw new Error('No features returned from Dukcapil layer');
-            }
-
-            const selectedFeatures = features.filter((f: unknown) => {
-              const feature = f as { geometry?: { rings?: Array<Array<Array<number>>> } };
-              const rings = feature?.geometry?.rings ?? [];
-              if (!Array.isArray(rings) || rings.length === 0) return false;
-              const featurePolygon = rings[0].map((coord: Array<number>) => [coord[1], coord[0]] as [number, number]);
-              return polygonIntersectsSelectedFeature(featurePolygon, selectedPolygon);
-            });
-            const effectiveFeatures = selectedFeatures.length > 0 ? selectedFeatures : features;
             
             // Calculate sums
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const totalPenduduk = effectiveFeatures.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['JUMLAH_PENDUDUK', 'jumlah_penduduk', 'penduduk', 'populasi']), 0);
+            const totalPenduduk = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, 'JUMLAH_PENDUDUK'), 0);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const totalKK = effectiveFeatures.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['JUMLAH_KK', 'jumlah_kk', 'kk']), 0);
+            const totalKK = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, 'JUMLAH_KK'), 0);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const totalPria = effectiveFeatures.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['PRIA', 'pria', 'laki_laki']), 0);
+            const totalPria = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, 'PRIA'), 0);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const totalWanita = effectiveFeatures.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['WANITA', 'wanita', 'perempuan']), 0);
+            const totalWanita = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, 'WANITA'), 0);
             
-            // Collect unique kelurahan / desa names from the selected features
+            // Collect unique kelurahan names
             const kelList: string[] = [];
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            effectiveFeatures.forEach((f: any) => {
-              const name = getAttrStr(f.attributes, ['NAMA_KEL', 'nama_kel', 'NAMA_DESA', 'nama_desa', 'NAMA_KELURAHAN', 'nama_kelurahan', 'KELURAHAN', 'DESA', 'kelurahan', 'desa', 'name']);
+            features.forEach((f: any) => {
+              const name = getAttrStr(f.attributes, 'NAMA_KEL');
               if (name && !kelList.includes(name)) {
                 kelList.push(name);
               }
             });
             kelList.sort();
 
-            // Render selected Kelurahan boundary highlights
-            if (effectiveFeatures.length > 0 && !buildingLayerRef.current) {
+            // Render Kelurahan boundary highlights
+            if (features.length > 0 && !buildingLayerRef.current) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const geojsonFeatures: any[] = [];
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              effectiveFeatures.forEach((f: any) => {
+              features.forEach((f: any) => {
                 if (f.geometry && Array.isArray(f.geometry.rings)) {
                   geojsonFeatures.push({
                     type: 'Feature',
@@ -1146,40 +982,17 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
                   {
                     style: () => ({
                       color: '#0EA5E9',
-                      weight: 2.5,
+                      weight: 2,
                       fillColor: '#35A7FF',
-                      fillOpacity: 0.28,
+                      fillOpacity: 0.2,
                       dashArray: '4, 4',
-                      opacity: 0.95
+                      opacity: 0.85
                     }),
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     onEachFeature: (feature: any, layer: any) => {
-                      const kelName = getAttrStr(feature.properties, ['NAMA_KEL', 'nama_kel', 'NAMA_DESA', 'nama_desa', 'NAMA_KELURAHAN', 'nama_kelurahan', 'KELURAHAN', 'DESA', 'kelurahan', 'desa', 'name']);
-                      const pop = getAttrVal(feature.properties, ['JUMLAH_PENDUDUK', 'jumlah_penduduk', 'penduduk', 'populasi']);
-                      layer.setStyle({
-                        color: '#0EA5E9',
-                        weight: 2.5,
-                        fillColor: '#2563EB',
-                        fillOpacity: 0.38,
-                        opacity: 1,
-                      });
-                      const labelText = (kelName || 'Wilayah terpilih').toString();
-                      const bounds = layer.getBounds ? layer.getBounds() : null;
-                      if (bounds) {
-                        const center = bounds.getCenter();
-                        const label = L.marker(center, {
-                          icon: L.divIcon({
-                            className: 'selected-region-label',
-                            html: `<div style="background:rgba(255,255,255,0.95);border:1px solid #0EA5E9;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:700;color:#0F172A;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.18)">${labelText}</div>`,
-                            iconSize: [80, 24],
-                            iconAnchor: [40, 12],
-                          }),
-                          interactive: false,
-                          zIndexOffset: 1000,
-                        });
-                        label.addTo(map);
-                      }
-                      layer.bindTooltip(`<strong>${labelText}</strong><br/>Penduduk: ${pop.toLocaleString('id')} jiwa`, {
+                      const kelName = getAttrStr(feature.properties, 'NAMA_KEL');
+                      const pop = getAttrVal(feature.properties, 'JUMLAH_PENDUDUK');
+                      layer.bindTooltip(`<strong>Kel. ${kelName}</strong><br/>Penduduk: ${pop.toLocaleString('id')} jiwa`, {
                         sticky: true,
                         className: 'kel-tooltip'
                       });
@@ -1198,18 +1011,14 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
               totalWanita,
               totalKK,
               kelurahans: kelList,
-              history: getHistoryForGeometry(layer, e.layerType, data),
               area,
-              layerType: e.layerType,
-              note: 'Menggunakan data layer Dukcapil yang aktif di peta.'
+              layerType: e.layerType
             };
             if (popupRef.current) popup.setContent(buildImpactHtmlK3(finalState));
           })
           .catch((err) => {
-            console.error("Dukcapil data unavailable:", err);
-            const fallbackState = buildAreaFallbackK3(area);
-            fallbackState.history = getHistoryForGeometry(layer, e.layerType, data);
-            if (popupRef.current) popup.setContent(buildImpactHtmlK3(fallbackState));
+            console.error("Dukcapil Service error:", err);
+            if (popupRef.current) popup.setContent(buildFailureHtmlK3(area, "Tidak dapat menghubungi Dukcapil GIS Service atau query gagal. Silakan coba beberapa saat lagi."));
           });
       });
     };
