@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -13,6 +13,17 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const isConfigured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
+  useEffect(() => {
+    const client = getSupabaseBrowserClient();
+    if (!client) return;
+
+    client.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        router.replace('/admin');
+      }
+    });
+  }, [router]);
 
   const handleAccountLogin = async (email: string, password: string) => {
     if (!email.trim() || !password.trim()) {
@@ -71,64 +82,50 @@ export default function LoginPage() {
     }
   };
 
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const emailInput = form.elements.namedItem('email') as HTMLInputElement | null;
+    const passwordInput = form.elements.namedItem('password') as HTMLInputElement | null;
+
+    if (!emailInput || !passwordInput) {
+      setError('Form login tidak lengkap.');
+      return;
+    }
+
+    await handleAccountLogin(emailInput.value, passwordInput.value);
+  };
+
   return (
-    <div
-      className="min-h-screen relative overflow-hidden bg-background"
-    >
+    <div className="min-h-screen relative overflow-hidden bg-background">
       <LoginBackground />
 
-      <div
-        className="relative z-10 flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8"
-      >
-        <div
-          className="w-full max-w-sm space-y-6 bg-card/80 backdrop-blur-sm rounded-xl border border-border p-8 shadow-lg"
-        >
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+        <div className="w-full max-w-sm space-y-6 bg-card/80 backdrop-blur-sm rounded-xl border border-border p-8 shadow-lg">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-foreground">
-              SATUBENCANA
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Admin Console
-            </p>
+            <h2 className="text-2xl font-bold text-foreground">SATUBENCANA</h2>
+            <p className="text-sm text-muted-foreground">Admin Console</p>
           </div>
 
-          <form
-            className="space-y-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (true) { // Always use account mode for now
-                const form = e.target as HTMLFormElement;
-                const emailInput = form.elements.namedItem('email') as HTMLInputElement;
-                const passwordInput = form.elements.namedItem('password') as HTMLInputElement;
-                handleAccountLogin(emailInput.value, passwordInput.value);
-              } else {
-                // phone mode: just show success toast for now
-                alert('Mode login nomor HP siap digunakan (demo).');
-              }
-            }}
-          >
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">
-                Email Login
-              </p>
-              <>
-                <Input
-                  type="email"
-                  name="email"
-                  placeholder="admin@admin.com"
-                  required
-                  disabled={!isConfigured}
-                  className="w-full"
-                />
-                <Input
-                  type="password"
-                  name="password"
-                  placeholder="••••••••"
-                  required
-                  disabled={!isConfigured}
-                  className="w-full"
-                />
-              </>
+              <p className="text-sm font-medium text-foreground">Email Login</p>
+              <Input
+                type="email"
+                name="email"
+                placeholder="admin@admin.com"
+                required
+                disabled={!isConfigured}
+                className="w-full"
+              />
+              <Input
+                type="password"
+                name="password"
+                placeholder="••••••••"
+                required
+                disabled={!isConfigured}
+                className="w-full"
+              />
             </div>
 
             {error && (
@@ -137,11 +134,7 @@ export default function LoginPage() {
               </div>
             )}
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading || !isConfigured}
-            >
+            <Button type="submit" className="w-full" disabled={loading || !isConfigured}>
               {loading ? 'Memverifikasi...' : isConfigured ? 'Masuk' : 'Konfigurasi belum siap'}
             </Button>
           </form>
