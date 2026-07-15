@@ -1095,7 +1095,23 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
                         fillOpacity: 0.38,
                         opacity: 1,
                       });
-                      layer.bindTooltip(`<strong>${kelName || 'Wilayah terpilih'}</strong><br/>Penduduk: ${pop.toLocaleString('id')} jiwa`, {
+                      const labelText = (kelName || 'Wilayah terpilih').toString();
+                      const bounds = layer.getBounds ? layer.getBounds() : null;
+                      if (bounds) {
+                        const center = bounds.getCenter();
+                        const label = L.marker(center, {
+                          icon: L.divIcon({
+                            className: 'selected-region-label',
+                            html: `<div style="background:rgba(255,255,255,0.95);border:1px solid #0EA5E9;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:700;color:#0F172A;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.18)">${labelText}</div>`,
+                            iconSize: [80, 24],
+                            iconAnchor: [40, 12],
+                          }),
+                          interactive: false,
+                          zIndexOffset: 1000,
+                        });
+                        label.addTo(map);
+                      }
+                      layer.bindTooltip(`<strong>${labelText}</strong><br/>Penduduk: ${pop.toLocaleString('id')} jiwa`, {
                         sticky: true,
                         className: 'kel-tooltip'
                       });
