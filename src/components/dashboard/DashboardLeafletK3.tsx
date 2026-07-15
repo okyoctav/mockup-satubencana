@@ -251,6 +251,7 @@ interface ImpactDataK3 {
   totalWanita: number;
   totalKK: number;
   kelurahans: string[];
+  history: Array<{ nama: string; jenis: string; tanggal: string }>;
   area: string;
   layerType: string;
 }
@@ -263,6 +264,7 @@ function isLeafletDrawReady(): boolean {
 
 function buildImpactHtmlK3(d: ImpactDataK3): string {
   const loading = d.loading;
+  const historyItems = (d.history ?? []).slice(0, 6);
   return `<div style="width:280px;font-family:system-ui,sans-serif;color:#0F172A">
     <div style="margin-bottom:8px;padding-bottom:7px;border-bottom:1.5px solid #E2E8F0">
       <div style="font-size:11px;color:#0EA5E9;font-weight:700;text-transform:uppercase;letter-spacing:.8px">📐 Estimasi Demografi Terdampak</div>
@@ -314,6 +316,18 @@ function buildImpactHtmlK3(d: ImpactDataK3): string {
           ${d.kelurahans.length > 0 ? d.kelurahans.join(', ') : '<span style="color:#94A3B8">Tidak ada kelurahan terdeteksi</span>'}
         </div>
       </div>
+
+      <div style="margin-top:6px;max-height:100px;overflow-y:auto;background:#FFF7ED;border:1px solid #FED7AA;border-radius:6px;padding:6px 8px">
+        <div style="font-size:9px;font-weight:700;color:#C2410C;margin-bottom:4px">🕘 Riwayat Bencana (${historyItems.length}):</div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          ${historyItems.length > 0 ? historyItems.map((item) => `
+            <div style="font-size:10px;color:#0F172A;line-height:1.3">
+              <div style="font-weight:700">${item.nama}</div>
+              <div style="color:#64748B">${item.jenis} • ${item.tanggal}</div>
+            </div>
+          `).join('') : '<span style="font-size:10px;color:#94A3B8">Tidak ada riwayat bencana pada area ini.</span>'}
+        </div>
+      </div>
     `}
     
     <div style="margin-top:8px;padding-top:6px;border-top:1px solid #E2E8F0;font-size:8.5px;color:#94A3B8;line-height:1.4">
@@ -334,6 +348,65 @@ function buildFailureHtmlK3(area: string, errorMsg?: string): string {
     </div>
     <div style="font-size:9px;color:#94A3B8;line-height:1.5">Dukcapil MapServer Query Error</div>
   </div>`;
+}
+
+function pointInPolygon(point: [number, number], polygon: Array<[number, number]>): boolean {
+  const [x, y] = point;
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [xi, yi] = polygon[i];
+    const [xj, yj] = polygon[j];
+    const intersects = ((yi > y) !== (yj > y)) && (x < ((xj - xi) * (y - yi)) / (yj - yi) + xi);
+    if (intersects) inside = !inside;
+  }
+  return inside;
+}
+
+function getHistoryForGeometry<T extends { lat: number; lng: number; nama: string; jenis: string; tanggal: string }>(
+  layer: { getLatLng?: () => { lat: number; lng: number }; getRadius?: () => number; getLatLngs?: () => unknown; getBounds?: () => { getSouthWest: () => { lat: number; lng: number }; getNorthEast: () => { lat: number; lng: number } } } | null,
+  layerType: string,
+  points: T[],
+): Array<{ nama: string; jenis: string; tanggal: string }> {
+  if (!layer || points.length === 0) return [];
+
+  if (layerType === 'circle') {
+    const center = layer?.getLatLng?.();
+    const radiusMeters = layer?.getRadius?.();
+    if (!center || typeof radiusMeters !== 'number') return [];
+    return points.filter((item) => {
+      const dist = Math.sqrt((item.lat - center.lat) ** 2 + (item.lng - center.lng) ** 2) * 111320;
+      return dist <= radiusMeters;
+    }).slice(0, 8).map((item) => ({ nama: item.nama, jenis: item.jenis, tanggal: item.tanggal }));
+  }
+
+  const latLngs = layer.getLatLngs?.();
+  let polygon: Array<[number, number]> = [];
+  if (Array.isArray(latLngs)) {
+    const first = latLngs[0];
+    if (Array.isArray(first)) {
+      polygon = first.map((item: { lat: number; lng: number }) => [item.lat, item.lng]);
+    } else if (first && typeof first === 'object') {
+      polygon = [first.lat, first.lng] as unknown as Array<[number, number]>;
+    }
+  }
+
+  if (polygon.length < 3) {
+    const bounds = layer.getBounds?.();
+    if (bounds) {
+      const sw = bounds.getSouthWest();
+      const ne = bounds.getNorthEast();
+      polygon = [
+        [sw.lat, sw.lng],
+        [sw.lat, ne.lng],
+        [ne.lat, ne.lng],
+        [ne.lat, sw.lng],
+      ];
+    }
+  }
+
+  if (polygon.length < 3) return [];
+
+  return points.filter((item) => pointInPolygon([item.lat, item.lng], polygon)).slice(0, 8).map((item) => ({ nama: item.nama, jenis: item.jenis, tanggal: item.tanggal }));
 }
 
 type ActivePanel = 'basemap' | 'layers' | 'legend' | 'draw' | 'bmkg' | null;
@@ -876,17 +949,18 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
           totalWanita: 0,
           totalKK: 0,
           kelurahans: [],
+          history: getHistoryForGeometry(layer, e.layerType, data),
           area,
           layerType: e.layerType
         };
         const popupCenter = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLng();
         const popup = L.popup({ maxWidth: 360, minWidth: 300, className: 'impact-popup', closeButton: true, autoClose: false })
           .setLatLng(popupCenter)
-          .setContent(buildImpactHtmlK3(loadingState))
-          .openOn(map);
+          .setContent(buildImpactHtmlK3(loadingState));
+        layer.bindPopup(popup);
+        layer.openPopup();
         popupRef.current = popup;
         popup.on('remove', () => {
-          popupRef.current = null;
           if (buildingLayerRef.current) { map.removeLayer(buildingLayerRef.current); buildingLayerRef.current = null; }
         });
 
@@ -1011,6 +1085,7 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
               totalWanita,
               totalKK,
               kelurahans: kelList,
+              history: getHistoryForGeometry(layer, e.layerType, data),
               area,
               layerType: e.layerType
             };
