@@ -372,6 +372,93 @@ function pointInPolygon(point: [number, number], polygon: Array<[number, number]
   return inside;
 }
 
+function getPolygonFromLayer(layer: { getLatLng?: () => { lat: number; lng: number }; getRadius?: () => number; getLatLngs?: () => unknown; getBounds?: () => { getSouthWest: () => { lat: number; lng: number }; getNorthEast: () => { lat: number; lng: number } } } | null, layerType: string): Array<[number, number]> {
+  if (!layer) return [];
+
+  if (layerType === 'circle') {
+    const center = layer.getLatLng?.();
+    const radiusMeters = layer.getRadius?.();
+    if (!center || typeof radiusMeters !== 'number') return [];
+    const points: Array<[number, number]> = [];
+    for (let i = 0; i <= 32; i++) {
+      const angle = (i / 32) * 2 * Math.PI;
+      const lat = center.lat + (radiusMeters / 111320) * Math.cos(angle);
+      const lng = center.lng + (radiusMeters / (111320 * Math.cos(center.lat * Math.PI / 180))) * Math.sin(angle);
+      points.push([lat, lng]);
+    }
+    return points;
+  }
+
+  const latLngs = layer.getLatLngs?.();
+  if (Array.isArray(latLngs)) {
+    const first = latLngs[0];
+    if (Array.isArray(first)) {
+      return first.map((item: { lat: number; lng: number }) => [item.lat, item.lng]);
+    }
+  }
+
+  const bounds = layer.getBounds?.();
+  if (bounds) {
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    return [
+      [sw.lat, sw.lng],
+      [sw.lat, ne.lng],
+      [ne.lat, ne.lng],
+      [ne.lat, sw.lng],
+    ];
+  }
+
+  return [];
+}
+
+function buildEnvelopeGeometryFromLayer(layer: { getLatLng?: () => { lat: number; lng: number }; getRadius?: () => number; getLatLngs?: () => unknown; getBounds?: () => { getSouthWest: () => { lat: number; lng: number }; getNorthEast: () => { lat: number; lng: number } } } | null, layerType: string): { rings?: Array<Array<[number, number]>>; xmin?: number; ymin?: number; xmax?: number; ymax?: number; spatialReference: { wkid: number } } | null {
+  const bounds = layer?.getBounds?.();
+  if (bounds) {
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    return {
+      xmin: sw.lng,
+      ymin: sw.lat,
+      xmax: ne.lng,
+      ymax: ne.lat,
+      spatialReference: { wkid: 4326 },
+    };
+  }
+
+  if (layerType === 'circle') {
+    const center = layer?.getLatLng?.();
+    const radiusMeters = layer?.getRadius?.();
+    if (!center || typeof radiusMeters !== 'number') return null;
+    const latDelta = radiusMeters / 111320;
+    const lngDelta = radiusMeters / (111320 * Math.cos(center.lat * Math.PI / 180));
+    return {
+      xmin: center.lng - lngDelta,
+      ymin: center.lat - latDelta,
+      xmax: center.lng + lngDelta,
+      ymax: center.lat + latDelta,
+      spatialReference: { wkid: 4326 },
+    };
+  }
+
+  return null;
+}
+
+function polygonIntersectsSelectedFeature(featurePolygon: Array<[number, number]>, selectedPolygon: Array<[number, number]>): boolean {
+  if (featurePolygon.length === 0 || selectedPolygon.length === 0) return false;
+  const centroid = featurePolygon.reduce((acc, [lat, lng]) => [acc[0] + lat, acc[1] + lng], [0, 0] as [number, number]);
+  const center: [number, number] = [centroid[0] / featurePolygon.length, centroid[1] / featurePolygon.length];
+  if (pointInPolygon(center, selectedPolygon)) return true;
+
+  for (const point of featurePolygon) {
+    if (pointInPolygon(point, selectedPolygon)) return true;
+  }
+  for (const point of selectedPolygon) {
+    if (pointInPolygon(point, featurePolygon)) return true;
+  }
+  return false;
+}
+
 function getHistoryForGeometry<T extends { lat: number; lng: number; nama: string; jenis: string; tanggal: string }>(
   layer: { getLatLng?: () => { lat: number; lng: number }; getRadius?: () => number; getLatLngs?: () => unknown; getBounds?: () => { getSouthWest: () => { lat: number; lng: number }; getNorthEast: () => { lat: number; lng: number } } } | null,
   layerType: string,
@@ -909,43 +996,15 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
           }
         } catch { /* */ }
 
-        // --- Build Esri JSON Geometry ---
+        // --- Build spatial query geometry ---
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let esriGeometry: any = null;
+        let selectedPolygon: Array<[number, number]> = [];
         try {
-          if (e.layerType === 'circle') {
-            const center = layer.getLatLng();
-            const r = layer.getRadius(); // meters
-            const rings: number[][] = [];
-            for (let i = 0; i <= 32; i++) {
-              const angle = (i / 32) * 2 * Math.PI;
-              const lat = center.lat + (r / 111320) * Math.cos(angle);
-              const lng = center.lng + (r / (111320 * Math.cos(center.lat * Math.PI / 180))) * Math.sin(angle);
-              rings.push([lng, lat]);
-            }
-            esriGeometry = {
-              rings: [rings],
-              spatialReference: { wkid: 4326 }
-            };
-          } else {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const pts: any[] = layer.getLatLngs()[0];
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const rings = pts.map((p: any) => [p.lng, p.lat]);
-            if (rings.length > 0) {
-              const first = rings[0];
-              const last = rings[rings.length - 1];
-              if (first[0] !== last[0] || first[1] !== last[1]) {
-                rings.push([first[0], first[1]]);
-              }
-            }
-            esriGeometry = {
-              rings: [rings],
-              spatialReference: { wkid: 4326 }
-            };
-          }
+          selectedPolygon = getPolygonFromLayer(layer, e.layerType);
+          esriGeometry = buildEnvelopeGeometryFromLayer(layer, e.layerType);
         } catch (err) {
-          console.error("Error building Esri geometry:", err);
+          console.error("Error building spatial geometry:", err);
         }
 
         // Clear previous building footprint layer
@@ -1010,7 +1069,7 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             where: '1=1',
-            geometryType: 'esriGeometryPolygon',
+            geometryType: 'esriGeometryEnvelope',
             spatialRel: 'esriSpatialRelIntersects',
             outFields: 'JUMLAH_PENDUDUK,JUMLAH_KK,PRIA,WANITA,NAMA_KEL',
             inSR: '4326',
@@ -1031,21 +1090,30 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
             if (features.length === 0) {
               throw new Error('No features returned from Dukcapil layer');
             }
+
+            const selectedFeatures = features.filter((f: unknown) => {
+              const feature = f as { geometry?: { rings?: Array<Array<Array<number>>> } };
+              const rings = feature?.geometry?.rings ?? [];
+              if (!Array.isArray(rings) || rings.length === 0) return false;
+              const featurePolygon = rings[0].map((coord: Array<number>) => [coord[1], coord[0]] as [number, number]);
+              return polygonIntersectsSelectedFeature(featurePolygon, selectedPolygon);
+            });
+            const effectiveFeatures = selectedFeatures.length > 0 ? selectedFeatures : features;
             
             // Calculate sums
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const totalPenduduk = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['JUMLAH_PENDUDUK', 'jumlah_penduduk', 'penduduk', 'populasi']), 0);
+            const totalPenduduk = effectiveFeatures.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['JUMLAH_PENDUDUK', 'jumlah_penduduk', 'penduduk', 'populasi']), 0);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const totalKK = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['JUMLAH_KK', 'jumlah_kk', 'kk']), 0);
+            const totalKK = effectiveFeatures.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['JUMLAH_KK', 'jumlah_kk', 'kk']), 0);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const totalPria = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['PRIA', 'pria', 'laki_laki']), 0);
+            const totalPria = effectiveFeatures.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['PRIA', 'pria', 'laki_laki']), 0);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const totalWanita = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['WANITA', 'wanita', 'perempuan']), 0);
+            const totalWanita = effectiveFeatures.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['WANITA', 'wanita', 'perempuan']), 0);
             
-            // Collect unique kelurahan / desa names from the intersected features
+            // Collect unique kelurahan / desa names from the selected features
             const kelList: string[] = [];
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            features.forEach((f: any) => {
+            effectiveFeatures.forEach((f: any) => {
               const name = getAttrStr(f.attributes, ['NAMA_KEL', 'nama_kel', 'NAMA_DESA', 'nama_desa', 'NAMA_KELURAHAN', 'nama_kelurahan', 'KELURAHAN', 'DESA', 'kelurahan', 'desa', 'name']);
               if (name && !kelList.includes(name)) {
                 kelList.push(name);
@@ -1053,12 +1121,12 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
             });
             kelList.sort();
 
-            // Render Kelurahan boundary highlights
-            if (features.length > 0 && !buildingLayerRef.current) {
+            // Render selected Kelurahan boundary highlights
+            if (effectiveFeatures.length > 0 && !buildingLayerRef.current) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const geojsonFeatures: any[] = [];
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              features.forEach((f: any) => {
+              effectiveFeatures.forEach((f: any) => {
                 if (f.geometry && Array.isArray(f.geometry.rings)) {
                   geojsonFeatures.push({
                     type: 'Feature',
