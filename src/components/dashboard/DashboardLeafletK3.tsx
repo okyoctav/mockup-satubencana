@@ -335,9 +335,9 @@ function buildImpactHtmlK3(d: ImpactDataK3): string {
       </table>
       
       <div style="margin-top:6px;max-height:90px;overflow-y:auto;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:6px 8px">
-        <div style="font-size:9px;font-weight:700;color:#475569;margin-bottom:4px">🚩 Kelurahan / Desa Terdampak (${d.kelurahans.length}):</div>
+        <div style="font-size:9px;font-weight:700;color:#475569;margin-bottom:4px">🚩 Kelurahan / Desa Terdampak (${d.kelurahans.length} terpilih):</div>
         <div style="font-size:10px;color:#0F172A;line-height:1.4;display:flex;flex-direction:column;gap:3px">
-          ${d.kelurahans.length > 0 ? d.kelurahans.map((item) => `<div style="padding:2px 0;border-bottom:1px solid #E2E8F0">• ${item}</div>`).join('') : '<span style="color:#94A3B8">Tidak ada kelurahan terdeteksi</span>'}
+          ${d.kelurahans.length > 0 ? d.kelurahans.map((item) => `<div style="padding:2px 0;border-bottom:1px solid #E2E8F0">• ${item}</div>`).join('') : '<span style="color:#94A3B8">Tidak ada kelurahan/desa terpilih</span>'}
         </div>
       </div>
 
@@ -987,18 +987,22 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
 
         const requestUrl = '/api/dukcapil/query';
 
-        // Case-insensitive helpers
+        // Case-insensitive helpers with multiple field aliases
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const getAttrVal = (attrs: any, fieldName: string) => {
+        const getAttrVal = (attrs: any, fieldNames: string[]) => {
           if (!attrs) return 0;
-          const key = Object.keys(attrs).find(k => k.toLowerCase() === fieldName.toLowerCase());
-          return key ? (parseInt(attrs[key], 10) || 0) : 0;
+          const aliases = fieldNames.map((name) => name.toLowerCase());
+          const key = Object.keys(attrs).find((k) => aliases.includes(k.toLowerCase()));
+          const raw = key ? attrs[key] : undefined;
+          return raw === undefined || raw === null || raw === '' ? 0 : (parseInt(String(raw), 10) || 0);
         };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const getAttrStr = (attrs: any, fieldName: string) => {
+        const getAttrStr = (attrs: any, fieldNames: string[]) => {
           if (!attrs) return '';
-          const key = Object.keys(attrs).find(k => k.toLowerCase() === fieldName.toLowerCase());
-          return key ? (attrs[key] ?? '') : '';
+          const aliases = fieldNames.map((name) => name.toLowerCase());
+          const key = Object.keys(attrs).find((k) => aliases.includes(k.toLowerCase()));
+          const raw = key ? attrs[key] : undefined;
+          return raw === undefined || raw === null ? '' : String(raw).trim();
         };
 
         fetch(requestUrl, {
@@ -1030,19 +1034,19 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
             
             // Calculate sums
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const totalPenduduk = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, 'JUMLAH_PENDUDUK'), 0);
+            const totalPenduduk = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['JUMLAH_PENDUDUK', 'jumlah_penduduk', 'penduduk', 'populasi']), 0);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const totalKK = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, 'JUMLAH_KK'), 0);
+            const totalKK = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['JUMLAH_KK', 'jumlah_kk', 'kk']), 0);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const totalPria = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, 'PRIA'), 0);
+            const totalPria = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['PRIA', 'pria', 'laki_laki']), 0);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const totalWanita = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, 'WANITA'), 0);
+            const totalWanita = features.reduce((sum: number, f: any) => sum + getAttrVal(f.attributes, ['WANITA', 'wanita', 'perempuan']), 0);
             
-            // Collect unique kelurahan names
+            // Collect unique kelurahan / desa names from the intersected features
             const kelList: string[] = [];
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             features.forEach((f: any) => {
-              const name = getAttrStr(f.attributes, 'NAMA_KEL');
+              const name = getAttrStr(f.attributes, ['NAMA_KEL', 'nama_kel', 'NAMA_DESA', 'nama_desa', 'NAMA_KELURAHAN', 'nama_kelurahan', 'KELURAHAN', 'DESA', 'kelurahan', 'desa', 'name']);
               if (name && !kelList.includes(name)) {
                 kelList.push(name);
               }
@@ -1074,17 +1078,24 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
                   {
                     style: () => ({
                       color: '#0EA5E9',
-                      weight: 2,
+                      weight: 2.5,
                       fillColor: '#35A7FF',
-                      fillOpacity: 0.2,
+                      fillOpacity: 0.28,
                       dashArray: '4, 4',
-                      opacity: 0.85
+                      opacity: 0.95
                     }),
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     onEachFeature: (feature: any, layer: any) => {
-                      const kelName = getAttrStr(feature.properties, 'NAMA_KEL');
-                      const pop = getAttrVal(feature.properties, 'JUMLAH_PENDUDUK');
-                      layer.bindTooltip(`<strong>Kel. ${kelName}</strong><br/>Penduduk: ${pop.toLocaleString('id')} jiwa`, {
+                      const kelName = getAttrStr(feature.properties, ['NAMA_KEL', 'nama_kel', 'NAMA_DESA', 'nama_desa', 'NAMA_KELURAHAN', 'nama_kelurahan', 'KELURAHAN', 'DESA', 'kelurahan', 'desa', 'name']);
+                      const pop = getAttrVal(feature.properties, ['JUMLAH_PENDUDUK', 'jumlah_penduduk', 'penduduk', 'populasi']);
+                      layer.setStyle({
+                        color: '#0EA5E9',
+                        weight: 2.5,
+                        fillColor: '#2563EB',
+                        fillOpacity: 0.38,
+                        opacity: 1,
+                      });
+                      layer.bindTooltip(`<strong>${kelName || 'Wilayah terpilih'}</strong><br/>Penduduk: ${pop.toLocaleString('id')} jiwa`, {
                         sticky: true,
                         className: 'kel-tooltip'
                       });
