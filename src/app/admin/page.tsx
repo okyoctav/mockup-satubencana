@@ -1,9 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { AdminLayout } from '@/app/admin/AdminLayout';
 
 export default function AdminPage() {
+  const [activeFilter, setActiveFilter] = useState('Semua');
+
   const quickLinks = [
     {
       label: 'Dashboard Bencana',
@@ -11,6 +14,13 @@ export default function AdminPage() {
       href: '/dashboard',
       accent: 'from-blue-500 to-cyan-500',
       meta: 'Real-time monitoring',
+    },
+    {
+      label: 'Simulasi K3',
+      desc: 'Buka peta interaktif fullscreen untuk simulasi K3 dan dampak wilayah.',
+      href: '/admin/simulasi-k3',
+      accent: 'from-emerald-500 to-lime-500',
+      meta: 'Peta fullscreen',
     },
     {
       label: 'Management Data',
@@ -40,6 +50,10 @@ export default function AdminPage() {
   ];
 
   const chartBars = [42, 68, 54, 76, 64, 88];
+  const filterChips = ['Semua', 'Prioritas tinggi', 'Aktif hari ini', 'Peta interaktif'];
+  const chartPoints = chartBars
+    .map((height, index) => `${40 + index * 62},${110 - height * 0.8}`)
+    .join(' ');
 
   return (
     <AdminLayout title="Dashboard Bencana" subtitle="Panel kontrol admin">
@@ -69,27 +83,62 @@ export default function AdminPage() {
           ))}
         </div>
 
+        <div className="flex flex-wrap gap-2 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+          {filterChips.map((chip) => {
+            const isActive = activeFilter === chip;
+            return (
+              <button
+                key={chip}
+                type="button"
+                onClick={() => setActiveFilter(chip)}
+                className={`rounded-full px-3 py-2 text-sm font-medium transition ${
+                  isActive ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {chip}
+              </button>
+            );
+          })}
+        </div>
+
         <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
           <div className="space-y-4">
             <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900">Tren kejadian</h3>
-                  <p className="text-sm text-slate-500">Visualisasi sederhana dari data mingguan</p>
+                  <p className="text-sm text-slate-500">Visualisasi modern dari data mingguan</p>
                 </div>
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">Mingguan</span>
               </div>
 
-              <div className="mt-6 flex h-44 items-end gap-3">
-                {chartBars.map((height, index) => (
-                  <div key={`${height}-${index}`} className="flex-1">
-                    <div
-                      className="rounded-t-2xl bg-gradient-to-t from-slate-900 to-sky-500"
-                      style={{ height: `${height}%` }}
-                    />
-                    <div className="mt-2 text-center text-xs text-slate-500">M{index + 1}</div>
-                  </div>
-                ))}
+              <div className="mt-6 rounded-2xl bg-slate-900 p-4">
+                <div className="flex items-center justify-between text-sm text-slate-300">
+                  <span>Perkembangan aktifitas</span>
+                  <span className="rounded-full bg-white/10 px-3 py-1">+18%</span>
+                </div>
+                <svg viewBox="0 0 420 140" className="mt-4 h-40 w-full">
+                  <defs>
+                    <linearGradient id="chartFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.45" />
+                      <stop offset="100%" stopColor="#0f172a" stopOpacity="0.05" />
+                    </linearGradient>
+                  </defs>
+                  <line x1="20" y1="110" x2="400" y2="110" stroke="#334155" strokeWidth="1" />
+                  <line x1="20" y1="70" x2="400" y2="70" stroke="#334155" strokeWidth="1" strokeDasharray="5 5" />
+                  <polyline points={`${chartPoints}`} fill="none" stroke="#38bdf8" strokeWidth="4" strokeLinecap="round" />
+                  <path d={`M 40,110 L ${chartPoints} L 380,110 Z`} fill="url(#chartFill)" />
+                  {chartBars.map((height, index) => {
+                    const x = 40 + index * 62;
+                    const y = 110 - height * 0.8;
+                    return <circle key={`${height}-${index}`} cx={x} cy={y} r="5" fill="#f8fafc" stroke="#38bdf8" strokeWidth="3" />;
+                  })}
+                </svg>
+                <div className="mt-2 flex justify-between text-xs text-slate-400">
+                  {['M1', 'M2', 'M3', 'M4', 'M5', 'M6'].map((label) => (
+                    <span key={label}>{label}</span>
+                  ))}
+                </div>
               </div>
             </div>
 
