@@ -270,7 +270,7 @@ function pointInPolygon(point: L.LatLng, polygon: L.LatLng[]): boolean {
   return inside;
 }
 
-function isPointInsideLayer(layer: any, point: L.LatLng): boolean {
+function isPointInsideLayer(layer: L.Layer | { getBounds?: () => L.LatLngBounds } | null, point: L.LatLng): boolean {
   if (!layer || !point) return false;
   if (layer instanceof L.Circle) {
     return layer.getLatLng().distanceTo(point) <= layer.getRadius();
@@ -282,7 +282,7 @@ function isPointInsideLayer(layer: any, point: L.LatLng): boolean {
     const ring = Array.isArray(latlngs[0]) ? latlngs[0] as L.LatLng[] : latlngs as L.LatLng[];
     return pointInPolygon(point, ring as L.LatLng[]);
   }
-  if (layer.getBounds) {
+  if ('getBounds' in layer && typeof layer.getBounds === 'function') {
     return layer.getBounds().contains(point);
   }
   return false;
