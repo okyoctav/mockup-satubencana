@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Table, Tag, Space, Button, Switch, message, Spin, Typography } from 'antd';
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
-import { AdminLayout } from '@/app/admin/AdminLayout';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { cn } from '@/lib/utils';
 
 type AppRoleRow = {
   id: string;
@@ -13,8 +14,6 @@ type AppRoleRow = {
   created_at: string;
   updated_at: string;
 };
-
-const { Title, Text } = Typography;
 
 export default function AdminRolesPage() {
   const [rows, setRows] = useState<AppRoleRow[]>([]);
@@ -29,7 +28,7 @@ export default function AdminRolesPage() {
     if (!error) {
       setRows((data ?? []) as AppRoleRow[]);
     } else {
-      message.error(error.message);
+      console.error('Error fetching roles:', error);
     }
     setLoading(false);
   };
@@ -42,70 +41,88 @@ export default function AdminRolesPage() {
     const client = getSupabaseBrowserClient();
     if (!client) return;
 
-    const appRolesClient = client as unknown as {
-      from: (table: string) => {
-        update: (values: { active: boolean }) => {
-          eq: (column: string, value: string) => Promise<{ error: { message: string } | null }>;
-        };
-      };
-    };
+    // Ignore ESLint rule for explicit 'any' here - it's a pragmatic fix for Supabase typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (client as any)
+      .from('app_roles')
+      .update({ active: !row.active })
+      .eq('id', row.id);
 
-    const { error } = await appRolesClient.from('app_roles').update({ active: !row.active }).eq('id', row.id);
     if (error) {
-      message.error(error.message);
+      console.error('Error updating role:', error);
       return;
     }
 
-    message.success('Status role diperbarui');
     await fetchRoles();
   };
 
   return (
-    <AdminLayout title="Users & Roles" subtitle="Kelola peran dan status akses admin">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <div>
-          <Title level={4} style={{ margin: 0 }}>Daftar role</Title>
-          <Text type="secondary">Kelola status aktif role yang tersedia untuk akses admin.</Text>
-        </div>
-        <Space>
-          <Button icon={<ReloadOutlined />} onClick={() => void fetchRoles()}>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold text-foreground">Daftar role</h2>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={() => void fetchRoles()}
+            size="sm"
+          >
             Refresh
           </Button>
-          <Button type="primary" icon={<PlusOutlined />} disabled>
+          <Button
+            variant="default"
+            disabled
+            size="sm"
+          >
             Tambah role
           </Button>
-        </Space>
+        </div>
       </div>
 
       {loading ? (
-        <div style={{ padding: 24, textAlign: 'center' }}>
-          <Spin />
+        <div className="text-center py-8">
+          <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
         </div>
       ) : (
-        <Table
-          dataSource={rows}
-          rowKey="id"
-          columns={[
-            {
-              title: 'Role',
-              dataIndex: 'role',
-              render: (value: string) => <Tag color={value === 'admin' ? 'blue' : 'default'}>{value}</Tag>,
-            },
-            {
-              title: 'Status',
-              dataIndex: 'active',
-              render: (value: boolean, row: AppRoleRow) => (
-                <Switch checked={value} onChange={() => void toggleActive(row)} />
-              ),
-            },
-            {
-              title: 'Diperbarui',
-              dataIndex: 'updated_at',
-              render: (value: string) => new Date(value).toLocaleString('id-ID'),
-            },
-          ]}
-        />
+        <div className="space-y-4">
+          {rows.map((row) => (
+            <Card key={row.id} className="p-4">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-primary/20">
+                      {row.role === 'admin' ? 'A' : 'V'}
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-foreground">
+                        {row.role === 'admin' ? 'Admin' : 'Viewer'}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        Role ID: {row.id.slice(0, 8)}...
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Switch
+                      checked={row.active}
+                      onCheckedChange={(checked) => void toggleActive({ ...row, active: checked })}
+                      disabled={loading}
+                    />
+                    <span className={cn(
+                      "text-xs font-medium",
+                      row.active ? "text-success" : "text-muted-foreground"
+                    )}>
+                      {row.active ? 'Aktif' : 'Nonaktif'}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Diperbarui: {new Date(row.updated_at).toLocaleString('id-ID')}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
       )}
-    </AdminLayout>
+    </div>
   );
 }

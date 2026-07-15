@@ -3,43 +3,19 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  LockOutlined,
-  MobileOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import {
-  LoginForm,
-  ProConfigProvider,
-  ProFormCaptcha,
-  ProFormCheckbox,
-  ProFormText,
-} from '@ant-design/pro-components';
-import { Alert, Tabs, message, theme } from 'antd';
-import type { CSSProperties } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import LoginBackground from '@/components/three/LoginBackground';
-
-type LoginType = 'phone' | 'account';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { token } = theme.useToken();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loginType, setLoginType] = useState<LoginType>('account');
   const isConfigured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
-  const iconStyles: CSSProperties = {
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontSize: 16,
-  };
-
-  const handleAccountLogin = async (values: { email?: string; password?: string }) => {
-    const email = values.email ?? '';
-    const password = values.password ?? '';
-
-    if (!email || !password) {
+  const handleAccountLogin = async (email: string, password: string) => {
+    if (!email.trim() || !password.trim()) {
       setError('Email dan password wajib diisi.');
       return false;
     }
@@ -96,183 +72,87 @@ export default function LoginPage() {
   };
 
   return (
-    <ProConfigProvider hashed={false}>
-      <div
-        style={{
-          minHeight: '100vh',
-          position: 'relative',
-          overflow: 'hidden',
-          backgroundColor: token.colorBgContainer,
-        }}
-      >
-        <LoginBackground />
+    <div
+      className="min-h-screen relative overflow-hidden bg-background"
+    >
+      <LoginBackground />
 
+      <div
+        className="relative z-10 flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8"
+      >
         <div
-          style={{
-            position: 'relative',
-            zIndex: 1,
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 16,
-          }}
+          className="w-full max-w-sm space-y-6 bg-card/80 backdrop-blur-sm rounded-xl border border-border p-8 shadow-lg"
         >
-          <div
-            style={{
-              width: '100%',
-              maxWidth: 420,
-              padding: '36px 30px 28px',
-              background: 'rgba(11, 25, 44, 0.75)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: 24,
-              borderLeft: '4px solid #35a7ff',
-              boxShadow: '0 24px 60px rgba(0, 0, 0, 0.45)',
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-foreground">
+              SATUBENCANA
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Admin Console
+            </p>
+          </div>
+
+          <form
+            className="space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (true) { // Always use account mode for now
+                const form = e.target as HTMLFormElement;
+                const emailInput = form.elements.namedItem('email') as HTMLInputElement;
+                const passwordInput = form.elements.namedItem('password') as HTMLInputElement;
+                handleAccountLogin(emailInput.value, passwordInput.value);
+              } else {
+                // phone mode: just show success toast for now
+                alert('Mode login nomor HP siap digunakan (demo).');
+              }
             }}
           >
-            <LoginForm
-              logo="/logo bappenas.png"
-              title="SATUBENCANA"
-              subTitle="Admin Console"
-              onFinish={async (values) => {
-                if (loginType === 'account') {
-                  return handleAccountLogin(values as { email?: string; password?: string });
-                }
-                message.success('Mode login nomor HP siap digunakan.');
-                return true;
-              }}
-              submitter={{
-                searchConfig: {
-                  submitText: loading
-                    ? 'Memverifikasi...'
-                    : loginType === 'account'
-                      ? (isConfigured ? 'Masuk' : 'Konfigurasi belum siap')
-                      : 'Lanjutkan',
-                },
-                submitButtonProps: {
-                  loading,
-                  disabled: loading || (loginType === 'account' && !isConfigured),
-                  style: {
-                    width: '100%',
-                    borderRadius: 12,
-                    height: 44,
-                    background: loading ? 'rgba(53, 167, 255, 0.5)' : 'linear-gradient(135deg, #35A7FF, #38618C)',
-                    border: 'none',
-                    boxShadow: '0 4px 15px rgba(53, 167, 255, 0.3)',
-                    fontWeight: 700,
-                  },
-                },
-              }}
-              actions={null}
-              style={{
-                backgroundColor: 'transparent',
-              }}
-              message={error ? <Alert type="warning" showIcon message={error} style={{ marginBottom: 12 }} /> : undefined}
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-foreground">
+                Email Login
+              </p>
+              <>
+                <Input
+                  type="email"
+                  name="email"
+                  placeholder="admin@admin.com"
+                  required
+                  disabled={!isConfigured}
+                  className="w-full"
+                />
+                <Input
+                  type="password"
+                  name="password"
+                  placeholder="••••••••"
+                  required
+                  disabled={!isConfigured}
+                  className="w-full"
+                />
+              </>
+            </div>
+
+            {error && (
+              <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading || !isConfigured}
             >
-              <Tabs
-                centered
-                activeKey={loginType}
-                onChange={(activeKey) => {
-                  setError('');
-                  setLoginType(activeKey as LoginType);
-                }}
-                items={[
-                  { key: 'account', label: 'Email Login' },
-                  { key: 'phone', label: 'No. HP Login' },
-                ]}
-                style={{ marginBottom: 8 }}
-              />
+              {loading ? 'Memverifikasi...' : isConfigured ? 'Masuk' : 'Konfigurasi belum siap'}
+            </Button>
+          </form>
 
-              {loginType === 'account' && (
-                <>
-                  <ProFormText
-                    name="email"
-                    fieldProps={{
-                      size: 'large',
-                      prefix: <UserOutlined style={iconStyles} />,
-                      disabled: !isConfigured,
-                    }}
-                    placeholder="Email"
-                    rules={[
-                      { required: true, message: 'Email wajib diisi' },
-                      { type: 'email', message: 'Format email tidak valid' },
-                    ]}
-                  />
-                  <ProFormText.Password
-                    name="password"
-                    fieldProps={{
-                      size: 'large',
-                      prefix: <LockOutlined style={iconStyles} />,
-                      disabled: !isConfigured,
-                    }}
-                    placeholder="Password"
-                    rules={[
-                      { required: true, message: 'Password wajib diisi' },
-                    ]}
-                  />
-                </>
-              )}
-
-              {loginType === 'phone' && (
-                <>
-                  <ProFormText
-                    fieldProps={{
-                      size: 'large',
-                      prefix: <MobileOutlined style={iconStyles} />,
-                    }}
-                    name="mobile"
-                    placeholder="Nomor HP"
-                    rules={[
-                      { required: true, message: 'Nomor HP wajib diisi' },
-                      { pattern: /^08\d{8,11}$/, message: 'Format nomor HP tidak valid' },
-                    ]}
-                  />
-                  <ProFormCaptcha
-                    fieldProps={{
-                      size: 'large',
-                      prefix: <LockOutlined style={iconStyles} />,
-                    }}
-                    captchaProps={{
-                      size: 'large',
-                    }}
-                    placeholder="Masukkan kode verifikasi"
-                    captchaTextRender={(timing, count) => {
-                      if (timing) {
-                        return `${count} detik`;
-                      }
-                      return 'Kirim kode';
-                    }}
-                    name="captcha"
-                    rules={[
-                      { required: true, message: 'Kode verifikasi wajib diisi' },
-                    ]}
-                    onGetCaptcha={async () => {
-                      message.success('Kode verifikasi berhasil dikirim (demo: 1234).');
-                    }}
-                  />
-                </>
-              )}
-
-              <div style={{ marginBlockEnd: 18, marginTop: 8 }}>
-                <ProFormCheckbox noStyle name="autoLogin">
-                  Ingat saya
-                </ProFormCheckbox>
-                <a style={{ float: 'right', color: 'rgba(255,255,255,0.72)' }}>
-                  Lupa password?
-                </a>
-              </div>
-
-              <div style={{ marginTop: 8, textAlign: 'center' }}>
-                <Link href="/" style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.72)', textDecoration: 'none' }}>
-                  ← Kembali ke Beranda
-                </Link>
-              </div>
-            </LoginForm>
+          <div className="text-center text-xs text-muted-foreground">
+            <Link href="/" className="underline underline-offset-4 hover:text-primary">
+              ← Kembali ke Beranda
+            </Link>
           </div>
         </div>
       </div>
-    </ProConfigProvider>
+    </div>
   );
 }

@@ -25,4 +25,5 @@ export function getSupabaseBrowserClient() {
   return browserClient;
 }
 
+// Export a typed supabase client for direct use
 export const supabase = getSupabaseBrowserClient();

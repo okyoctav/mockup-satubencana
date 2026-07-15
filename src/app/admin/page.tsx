@@ -1,101 +1,85 @@
 'use client';
 
-import { Card, Row, Col, Typography, Space, Alert, Button } from 'antd';
-import { 
-  DashboardOutlined, 
-  DatabaseOutlined, 
-  ArrowRightOutlined,
-  InfoCircleOutlined
-} from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
-import { AdminLayout } from '@/app/admin/AdminLayout';
-
-const { Title, Paragraph, Text } = Typography;
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export default function AdminPage() {
   const router = useRouter();
 
   const MENU = [
     {
-      icon: <DashboardOutlined style={{ fontSize: 28, color: '#1677ff' }} />,
       label: 'Dashboard Bencana',
       desc: 'Lihat executive dashboard data bencana nasional secara real-time dan analisis spasial.',
       href: '/dashboard',
-      accent: '#1677ff',
+      bg: 'bg-primary/10',
+      color: 'text-primary',
     },
     {
-      icon: <DatabaseOutlined style={{ fontSize: 28, color: '#722ed1' }} />,
       label: 'Management Data',
       desc: 'Kelola dan lihat daftar layanan geospasial Inarisk BNPB, parameter bencana, dan metadata.',
       href: '/management',
-      accent: '#722ed1',
+      bg: 'bg-secondary/10',
+      color: 'text-secondary',
     },
   ];
 
   return (
-    <AdminLayout title="Admin Console" subtitle="Pilih modul admin yang ingin dikelola">
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '12px 0' }}>
-        
-        {/* Welcome Section */}
-        <div style={{ marginBottom: 32 }}>
-          <Space direction="vertical" size={4}>
-            <Title level={2} style={{ margin: 0 }}>
-              Selamat datang, Admin 👋
-            </Title>
-            <Text type="secondary" style={{ fontSize: 14 }}>
-              Gunakan panel kontrol ini untuk mengarahkan manajemen dan visibilitas data bencana nasional.
-            </Text>
-          </Space>
-        </div>
-
-        {/* Menu Cards */}
-        <Row gutter={[20, 20]} style={{ marginBottom: 40 }}>
-          {MENU.map(m => (
-            <Col xs={24} sm={12} key={m.label}>
-              <Card
-                hoverable
-                style={{
-                  height: '100%',
-                  borderRadius: 16,
-                  borderLeft: `4px solid ${m.accent}`,
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                  transition: 'transform 0.2s',
-                }}
-                styles={{ body: { padding: 24, display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' } }}
-                onClick={() => router.push(m.href)}
-              >
-                <div>
-                  <div style={{ marginBottom: 16 }}>{m.icon}</div>
-                  <Title level={4} style={{ margin: '0 0 8px 0' }}>{m.label}</Title>
-                  <Paragraph type="secondary" style={{ fontSize: 13, lineHeight: 1.6, minHeight: 48, marginBottom: 0 }}>
-                    {m.desc}
-                  </Paragraph>
-                </div>
-                <div style={{ marginTop: 12 }}>
-                  <Button 
-                    type="link" 
-                    icon={<ArrowRightOutlined />} 
-                    style={{ padding: 0, color: m.accent, fontWeight: 600 }}
-                  >
-                    Buka Modul
-                  </Button>
-                </div>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-
-        {/* Info Box */}
-        <Alert
-          message="Informasi Sesi Administrator"
-          description="Sesi Anda dikendalikan menggunakan Supabase Auth dan ACL (Access Control List). Hak akses administrator Anda diverifikasi di server untuk menjamin keamanan operasional data."
-          type="info"
-          showIcon
-          icon={<InfoCircleOutlined />}
-          style={{ borderRadius: 12, padding: '16px 20px' }}
-        />
+    <div className="space-y-6">
+      {/* Welcome Section */}
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-foreground">
+          Selamat datang, Admin 👋
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Gunakan panel kontrol ini untuk mengarahkan manajemen dan visibilitas data bencana nasional.
+        </p>
       </div>
-    </AdminLayout>
+
+      {/* Menu Cards */}
+      <div className="grid gap-6 sm:grid-cols-2">
+        {MENU.map((m) => (
+          <Button
+            key={m.label}
+            variant="default"
+            className={cn(
+              "group flex h-[120px] w-full items-center justify-between px-6 py-4 rounded-lg",
+              m.bg,
+              "hover:bg-primary/20 transition-colors",
+              "border border-border",
+              "dark:hover:bg-primary/20"
+            )}
+            onClick={() => router.push(m.href)}
+          >
+            <div className="flex-shrink-0">
+              {/* Placeholder icon - you can replace with actual icon later */}
+              <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-primary/20">
+                {/* Simple icon placeholder */}
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {m.label === 'Dashboard Bencana' ? (
+                    <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+                  ) : (
+                    <rect x="3" y="4" width="18" height="16" rx="2" ry="2"/>
+                  )}
+                </svg>
+              </div>
+            </div>
+            <div className="flex-1 space-y-2">
+              <h3 className={cn("text-lg font-semibold", m.color, "group-hover:text-primary/90")}>
+                {m.label}
+              </h3>
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {m.desc}
+              </p>
+            </div>
+            <div className="flex-shrink-0">
+              <svg className="h-4 w-4 text-muted-foreground group-hover:text-primary/90 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+          </Button>
+        ))}
+      </div>
+    </div>
   );
 }
-

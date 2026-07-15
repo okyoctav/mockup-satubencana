@@ -1,22 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Layout, Menu, Button, Space, Typography, Spin } from 'antd';
-import {
-  DashboardOutlined,
-  DatabaseOutlined,
-  TeamOutlined,
-  LogoutOutlined,
-} from '@ant-design/icons';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { getUserRole } from '@/lib/auth/getUserRole';
-
-const { Header, Sider, Content } = Layout;
-const { Title, Text } = Typography;
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 type AdminLayoutProps = {
-  children: ReactNode;
+  children: React.ReactNode;
   title: string;
   subtitle?: string;
 };
@@ -92,133 +84,127 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
     router.push('/login');
   };
 
-  const menuItems = useMemo(
-    () => [
-      {
-        key: '/admin',
-        icon: <DashboardOutlined />,
-        label: 'Dashboard',
-        onClick: () => router.push('/admin'),
-      },
-      {
-        key: '/management',
-        icon: <DatabaseOutlined />,
-        label: 'Management Data',
-        onClick: () => router.push('/management'),
-      },
-      {
-        key: '/admin/roles',
-        icon: <TeamOutlined />,
-        label: 'Users & Roles',
-        onClick: () => router.push('/admin/roles'),
-      },
-    ],
-    [router],
-  );
+  const menuItems = [
+    {
+      key: '/admin',
+      label: 'Dashboard',
+      href: '/admin',
+    },
+    {
+      key: '/management',
+      label: 'Management Data',
+      href: '/management',
+    },
+    {
+      key: '/admin/roles',
+      label: 'Users & Roles',
+      href: '/admin/roles',
+    },
+  ];
 
   if (!ready) {
     return (
       <div
-        style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'var(--bg-page)',
-          color: 'var(--text-muted)',
-        }}
+        className="min-h-screen flex items-center justify-center bg-muted"
       >
-        <Space direction="vertical" align="center">
-          <Spin size="large" />
-          <Text>Memverifikasi akses admin...</Text>
-        </Space>
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+          <p className="mt-2 text-sm text-muted-foreground">Memverifikasi akses admin...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <Layout style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
-      <Sider
-        width={240}
-        breakpoint="lg"
-        collapsedWidth={0}
-        style={{
-          background: 'var(--bg-card)',
-          borderRight: '1px solid var(--border-faint)',
-        }}
+    <div className="min-h-screen flex bg-background">
+      {/* Sidebar */}
+      <aside
+        className="w-64 bg-card border-r border-border flex-shrink-0"
       >
-        <div style={{ padding: '24px 20px', borderBottom: '1px solid var(--border-faint)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div
-              style={{
-                width: 42,
-                height: 42,
-                borderRadius: 12,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, #35a7ff, #38618c)',
-                color: '#fff',
-                fontWeight: 800,
-              }}
-            >
+        <div className="flex h-16 items-center justify-between px-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 bg-primary/20 rounded-lg flex items-center justify-center">
               SB
             </div>
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--text-primary)' }}>SATUBENCANA</div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Admin Console</div>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-foreground">SATUBENCANA</p>
+              <p className="text-xs text-muted-foreground">Admin Console</p>
             </div>
           </div>
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            onClick={handleLogout}
+            className="p-1"
+          >
+            {/* Simple logout icon (you can replace with actual icon later) */}
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+          </Button>
         </div>
 
-        <Menu
-          mode="inline"
-          selectedKeys={menuItems.map((item) => item.key).filter((key) => pathname === key)}
-          items={menuItems}
-          style={{ borderInlineEnd: 0, paddingTop: 12 }}
-        />
-      </Sider>
+        <nav className="mt-6 space-y-1">
+          {menuItems.map((item) => (
+            <Button
+              key={item.key}
+              asChild
+              variant={pathname === item.key ? "default" : "ghost"}
+              size="default"
+              className={cn(
+                "w-full text-left",
+                pathname === item.key && "bg-primary/10"
+              )}
+              onClick={() => router.push(item.key)}
+            >
+              {item.label}
+            </Button>
+          ))}
+        </nav>
+      </aside>
 
-      <Layout>
-        <Header
-          style={{
-            background: 'var(--bg-card)',
-            borderBottom: '1px solid var(--border-faint)',
-            padding: '0 24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            height: 72,
-          }}
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        <header
+          className="h-16 bg-card border-b border-border flex items-center justify-between px-6"
         >
-          <div>
-            <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-semibold text-foreground">
               {title}
-            </Title>
-            {subtitle ? <Text style={{ color: 'var(--text-muted)' }}>{subtitle}</Text> : null}
+            </h1>
+            {subtitle && (
+              <p className="text-sm text-muted-foreground">{subtitle}</p>
+            )}
           </div>
 
-          <Space align="center">
-            <div
-              style={{
-                padding: '6px 12px',
-                borderRadius: 999,
-                background: 'rgba(53,167,255,0.08)',
-                border: '1px solid rgba(53,167,255,0.15)',
-                color: 'var(--text-secondary)',
-                fontSize: 12,
-              }}
-            >
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground">
               {userEmail ?? 'Admin'}
-            </div>
-            <Button icon={<LogoutOutlined />} onClick={handleLogout}>
+            </span>
+            <Button
+              variant="outline"
+              onClick={handleLogout}
+              size="sm"
+            >
               Keluar
             </Button>
-          </Space>
-        </Header>
+          </div>
+        </header>
 
-        <Content style={{ padding: 24, background: 'var(--bg-page)' }}>{children}</Content>
-      </Layout>
-    </Layout>
+        <main className="flex-1 p-6 overflow-auto">
+          {children}
+        </main>
+      </div>
+    </div>
   );
 }
