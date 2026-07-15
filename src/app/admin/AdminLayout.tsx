@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { getUserRole } from '@/lib/auth/getUserRole';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 type AdminLayoutProps = {
@@ -18,15 +20,21 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
   const pathname = usePathname();
   const [ready, setReady] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [mockMode, setMockMode] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
 
     const verifyAccess = async () => {
       const client = getSupabaseBrowserClient();
-      if (!client) {
+      const hasEnv = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
+      if (!client || !hasEnv) {
         if (active) {
-          router.replace('/login');
+          setMockMode(true);
+          setUserEmail('demo@admin.local');
+          setReady(true);
         }
         return;
       }
@@ -36,7 +44,11 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
       } = await client.auth.getSession();
 
       if (!session) {
-        if (active) router.replace('/login');
+        if (active) {
+          setMockMode(true);
+          setUserEmail('demo@admin.local');
+          setReady(true);
+        }
         return;
       }
 
@@ -47,25 +59,19 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
         data: { user },
       } = await client.auth.getUser();
 
-      if (error) {
+      if (error || role !== 'admin') {
         if (active) {
-          setUserEmail(user?.email ?? null);
+          setUserEmail(user?.email ?? 'demo@admin.local');
           setReady(true);
-        }
-        return;
-      }
-
-      if (role !== 'admin') {
-        if (active) {
-          setUserEmail(user?.email ?? null);
-          setReady(true);
+          setMockMode(true);
         }
         return;
       }
 
       if (active) {
-        setUserEmail(user?.email ?? null);
+        setUserEmail(user?.email ?? 'demo@admin.local');
         setReady(true);
+        setMockMode(false);
       }
     };
 
@@ -85,125 +91,117 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
   };
 
   const menuItems = [
-    {
-      key: '/admin',
-      label: 'Dashboard',
-      href: '/admin',
-    },
-    {
-      key: '/management',
-      label: 'Management Data',
-      href: '/management',
-    },
-    {
-      key: '/admin/roles',
-      label: 'Users & Roles',
-      href: '/admin/roles',
-    },
+    { key: '/admin', label: 'Dashboard', href: '/admin' },
+    { key: '/management', label: 'Management Data', href: '/management' },
+    { key: '/admin/roles', label: 'Users & Roles', href: '/admin/roles' },
   ];
 
   if (!ready) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center bg-muted"
-      >
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-          <p className="mt-2 text-sm text-muted-foreground">Memverifikasi akses admin...</p>
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-slate-900 border-t-transparent"></div>
+          <p className="mt-2 text-sm text-slate-500">Memverifikasi akses admin...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex bg-background">
-      {/* Sidebar */}
-      <aside
-        className="w-64 bg-card border-r border-border flex-shrink-0"
-      >
-        <div className="flex h-16 items-center justify-between px-4">
+    <div className="flex min-h-screen bg-slate-50 text-slate-900">
+      {sidebarOpen ? (
+        <div className="fixed inset-0 z-40 bg-slate-950/40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+      ) : null}
+
+      <aside className={cn(
+        'fixed inset-y-0 left-0 z-50 w-72 flex-shrink-0 border-r border-slate-200 bg-white transition-transform duration-200 lg:static lg:flex lg:flex-col',
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      )}>
+        <div className="flex h-16 items-center justify-between gap-3 border-b border-slate-200 px-6">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 bg-primary/20 rounded-lg flex items-center justify-center">
-              SB
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-foreground">SATUBENCANA</p>
-              <p className="text-xs text-muted-foreground">Admin Console</p>
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-sm font-semibold text-white">SB</div>
+            <div>
+              <p className="text-sm font-semibold">SATUBENCANA</p>
+              <p className="text-xs text-slate-500">Admin Console</p>
             </div>
           </div>
-          <Button
-            asChild
-            variant="ghost"
-            size="icon"
-            onClick={handleLogout}
-            className="p-1"
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+            aria-label="Tutup sidebar"
           >
-            {/* Simple logout icon (you can replace with actual icon later) */}
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
-          </Button>
+            ✕
+          </button>
         </div>
 
-        <nav className="mt-6 space-y-1">
-          {menuItems.map((item) => (
-            <Button
-              key={item.key}
-              asChild
-              variant={pathname === item.key ? "default" : "ghost"}
-              size="default"
-              className={cn(
-                "w-full text-left",
-                pathname === item.key && "bg-primary/10"
-              )}
-              onClick={() => router.push(item.key)}
-            >
-              {item.label}
-            </Button>
-          ))}
-        </nav>
+        <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-6">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-sm font-semibold text-white">SB</div>
+          <div>
+            <p className="text-sm font-semibold">SATUBENCANA</p>
+            <p className="text-xs text-slate-500">Admin Console</p>
+          </div>
+        </div>
+
+        <div className="flex-1 px-4 py-6">
+          <div className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+            {mockMode ? 'Mode demo aktif' : 'Mode terhubung'}
+          </div>
+          <nav className="space-y-1">
+            {menuItems.map((item) => {
+              const isActive = pathname === item.key;
+              return (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center rounded-xl px-3 py-2 text-sm font-medium transition',
+                    isActive ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                  )}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        <div className="border-t border-slate-200 p-4">
+          <Button variant="outline" className="w-full justify-start" onClick={handleLogout}>
+            Keluar
+          </Button>
+        </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <header
-          className="h-16 bg-card border-b border-border flex items-center justify-between px-6"
-        >
+      <div className="flex flex-1 flex-col">
+        <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-semibold text-foreground">
-              {title}
-            </h1>
-            {subtitle && (
-              <p className="text-sm text-muted-foreground">{subtitle}</p>
-            )}
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
+              aria-label="Buka sidebar"
+            >
+              ☰
+            </button>
+            <div>
+              <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
+              {subtitle ? <p className="text-sm text-slate-500">{subtitle}</p> : null}
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground">
-              {userEmail ?? 'Admin'}
-            </span>
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-              size="sm"
-            >
+            <div className="hidden md:block">
+              <Input placeholder="Cari data / menu" className="h-10 w-56 rounded-xl border-slate-200 bg-slate-50" />
+            </div>
+            <div className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">{userEmail ?? 'Admin'}</div>
+            <Button variant="outline" size="sm" onClick={handleLogout}>
               Keluar
             </Button>
           </div>
         </header>
 
-        <main className="flex-1 p-6 overflow-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-auto p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );

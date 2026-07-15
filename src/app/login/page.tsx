@@ -12,6 +12,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState('');
   const isConfigured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
   useEffect(() => {
@@ -33,10 +34,13 @@ export default function LoginPage() {
 
     setLoading(true);
     setError('');
+    setNotice('');
 
     try {
       if (!isConfigured) {
-        throw new Error('Supabase belum dikonfigurasi di Vercel. Tambahkan NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_ANON_KEY.');
+        setNotice('Mode demo aktif. Anda akan diarahkan ke dashboard admin.');
+        router.push('/admin');
+        return true;
       }
 
       const client = getSupabaseBrowserClient();
@@ -97,52 +101,97 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-background">
-      <LoginBackground />
-
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="w-full max-w-sm space-y-6 bg-card/80 backdrop-blur-sm rounded-xl border border-border p-8 shadow-lg">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-foreground">SATUBENCANA</h2>
-            <p className="text-sm text-muted-foreground">Admin Console</p>
-          </div>
-
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Email Login</p>
-              <Input
-                type="email"
-                name="email"
-                placeholder="admin@admin.com"
-                required
-                disabled={!isConfigured}
-                className="w-full"
-              />
-              <Input
-                type="password"
-                name="password"
-                placeholder="••••••••"
-                required
-                disabled={!isConfigured}
-                className="w-full"
-              />
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <div className="mx-auto flex min-h-screen max-w-7xl flex-col lg:flex-row">
+        <div className="relative hidden flex-1 overflow-hidden lg:flex">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.25),_transparent_45%)]" />
+          <LoginBackground />
+          <div className="relative z-10 flex h-full flex-col justify-between p-10 text-white">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/10 backdrop-blur">
+                <span className="text-lg font-semibold">SB</span>
+              </div>
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-200">Satu Bencana</p>
+                <p className="text-lg font-semibold">Admin Console</p>
+              </div>
             </div>
 
-            {error && (
-              <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                {error}
+            <div className="max-w-md rounded-3xl border border-white/20 bg-white/10 p-6 backdrop-blur-md">
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-200">Integrasi Data</p>
+              <h2 className="mt-2 text-3xl font-semibold leading-tight">
+                Pantau, kelola, dan tindak dengan satu platform terpadu.
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex w-full items-center justify-center bg-white px-6 py-10 lg:w-[42%] lg:px-8 xl:px-10">
+          <div className="w-full max-w-md">
+            <div className="mb-8 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-white">
+                SB
               </div>
-            )}
+              <div>
+                <p className="text-xl font-semibold text-slate-900">Manajemen Satu Bencana</p>
+                <p className="text-sm text-slate-500">Portal admin terintegrasi</p>
+              </div>
+            </div>
 
-            <Button type="submit" className="w-full" disabled={loading || !isConfigured}>
-              {loading ? 'Memverifikasi...' : isConfigured ? 'Masuk' : 'Konfigurasi belum siap'}
-            </Button>
-          </form>
+            <h1 className="text-2xl font-semibold text-slate-900">Masuk ke akun admin</h1>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Kelola dashboard, data bencana, dan pemetaan dengan antarmuka yang sederhana dan cepat.
+            </p>
 
-          <div className="text-center text-xs text-muted-foreground">
-            <Link href="/" className="underline underline-offset-4 hover:text-primary">
-              ← Kembali ke Beranda
-            </Link>
+            <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Email</label>
+                <Input
+                  type="email"
+                  name="email"
+                  placeholder="admin@admin.com"
+                  required
+                  className="h-11 rounded-xl border-slate-200 bg-slate-50 px-4"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Password</label>
+                <Input
+                  type="password"
+                  name="password"
+                  placeholder="••••••••"
+                  required
+                  className="h-11 rounded-xl border-slate-200 bg-slate-50 px-4"
+                />
+              </div>
+
+              {error && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-600">
+                  {error}
+                </div>
+              )}
+
+              {notice && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-700">
+                  {notice}
+                </div>
+              )}
+
+              <Button type="submit" className="h-11 w-full rounded-xl bg-slate-900 text-white hover:bg-slate-800" disabled={loading}>
+                {loading ? 'Memverifikasi...' : isConfigured ? 'Masuk' : 'Masuk ke mode demo'}
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center text-sm text-slate-500">
+              <Link href="/" className="font-medium text-slate-700 transition hover:text-slate-900">
+                ← Kembali ke beranda
+              </Link>
+            </div>
+
+            <div className="mt-8 border-t border-slate-200 pt-4 text-center text-xs leading-6 text-slate-400">
+              By Direktorat Tata Ruang, Perkotaan, Pertanahan, dan Penanggulangan Bencana
+            </div>
           </div>
         </div>
       </div>
