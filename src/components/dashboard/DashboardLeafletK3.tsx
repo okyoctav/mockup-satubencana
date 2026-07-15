@@ -970,16 +970,18 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
         }
 
         const queryUrl = 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/services/AGR_VISUAL_KEL_FIX/MapServer/0/query';
-        const params = new URLSearchParams();
-        params.append('where', '1=1');
-        params.append('geometryType', 'esriGeometryPolygon');
-        params.append('spatialRel', 'esriSpatialRelIntersects');
-        params.append('outFields', 'JUMLAH_PENDUDUK,JUMLAH_KK,PRIA,WANITA,NAMA_KEL');
-        params.append('inSR', '4326');
-        params.append('outSR', '4326');
-        params.append('f', 'json');
-        params.append('returnGeometry', 'true');
-        params.append('geometry', JSON.stringify(esriGeometry));
+        const params = new URLSearchParams({
+          where: '1=1',
+          geometryType: 'esriGeometryPolygon',
+          spatialRel: 'esriSpatialRelIntersects',
+          outFields: 'JUMLAH_PENDUDUK,JUMLAH_KK,PRIA,WANITA,NAMA_KEL',
+          inSR: '4326',
+          outSR: '4326',
+          f: 'json',
+          returnGeometry: 'true',
+          geometry: JSON.stringify(esriGeometry),
+        });
+        const requestUrl = `${queryUrl}?${params.toString()}`;
 
         // Case-insensitive helpers
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -995,12 +997,9 @@ export default function DashboardLeafletK3({ data, flyTo, theme }: Props) {
           return key ? (attrs[key] ?? '') : '';
         };
 
-        fetch(queryUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: params.toString(),
+        fetch(requestUrl, {
+          method: 'GET',
+          cache: 'no-store',
           signal: AbortSignal.timeout(30000)
         })
           .then((res) => {
