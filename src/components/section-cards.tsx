@@ -1,27 +1,111 @@
-import { Card } from "@/components/ui/card"
-import BellIcon from "nexticons/outline/BellIcon"
-import StarListIcon from "nexticons/outline/StarListIcon"
-import ClipboardListIcon from "nexticons/outline/ClipboardListIcon"
+"use client"
 
-const stats = [
-  { label: "Kejadian hari ini", value: "24", hint: "+12% dari minggu lalu", icon: <BellIcon width={20} height={20} /> },
-  { label: "Wilayah terdampak", value: "18", hint: "3 prioritas tinggi", icon: <StarListIcon width={20} height={20} /> },
-  { label: "Data terverifikasi", value: "93%", hint: "Pembaruan 10 menit lalu", icon: <ClipboardListIcon width={20} height={20} /> },
-]
+import { Badge } from "@/components/ui/badge"
+import {
+  Card,
+  CardAction,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { TrendingUpIcon, TrendingDownIcon } from "lucide-react"
 
 export function SectionCards() {
   return (
-    <div className="grid gap-4 md:grid-cols-3">
-      {stats.map((item) => (
-        <Card key={item.label} className="rounded-3xl border-slate-200 p-5 shadow-sm">
-          <div className="flex items-center gap-3 text-slate-500">
-            <div className="rounded-2xl bg-slate-100 p-2">{item.icon}</div>
-            <p className="text-sm font-semibold">{item.label}</p>
+    <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>Total Revenue</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            $1,250.00
+          </CardTitle>
+          <CardAction>
+            <Badge variant="outline">
+              <TrendingUpIcon
+              />
+              +12.5%
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+          <div className="line-clamp-1 flex gap-2 font-medium">
+            Trending up this month{" "}
+            <TrendingUpIcon className="size-4" />
           </div>
-          <p className="mt-4 text-3xl font-semibold text-slate-900">{item.value}</p>
-          <p className="mt-1 text-sm text-slate-600">{item.hint}</p>
-        </Card>
-      ))}
+          <div className="text-muted-foreground">
+            Visitors for the last 6 months
+          </div>
+        </CardFooter>
+      </Card>
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>New Customers</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            1,234
+          </CardTitle>
+          <CardAction>
+            <Badge variant="outline">
+              <TrendingDownIcon
+              />
+              -20%
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+          <div className="line-clamp-1 flex gap-2 font-medium">
+            Down 20% this period{" "}
+            <TrendingDownIcon className="size-4" />
+          </div>
+          <div className="text-muted-foreground">
+            Acquisition needs attention
+          </div>
+        </CardFooter>
+      </Card>
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>Active Accounts</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            45,678
+          </CardTitle>
+          <CardAction>
+            <Badge variant="outline">
+              <TrendingUpIcon
+              />
+              +12.5%
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+          <div className="line-clamp-1 flex gap-2 font-medium">
+            Strong user retention{" "}
+            <TrendingUpIcon className="size-4" />
+          </div>
+          <div className="text-muted-foreground">Engagement exceed targets</div>
+        </CardFooter>
+      </Card>
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>Growth Rate</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            4.5%
+          </CardTitle>
+          <CardAction>
+            <Badge variant="outline">
+              <TrendingUpIcon
+              />
+              +4.5%
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+          <div className="line-clamp-1 flex gap-2 font-medium">
+            Steady performance increase{" "}
+            <TrendingUpIcon className="size-4" />
+          </div>
+          <div className="text-muted-foreground">Meets growth projections</div>
+        </CardFooter>
+      </Card>
     </div>
   )
 }
