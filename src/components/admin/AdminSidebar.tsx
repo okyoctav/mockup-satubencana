@@ -1,20 +1,14 @@
 import Link from 'next/link';
-import { FC } from 'react';
+import { FC, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Home, Map, Users, Database } from 'lucide-react';
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarTrigger,
-} from '@/components/ui/sidebar';
+import { SidebarProvider, Sidebar, SidebarContent, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from '@/components/ui/sidebar';
+import HomeIcon from 'nexticons/outline/HomeIcon';
+import MapIcon from 'nexticons/outline/MapIcon';
+import ClipboardListIcon from 'nexticons/outline/ClipboardListIcon';
+import SearchUsersIcon from 'nexticons/outline/SearchUsersIcon';
 
-type MenuItem = { key: string; label: string; href: string; icon?: React.ReactNode };
+type MenuItem = { key: string; label: string; href: string; icon?: ReactNode };
 
 interface Props {
   menuItems: MenuItem[];
@@ -26,10 +20,10 @@ interface Props {
 }
 
 const IconFor = (key: string) => {
-  if (key.includes('simulasi')) return <Map size={16} />;
-  if (key.includes('management')) return <Database size={16} />;
-  if (key.includes('roles')) return <Users size={16} />;
-  return <Home size={16} />;
+  if (key.includes('simulasi')) return <MapIcon width={18} height={18} />;
+  if (key.includes('management')) return <ClipboardListIcon width={18} height={18} />;
+  if (key.includes('roles')) return <SearchUsersIcon width={18} height={18} />;
+  return <HomeIcon width={18} height={18} />;
 };
 
 const AdminSidebar: FC<Props> = ({ menuItems, pathname, sidebarCollapsed, setSidebarCollapsed, mockMode, handleLogout }) => {

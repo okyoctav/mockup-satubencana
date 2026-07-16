@@ -3,6 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { AdminLayout } from '@/app/admin/AdminLayout';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import BellIcon from 'nexticons/outline/BellIcon';
+import MapIcon from 'nexticons/outline/MapIcon';
+import HomeIcon from 'nexticons/outline/HomeIcon';
+import ClipboardListIcon from 'nexticons/outline/ClipboardListIcon';
+import StarListIcon from 'nexticons/outline/StarListIcon';
 
 export default function AdminPage() {
   const [activeFilter, setActiveFilter] = useState('Semua');
@@ -14,6 +21,7 @@ export default function AdminPage() {
       href: '/dashboard',
       accent: 'from-blue-500 to-cyan-500',
       meta: 'Real-time monitoring',
+      icon: <HomeIcon width={24} height={24} />,
     },
     {
       label: 'Simulasi K3',
@@ -21,6 +29,7 @@ export default function AdminPage() {
       href: '/admin/simulasi-k3',
       accent: 'from-emerald-500 to-lime-500',
       meta: 'Peta fullscreen',
+      icon: <MapIcon width={24} height={24} />,
     },
     {
       label: 'Management Data',
@@ -28,13 +37,14 @@ export default function AdminPage() {
       href: '/management',
       accent: 'from-violet-500 to-fuchsia-500',
       meta: 'Data & metadata',
+      icon: <ClipboardListIcon width={24} height={24} />,
     },
   ];
 
   const stats = [
-    { label: 'Kejadian hari ini', value: '24', hint: '+12% dari minggu lalu', tone: 'text-emerald-600' },
-    { label: 'Wilayah terdampak', value: '18', hint: '3 prioritas tinggi', tone: 'text-amber-600' },
-    { label: 'Data terverifikasi', value: '93%', hint: 'Pembaruan 10 menit lalu', tone: 'text-sky-600' },
+    { label: 'Kejadian hari ini', value: '24', hint: '+12% dari minggu lalu', tone: 'text-emerald-600', icon: <BellIcon width={20} height={20} /> },
+    { label: 'Wilayah terdampak', value: '18', hint: '3 prioritas tinggi', tone: 'text-amber-600', icon: <StarListIcon width={20} height={20} /> },
+    { label: 'Data terverifikasi', value: '93%', hint: 'Pembaruan 10 menit lalu', tone: 'text-sky-600', icon: <ClipboardListIcon width={20} height={20} /> },
   ];
 
   const activity = [
@@ -58,7 +68,7 @@ export default function AdminPage() {
   return (
     <AdminLayout title="Dashboard Bencana" subtitle="Panel kontrol admin">
       <div className="space-y-6">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <Card className="rounded-3xl border-slate-200 p-6 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">Selamat datang</p>
@@ -67,19 +77,22 @@ export default function AdminPage() {
                 Anda dapat memantau ringkasan operasional, menavigasi data bencana, dan mengakses modul pengelolaan dari satu dashboard.
               </p>
             </div>
-            <div className="rounded-2xl bg-slate-900 px-4 py-3 text-sm text-white">
+            <div className="rounded-2xl bg-slate-900 px-4 py-3 text-sm text-white shadow-sm">
               Update terakhir: 15 Juli 2026, 08:40 WIB
             </div>
           </div>
-        </div>
+        </Card>
 
         <div className="grid gap-4 md:grid-cols-3">
           {stats.map((stat) => (
-            <div key={stat.label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <p className="text-sm text-slate-500">{stat.label}</p>
-              <p className="mt-2 text-3xl font-semibold text-slate-900">{stat.value}</p>
+            <Card key={stat.label} className="rounded-2xl border-slate-200 p-4 shadow-sm">
+              <div className="flex items-center gap-3 text-slate-500">
+                <div className="rounded-2xl bg-slate-100 p-2">{stat.icon}</div>
+                <p className="text-sm font-semibold">{stat.label}</p>
+              </div>
+              <p className="mt-4 text-3xl font-semibold text-slate-900">{stat.value}</p>
               <p className={`mt-1 text-sm ${stat.tone}`}>{stat.hint}</p>
-            </div>
+            </Card>
           ))}
         </div>
 
@@ -152,13 +165,16 @@ export default function AdminPage() {
                   <div className="rounded-[calc(1.5rem-1px)] bg-white p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="text-sm font-medium text-slate-500">{item.meta}</p>
-                        <h3 className="mt-1 text-lg font-semibold text-slate-900">{item.label}</h3>
+                        <div className="flex items-center gap-2 text-sm text-slate-500">
+                          <span className="inline-flex items-center justify-center rounded-full bg-slate-100 p-2 text-slate-700">
+                            {item.icon}
+                          </span>
+                          <span>{item.meta}</span>
+                        </div>
+                        <h3 className="mt-3 text-lg font-semibold text-slate-900">{item.label}</h3>
                         <p className="mt-2 text-sm leading-6 text-slate-500">{item.desc}</p>
                       </div>
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600 transition group-hover:bg-slate-900 group-hover:text-white">
-                        Buka
-                      </span>
+                      <Button variant="outline" size="sm">Buka</Button>
                     </div>
                   </div>
                 </Link>

@@ -7,8 +7,13 @@ import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { getUserRole } from '@/lib/auth/getUserRole';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-// cn not used in this layout after sidebar extraction
-import { Menu, ChevronLeft, ChevronRight } from 'lucide-react';
+import MenuIcon from 'nexticons/outline/MenuIcon';
+import ChevronLeftIcon from 'nexticons/outline/ChevronLeftIcon';
+import ChevronRightIcon from 'nexticons/outline/ChevronRightIcon';
+import HomeIcon from 'nexticons/outline/HomeIcon';
+import MapIcon from 'nexticons/outline/MapIcon';
+import ClipboardListIcon from 'nexticons/outline/ClipboardListIcon';
+import SearchUsersIcon from 'nexticons/outline/SearchUsersIcon';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 
 type AdminLayoutProps = {
@@ -94,10 +99,10 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
   };
 
   const menuItems = [
-    { key: '/admin', label: 'Dashboard', href: '/admin', icon: '◉' },
-    { key: '/admin/simulasi-k3', label: 'Simulasi K3', href: '/admin/simulasi-k3', icon: '🗺' },
-    { key: '/management', label: 'Management Data', href: '/management', icon: '▣' },
-    { key: '/admin/roles', label: 'Users & Roles', href: '/admin/roles', icon: '👤' },
+    { key: '/admin', label: 'Dashboard', href: '/admin', icon: <HomeIcon width={18} height={18} /> },
+    { key: '/admin/simulasi-k3', label: 'Simulasi K3', href: '/admin/simulasi-k3', icon: <MapIcon width={18} height={18} /> },
+    { key: '/management', label: 'Management Data', href: '/management', icon: <ClipboardListIcon width={18} height={18} /> },
+    { key: '/admin/roles', label: 'Users & Roles', href: '/admin/roles', icon: <SearchUsersIcon width={18} height={18} /> },
   ];
 
   if (!ready) {
@@ -136,7 +141,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
               className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
               aria-label="Buka sidebar"
             >
-              <Menu size={16} />
+              <MenuIcon width={18} height={18} />
             </button>
             <button
               type="button"
@@ -144,7 +149,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
               className="hidden rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-100 lg:inline-flex"
               aria-label={sidebarCollapsed ? 'Perluas sidebar' : 'Sembunyikan sidebar'}
             >
-              {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+              {sidebarCollapsed ? <ChevronRightIcon width={18} height={18} /> : <ChevronLeftIcon width={18} height={18} />}
             </button>
             <div>
               <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
