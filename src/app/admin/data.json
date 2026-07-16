@@ -1,0 +1,5 @@
+[
+  { "Wilayah": "Jawa Barat", "Status": "Tinggi", "Kejadian": 12, "Tanggal": "2026-07-17" },
+  { "Wilayah": "Sulawesi Selatan", "Status": "Sedang", "Kejadian": 8, "Tanggal": "2026-07-17" },
+  { "Wilayah": "Papua", "Status": "Waspada", "Kejadian": 5, "Tanggal": "2026-07-16" }
+]
