@@ -6,7 +6,7 @@ import { AdminLayout } from '@/app/admin/AdminLayout';
 import { useTheme } from '@/contexts/ThemeContext';
 import bencanaData from '@/data/bencana.json';
 
-const DashboardLeafletK3 = dynamic(() => import('@/components/dashboard/DashboardLeafletK3'), {
+const AdminLeafletK3 = dynamic(() => import('@/components/dashboard/AdminLeafletK3'), {
   ssr: false,
   loading: () => (
     <div className="flex h-full min-h-[640px] items-center justify-center rounded-[28px] border border-slate-200 bg-slate-50 text-sm text-slate-500">
@@ -60,7 +60,7 @@ export default function SimulasiK3Page() {
         </div>
 
         <div className="relative min-h-[680px] flex-1 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-          <DashboardLeafletK3 data={allData} flyTo={flyTo} theme={theme} />
+          <AdminLeafletK3 data={allData} flyTo={flyTo} theme={theme} />
         </div>
       </div>
     </AdminLayout>
