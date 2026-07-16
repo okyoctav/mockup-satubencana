@@ -1,3 +1,6 @@
+"use client";
+
+import React from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { DataTable } from "@/components/data-table"
@@ -9,6 +12,16 @@ import {
 } from "@/components/ui/sidebar"
 
 import data from "./data.json"
+
+const tableData = (data as Array<Record<string, unknown>>).map((item, i) => ({
+  id: i + 1,
+  header: String(item.Wilayah ?? item.header ?? ''),
+  type: String(item.Status ?? item.type ?? 'N/A'),
+  status: 'Pending',
+  target: String(item.Kejadian ?? item.target ?? ''),
+  limit: String(item.Tanggal ?? item.limit ?? '-'),
+  reviewer: 'Assign reviewer',
+}))
 
 export default function Page() {
   return (
@@ -30,7 +43,7 @@ export default function Page() {
               <div className="px-4 lg:px-6">
                 <ChartAreaInteractive />
               </div>
-              <DataTable data={data} />
+              <DataTable data={tableData} />
             </div>
           </div>
         </div>
