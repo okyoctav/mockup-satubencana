@@ -1,13 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+// Link removed — sidebar rendered by AdminSidebar
 import { usePathname, useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { getUserRole } from '@/lib/auth/getUserRole';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+// cn not used in this layout after sidebar extraction
+import { Menu, ChevronLeft, ChevronRight } from 'lucide-react';
+import AdminSidebar from '@/components/admin/AdminSidebar';
 
 type AdminLayoutProps = {
   children: React.ReactNode;
@@ -115,76 +117,15 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
         <div className="fixed inset-0 z-40 bg-slate-950/40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       ) : null}
 
-      <aside
-        className={cn(
-          'fixed inset-y-0 left-0 z-50 flex-shrink-0 border-r border-slate-200 bg-white transition-all duration-200 lg:static lg:flex lg:flex-col',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
-          sidebarCollapsed ? 'w-20' : 'w-72'
-        )}
-      >
-        <div className="flex h-16 items-center justify-between gap-3 border-b border-slate-200 px-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-sm font-semibold text-white">SB</div>
-            {!sidebarCollapsed ? (
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">SATUBENCANA</p>
-                <p className="truncate text-xs text-slate-500">Admin Console</p>
-              </div>
-            ) : null}
-          </div>
-          <button
-            type="button"
-            onClick={() => setSidebarCollapsed((value) => !value)}
-            className="hidden rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:inline-flex"
-            aria-label={sidebarCollapsed ? 'Perluas sidebar' : 'Sembunyikan sidebar'}
-          >
-            {sidebarCollapsed ? '▶' : '◀'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setSidebarOpen(false)}
-            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
-            aria-label="Tutup sidebar"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div className="flex-1 px-3 py-6">
-          <div className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
-            {sidebarCollapsed ? 'Demo' : mockMode ? 'Mode demo aktif' : 'Mode terhubung'}
-          </div>
-          <nav className="space-y-1">
-            {menuItems.map((item) => {
-              const isActive = item.key === '/admin' ? pathname === '/admin' : pathname === item.key || pathname.startsWith(item.key);
-              return (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition',
-                    isActive ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
-                    sidebarCollapsed && 'justify-center px-2'
-                  )}
-                >
-                  <span className="text-base">{item.icon}</span>
-                  {!sidebarCollapsed ? <span>{item.label}</span> : null}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-
-        <div className="border-t border-slate-200 p-4">
-          <Button
-            variant="outline"
-            className={cn('w-full justify-start', sidebarCollapsed && 'justify-center px-2')}
-            onClick={handleLogout}
-          >
-            {sidebarCollapsed ? '↩' : 'Keluar'}
-          </Button>
-        </div>
-      </aside>
+      {/* Admin sidebar replaced with AdminSidebar component */}
+      <AdminSidebar
+        menuItems={menuItems}
+        pathname={pathname}
+        sidebarCollapsed={sidebarCollapsed}
+        setSidebarCollapsed={setSidebarCollapsed}
+        mockMode={mockMode}
+        handleLogout={handleLogout}
+      />
 
       <div className="flex flex-1 flex-col">
         <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6">
@@ -195,7 +136,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
               className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
               aria-label="Buka sidebar"
             >
-              ☰
+              <Menu size={16} />
             </button>
             <button
               type="button"
@@ -203,7 +144,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
               className="hidden rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-100 lg:inline-flex"
               aria-label={sidebarCollapsed ? 'Perluas sidebar' : 'Sembunyikan sidebar'}
             >
-              {sidebarCollapsed ? '▶' : '◀'}
+              {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
             </button>
             <div>
               <h1 className="text-lg font-semibold text-slate-900">{title}</h1>

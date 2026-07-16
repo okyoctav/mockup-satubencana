@@ -418,7 +418,8 @@ export default function AdminLeafletK3({ data, flyTo, theme }: Props) {
   const [activeDraw, setActiveDraw] = useState<string | null>(null);
   const [bmkgData, setBmkgData] = useState<BmkgGempa[]>([]);
   const [showBmkg, setShowBmkg] = useState(true);
-  const [showBencanaData, setShowBencanaData] = useState(true);
+  // Default: do not show local bencana.json on admin map unless user enables it
+  const [showBencanaData, setShowBencanaData] = useState(false);
   const [bmkgLastUpdate, setBmkgLastUpdate] = useState<Date | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);

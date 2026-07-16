@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { Inter } from "next/font/google";
+import { cn } from "@/lib/utils";
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
   title: "DataBencana — Sistem Analisis Data Bencana Nasional",
@@ -15,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id">
+    <html lang="id" className={cn("font-sans", inter.variable)}>
       <body className="antialiased">
         <ThemeProvider>
           {children}
