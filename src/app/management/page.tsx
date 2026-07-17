@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { AdminLayout } from '@/app/admin/AdminLayout';
 
 const INARISK_BASE = 'https://gis.bnpb.go.id/server/rest/services/inarisk';
 
@@ -72,7 +71,7 @@ export default function ManagementPage() {
   }, [search, kategoriFilter, typeFilter]);
 
   return (
-    <AdminLayout title="Management Data" subtitle="Layanan Geospasial Inarisk — BNPB">
+    <>
       <div style={{ padding: '8px 0' }}>
         {/* Stats row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24 }}>
@@ -174,7 +173,7 @@ export default function ManagementPage() {
                   <td style={{ padding: '10px 14px' }}>
                     <div style={{ display: 'flex', gap: 6 }}>
                       <a
-                        href={`${INARISK_BASE}/${s.name}/${s.type === 'ImageServer' ? '' : '0'}/query?where=1%3D1&outFields=*&f=geojson`}
+                         href={`${INARISK_BASE}/${s.name}/${s.type === 'ImageServer' ? '' : '0'}/query?where=1%3D1&outFields=*&f=geojson`}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ padding: '4px 10px', borderRadius: 6, background: 'rgba(53,167,255,0.12)', color: '#35a7ff', fontSize: 10, fontWeight: 600, textDecoration: 'none', border: '1px solid rgba(53,167,255,0.25)', whiteSpace: 'nowrap' }}
@@ -202,6 +201,6 @@ export default function ManagementPage() {
           )}
         </div>
       </div>
-    </AdminLayout>
+    </>
   );
 }

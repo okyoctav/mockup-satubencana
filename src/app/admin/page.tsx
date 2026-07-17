@@ -20,13 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import AlertTriangleIcon from "nexticons/outline/AlertTriangleIcon"
-import UsersIcon from "nexticons/outline/UsersIcon"
-import MapPinIcon from "nexticons/outline/MapPinIcon"
-import ActivityIcon from "nexticons/outline/ActivityIcon"
-import TrendingUpIcon from "nexticons/outline/TrendingUpIcon"
-import TrendingDownIcon from "nexticons/outline/TrendingDownIcon"
-import ArrowRightIcon from "nexticons/outline/ArrowRightIcon"
+import { AlertTriangle, Users, MapPin, Activity, TrendingUp, TrendingDown, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 // ── Mock data ──────────────────────────────────────────────
@@ -37,7 +31,7 @@ const statsCards = [
     change: "+8.3%",
     trend: "up" as const,
     note: "Dibanding bulan lalu",
-    icon: AlertTriangleIcon,
+    icon: AlertTriangle,
     iconBg: "bg-red-100 dark:bg-red-950",
     iconColor: "text-red-600 dark:text-red-400",
     badgeClass: "border-red-200 text-red-700 dark:text-red-400",
@@ -48,7 +42,7 @@ const statsCards = [
     change: "-12.1%",
     trend: "down" as const,
     note: "Penurunan penanganan",
-    icon: UsersIcon,
+    icon: Users,
     iconBg: "bg-orange-100 dark:bg-orange-950",
     iconColor: "text-orange-600 dark:text-orange-400",
     badgeClass: "border-green-200 text-green-700 dark:text-green-400",
@@ -59,7 +53,7 @@ const statsCards = [
     change: "+6",
     trend: "up" as const,
     note: "Kabupaten/kota baru",
-    icon: MapPinIcon,
+    icon: MapPin,
     iconBg: "bg-blue-100 dark:bg-blue-950",
     iconColor: "text-blue-600 dark:text-blue-400",
     badgeClass: "border-red-200 text-red-700 dark:text-red-400",
@@ -70,7 +64,7 @@ const statsCards = [
     change: "+4.5%",
     trend: "up" as const,
     note: "Peningkatan signifikan",
-    icon: ActivityIcon,
+    icon: Activity,
     iconBg: "bg-yellow-100 dark:bg-yellow-950",
     iconColor: "text-yellow-600 dark:text-yellow-400",
     badgeClass: "border-red-200 text-red-700 dark:text-red-400",
@@ -117,7 +111,7 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {statsCards.map((card) => {
           const Icon = card.icon
-          const Trend = card.trend === "up" ? TrendingUpIcon : TrendingDownIcon
+          const Trend = card.trend === "up" ? TrendingUp : TrendingDown
           return (
             <Card key={card.title}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -211,12 +205,12 @@ export default function AdminDashboardPage() {
             ))}
           </CardContent>
           <CardFooter>
-            <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs" asChild>
-              <Link href="/admin/statistik">
+            <Link href="/admin/statistik" className="w-full">
+              <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs">
                 Lihat laporan lengkap
-                <ArrowRightIcon width={12} height={12} />
-              </Link>
-            </Button>
+                <ArrowRight className="h-3 w-3" />
+              </Button>
+            </Link>
           </CardFooter>
         </Card>
       </div>
@@ -229,12 +223,12 @@ export default function AdminDashboardPage() {
               <CardTitle className="text-sm font-semibold">Kejadian Terbaru</CardTitle>
               <CardDescription className="text-xs">Laporan bencana 7 hari terakhir</CardDescription>
             </div>
-            <Button variant="ghost" size="sm" className="gap-1.5 text-xs" asChild>
-              <Link href="/management">
+            <Link href="/management">
+              <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
                 Lihat semua
-                <ArrowRightIcon width={12} height={12} />
-              </Link>
-            </Button>
+                <ArrowRight className="h-3 w-3" />
+              </Button>
+            </Link>
           </div>
         </CardHeader>
         <CardContent className="p-0">

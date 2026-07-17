@@ -14,11 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import BellIcon from "nexticons/outline/BellIcon"
-import SearchIcon from "nexticons/outline/SearchIcon"
-import UserCircleIcon from "nexticons/outline/UserCircleIcon"
-import LogOutIcon from "nexticons/outline/LogOutIcon"
-import ShieldCheckIcon from "nexticons/outline/ShieldCheckIcon"
+import { Bell as BellIcon, Search as SearchIcon, User as UserCircleIcon, LogOut as LogOutIcon, ShieldAlert as ShieldCheckIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 
@@ -93,12 +89,8 @@ export function AdminHeader({ userEmail = "admin@satubencana.id", isDemoMode = f
 
           {/* User avatar dropdown */}
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-8 rounded-full" aria-label="Profil pengguna">
-                <div className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-blue-700 text-xs font-semibold text-white">
-                  {initials}
-                </div>
-              </Button>
+            <DropdownMenuTrigger className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-blue-700 text-xs font-semibold text-white cursor-pointer hover:opacity-90">
+              {initials}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel className="font-normal">

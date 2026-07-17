@@ -29,12 +29,7 @@ import {
 } from "@/components/ui/table"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
-import ShieldIcon from "nexticons/outline/ShieldIcon"
-import UsersIcon from "nexticons/outline/UsersIcon"
-import PlusIcon from "nexticons/outline/PlusIcon"
-import RefreshIcon from "nexticons/outline/RefreshIcon"
-import CheckCircleIcon from "nexticons/outline/CheckCircleIcon"
-import XCircleIcon from "nexticons/outline/XCircleIcon"
+import { Shield as ShieldIcon, Users as UsersIcon, Plus as PlusIcon, RefreshCw as RefreshIcon, CheckCircle2 as CheckCircleIcon, XCircle as XCircleIcon } from "lucide-react"
 
 type AppRoleRow = {
   id: string

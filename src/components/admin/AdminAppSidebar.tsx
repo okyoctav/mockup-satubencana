@@ -17,14 +17,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
-import LayoutDashboardIcon from "nexticons/outline/LayoutDashboardIcon"
-import MapPinIcon from "nexticons/outline/MapPinIcon"
-import UsersIcon from "nexticons/outline/UsersIcon"
-import DatabaseIcon from "nexticons/outline/DatabaseIcon"
-import LogOutIcon from "nexticons/outline/LogOutIcon"
-import ShieldCheckIcon from "nexticons/outline/ShieldCheckIcon"
-import BarChartIcon from "nexticons/outline/BarChartIcon"
-import AlertTriangleIcon from "nexticons/outline/AlertTriangleIcon"
+import { LayoutDashboard as LayoutDashboardIcon, MapPin as MapPinIcon, Users as UsersIcon, Database as DatabaseIcon, LogOut as LogOutIcon, BarChart3 as BarChartIcon, AlertTriangle as AlertTriangleIcon } from "lucide-react"
 
 const navItems = [
   {
