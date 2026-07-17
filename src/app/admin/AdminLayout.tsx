@@ -8,7 +8,7 @@ import { getUserRole } from '@/lib/auth/getUserRole';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +21,6 @@ import {
 import MenuIcon from 'nexticons/outline/MenuIcon';
 import ChevronLeftIcon from 'nexticons/outline/ChevronLeftIcon';
 import ChevronRightIcon from 'nexticons/outline/ChevronRightIcon';
-import ArrowLeftIcon from 'nexticons/outline/ArrowLeftIcon';
 import ArrowRightIcon from 'nexticons/outline/ArrowRightIcon';
 import BellIcon from 'nexticons/outline/BellIcon';
 import HomeIcon from 'nexticons/outline/HomeIcon';
@@ -224,7 +223,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
               <span className="font-semibold">3</span>
             </div>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger>
                 <button className="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 shadow-sm transition hover:bg-slate-100">
                   <Avatar className="h-9 w-9">
                     <AvatarFallback>{(userEmail ?? 'AD').slice(0, 2).toUpperCase()}</AvatarFallback>
