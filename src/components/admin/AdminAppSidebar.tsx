@@ -13,6 +13,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarProvider,
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
@@ -53,71 +54,73 @@ export function AdminAppSidebar() {
   }
 
   return (
-    <Sidebar collapsible="icon">
-      {/* ── Header / Brand ── */}
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" tooltip="SATUBENCANA Admin" render={<Link href="/admin" />}>
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-blue-700 text-white shadow">
-                <AlertTriangleIcon width={16} height={16} />
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">SATUBENCANA</span>
-                <span className="truncate text-xs text-sidebar-foreground/60">Admin Panel</span>
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        {/* ── Header / Brand ── */}
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" tooltip="SATUBENCANA Admin" render={<Link href="/admin" />}>
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-blue-700 text-white shadow">
+                  <AlertTriangleIcon width={16} height={16} />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">SATUBENCANA</span>
+                  <span className="truncate text-xs text-sidebar-foreground/60">Admin Panel</span>
+                </div>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
 
-      {/* ── Nav Items ── */}
-      <SidebarContent>
-        {navItems.map((group, gi) => (
-          <React.Fragment key={group.label}>
-            {gi > 0 && <SidebarSeparator />}
-            <SidebarGroup>
-              <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
-              <SidebarMenu>
-                {group.items.map((item) => {
-                  const Icon = item.icon
-                  const active = isActive(item.href, item.exact)
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        tooltip={item.title}
-                        isActive={active}
-                        render={<Link href={item.href} />}
-                      >
-                        <Icon width={16} height={16} />
-                        <span>{item.title}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  )
-                })}
-              </SidebarMenu>
-            </SidebarGroup>
-          </React.Fragment>
-        ))}
-      </SidebarContent>
+        {/* ── Nav Items ── */}
+        <SidebarContent>
+          {navItems.map((group, gi) => (
+            <React.Fragment key={group.label}>
+              {gi > 0 && <SidebarSeparator />}
+              <SidebarGroup>
+                <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+                <SidebarMenu>
+                  {group.items.map((item) => {
+                    const Icon = item.icon
+                    const active = isActive(item.href, item.exact)
+                    return (
+                      <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton
+                          tooltip={item.title}
+                          isActive={active}
+                          render={<Link href={item.href} />}
+                        >
+                          <Icon width={16} height={16} />
+                          <span>{item.title}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )
+                  })}
+                </SidebarMenu>
+              </SidebarGroup>
+            </React.Fragment>
+          ))}
+        </SidebarContent>
 
-      {/* ── Footer / Logout ── */}
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              tooltip="Keluar"
-              onClick={() => void handleLogout()}
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-            >
-              <LogOutIcon width={16} height={16} />
-              <span>Keluar</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
+        {/* ── Footer / Logout ── */}
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="Keluar"
+                onClick={() => void handleLogout()}
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                <LogOutIcon width={16} height={16} />
+                <span>Keluar</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
 
-      <SidebarRail />
-    </Sidebar>
+        <SidebarRail />
+      </Sidebar>
+    </SidebarProvider>
   )
 }
