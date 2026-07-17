@@ -8,6 +8,17 @@ import { getUserRole } from '@/lib/auth/getUserRole';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import MenuIcon from 'nexticons/outline/MenuIcon';
+import ChevronLeftIcon from 'nexticons/outline/ChevronLeftIcon';
+import ChevronRightIcon from 'nexticons/outline/ChevronRightIcon';
+import ArrowLeftIcon from 'nexticons/outline/ArrowLeftIcon';
+import ArrowRightIcon from 'nexticons/outline/ArrowRightIcon';
+import BellIcon from 'nexticons/outline/BellIcon';
+import HomeIcon from 'nexticons/outline/HomeIcon';
+import MapIcon from 'nexticons/outline/MapIcon';
+import HomeSecondIcon from 'nexticons/outline/HomeSecondIcon';
+import SearchUsersIcon from 'nexticons/outline/SearchUsersIcon';
+import XIcon from 'nexticons/outline/XIcon';
 
 type AdminLayoutProps = {
   children: React.ReactNode;
@@ -20,7 +31,6 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
   const pathname = usePathname();
   const [ready, setReady] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [mockMode, setMockMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -32,11 +42,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
       const hasEnv = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
       if (!client || !hasEnv) {
-        if (active) {
-          setMockMode(true);
-          setUserEmail('demo@admin.local');
-          setReady(true);
-        }
+        router.replace('/login');
         return;
       }
 
@@ -45,34 +51,25 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
       } = await client.auth.getSession();
 
       if (!session) {
-        if (active) {
-          setMockMode(true);
-          setUserEmail('demo@admin.local');
-          setReady(true);
-        }
+        router.replace('/login');
         return;
       }
 
       const { role, error } = await getUserRole(client);
       if (!active) return;
 
+      if (error || role !== 'admin') {
+        router.replace('/login');
+        return;
+      }
+
       const {
         data: { user },
       } = await client.auth.getUser();
 
-      if (error || role !== 'admin') {
-        if (active) {
-          setUserEmail(user?.email ?? 'demo@admin.local');
-          setReady(true);
-          setMockMode(true);
-        }
-        return;
-      }
-
       if (active) {
-        setUserEmail(user?.email ?? 'demo@admin.local');
+        setUserEmail(user?.email ?? 'Admin');
         setReady(true);
-        setMockMode(false);
       }
     };
 
@@ -92,10 +89,10 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
   };
 
   const menuItems = [
-    { key: '/admin', label: 'Dashboard', href: '/admin', icon: '◉' },
-    { key: '/admin/simulasi-k3', label: 'Simulasi K3', href: '/admin/simulasi-k3', icon: '🗺' },
-    { key: '/management', label: 'Management Data', href: '/management', icon: '▣' },
-    { key: '/admin/roles', label: 'Users & Roles', href: '/admin/roles', icon: '👤' },
+    { key: '/admin', label: 'Dashboard', href: '/admin', icon: <HomeIcon width={18} height={18} /> },
+    { key: '/admin/simulasi-k3', label: 'Simulasi K3', href: '/admin/simulasi-k3', icon: <MapIcon width={18} height={18} /> },
+    { key: '/management', label: 'Management Data', href: '/management', icon: <HomeSecondIcon width={18} height={18} /> },
+    { key: '/admin/roles', label: 'Users & Roles', href: '/admin/roles', icon: <SearchUsersIcon width={18} height={18} /> },
   ];
 
   if (!ready) {
@@ -138,7 +135,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
             className="hidden rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:inline-flex"
             aria-label={sidebarCollapsed ? 'Perluas sidebar' : 'Sembunyikan sidebar'}
           >
-            {sidebarCollapsed ? '▶' : '◀'}
+            {sidebarCollapsed ? <ArrowRightIcon width={18} height={18} /> : <ArrowLeftIcon width={18} height={18} />}
           </button>
           <button
             type="button"
@@ -146,13 +143,13 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
             className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
             aria-label="Tutup sidebar"
           >
-            ✕
+            <XIcon width={18} height={18} />
           </button>
         </div>
 
         <div className="flex-1 px-3 py-6">
           <div className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
-            {sidebarCollapsed ? 'Demo' : mockMode ? 'Mode demo aktif' : 'Mode terhubung'}
+            {sidebarCollapsed ? 'SB' : 'Panel admin'}
           </div>
           <nav className="space-y-1">
             {menuItems.map((item) => {
@@ -181,7 +178,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
             className={cn('w-full justify-start', sidebarCollapsed && 'justify-center px-2')}
             onClick={handleLogout}
           >
-            {sidebarCollapsed ? '↩' : 'Keluar'}
+            {sidebarCollapsed ? <ArrowRightIcon width={18} height={18} /> : 'Keluar'}
           </Button>
         </div>
       </aside>
@@ -195,7 +192,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
               className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
               aria-label="Buka sidebar"
             >
-              ☰
+              <MenuIcon width={18} height={18} />
             </button>
             <button
               type="button"
@@ -203,7 +200,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
               className="hidden rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-100 lg:inline-flex"
               aria-label={sidebarCollapsed ? 'Perluas sidebar' : 'Sembunyikan sidebar'}
             >
-              {sidebarCollapsed ? '▶' : '◀'}
+              {sidebarCollapsed ? <ChevronRightIcon width={18} height={18} /> : <ChevronLeftIcon width={18} height={18} />}
             </button>
             <div>
               <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
@@ -216,7 +213,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
               <Input placeholder="Cari data / menu" className="h-10 w-56 rounded-xl border-slate-200 bg-slate-50" />
             </div>
             <div className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">
-              <span className="text-base">🔔</span>
+              <BellIcon width={16} height={16} />
               <span className="font-semibold">3</span>
             </div>
             <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-600 shadow-sm">
