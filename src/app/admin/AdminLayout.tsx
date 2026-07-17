@@ -121,30 +121,15 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
       >
         <div className="flex h-16 items-center justify-between gap-3 border-b border-slate-200 px-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-sm font-semibold text-white">SB</div>
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-sm font-semibold text-white">MDB</div>
             {!sidebarCollapsed ? (
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">SATUBENCANA</p>
-                <p className="truncate text-xs text-slate-500">Admin Console</p>
+                <p className="truncate text-sm font-semibold">SATUDATA BENCANA</p>
+                <p className="truncate text-xs text-slate-500">Manajemen Data Bencana</p>
               </div>
             ) : null}
           </div>
-          <button
-            type="button"
-            onClick={() => setSidebarCollapsed((value) => !value)}
-            className="hidden rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:inline-flex"
-            aria-label={sidebarCollapsed ? 'Perluas sidebar' : 'Sembunyikan sidebar'}
-          >
-            {sidebarCollapsed ? <ArrowRightIcon width={18} height={18} /> : <ArrowLeftIcon width={18} height={18} />}
-          </button>
-          <button
-            type="button"
-            onClick={() => setSidebarOpen(false)}
-            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
-            aria-label="Tutup sidebar"
-          >
-            <XIcon width={18} height={18} />
-          </button>
+         
         </div>
 
         <div className="flex-1 px-3 py-6">
