@@ -1,16 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-// Link removed — sidebar rendered by AdminSidebar
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { getUserRole } from '@/lib/auth/getUserRole';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import MenuIcon from 'nexticons/outline/MenuIcon';
-import ChevronLeftIcon from 'nexticons/outline/ChevronLeftIcon';
-import ChevronRightIcon from 'nexticons/outline/ChevronRightIcon';
-import AdminSidebar from '@/components/admin/AdminAppSidebar';
+import { AdminAppSidebar } from '@/components/admin/AdminAppSidebar';
 
 type AdminLayoutProps = {
   children: React.ReactNode;
@@ -20,7 +16,6 @@ type AdminLayoutProps = {
 
 export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
   const router = useRouter();
-  const pathname = usePathname();
   const [ready, setReady] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
@@ -91,39 +86,16 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
 
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-900">
-      {sidebarOpen ? (
-        <div className="fixed inset-0 z-40 bg-slate-950/40 lg:hidden" onClick={() => setSidebarOpen(false)} />
-      ) : null}
-
-      {/* Admin sidebar replaced with AdminSidebar component */}
-      <AdminSidebar
-        menuItems={menuItems}
-        pathname={pathname}
-        sidebarCollapsed={sidebarCollapsed}
-        setSidebarCollapsed={setSidebarCollapsed}
-        mockMode={mockMode}
-        handleLogout={handleLogout}
-      />
+      <AdminAppSidebar />
 
       <div className="flex flex-1 flex-col">
         <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setSidebarOpen(true)}
-              className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
-              aria-label="Buka sidebar"
-            >
-              <MenuIcon width={18} height={18} />
-            </button>
-            <button
-              type="button"
-              onClick={() => setSidebarCollapsed((value) => !value)}
-              className="hidden rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-100 lg:inline-flex"
-              aria-label={sidebarCollapsed ? 'Perluas sidebar' : 'Sembunyikan sidebar'}
-            >
-              {sidebarCollapsed ? <ChevronRightIcon width={18} height={18} /> : <ChevronLeftIcon width={18} height={18} />}
-            </button>
+            <div className="hidden lg:flex items-center gap-3">
+              <div className="rounded-lg border border-slate-200 p-2 text-slate-600 bg-slate-100">
+                <span className="text-sm">☰</span>
+              </div>
+            </div>
             <div>
               <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
               {subtitle ? <p className="text-sm text-slate-500">{subtitle}</p> : null}
