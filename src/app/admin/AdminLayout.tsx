@@ -223,15 +223,19 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
               <span className="font-semibold">3</span>
             </div>
             <DropdownMenu>
-              <DropdownMenuTrigger className="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 shadow-sm transition hover:bg-slate-100">
-                <Avatar className="h-9 w-9">
-                  <AvatarFallback>{(userEmail ?? 'AD').slice(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div className="hidden md:flex flex-col items-start leading-tight">
-                  <span className="font-semibold text-slate-900">{userEmail?.split('@')[0] ?? 'Admin'}</span>
-                  <span className="text-xs text-slate-500">{userEmail ?? 'admin'}</span>
-                </div>
-              </DropdownMenuTrigger>
+              <DropdownMenuTrigger
+                render={
+                  <button className="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 shadow-sm transition hover:bg-slate-100">
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback>{(userEmail ?? 'AD').slice(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div className="hidden md:flex flex-col items-start leading-tight">
+                      <span className="font-semibold text-slate-900">{userEmail?.split('@')[0] ?? 'Admin'}</span>
+                      <span className="text-xs text-slate-500">{userEmail ?? 'admin'}</span>
+                    </div>
+                  </button>
+                }
+              />
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>Account</DropdownMenuLabel>
                 <DropdownMenuGroup>
