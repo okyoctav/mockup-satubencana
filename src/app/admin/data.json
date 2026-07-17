@@ -1,5 +1,10 @@
 [
-  { "Wilayah": "Jawa Barat", "Status": "Tinggi", "Kejadian": 12, "Tanggal": "2026-07-17" },
-  { "Wilayah": "Sulawesi Selatan", "Status": "Sedang", "Kejadian": 8, "Tanggal": "2026-07-17" },
-  { "Wilayah": "Papua", "Status": "Waspada", "Kejadian": 5, "Tanggal": "2026-07-16" }
+  { "Wilayah": "Jawa Barat", "Status": "Tinggi", "Kejadian": 12, "Tanggal": "2026-07-17", "Jenis": "Banjir", "Pengungsi": 4200 },
+  { "Wilayah": "Sulawesi Selatan", "Status": "Sedang", "Kejadian": 8, "Tanggal": "2026-07-17", "Jenis": "Tanah Longsor", "Pengungsi": 1850 },
+  { "Wilayah": "Papua", "Status": "Waspada", "Kejadian": 5, "Tanggal": "2026-07-16", "Jenis": "Gempa Bumi", "Pengungsi": 920 },
+  { "Wilayah": "Kalimantan Timur", "Status": "Tinggi", "Kejadian": 9, "Tanggal": "2026-07-16", "Jenis": "Kebakaran Hutan", "Pengungsi": 2100 },
+  { "Wilayah": "Sumatera Utara", "Status": "Sedang", "Kejadian": 6, "Tanggal": "2026-07-15", "Jenis": "Banjir", "Pengungsi": 1430 },
+  { "Wilayah": "Nusa Tenggara Barat", "Status": "Waspada", "Kejadian": 4, "Tanggal": "2026-07-15", "Jenis": "Gempa Bumi", "Pengungsi": 680 },
+  { "Wilayah": "Jawa Tengah", "Status": "Sedang", "Kejadian": 7, "Tanggal": "2026-07-14", "Jenis": "Banjir", "Pengungsi": 2890 },
+  { "Wilayah": "Sulawesi Tengah", "Status": "Tinggi", "Kejadian": 11, "Tanggal": "2026-07-14", "Jenis": "Tsunami", "Pengungsi": 5100 }
 ]

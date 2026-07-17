@@ -11,16 +11,16 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 
-import data from "./data.json"
+import rawData from "./data.json"
 
-const tableData = (data as Array<Record<string, unknown>>).map((item, i) => ({
+const tableData = (rawData as Array<Record<string, unknown>>).map((item, i) => ({
   id: i + 1,
-  header: String(item.Wilayah ?? item.header ?? ''),
-  type: String(item.Status ?? item.type ?? 'N/A'),
-  status: 'Pending',
-  target: String(item.Kejadian ?? item.target ?? ''),
-  limit: String(item.Tanggal ?? item.limit ?? '-'),
-  reviewer: 'Assign reviewer',
+  header: String(item.Wilayah ?? item.header ?? ""),
+  type: String(item.Jenis ?? item.type ?? "Bencana Alam"),
+  status: String(item.Status ?? "Waspada"),
+  target: String(item.Kejadian ?? item.target ?? 0),
+  limit: String(item.Tanggal ?? item.limit ?? "-"),
+  reviewer: String(item.Pengungsi ?? "0") + " jiwa",
 }))
 
 export default function Page() {
