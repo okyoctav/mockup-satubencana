@@ -123,7 +123,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
 
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex-shrink-0 border-r border-slate-200 bg-white transition-all duration-200 lg:static lg:flex lg:flex-col',
+          'fixed inset-y-0 left-0 z-50 flex-shrink-0 border-r border-slate-200 bg-white transition-all duration-200 lg:fixed lg:flex lg:flex-col',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
           sidebarCollapsed ? 'w-20' : 'w-72'
         )}
@@ -223,16 +223,14 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
               <span className="font-semibold">3</span>
             </div>
             <DropdownMenu>
-              <DropdownMenuTrigger>
-                <button className="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 shadow-sm transition hover:bg-slate-100">
-                  <Avatar className="h-9 w-9">
-                    <AvatarFallback>{(userEmail ?? 'AD').slice(0, 2).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <div className="hidden md:flex flex-col items-start leading-tight">
-                    <span className="font-semibold text-slate-900">{userEmail?.split('@')[0] ?? 'Admin'}</span>
-                    <span className="text-xs text-slate-500">{userEmail ?? 'admin'}</span>
-                  </div>
-                </button>
+              <DropdownMenuTrigger className="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 shadow-sm transition hover:bg-slate-100">
+                <Avatar className="h-9 w-9">
+                  <AvatarFallback>{(userEmail ?? 'AD').slice(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div className="hidden md:flex flex-col items-start leading-tight">
+                  <span className="font-semibold text-slate-900">{userEmail?.split('@')[0] ?? 'Admin'}</span>
+                  <span className="text-xs text-slate-500">{userEmail ?? 'admin'}</span>
+                </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>Account</DropdownMenuLabel>
