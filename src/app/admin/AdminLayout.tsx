@@ -8,6 +8,16 @@ import { getUserRole } from '@/lib/auth/getUserRole';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import MenuIcon from 'nexticons/outline/MenuIcon';
 import ChevronLeftIcon from 'nexticons/outline/ChevronLeftIcon';
 import ChevronRightIcon from 'nexticons/outline/ChevronRightIcon';
@@ -175,8 +185,13 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col">
-        <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6">
+      <div className={cn('flex flex-1 flex-col', sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72')}>
+        <header
+          className={cn(
+            'fixed top-0 right-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6',
+            sidebarCollapsed ? 'lg:left-20' : 'lg:left-72'
+          )}
+        >
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -202,22 +217,55 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
 
           <div className="flex items-center gap-3">
             <div className="hidden md:block">
-              <Input placeholder="Cari data / menu" className="h-10 w-56 rounded-xl border-slate-200 bg-slate-50" />
+              <Input placeholder="search SDB" className="h-10 w-56 rounded-xl border-slate-200 bg-slate-50" />
             </div>
             <div className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">
               <BellIcon width={16} height={16} />
               <span className="font-semibold">3</span>
             </div>
-            <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-600 shadow-sm">
-              {userEmail ?? 'Admin'}
-            </div>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              Keluar
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 shadow-sm transition hover:bg-slate-100">
+                  <Avatar className="h-9 w-9">
+                    <AvatarFallback>{(userEmail ?? 'AD').slice(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div className="hidden md:flex flex-col items-start leading-tight">
+                    <span className="font-semibold text-slate-900">{userEmail?.split('@')[0] ?? 'Admin'}</span>
+                    <span className="text-xs text-slate-500">{userEmail ?? 'admin'}</span>
+                  </div>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Account</DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem className="cursor-default text-slate-900">{userEmail?.split('@')[0] ?? 'Admin'}</DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-default text-slate-500">{userEmail ?? 'admin@example.com'}</DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    router.push('/settings');
+                  }}
+                >
+                  Setting
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    handleLogout();
+                  }}
+                >
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto p-4 sm:p-6">{children}</main>
+        <main className="flex-1 overflow-auto p-4 sm:p-6 mt-16">{children}</main>
       </div>
     </div>
   );
