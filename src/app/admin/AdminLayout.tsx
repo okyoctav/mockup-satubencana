@@ -24,9 +24,10 @@ type AdminLayoutProps = {
   children: React.ReactNode;
   title: string;
   subtitle?: string;
+  disableMainPadding?: boolean;
 };
 
-export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
+export function AdminLayout({ children, title, subtitle, disableMainPadding = false }: AdminLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [ready, setReady] = useState(false);
@@ -263,7 +264,9 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto p-4 sm:p-6 mt-16">{children}</main>
+        <main className={cn('flex-1 overflow-auto mt-16', disableMainPadding ? '' : 'p-4 sm:p-6')}>
+          {children}
+        </main>
       </div>
     </div>
   );

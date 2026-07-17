@@ -361,7 +361,7 @@ function buildImpactHtmlK3(d: ImpactDataK3): string {
           ${historyItems.length > 3 ? `<div style="font-size:10px;color:#64748B;padding-top:4px;border-top:1px solid #E2E8F0">Menampilkan 3 kejadian pertama. Gunakan data internal untuk riwayat bencana lokal.</div>` : ''}
         </div>
       ` : `
-        <div style="margin-top:8px;padding:10px;border-radius:10px;background:#F8FAFC;border:1px solid #E2E8F0;font-size:10px;color:#64748B">
+        <div style="margin-top:8px;padding:10px;:10px;background:#F8FAFC;border:1px solid #E2E8F0;font-size:10px;color:#64748B">
           Tidak ada riwayat bencana tercatat di area ini dalam dataset lokal.
         </div>
       `}
@@ -1212,7 +1212,7 @@ export default function AdminLeafletK3({ data, flyTo, theme }: Props) {
           </div>
         ) : null}
       </div>
-      <div ref={containerRef} style={{ width: '100%', height: '100%', borderRadius: 14, overflow: 'hidden' }} />
+      <div ref={containerRef} style={{ width: '100%', height: '100%', borderRadius: 0, overflow: 'hidden' }} />
       {mapError && (
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(2,6,23,0.85)', color: '#f8fafc', fontSize: 12, padding: 20, textAlign: 'center', zIndex: 1500 }}>
           {mapError}
