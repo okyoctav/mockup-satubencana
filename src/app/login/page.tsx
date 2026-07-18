@@ -103,13 +103,13 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <div className="flex min-h-screen w-full flex-col lg:flex-row">
-        <div className="relative hidden flex-1 overflow-hidden lg:flex">
+          <div className="relative hidden flex-1 overflow-hidden lg:flex">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.25),_transparent_45%)]" />
           <LoginBackground />
           <div className="relative z-10 flex h-full flex-col justify-between p-10 text-white">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/10 backdrop-blur">
-                <span className="text-lg font-semibold">SB</span>
+                <img src="/LogoSDB.png" alt="Logo SDB" className="h-10 w-10 object-contain" />
               </div>
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-200">Satu Bencana</p>
@@ -123,11 +123,11 @@ export default function LoginPage() {
         <div className="flex w-full flex-1 items-center justify-center bg-white px-6 py-10 lg:w-[42%] lg:px-8 xl:px-10">
           <div className="w-full max-w-md">
             <div className="mb-8 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-white">
-                SB
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--brand-1)] text-lg font-semibold text-white">
+                <img src="/LogoSDB.png" alt="Logo SDB" className="h-8 w-8 object-contain" />
               </div>
               <div>
-                <p className="text-xl font-semibold text-slate-900">Manajemen Satu Bencana</p>
+                <p className="text-xl font-semibold text-[var(--brand-1)]">Manajemen Satu Bencana</p>
                 <p className="text-sm text-slate-500">Portal admin terintegrasi</p>
               </div>
             </div>
@@ -172,7 +172,7 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <Button type="submit" className="h-11 w-full rounded-xl bg-slate-900 text-white hover:bg-slate-800" disabled={loading}>
+              <Button type="submit" className="h-11 w-full rounded-xl bg-[var(--brand-1)] text-white hover:bg-[var(--brand-2)]" disabled={loading}>
                 {loading ? 'Memverifikasi...' : isConfigured ? 'Masuk' : 'Masuk ke mode demo'}
               </Button>
             </form>

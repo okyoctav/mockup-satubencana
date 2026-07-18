@@ -124,7 +124,9 @@ export function AdminLayout({ children, title, subtitle, disableMainPadding = fa
       >
         <div className="flex h-16 items-center justify-between gap-3 border-b border-slate-200 px-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-sm font-semibold text-white">SB</div>
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-transparent">
+              <img src="/LogoSDB.png" alt="Logo SDB" className="h-8 w-8 object-contain" />
+            </div>
             {!sidebarCollapsed ? (
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">MDB</p>
@@ -155,7 +157,7 @@ export function AdminLayout({ children, title, subtitle, disableMainPadding = fa
                   href={item.href}
                   className={cn(
                     'flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition',
-                    isActive ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+                    isActive ? 'bg-[var(--brand-1)] text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
                     sidebarCollapsed && 'justify-center px-2'
                   )}
                 >
@@ -185,7 +187,7 @@ export function AdminLayout({ children, title, subtitle, disableMainPadding = fa
             sidebarCollapsed ? 'lg:left-20' : 'lg:left-72'
           )}
         >
-          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
@@ -208,11 +210,11 @@ export function AdminLayout({ children, title, subtitle, disableMainPadding = fa
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
             <div className="hidden md:block">
               <Input placeholder="search SDB" className="h-10 w-56 rounded-xl border-slate-200 bg-slate-50" />
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">
+            <div className="flex items-center gap-2 rounded-full bg-[var(--brand-1)]/10 px-3 py-1 text-sm text-[var(--brand-1)]">
               <BellIcon width={16} height={16} />
               <span className="font-semibold">3</span>
             </div>
