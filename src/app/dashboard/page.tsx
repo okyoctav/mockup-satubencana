@@ -5,7 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import AlertTicker from '@/components/dashboard/AlertTicker';
 import StatCards from '@/components/dashboard/StatCards';
-import DashboardMapK3 from '@/components/dashboard/DashboardMapK3';
+import DashboardMap from '@/components/dashboard/DashboardMap';
 import FilterPanel from '@/components/dashboard/FilterPanel';
 import ChartSection from '@/components/dashboard/ChartSection';
 import AnalysisModelsSection from '@/components/dashboard/AnalysisModelsSection';
@@ -203,9 +203,9 @@ export default function Page() {
               letterSpacing: 0.5,
             }}
           >
-            🗺 Model 3 — Peta Sebaran Bencana Nasional (Dukcapil Service)
+            🗺 Model 1 — Peta Sebaran Bencana Nasional (Meta/OSM Building Footprints)
           </div>
-          <DashboardMapK3 data={filteredData} flyTo={flyTo} theme={theme} />
+          <DashboardMap data={filteredData} flyTo={flyTo} theme={theme} />
         </div>
 
         <div
