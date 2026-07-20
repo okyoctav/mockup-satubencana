@@ -118,26 +118,44 @@ export default function Page() {
         <span style={{ fontSize: 10, color: theme === 'dark' ? '#94A3B8' : '#64748B' }}>
           Estimasi Kependudukan Real-time Terbencana
         </span>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 12 }}>
-          <a
-            href="/dashboard"
-            style={{
-              fontSize: 10, color: '#0EA5E9',
-              textDecoration: 'none', fontWeight: 600,
-            }}
-          >
-            Konsep 1 (Leaflet)
-          </a>
-          <span style={{ color: 'var(--border-subtle)', fontSize: 10 }}>|</span>
-          <a
-            href="/dashboard_k2"
-            style={{
-              fontSize: 10, color: '#0EA5E9',
-              textDecoration: 'none', fontWeight: 600,
-            }}
-          >
-            Konsep 2 (ArcGIS Native)
-          </a>
+        <div style={{ marginLeft: 'auto', position: 'relative' }}>
+          <details style={{ position: 'relative' }}>
+            <summary style={{
+              cursor: 'pointer',
+              fontSize: 10,
+              color: '#0EA5E9',
+              fontWeight: 700,
+              border: `1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.16)' : 'rgba(14,165,233,0.24)'}`,
+              borderRadius: 999,
+              padding: '6px 12px',
+              background: theme === 'dark' ? 'rgba(15,23,42,0.82)' : 'rgba(255,255,255,0.95)',
+              listStyle: 'none',
+            }}>
+              Dashboard Konsep ▾
+            </summary>
+            <div style={{
+              position: 'absolute',
+              right: 0,
+              top: 'calc(100% + 6px)',
+              width: 220,
+              background: theme === 'dark' ? 'rgba(15,23,42,0.98)' : 'rgba(255,255,255,0.98)',
+              border: `1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(14,165,233,0.18)'}`,
+              borderRadius: 12,
+              boxShadow: '0 16px 40px rgba(15,23,42,0.18)',
+              padding: '8px 0',
+              zIndex: 50,
+            }}>
+              <a href="/dashboard" style={{ display: 'block', padding: '8px 14px', fontSize: 10, color: theme === 'dark' ? '#F8FAFC' : '#0F172A', textDecoration: 'none' }}>
+                Konsep 1 (Leaflet)
+              </a>
+              <a href="/dashboard_k2" style={{ display: 'block', padding: '8px 14px', fontSize: 10, color: theme === 'dark' ? '#F8FAFC' : '#0F172A', textDecoration: 'none' }}>
+                Konsep 2 (ArcGIS Native)
+              </a>
+              <a href="/dashboard_k3" style={{ display: 'block', padding: '8px 14px', fontSize: 10, color: theme === 'dark' ? '#F8FAFC' : '#0F172A', textDecoration: 'none' }}>
+                Konsep 3 (Dukcapil Service)
+              </a>
+            </div>
+          </details>
         </div>
       </div>
 
