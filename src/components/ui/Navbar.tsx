@@ -102,39 +102,56 @@ export default function Navbar() {
             >
               Management Data
             </a>
-            <a
-              href="/dashboard"
-              className="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:scale-105"
-              style={{
-                background: 'linear-gradient(135deg, #35A7FF, #38618C)',
-                color: '#fff',
-                border: 'none'
-              }}
-            >
-              Dashboard
-            </a>
-            <a
-              href="/dashboard_k2"
-              className="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:scale-105"
-              style={{
-                background: 'linear-gradient(135deg, #0079C1, #00A9CE)',
-                color: '#fff',
-                border: 'none'
-              }}
-            >
-              Dashboard K2
-            </a>
-            <a
-              href="/dashboard_k3"
-              className="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:scale-105"
-              style={{
-                background: 'linear-gradient(135deg, #0EA5E9, #2563EB)',
-                color: '#fff',
-                border: 'none'
-              }}
-            >
-              Dashboard K3
-            </a>
+            <details style={{ position: 'relative' }}>
+              <summary
+                className="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:scale-105"
+                style={{
+                  background: 'linear-gradient(135deg, #35A7FF, #38618C)',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  listStyle: 'none',
+                }}
+              >
+                Dashboard ▾
+              </summary>
+              <div
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 'calc(100% + 8px)',
+                  minWidth: 180,
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-faint)',
+                  borderRadius: 14,
+                  boxShadow: '0 10px 30px rgba(15,23,42,0.16)',
+                  overflow: 'hidden',
+                  zIndex: 40,
+                }}
+              >
+                <a
+                  href="/dashboard"
+                  className="block text-sm transition-colors duration-200 hover:bg-slate-100"
+                  style={{ padding: '10px 16px', color: 'var(--text-secondary)', textDecoration: 'none', background: 'transparent' }}
+                >
+                  Dashboard
+                </a>
+                <a
+                  href="/dashboard_k2"
+                  className="block text-sm transition-colors duration-200 hover:bg-slate-100"
+                  style={{ padding: '10px 16px', color: 'var(--text-secondary)', textDecoration: 'none', background: 'transparent' }}
+                >
+                  Dashboard K2
+                </a>
+                <a
+                  href="/dashboard_k3"
+                  className="block text-sm transition-colors duration-200 hover:bg-slate-100"
+                  style={{ padding: '10px 16px', color: 'var(--text-secondary)', textDecoration: 'none', background: 'transparent' }}
+                >
+                  Dashboard K3
+                </a>
+              </div>
+            </details>
             <a
               href="https://inarisk.bnpb.go.id/databencana/webgis/"
               target="_blank"
@@ -205,30 +222,36 @@ export default function Navbar() {
               >
                 Management Data
               </a>
-              <a
-                href="/dashboard"
-                className="px-5 py-3 rounded-full text-sm font-semibold text-white text-center"
-                style={{ background: 'linear-gradient(135deg, #35A7FF, #38618C)' }}
-                onClick={() => setMenuOpen(false)}
-              >
-                Dashboard
-              </a>
-              <a
-                href="/dashboard_k2"
-                className="px-5 py-3 rounded-full text-sm font-semibold text-white text-center"
-                style={{ background: 'linear-gradient(135deg, #0079C1, #00A9CE)' }}
-                onClick={() => setMenuOpen(false)}
-              >
-                Dashboard K2
-              </a>
-              <a
-                href="/dashboard_k3"
-                className="px-5 py-3 rounded-full text-sm font-semibold text-white text-center"
-                style={{ background: 'linear-gradient(135deg, #0EA5E9, #2563EB)' }}
-                onClick={() => setMenuOpen(false)}
-              >
-                Dashboard K3
-              </a>
+              <div className="rounded-3xl border border-slate-200 bg-[var(--bg-card)] p-4 text-sm" style={{ borderColor: 'var(--border-faint)' }}>
+                <div className="mb-3 flex items-center justify-between text-sm font-semibold text-slate-900" style={{ color: 'var(--text-secondary)' }}>
+                  <span>Dashboard</span>
+                  <span className="text-xs text-slate-500">Pilih</span>
+                </div>
+                <a
+                  href="/dashboard"
+                  className="block rounded-2xl px-4 py-3 text-sm transition-colors duration-200 hover:bg-slate-100"
+                  style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Dashboard
+                </a>
+                <a
+                  href="/dashboard_k2"
+                  className="block rounded-2xl px-4 py-3 text-sm transition-colors duration-200 hover:bg-slate-100"
+                  style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Dashboard K2
+                </a>
+                <a
+                  href="/dashboard_k3"
+                  className="block rounded-2xl px-4 py-3 text-sm transition-colors duration-200 hover:bg-slate-100"
+                  style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Dashboard K3
+                </a>
+              </div>
               <a
                 href="https://inarisk.bnpb.go.id/databencana/webgis/"
                 target="_blank"
