@@ -247,7 +247,7 @@ export default function Page() {
         <div style={{ flex: 1, height: 1, background: 'var(--border-faint)' }} />
       </div>
 
-      <AnalysisModelsSection theme={theme} />
+      <AnalysisModelsSection />
     </div>
   );
 }
