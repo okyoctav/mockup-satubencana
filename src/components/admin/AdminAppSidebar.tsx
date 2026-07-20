@@ -26,6 +26,7 @@ const navItems = [
     items: [
       { title: "Dashboard", href: "/admin", icon: LayoutDashboardIcon, exact: true },
       { title: "Simulasi K3", href: "/admin/simulasi-k3", icon: MapPinIcon },
+      { title: "Simulasi K4", href: "/admin/simulasi-k4", icon: MapPinIcon },
       { title: "Statistik", href: "/admin/statistik", icon: BarChartIcon },
     ],
   },

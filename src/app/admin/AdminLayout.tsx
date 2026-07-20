@@ -94,6 +94,7 @@ export function AdminLayout({ children, title, subtitle, disableMainPadding = fa
   const menuItems = [
     { key: '/admin', label: 'Dashboard', href: '/admin', icon: <HomeIcon width={18} height={18} /> },
     { key: '/admin/simulasi-k3', label: 'Simulasi K3', href: '/admin/simulasi-k3', icon: <MapIcon width={18} height={18} /> },
+    { key: '/admin/simulasi-k4', label: 'Simulasi K4', href: '/admin/simulasi-k4', icon: <MapIcon width={18} height={18} /> },
     { key: '/management', label: 'Management Data', href: '/management', icon: <HomeSecondIcon width={18} height={18} /> },
     { key: '/admin/roles', label: 'Users & Roles', href: '/admin/roles', icon: <SearchUsersIcon width={18} height={18} /> },
   ];

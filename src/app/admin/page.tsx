@@ -23,6 +23,13 @@ export default function AdminPage() {
       meta: 'Peta fullscreen',
     },
     {
+      label: 'Simulasi K4',
+      desc: 'Buka peta interaktif fullscreen untuk simulasi K4 lokal dengan GeoJSON HexKab.',
+      href: '/admin/simulasi-k4',
+      accent: 'from-cyan-500 to-sky-500',
+      meta: 'GeoJSON lokal',
+    },
+    {
       label: 'Management Data',
       desc: 'Kelola daftar data, metadata, dan referensi geospasial.',
       href: '/management',
