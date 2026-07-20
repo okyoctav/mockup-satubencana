@@ -67,13 +67,81 @@ function parseNumber(value: unknown): number {
   return 0;
 }
 
-function getFeatureLayer(feature: GeoJsonFeature): L.Layer | null {
-  if (!feature || !feature.geometry) return null;
+function flattenLatLngs(latlngs: unknown): L.LatLng[] {
+  const result: L.LatLng[] = [];
+  const visit = (node: unknown): void => {
+    if (Array.isArray(node)) {
+      node.forEach(visit);
+      return;
+    }
+    if (node && typeof node === 'object' && 'lat' in node && 'lng' in node) {
+      const maybeLatLng = node as { lat?: unknown; lng?: unknown };
+      if (typeof maybeLatLng.lat === 'number' && typeof maybeLatLng.lng === 'number') {
+        result.push(L.latLng(maybeLatLng.lat, maybeLatLng.lng));
+      }
+    }
+  };
+  visit(latlngs);
+  return result;
+}
+
+function getPolygonLayersFromFeature(feature: GeoJsonFeature): L.Polygon[] {
+  if (!feature || !feature.geometry) return [];
   try {
-    return L.geoJSON(feature, { style: hexStyle });
+    const geoLayer = L.geoJSON(feature);
+    const polygons: L.Polygon[] = [];
+    geoLayer.eachLayer((subLayer) => {
+      if (subLayer instanceof L.Polygon) {
+        polygons.push(subLayer);
+      }
+    });
+    return polygons;
   } catch {
-    return null;
+    return [];
   }
+}
+
+function anyPointInsideLayer(layer: L.Layer, points: L.LatLng[]): boolean {
+  return points.some((point) => isPointInsideLayer(layer, point));
+}
+
+function doesPolygonLayerIntersectDraw(polygon: L.Polygon, drawLayer: L.Layer): boolean {
+  const polygonPoints = flattenLatLngs(polygon.getLatLngs());
+  if (polygonPoints.length > 0 && anyPointInsideLayer(drawLayer, polygonPoints)) {
+    return true;
+  }
+
+  if (drawLayer instanceof L.Polygon) {
+    const drawPoints = flattenLatLngs(drawLayer.getLatLngs());
+    if (drawPoints.length > 0 && anyPointInsideLayer(polygon, drawPoints)) {
+      return true;
+    }
+  }
+
+  if (drawLayer instanceof L.Circle) {
+    const bounds = drawLayer.getBounds();
+    if (polygon.getBounds().intersects(bounds)) {
+      const circleCenter = drawLayer.getLatLng();
+      if (anyPointInsideLayer(polygon, [circleCenter])) {
+        return true;
+      }
+      if (anyPointInsideLayer(drawLayer, polygonPoints)) {
+        return true;
+      }
+    }
+  }
+
+  const drawBounds = (drawLayer as L.Layer & { getBounds?: () => L.LatLngBounds }).getBounds?.();
+  if (drawBounds) {
+    return polygon.getBounds().intersects(drawBounds);
+  }
+
+  return false;
+}
+
+function isFeatureSelected(feature: GeoJsonFeature, drawLayer: L.Layer): boolean {
+  const polygonLayers = getPolygonLayersFromFeature(feature);
+  return polygonLayers.some((polygon) => doesPolygonLayerIntersectDraw(polygon, drawLayer));
 }
 
 function isPointInsideLayer(layer: L.Layer, point: L.LatLng): boolean {
@@ -306,19 +374,7 @@ export default function AdminLeafletK4({ flyTo, theme }: Props) {
 
       let matchingFeatures: GeoJsonFeature[] = [];
       try {
-        matchingFeatures = hexFeatures.filter((feature) => {
-          const geoLayer = getFeatureLayer(feature);
-          if (!geoLayer || !(geoLayer instanceof L.Polygon)) return false;
-          const polygon = geoLayer;
-          if (layer instanceof L.Circle) {
-            return polygon.getBounds().intersects(layer.getBounds());
-          }
-          if (layer instanceof L.Polygon) {
-            const points = (polygon.getLatLngs()?.[0] ?? []) as L.LatLng[];
-            return points.some((point) => isPointInsideLayer(layer, point));
-          }
-          return polygon.getBounds().intersects((layer as L.Layer & { getBounds?: () => L.LatLngBounds }).getBounds?.() ?? L.latLngBounds([]));
-        });
+        matchingFeatures = hexFeatures.filter((feature) => isFeatureSelected(feature, layer));
       } catch (err) {
         console.error('Error selecting K4 hex features:', err);
       }
