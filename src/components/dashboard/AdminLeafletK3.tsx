@@ -420,7 +420,10 @@ export default function AdminLeafletK3({ data, flyTo, theme }: Props) {
   const [showBmkg, setShowBmkg] = useState(true);
   // Default: do not show local bencana.json on admin map unless user enables it
   const [showBencanaData, setShowBencanaData] = useState(false);
+  const [showHexKabLayer, setShowHexKabLayer] = useState(true);
   const [bmkgLastUpdate, setBmkgLastUpdate] = useState<Date | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const hexKabLayerRef = useRef<any>(null);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [mapserverLegends, setMapserverLegends] = useState<Record<string, MapServerLegendItem[]>>({});
@@ -807,6 +810,59 @@ export default function AdminLeafletK3({ data, flyTo, theme }: Props) {
       }
     });
   }, [showBencanaData, mapReady]);
+
+  useEffect(() => {
+    const L = leafletRef.current;
+    const map = mapRef.current;
+    if (!L || !map) return;
+
+    if (!showHexKabLayer) {
+      if (hexKabLayerRef.current && map.hasLayer(hexKabLayerRef.current)) {
+        map.removeLayer(hexKabLayerRef.current);
+      }
+      return;
+    }
+
+    if (hexKabLayerRef.current) {
+      if (!map.hasLayer(hexKabLayerRef.current)) {
+        hexKabLayerRef.current.addTo(map);
+      }
+      return;
+    }
+
+    fetch('/geojson/gj_hexkab_reso9v1.geojson')
+      .then((response) => response.json())
+      .then((geojson) => {
+        const layer = L.geoJSON(geojson, {
+          style: () => ({
+            color: '#165176',
+            weight: 1.4,
+            opacity: 0.9,
+            fillColor: '#1a8284',
+            fillOpacity: 0.12,
+          }),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onEachFeature: (feature: any, layer: any) => {
+            const props = feature.properties || {};
+            const label = props.nama || props.Name || props.NAMA || props.KABKOT || 'Hex Kabupaten';
+            if (label) {
+              layer.bindTooltip(`${label}`, { sticky: true, direction: 'center', className: 'hexkab-tooltip' });
+            }
+          },
+        });
+        layer.addTo(map);
+        hexKabLayerRef.current = layer;
+      })
+      .catch((error) => {
+        console.error('Gagal memuat GeoJSON layer:', error);
+      });
+
+    return () => {
+      if (hexKabLayerRef.current && map.hasLayer(hexKabLayerRef.current)) {
+        map.removeLayer(hexKabLayerRef.current);
+      }
+    };
+  }, [mapReady, showHexKabLayer]);
 
   // Draw tools
   useEffect(() => {
@@ -1426,6 +1482,29 @@ export default function AdminLeafletK3({ data, flyTo, theme }: Props) {
               pointerEvents: 'none',
             }}>
               {data.length} Kejadian
+            </div>
+          )}
+        </div>
+
+        {/* HexKab GeoJSON layer */}
+        <div style={{ position: 'relative' }}>
+          <button
+            style={toolBtn(showHexKabLayer)}
+            onClick={() => setShowHexKabLayer((v) => !v)}
+            title={showHexKabLayer ? 'Sembunyikan layer GeoJSON HexKab' : 'Tampilkan layer GeoJSON HexKab'}
+          >
+            <Map size={16} />
+          </button>
+          {showHexKabLayer && (
+            <div style={{
+              position: 'absolute', top: 0, right: 40,
+              background: '#165176', color: '#fff',
+              borderRadius: 10, padding: '2px 6px',
+              fontSize: 9, fontWeight: 700,
+              whiteSpace: 'nowrap', boxShadow: '0 2px 6px rgba(0,0,0,0.35)',
+              pointerEvents: 'none',
+            }}>
+              GeoJSON HexKab Aktif
             </div>
           )}
         </div>

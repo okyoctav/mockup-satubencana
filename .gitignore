@@ -34,3 +34,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ignore very large geojson/csv files that are not part of the deploy
+/public/geojson/gj_hexkab_reso9.geojson
+/public/geojson/agg_trp3b_reso9.csv
