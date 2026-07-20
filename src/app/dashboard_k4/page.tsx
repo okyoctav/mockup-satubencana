@@ -5,7 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import AlertTicker from '@/components/dashboard/AlertTicker';
 import StatCards from '@/components/dashboard/StatCards';
-import DashboardMapK3 from '@/components/dashboard/DashboardMapK3';
+import DashboardMapK4 from '@/components/dashboard/DashboardMapK4';
 import FilterPanel from '@/components/dashboard/FilterPanel';
 import ChartSection from '@/components/dashboard/ChartSection';
 import AnalysisModelsSection from '@/components/dashboard/AnalysisModelsSection';
@@ -204,9 +204,9 @@ export default function DashboardK4Page() {
               letterSpacing: 0.5,
             }}
           >
-            🗺 Model 4 — Peta Sebaran Bencana Nasional (Dukcapil Service)
+            🗺 Model 4 — Peta KJS GeoJSON Lokal
           </div>
-          <DashboardMapK3 data={filteredData} flyTo={flyTo} theme={theme} />
+          <DashboardMapK4 flyTo={flyTo} theme={theme} />
         </div>
 
         <div

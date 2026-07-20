@@ -150,6 +150,13 @@ export default function Navbar() {
                 >
                   Dashboard K3
                 </a>
+                <a
+                  href="/dashboard_k4"
+                  className="block text-sm transition-colors duration-200 hover:bg-slate-100"
+                  style={{ padding: '10px 16px', color: 'var(--text-secondary)', textDecoration: 'none', background: 'transparent' }}
+                >
+                  Dashboard K4
+                </a>
               </div>
             </details>
             <a
@@ -250,6 +257,14 @@ export default function Navbar() {
                   onClick={() => setMenuOpen(false)}
                 >
                   Dashboard K3
+                </a>
+                <a
+                  href="/dashboard_k4"
+                  className="block rounded-2xl px-4 py-3 text-sm transition-colors duration-200 hover:bg-slate-100"
+                  style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Dashboard K4
                 </a>
               </div>
               <a
