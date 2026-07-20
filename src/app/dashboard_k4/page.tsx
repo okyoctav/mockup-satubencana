@@ -206,7 +206,7 @@ export default function DashboardK4Page() {
           >
             🗺 Model 4 — Peta KJS GeoJSON Lokal
           </div>
-          <DashboardMapK4 flyTo={flyTo} theme={theme} />
+          <DashboardMapK4 data={filteredData} flyTo={flyTo} theme={theme} />
         </div>
 
         <div
