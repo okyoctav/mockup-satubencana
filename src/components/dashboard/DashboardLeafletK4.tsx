@@ -1166,15 +1166,15 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
           </button>
           {activePanel === 'layers' && (
             <div style={panel}>
-              <div style={pHead}>Layer Peta <span style={{ fontSize: 9, fontWeight: 400, color: panelMuted }}>© BNPB · BIG</span></div>
+              <div style={pHead}>Layer Peta <span style={{ fontSize: 9, fontWeight: 400, color: panelMuted }}>© BNPB · BIG · BMKG · BAPPENAS</span></div>
               {/* Group by source */}
-              {['BIG', 'BNPB', 'KEMENDAGRI'].map((grp) => {
+              {['BAPPENAS', 'BIG', 'BNPB', 'BMKG', 'KEMENDAGRI'].map((grp) => {
                 const grpLayers = BNPB_LAYERS.filter((l) => l.group === grp);
-                const grpColor: Record<string, string> = { BIG: '#22C55E', BNPB: '#35a7ff', KEMENDAGRI: '#3B82F6' };
+                const grpColor: Record<string, string> = { BAPPENAS: '#1aa7ed', BIG: '#22C55E', BNPB: '#35a7ff', BMKG: '#8B5CF6', KEMENDAGRI: '#3B82F6' };
                 return (
                   <div key={grp}>
                     <div style={{ padding: '5px 12px 3px', fontSize: 9, fontWeight: 700, color: grpColor[grp] ?? panelMuted, textTransform: 'uppercase', letterSpacing: 0.8 }}>
-                      {grp === 'BIG' ? '🌿 BIG — Geospasial' : grp === 'BNPB' ? '⚠️ BNPB — InARISK' : '👥 KEMENDAGRI — Dukcapil'}
+                      {grp === 'BIG' ? '🌿 BIG — Geospasial' : grp === 'BNPB' ? '⚠️ BNPB — InARISK' : grp === 'BMKG' ? '📡 BMKG — Meteorologi' : grp === 'BAPPENAS' ? '🏛️ BAPPENAS — KJS' : '👥 KEMENDAGRI — Dukcapil'}
                     </div>
                     {grpLayers.map((layer) => {
                       const isOn = activeOverlays.includes(layer.id);
