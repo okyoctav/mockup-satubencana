@@ -252,14 +252,14 @@ function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, is
   return new ArcLayer({ opacity, attribution: '© BIG / BNPB', tileSize: 256 });
 }
 
-type GeoJsonFeature = GeoJSON.Feature<GeoJSON.Geometry, Record<string, unknown>>;
-
 type ImpactDataK4 = {
   loading: boolean;
   totalLakiLaki: number;
   totalPerempuan: number;
   totalLansia: number;
   totalBalita: number;
+  totalPd1: number;
+  totalPd2: number;
   totalKeluarga: number;
   area: string;
   selectedCount: number;
@@ -336,20 +336,53 @@ function layerToEsriPolygon(drawLayer: L.Layer): { geometry: unknown; geometryTy
   return null;
 }
 
-async function queryHexbinRes9Features(drawLayer: L.Layer): Promise<GeoJsonFeature[]> {
+type HexbinStats = {
+  countHex: number;
+  totalLakiLaki: number;
+  totalPerempuan: number;
+  totalLansia: number;
+  totalBalita: number;
+  totalPd1: number;
+  totalPd2: number;
+  totalKeluarga: number;
+};
+
+async function queryHexbinRes9Stats(drawLayer: L.Layer): Promise<HexbinStats> {
   const queryGeometry = layerToEsriPolygon(drawLayer);
-  if (!queryGeometry) return [];
+  if (!queryGeometry) {
+    return {
+      countHex: 0,
+      totalLakiLaki: 0,
+      totalPerempuan: 0,
+      totalLansia: 0,
+      totalBalita: 0,
+      totalPd1: 0,
+      totalPd2: 0,
+      totalKeluarga: 0,
+    };
+  }
 
   const queryUrl = HEXBIN_RES9_URL.replace(/\/MapServer\/0$/, '/query');
+  const outStatistics = JSON.stringify([
+    { statisticType: 'count', onStatisticField: 'objectid', outStatisticFieldName: 'cnt_hex' },
+    { statisticType: 'sum', onStatisticField: 'jml_lakila', outStatisticFieldName: 'sum_jml_lakila' },
+    { statisticType: 'sum', onStatisticField: 'jml_peremp', outStatisticFieldName: 'sum_jml_peremp' },
+    { statisticType: 'sum', onStatisticField: 'jml_lansia', outStatisticFieldName: 'sum_jml_lansia' },
+    { statisticType: 'sum', onStatisticField: 'jml_balita', outStatisticFieldName: 'sum_jml_balita' },
+    { statisticType: 'sum', onStatisticField: 'jml_pd1', outStatisticFieldName: 'sum_jml_pd1' },
+    { statisticType: 'sum', onStatisticField: 'jml_pd2', outStatisticFieldName: 'sum_jml_pd2' },
+    { statisticType: 'sum', onStatisticField: 'jml_klg', outStatisticFieldName: 'sum_jml_klg' },
+  ]);
+
   const params = new URLSearchParams({
-    f: 'geojson',
+    f: 'json',
     geometry: JSON.stringify(queryGeometry.geometry),
     geometryType: queryGeometry.geometryType,
     spatialRel: 'esriSpatialRelIntersects',
     inSR: '4326',
     outSR: '4326',
-    outFields: '*',
-    returnGeometry: 'true',
+    returnGeometry: 'false',
+    outStatistics,
     where: '1=1',
   });
 
@@ -359,8 +392,18 @@ async function queryHexbinRes9Features(drawLayer: L.Layer): Promise<GeoJsonFeatu
     body: params.toString(),
   });
   if (!response.ok) throw new Error(`Query hexbin_res9 failed: ${response.status}`);
-  const featureCollection = await response.json();
-  return (featureCollection.features ?? []) as GeoJsonFeature[];
+  const json = await response.json();
+  const attrs = (json.features?.[0]?.attributes ?? {}) as Record<string, unknown>;
+  return {
+    countHex: parseNumber(attrs.cnt_hex),
+    totalLakiLaki: parseNumber(attrs.sum_jml_lakila),
+    totalPerempuan: parseNumber(attrs.sum_jml_peremp),
+    totalLansia: parseNumber(attrs.sum_jml_lansia),
+    totalBalita: parseNumber(attrs.sum_jml_balita),
+    totalPd1: parseNumber(attrs.sum_jml_pd1),
+    totalPd2: parseNumber(attrs.sum_jml_pd2),
+    totalKeluarga: parseNumber(attrs.sum_jml_klg),
+  };
 }
 
 function buildImpactHtmlK4(data: ImpactDataK4): string {
@@ -383,6 +426,8 @@ function buildImpactHtmlK4(data: ImpactDataK4): string {
       `<tr><td style="font-size:11px;color:#475569">👩 Perempuan</td><td style="text-align:right;font-size:13px;font-weight:700;color:#EC4899">${data.totalPerempuan.toLocaleString('id')}</td></tr>` +
       `<tr><td style="font-size:11px;color:#475569">👴 Lansia</td><td style="text-align:right;font-size:13px;font-weight:700;color:#F59E0B">${data.totalLansia.toLocaleString('id')}</td></tr>` +
       `<tr><td style="font-size:11px;color:#475569">🧒 Balita</td><td style="text-align:right;font-size:13px;font-weight:700;color:#22C55E">${data.totalBalita.toLocaleString('id')}</td></tr>` +
+      `<tr><td style="font-size:11px;color:#475569">🧾 PD1</td><td style="text-align:right;font-size:13px;font-weight:700;color:#06B6D4">${data.totalPd1.toLocaleString('id')}</td></tr>` +
+      `<tr><td style="font-size:11px;color:#475569">📊 PD2</td><td style="text-align:right;font-size:13px;font-weight:700;color:#8B5CF6">${data.totalPd2.toLocaleString('id')}</td></tr>` +
       `<tr><td style="font-size:11px;color:#475569">🏠 Keluarga</td><td style="text-align:right;font-size:13px;font-weight:700;color:#0F172A">${data.totalKeluarga.toLocaleString('id')}</td></tr>` +
     `</table>` +
   `</div>`;
@@ -951,7 +996,18 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
         const popupCenter = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLng();
         const popup = L.popup({ maxWidth: 360, minWidth: 300, className: 'impact-popup', closeButton: true, autoClose: false })
           .setLatLng(popupCenter)
-          .setContent(buildImpactHtmlK4({ loading: true, totalLakiLaki: 0, totalPerempuan: 0, totalLansia: 0, totalBalita: 0, totalKeluarga: 0, area, selectedCount: 0 }))
+          .setContent(buildImpactHtmlK4({
+            loading: true,
+            totalLakiLaki: 0,
+            totalPerempuan: 0,
+            totalLansia: 0,
+            totalBalita: 0,
+            totalPd1: 0,
+            totalPd2: 0,
+            totalKeluarga: 0,
+            area,
+            selectedCount: 0,
+          }))
           .openOn(map);
         popupRef.current = popup;
         popup.on('remove', () => {
@@ -966,36 +1022,34 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
           layer.openPopup();
         });
 
-        let hexbinFeatures: GeoJsonFeature[] = [];
+        let stats: HexbinStats = {
+          countHex: 0,
+          totalLakiLaki: 0,
+          totalPerempuan: 0,
+          totalLansia: 0,
+          totalBalita: 0,
+          totalPd1: 0,
+          totalPd2: 0,
+          totalKeluarga: 0,
+        };
         try {
-          hexbinFeatures = await queryHexbinRes9Features(layer);
+          stats = await queryHexbinRes9Stats(layer);
         } catch (error) {
           console.error('Gagal query hexbin_res9:', error);
         }
 
-        const totals = hexbinFeatures.reduce(
-          (sum, feature) => {
-            const props = feature.properties || {};
-            sum.totalLakiLaki += parseNumber(props.jml_lakila);
-            sum.totalPerempuan += parseNumber(props.jml_peremp);
-            sum.totalLansia += parseNumber(props.jml_lansia);
-            sum.totalBalita += parseNumber(props.jml_balita);
-            sum.totalKeluarga += parseNumber(props.jml_klg);
-            return sum;
-          },
-          { totalLakiLaki: 0, totalPerempuan: 0, totalLansia: 0, totalBalita: 0, totalKeluarga: 0 }
-        );
-
         if (popupRef.current) {
           popupRef.current.setContent(buildImpactHtmlK4({
             loading: false,
-            totalLakiLaki: totals.totalLakiLaki,
-            totalPerempuan: totals.totalPerempuan,
-            totalLansia: totals.totalLansia,
-            totalBalita: totals.totalBalita,
-            totalKeluarga: totals.totalKeluarga,
+            totalLakiLaki: stats.totalLakiLaki,
+            totalPerempuan: stats.totalPerempuan,
+            totalLansia: stats.totalLansia,
+            totalBalita: stats.totalBalita,
+            totalPd1: stats.totalPd1,
+            totalPd2: stats.totalPd2,
+            totalKeluarga: stats.totalKeluarga,
             area,
-            selectedCount: hexbinFeatures.length,
+            selectedCount: stats.countHex,
           }));
         }
       });
