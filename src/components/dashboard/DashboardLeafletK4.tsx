@@ -117,10 +117,11 @@ const BASEMAPS = [
 ];
 
 const BNPB_BASE = 'https://gis.bnpb.go.id/server/rest/services/inarisk';
+const HEXBIN_RES9_URL = 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/hexbin_agg9/MapServer/0';
 
 const BNPB_LAYERS: BnpbLayer[] = [
   // BIG — Badan Informasi Geospasial
-  { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/hexbin_agg9/MapServer/0', type: 'MapServer', group: 'BAPPENAS' },
+  { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
   { id: 'big_rbi_sulawesi_lot1',       label: 'RBI Sulawesi 2024 Lot 1',      color: '#A855F7', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI_5K_Sulawesi_2024_Lot_1_Jul/VectorTileServer',         type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_bangunan_fasum_sulawesi', label: 'Bangunan Fasum Sulawesi 2024', color: '#F59E0B', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_BANGUNAN_FASUM_SULAWESI_2024/VectorTileServer', type: 'VectorTileServer', group: 'BIG' },
@@ -251,38 +252,6 @@ function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, is
   return new ArcLayer({ opacity, attribution: '© BIG / BNPB', tileSize: 256 });
 }
 
-function pointInPolygon(point: L.LatLng, polygon: L.LatLng[]): boolean {
-  let inside = false;
-  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-    const xi = polygon[i].lng;
-    const yi = polygon[i].lat;
-    const xj = polygon[j].lng;
-    const yj = polygon[j].lat;
-    const intersect = ((yi > point.lat) !== (yj > point.lat))
-      && (point.lng < ((xj - xi) * (point.lat - yi)) / (yj - yi) + xi);
-    if (intersect) inside = !inside;
-  }
-  return inside;
-}
-
-function isPointInsideLayer(layer: L.Layer | { getBounds?: () => L.LatLngBounds } | null, point: L.LatLng): boolean {
-  if (!layer || !point) return false;
-  if (layer instanceof L.Circle) {
-    return layer.getLatLng().distanceTo(point) <= layer.getRadius();
-  }
-  if (layer instanceof L.Polygon) {
-    // Polygon and rectangle both inherit from L.Polygon.
-    const latlngs = layer.getLatLngs();
-    if (!Array.isArray(latlngs) || !latlngs[0]) return false;
-    const ring = Array.isArray(latlngs[0]) ? latlngs[0] as L.LatLng[] : latlngs as L.LatLng[];
-    return pointInPolygon(point, ring as L.LatLng[]);
-  }
-  if ('getBounds' in layer && typeof layer.getBounds === 'function') {
-    return layer.getBounds().contains(point);
-  }
-  return false;
-}
-
 type GeoJsonFeature = GeoJSON.Feature<GeoJSON.Geometry, Record<string, unknown>>;
 
 type ImpactDataK4 = {
@@ -323,70 +292,82 @@ function flattenLatLngs(latlngs: unknown): L.LatLng[] {
   return result;
 }
 
-function getPolygonLayersFromFeature(feature: GeoJsonFeature): L.Polygon[] {
-  if (!feature || !feature.geometry) return [];
-  try {
-    const geoLayer = L.geoJSON(feature);
-    const polygons: L.Polygon[] = [];
-    geoLayer.eachLayer((subLayer) => {
-      if (subLayer instanceof L.Polygon) {
-        polygons.push(subLayer);
-      }
-    });
-    return polygons;
-  } catch {
-    return [];
+function circleToPolygonRing(circle: L.Circle, segments = 36): [number, number][][] {
+  const center = circle.getLatLng();
+  const radius = circle.getRadius();
+  const points: [number, number][] = [];
+  const latRadians = (center.lat * Math.PI) / 180;
+  const metersPerDegreeLat = 111320;
+  const metersPerDegreeLng = 111320 * Math.cos(latRadians);
+
+  for (let i = 0; i <= segments; i += 1) {
+    const angle = (Math.PI * 2 * i) / segments;
+    const dx = Math.cos(angle) * radius;
+    const dy = Math.sin(angle) * radius;
+    const lat = center.lat + dy / metersPerDegreeLat;
+    const lng = center.lng + dx / metersPerDegreeLng;
+    points.push([lng, lat]);
   }
+
+  return [points];
 }
 
-function anyPointInsideLayer(layer: L.Layer, points: L.LatLng[]): boolean {
-  return points.some((point) => isPointInsideLayer(layer, point));
-}
-
-function doesPolygonLayerIntersectDraw(polygon: L.Polygon, drawLayer: L.Layer): boolean {
-  const polygonPoints = flattenLatLngs(polygon.getLatLngs());
-  if (polygonPoints.length > 0 && anyPointInsideLayer(drawLayer, polygonPoints)) {
-    return true;
+function layerToEsriPolygon(drawLayer: L.Layer): { geometry: unknown; geometryType: string } | null {
+  if (drawLayer instanceof L.Circle) {
+    return {
+      geometry: { rings: circleToPolygonRing(drawLayer), spatialReference: { wkid: 4326 } },
+      geometryType: 'esriGeometryPolygon',
+    };
   }
 
   if (drawLayer instanceof L.Polygon) {
-    const drawPoints = flattenLatLngs(drawLayer.getLatLngs());
-    if (drawPoints.length > 0 && anyPointInsideLayer(polygon, drawPoints)) {
-      return true;
+    const latlngs = flattenLatLngs((drawLayer as L.Polygon).getLatLngs());
+    if (latlngs.length < 3) return null;
+    const ring = latlngs.map((latlng) => [latlng.lng, latlng.lat] as [number, number]);
+    if (ring[0][0] !== ring[ring.length - 1][0] || ring[0][1] !== ring[ring.length - 1][1]) {
+      ring.push(ring[0]);
     }
+    return {
+      geometry: { rings: [ring], spatialReference: { wkid: 4326 } },
+      geometryType: 'esriGeometryPolygon',
+    };
   }
 
-  if (drawLayer instanceof L.Circle) {
-    const bounds = drawLayer.getBounds();
-    if (polygon.getBounds().intersects(bounds)) {
-      const circleCenter = drawLayer.getLatLng();
-      if (anyPointInsideLayer(polygon, [circleCenter])) {
-        return true;
-      }
-      if (anyPointInsideLayer(drawLayer, polygonPoints)) {
-        return true;
-      }
-    }
-  }
-
-  const drawBounds = (drawLayer as L.Layer & { getBounds?: () => L.LatLngBounds }).getBounds?.();
-  if (drawBounds) {
-    return polygon.getBounds().intersects(drawBounds);
-  }
-
-  return false;
+  return null;
 }
 
-function isFeatureSelected(feature: GeoJsonFeature, drawLayer: L.Layer): boolean {
-  const polygonLayers = getPolygonLayersFromFeature(feature);
-  return polygonLayers.some((polygon) => doesPolygonLayerIntersectDraw(polygon, drawLayer));
+async function queryHexbinRes9Features(drawLayer: L.Layer): Promise<GeoJsonFeature[]> {
+  const queryGeometry = layerToEsriPolygon(drawLayer);
+  if (!queryGeometry) return [];
+
+  const queryUrl = HEXBIN_RES9_URL.replace(/\/MapServer\/0$/, '/query');
+  const params = new URLSearchParams({
+    f: 'geojson',
+    geometry: JSON.stringify(queryGeometry.geometry),
+    geometryType: queryGeometry.geometryType,
+    spatialRel: 'esriSpatialRelIntersects',
+    inSR: '4326',
+    outSR: '4326',
+    outFields: '*',
+    returnGeometry: 'true',
+    where: '1=1',
+  });
+
+  const response = await fetch(queryUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString(),
+  });
+  if (!response.ok) throw new Error(`Query hexbin_res9 failed: ${response.status}`);
+  const featureCollection = await response.json();
+  return (featureCollection.features ?? []) as GeoJsonFeature[];
 }
 
 function buildImpactHtmlK4(data: ImpactDataK4): string {
   if (data.loading) {
     return `<div style="width:280px;font-family:system-ui,sans-serif;color:#0F172A;padding:14px;">` +
       `<div style="font-size:11px;font-weight:700;color:#0EA5E9;letter-spacing:.8px;margin-bottom:8px">📐 Simulasi K4</div>` +
-      `<div style="font-size:12px;color:#64748B">Menghitung data dari GeoJSON lokal...</div>` +
+      `<div style="font-size:12px;color:#64748B">Menghitung data dari layer BAPPENAS (hexbin_res9)...</div>` +
       `</div>`;
   }
 
@@ -446,7 +427,6 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
   const [bmkgData, setBmkgData] = useState<BmkgGempa[]>([]);
   const [showBmkg, setShowBmkg] = useState(true);
   const [showKjsLayer, setShowKjsLayer] = useState(true);
-  const [kjsFeatures, setKjsFeatures] = useState<GeoJsonFeature[]>([]);
   const [showBencanaData, setShowBencanaData] = useState(false);
   const [bmkgLastUpdate, setBmkgLastUpdate] = useState<Date | null>(null);
   const [mapReady, setMapReady] = useState(false);
@@ -875,7 +855,6 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
         });
         layer.addTo(map);
         kjsLayerRef.current = layer;
-        setKjsFeatures((geojson.features ?? []) as GeoJsonFeature[]);
       })
       .catch((err) => {
         console.error('Gagal memuat layer GeoJSON KJS:', err);
@@ -928,7 +907,7 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
       activeDrawRef.current = handler;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      map.once('draw:created', (e: any) => {
+      map.once('draw:created', async (e: any) => {
         const layer = e.layer;
         drawLayerRef.current.addLayer(layer);
         setActiveDraw(null);
@@ -987,15 +966,21 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
           layer.openPopup();
         });
 
-        const matchingFeatures = kjsFeatures.filter((feature) => isFeatureSelected(feature, layer));
-        const totals = matchingFeatures.reduce(
+        let hexbinFeatures: GeoJsonFeature[] = [];
+        try {
+          hexbinFeatures = await queryHexbinRes9Features(layer);
+        } catch (error) {
+          console.error('Gagal query hexbin_res9:', error);
+        }
+
+        const totals = hexbinFeatures.reduce(
           (sum, feature) => {
             const props = feature.properties || {};
-            sum.totalLakiLaki += parseNumber(props.agg_trp3b_reso9_jml_lakilaki);
-            sum.totalPerempuan += parseNumber(props.agg_trp3b_reso9_jml_perempuan);
-            sum.totalLansia += parseNumber(props.agg_trp3b_reso9_jml_lansia);
-            sum.totalBalita += parseNumber(props.agg_trp3b_reso9_jml_balita);
-            sum.totalKeluarga += parseNumber(props.agg_trp3b_reso9_jml_klg);
+            sum.totalLakiLaki += parseNumber(props.jml_lakila);
+            sum.totalPerempuan += parseNumber(props.jml_peremp);
+            sum.totalLansia += parseNumber(props.jml_lansia);
+            sum.totalBalita += parseNumber(props.jml_balita);
+            sum.totalKeluarga += parseNumber(props.jml_klg);
             return sum;
           },
           { totalLakiLaki: 0, totalPerempuan: 0, totalLansia: 0, totalBalita: 0, totalKeluarga: 0 }
@@ -1010,7 +995,7 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
             totalBalita: totals.totalBalita,
             totalKeluarga: totals.totalKeluarga,
             area,
-            selectedCount: matchingFeatures.length,
+            selectedCount: hexbinFeatures.length,
           }));
         }
       });
