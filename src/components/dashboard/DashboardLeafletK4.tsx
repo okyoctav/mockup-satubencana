@@ -128,7 +128,7 @@ const BNPB_LAYERS: BnpbLayer[] = [
   // BNPB InARISK
   { id: 'banjir_wms', label: 'Banjir WMS', color: '#0EA5E9', emoji: '🌊', url: 'https://inarisk1.bnpb.go.id:8443/geoserver/raster/wms', type: 'WMS', group: 'BNPB', layersParam: 'raster:INDEKS_BAHAYA_BANJIR1' },
   { id: 'longsor_wms', label: 'Longsor WMS', color: '#F97316', emoji: '⛰️', url: 'https://inarisk1.bnpb.go.id:8443/geoserver/raster/wms', type: 'WMS', group: 'BNPB', layersParam: 'raster:INDEKS_BAHAYA_TANAHLONGSOR1' },
-  { id: 'cuacaekstrim_wms', label: 'Cuaca Ekstrim WMS', color: '#F97316', emoji: '⛰️', url: 'https://inarisk1.bnpb.go.id:8443/geoserver/raster/wms', type: 'WMS', group: 'BNPB', layersParam: 'raster:INDEKS_BAHAYA_CUACAEKSTRIM' },
+  { id: 'cuacaekstrim_wms', label: 'Cuaca Ekstrim WMS', color: '#F97316', emoji: '⛰️', url: 'https://inarisk1.bnpb.go.id:8443/geoserver/raster/wms', type: 'WMS', group: 'BNPB', layersParam: 'raster:INDEKS_BAHAYA_CUACAEKSTRIM1' },
   // NEW
   { id: 'cuaca_ekstrim_img', label: 'Cuaca Ekstrim',      color: '#06B6D4', emoji: '🌪️', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/layer_bahaya_cuaca_ekstrim/ImageServer', type: 'ImageServer', group: 'BNPB' },
   { id: 'banjir',        label: 'Bahaya Banjir',      color: '#0EA5E9', emoji: '🌊', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/INDEKS_BAHAYA_BANJIR/ImageServer', type: 'ImageServer',group: 'BNPB' },
