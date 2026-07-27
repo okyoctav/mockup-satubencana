@@ -1415,6 +1415,25 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
           )}
         </div>
       </div>
+
+      <div
+        style={{
+          position: 'absolute', left: 0, right: 0, bottom: 12,
+          zIndex: 1000,
+          display: 'flex', justifyContent: 'center', gap: 12,
+          pointerEvents: 'none',
+        }}
+      >
+        {['/logo/logo_bnpb.png', '/logo/logo_bmkg.png', '/logo/logo_big.png', '/logo/logo_brin.png', '/logo/logo_kemendagri.png'].map((src) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={src}
+            src={src}
+            alt={src.split('/').pop()?.replace('logo_', '').replace('.png', '').toUpperCase()}
+            style={{ width: 20, height: 20, objectFit: 'contain', opacity: 0.92 }}
+          />
+        ))}
+      </div>
     </div>
   );
 }

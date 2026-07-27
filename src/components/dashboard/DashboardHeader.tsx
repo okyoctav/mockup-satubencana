@@ -35,8 +35,8 @@ export default function DashboardHeader({ onSearch }: Props) {
       {/* Brand */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
         <img
-          src="/logo bappenas.png"
-          alt="Logo Bappenas"
+          src="/logo/logo_mdb.png"
+          alt="Logo MDB"
           style={{ height: 40, width: 'auto', objectFit: 'contain', flexShrink: 0 }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
