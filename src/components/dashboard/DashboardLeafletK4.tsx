@@ -312,6 +312,38 @@ function circleToPolygonRing(circle: L.Circle, segments = 36): [number, number][
   return [points];
 }
 
+function ensureClosedRing(ring: [number, number][]): [number, number][] {
+  if (ring.length < 1) return ring;
+  const first = ring[0];
+  const last = ring[ring.length - 1];
+  if (first[0] !== last[0] || first[1] !== last[1]) {
+    return [...ring, first];
+  }
+  return ring;
+}
+
+function geoJsonToEsriPolygon(geometry: GeoJSON.Geometry): { geometry: unknown; geometryType: string } | null {
+  if (geometry.type === 'Polygon') {
+    const rings = (geometry.coordinates as [number, number][][]).map(ensureClosedRing);
+    return {
+      geometry: { rings, spatialReference: { wkid: 4326 } },
+      geometryType: 'esriGeometryPolygon',
+    };
+  }
+
+  if (geometry.type === 'MultiPolygon') {
+    const rings = ([] as [number, number][][]).concat(
+      ...(geometry.coordinates as [number, number][][][]).map((polygon) => polygon.map(ensureClosedRing))
+    );
+    return {
+      geometry: { rings, spatialReference: { wkid: 4326 } },
+      geometryType: 'esriGeometryPolygon',
+    };
+  }
+
+  return null;
+}
+
 function layerToEsriPolygon(drawLayer: L.Layer): { geometry: unknown; geometryType: string } | null {
   if (drawLayer instanceof L.Circle) {
     return {
@@ -323,14 +355,19 @@ function layerToEsriPolygon(drawLayer: L.Layer): { geometry: unknown; geometryTy
   if (drawLayer instanceof L.Polygon) {
     const latlngs = flattenLatLngs((drawLayer as L.Polygon).getLatLngs());
     if (latlngs.length < 3) return null;
-    const ring = latlngs.map((latlng) => [latlng.lng, latlng.lat] as [number, number]);
-    if (ring[0][0] !== ring[ring.length - 1][0] || ring[0][1] !== ring[ring.length - 1][1]) {
-      ring.push(ring[0]);
-    }
+    const ring = ensureClosedRing(latlngs.map((latlng) => [latlng.lng, latlng.lat] as [number, number]));
     return {
       geometry: { rings: [ring], spatialReference: { wkid: 4326 } },
       geometryType: 'esriGeometryPolygon',
     };
+  }
+
+  const anyLayer = drawLayer as { toGeoJSON?: () => GeoJSON.Feature };
+  if (typeof anyLayer.toGeoJSON === 'function') {
+    const feature = anyLayer.toGeoJSON();
+    if (feature?.geometry) {
+      return geoJsonToEsriPolygon(feature.geometry);
+    }
   }
 
   return null;
