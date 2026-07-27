@@ -38,10 +38,10 @@ interface BnpbLayer {
   color: string;
   emoji: string;
   url: string;
-  type?: 'MapServer' | 'ImageServer' | 'VectorTileServer';
+  type?: 'MapServer' | 'ImageServer' | 'VectorTileServer' | 'WMS';
   group?: string;
   useLngLat?: boolean;               // use WGS84 (4326) bbox instead of Web Mercator
-  layersParam?: string;              // override default 'show:0' layers param
+  layersParam?: string;              // override default 'show:0' layers param or WMS layers
   extent?: [number, number, number, number]; // [minLng, minLat, maxLng, maxLat] for auto-fly
 }
 
@@ -120,7 +120,7 @@ const BNPB_BASE = 'https://gis.bnpb.go.id/server/rest/services/inarisk';
 
 const BNPB_LAYERS: BnpbLayer[] = [
   // BIG — Badan Informasi Geospasial
-  { id: 'hexbin_res9', label: 'KJS Versi 2', color: '#1aa7ed', emoji: '👥', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/hexbin_agg9/MapServer/0', type: 'MapServer', group: 'BAPPENAS' },
+  { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/hexbin_agg9/MapServer/0', type: 'MapServer', group: 'BAPPENAS' },
   { id: 'big_rbi_sulawesi_lot1',       label: 'RBI Sulawesi 2024 Lot 1',      color: '#A855F7', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI_5K_Sulawesi_2024_Lot_1_Jul/VectorTileServer',         type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_bangunan_fasum_sulawesi', label: 'Bangunan Fasum Sulawesi 2024', color: '#F59E0B', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_BANGUNAN_FASUM_SULAWESI_2024/VectorTileServer', type: 'VectorTileServer', group: 'BIG' },
@@ -137,7 +137,10 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'kekeringan',    label: 'Kekeringan',          color: '#D97706', emoji: '☀️', url: `${BNPB_BASE}/layer_bahaya_kekeringan_30/MapServer`, group: 'BNPB' },
   { id: 'cuaca_ekstrim', label: 'Cuaca Ekstrim (MS)',  color: '#0891B2', emoji: '⛅', url: `${BNPB_BASE}/layer_bahaya_cuaca_ekstrim_30/MapServer`, group: 'BNPB' },
   { id: 'dukcapil_kel_fix', label: 'Kependudukan Kelurahan', color: '#3B82F6', emoji: '👥', url: 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/services/AGR_VISUAL_KEL_FIX/MapServer/0', type: 'MapServer', group: 'KEMENDAGRI' },
-  { id: 'Peta_Curah_Hujan_dan_Hari_Hujan', label: 'Curah Hujan', color: '#3B82F6', emoji: '👥', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Peta_Curah_Hujan_dan_Hari_Hujan/MapServer', type: 'MapServer', group: 'BMKG' },
+  { id: 'Peta_Curah_Hujan_dan_Hari_Hujan', label: 'Curah Hujan', color: '#3B82F6', emoji: '👥', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Peta_Curah_Hujan_dan_Hari_Hujan/MapServer/0', type: 'MapServer', group: 'BMKG' },
+  { id: 'Peta_Curah_Hujan_dan_Hari_Hujan', label: 'Curah Hujan Sebaran', color: '#3B82F6', emoji: '👥', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Peta_Curah_Hujan_dan_Hari_Hujan/MapServer/1', type: 'MapServer', group: 'BMKG' },
+  { id: 'banjir_wms', label: 'Banjir WMS', color: '#0EA5E9', emoji: '🌊', url: 'https://inarisk1.bnpb.go.id:8443/geoserver/raster/wms', type: 'WMS', group: 'BNPB', layersParam: 'raster:INDEKS_BAHAYA_BANJIR1' },
+  { id: 'longsor_wms', label: 'Longsor WMS', color: '#F97316', emoji: '⛰️', url: 'https://inarisk1.bnpb.go.id:8443/geoserver/raster/wms', type: 'WMS', group: 'BNPB', layersParam: 'raster:INDEKS_BAHAYA_TANAHLONGSOR1' },
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -795,6 +798,17 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
           vl.addTo(mapRef.current);
         };
         tryAddVector();
+      } else if (def.type === 'WMS') {
+        bnpbLayersRef.current[id] = L.tileLayer.wms(def.url, {
+          layers: def.layersParam ?? '',
+          format: 'image/png',
+          transparent: true,
+          version: '1.1.0',
+          attribution: '© BNPB',
+          crs: L.CRS.EPSG3857,
+          opacity: 0.72,
+        });
+        bnpbLayersRef.current[id].addTo(map);
       } else {
         bnpbLayersRef.current[id] = createArcGISExportLayer(
           L, def.url, 0.72,
