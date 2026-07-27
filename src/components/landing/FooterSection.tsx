@@ -1,12 +1,12 @@
 'use client';
 
 const MITRA = [
-  { nama: 'BNPB', kepanjangan: 'Badan Nasional Penanggulangan Bencana', url: 'https://bnpb.go.id' },
-  { nama: 'BPBD', kepanjangan: 'Badan Penanggulangan Bencana Daerah', url: '#' },
-  { nama: 'BMKG', kepanjangan: 'Badan Meteorologi, Klimatologi, dan Geofisika', url: 'https://bmkg.go.id' },
-  { nama: 'BIG', kepanjangan: 'Badan Informasi Geospasial', url: 'https://big.go.id' },
-  { nama: 'BRIN', kepanjangan: 'Badan Riset dan Inovasi Nasional', url: 'https://brin.go.id' },
-  { nama: 'PMI', kepanjangan: 'Palang Merah Indonesia', url: 'https://pmi.or.id' },
+  { nama: 'BNPB', kepanjangan: 'Badan Nasional Penanggulangan Bencana', url: 'https://bnpb.go.id', logo: '/logo/logo_bnpb.png' },
+  { nama: 'BPBD', kepanjangan: 'Badan Penanggulangan Bencana Daerah', url: '#', logo: '/logo/logo_bnpb.png' },
+  { nama: 'BMKG', kepanjangan: 'Badan Meteorologi, Klimatologi, dan Geofisika', url: 'https://bmkg.go.id', logo: '/logo/logo_bmkg.png' },
+  { nama: 'BIG', kepanjangan: 'Badan Informasi Geospasial', url: 'https://big.go.id', logo: '/logo/logo_big.png' },
+  { nama: 'BRIN', kepanjangan: 'Badan Riset dan Inovasi Nasional', url: 'https://brin.go.id', logo: '/logo/logo_brin.png' },
+  { nama: 'Kemendagri', kepanjangan: 'Kementerian Dalam Negeri', url: 'https://kemendagri.go.id', logo: '/logo/logo_kemendagri.png' },
 ];
 
 const LINKS = {
@@ -52,17 +52,12 @@ export default function FooterSection() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-                style={{ background: 'linear-gradient(135deg, #0EA5E9, #22C55E)' }}
-              >
-                🌋
-              </div>
-              <div>
-                <div className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>DataBencana</div>
-                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Sistem Analisis Nasional</div>
-              </div>
-            </div>
+            <img
+              src="/logo/logo_mdb_alone.png"
+              alt="Logo DataBencana"
+              style={{ height: 40, width: 'auto', objectFit: 'contain' }}
+            />
+          </div>
             <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--text-muted)' }}>
               Platform geospasial terpadu untuk manajemen dan analisis data bencana nasional.
               Mendukung pengambilan keputusan berbasis data dari pra hingga pasca-bencana.
@@ -124,12 +119,21 @@ export default function FooterSection() {
                   border: '1px solid var(--mitra-border)',
                 }}
               >
-                <div
-                  className="text-lg font-bold mb-1 transition-colors group-hover:text-sky-400"
-                  style={{ color: 'var(--text-feature)' }}
-                >
-                  {m.nama}
-                </div>
+                {m.logo ? (
+                  <img
+                    src={m.logo}
+                    alt={`Logo ${m.nama}`}
+                    className="mx-auto mb-2"
+                    style={{ maxHeight: 40, width: 'auto', objectFit: 'contain' }}
+                  />
+                ) : (
+                  <div
+                    className="text-lg font-bold mb-1 transition-colors group-hover:text-sky-400"
+                    style={{ color: 'var(--text-feature)' }}
+                  >
+                    {m.nama}
+                  </div>
+                )}
                 <div className="text-xs leading-tight" style={{ color: 'var(--text-muted)' }}>
                   {m.kepanjangan.split(', ').slice(0, 2).join(', ')}
                 </div>

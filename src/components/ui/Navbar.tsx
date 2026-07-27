@@ -56,8 +56,8 @@ export default function Navbar() {
         {/* Logo */}
         <a href="/" className="flex items-center gap-3">
           <img
-            src="/logo bappenas.png"
-            alt="Logo Bappenas"
+            src="/logo/logo_mdb.png"
+            alt="Logo MDB"
             style={{ height: 36, width: 'auto', objectFit: 'contain' }}
           />
         </a>
