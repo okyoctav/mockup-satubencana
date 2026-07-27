@@ -39,10 +39,6 @@ export default function DashboardHeader({ onSearch }: Props) {
           alt="Logo MDB"
           style={{ height: 40, width: 'auto', objectFit: 'contain', flexShrink: 0 }}
         />
-        <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
-          <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: 0.2 }}>Satudata</span>
-          <span style={{ fontSize: 11, fontWeight: 600, color: '#0EA5E9' }}>Bencana</span>
-        </div>
       </div>
 
       {/* Search */}
