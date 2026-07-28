@@ -399,7 +399,7 @@ async function queryHexbinRes9Stats(drawLayer: L.Layer): Promise<HexbinStats> {
     };
   }
 
-  const queryUrl = HEXBIN_RES9_URL.replace(/\/MapServer\/0$/, '/query');
+  const queryUrl = `${HEXBIN_RES9_URL}/query`;
   const outStatistics = JSON.stringify([
     { statisticType: 'count', onStatisticField: 'objectid', outStatisticFieldName: 'cnt_hex' },
     { statisticType: 'sum', onStatisticField: 'jml_lakila', outStatisticFieldName: 'sum_jml_lakila' },
