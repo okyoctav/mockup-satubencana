@@ -11,6 +11,7 @@ import ChartSection from '@/components/dashboard/ChartSection';
 import AnalysisModelsSection from '@/components/dashboard/AnalysisModelsSection';
 import bencanaData from '@/data/bencana.json';
 import WilayahDropdown, { FilterWilayah } from '@/components/dashboard/WilayahDropdown';
+import { Sparkles, MapPin, BarChart3, ShieldAlert, Layers } from 'lucide-react';
 
 type Kejadian = {
   id: number;
@@ -84,201 +85,154 @@ export default function DashboardK5Page() {
   }, [regionFilteredData, filters]);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-        background: 'var(--bg-page)',
-        color: 'var(--text-primary)',
-      }}
-    >
-      <div style={{ position: 'sticky', top: 0, zIndex: 200 }}>
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 antialiased selection:bg-sky-500 selection:text-white font-sans">
+      {/* Top Navigation */}
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
         <DashboardHeader onSearch={handleSearch} />
         <AlertTicker onAlertClick={handleAlertClick} />
       </div>
 
-      <div
-        style={{
-          padding: '6px 16px',
-          display: 'flex', alignItems: 'center', gap: 10,
-          background: theme === 'dark'
-            ? 'linear-gradient(90deg, rgba(14,165,233,0.18), rgba(53,167,255,0.08))'
-            : 'linear-gradient(90deg, rgba(14,165,233,0.10), rgba(53,167,255,0.04))',
-          borderBottom: '1px solid rgba(14,165,233,0.2)',
-        }}>
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: 6,
-          background: 'linear-gradient(135deg, #0EA5E9, #2563EB)',
-          color: '#fff', borderRadius: 20,
-          padding: '3px 12px', fontSize: 10, fontWeight: 800,
-          letterSpacing: 0.6,
-        }}>
-          ⚡ KONSEP 5 — Dukcapil Feature Service Estimator
+      {/* Sub-Header Concept Switcher Bar */}
+      <div className="bg-white border-b border-slate-200 px-4 py-2.5 sm:px-6 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-200/60 shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-sky-500 animate-pulse" />
+            <span>KONSEP 5 — Dukcapil Feature Service Estimator</span>
+          </div>
+          <span className="text-xs text-slate-500 hidden sm:inline-block">
+            Estimasi Kependudukan Real-time Terbencana
+          </span>
         </div>
-        <span style={{ fontSize: 10, color: theme === 'dark' ? '#94A3B8' : '#64748B' }}>
-          Estimasi Kependudukan Real-time Terbencana
-        </span>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 12 }}>
+
+        {/* Navigation Concepts */}
+        <nav className="flex items-center gap-1 text-xs font-medium text-slate-600 bg-slate-100/80 p-1 rounded-lg border border-slate-200/60">
           <a
             href="/dashboard"
-            style={{
-              fontSize: 10, color: '#0EA5E9',
-              textDecoration: 'none', fontWeight: 600,
-            }}
+            className="px-2.5 py-1 rounded-md transition-all hover:text-sky-600 hover:bg-white"
           >
-            Konsep 1 (Leaflet)
+            K1 (Leaflet)
           </a>
-          <span style={{ color: 'var(--border-subtle)', fontSize: 10 }}>|</span>
+          <span className="text-slate-300">|</span>
           <a
             href="/dashboard_k2"
-            style={{
-              fontSize: 10, color: '#0EA5E9',
-              textDecoration: 'none', fontWeight: 600,
-            }}
+            className="px-2.5 py-1 rounded-md transition-all hover:text-sky-600 hover:bg-white"
           >
-            Konsep 2 (ArcGIS Native)
+            K2 (ArcGIS)
           </a>
-          <span style={{ color: 'var(--border-subtle)', fontSize: 10 }}>|</span>
+          <span className="text-slate-300">|</span>
           <a
             href="/dashboard_k3"
-            style={{
-              fontSize: 10, color: '#0EA5E9',
-              textDecoration: 'none', fontWeight: 600,
-            }}
+            className="px-2.5 py-1 rounded-md transition-all hover:text-sky-600 hover:bg-white"
           >
-            Konsep 3
+            K3
           </a>
-          <span style={{ color: 'var(--border-subtle)', fontSize: 10 }}>|</span>
+          <span className="text-slate-300">|</span>
           <a
             href="/dashboard_k4"
-            style={{
-              fontSize: 10, color: '#0EA5E9',
-              textDecoration: 'none', fontWeight: 600,
-            }}
+            className="px-2.5 py-1 rounded-md transition-all hover:text-sky-600 hover:bg-white"
           >
-            Konsep 4
+            K4
           </a>
-          <span style={{ color: 'var(--border-subtle)', fontSize: 10 }}>|</span>
+          <span className="text-slate-300">|</span>
           <a
             href="/dashboard_k5"
-            style={{
-              fontSize: 10, color: '#0EA5E9',
-              textDecoration: 'none', fontWeight: 600,
-            }}
+            className="px-2.5 py-1 rounded-md font-semibold text-sky-600 bg-white shadow-2xs"
           >
-            Konsep 5
+            K5 (Clean)
           </a>
-        </div>
+        </nav>
       </div>
 
-      <div
-        style={{
-          padding: '8px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          background: theme === 'dark' ? 'rgba(5,14,31,0.8)' : 'rgba(236,245,255,0.9)',
-          borderBottom: '1px solid var(--border-faint)',
-          flexWrap: 'wrap',
-        }}
-      >
+      {/* Wilayah Filter Toolbar */}
+      <div className="bg-slate-100/60 border-b border-slate-200/80 px-4 py-2 sm:px-6 flex items-center gap-3 flex-wrap">
         <WilayahDropdown onSelect={handleDropdownFilter} theme={theme} />
         {activeFilter && (
-          <span style={{ fontSize: 11, color: '#35a7ff', fontWeight: 600 }}>
-            🔍 {activeFilter.tipe === 'provinsi' ? 'Provinsi' : 'Kab/Kota'}: <strong>{activeFilter.nama}</strong>
-            {' '}— {regionFilteredData.length} kejadian
-          </span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-sky-100/80 border border-sky-200 text-xs text-sky-800 font-medium">
+            <MapPin className="w-3.5 h-3.5 text-sky-600" />
+            <span>{activeFilter.tipe === 'provinsi' ? 'Provinsi' : 'Kab/Kota'}:</span>
+            <strong className="font-semibold">{activeFilter.nama}</strong>
+            <span className="text-sky-600/80 font-normal">— {regionFilteredData.length} kejadian</span>
+          </div>
         )}
       </div>
 
-      <StatCards
-        status={filters.status}
-        regionData={activeFilter ? regionFilteredData : undefined}
-        regionLabel={activeFilter?.nama}
-        onClearRegion={activeFilter ? handleClearSearch : undefined}
-      />
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 280px',
-          gap: 10,
-          padding: '10px 16px 0',
-          height: 480,
-        }}
-      >
-        <div
-          style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-faint)',
-            borderRadius: 14,
-            overflow: 'hidden',
-            position: 'relative',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              top: 12,
-              left: 12,
-              zIndex: 999,
-              background: theme === 'dark' ? 'rgba(10,22,40,0.85)' : 'rgba(255,255,255,0.9)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: 8,
-              padding: '5px 12px',
-              fontSize: 11,
-              fontWeight: 700,
-              color: 'var(--text-primary)',
-              backdropFilter: 'blur(8px)',
-              letterSpacing: 0.5,
-            }}
-          >
-            🗺 Model 5 — Peta KJS GeoJSON Lokal
-          </div>
-          <DashboardMapK4 data={filteredData} flyTo={flyTo} theme={theme} />
-        </div>
-
-        <div
-          style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-faint)',
-            borderRadius: 14,
-            overflow: 'hidden',
-          }}
-        >
-          <FilterPanel
-            data={regionFilteredData}
-            filters={filters}
-            onFilter={setFilters}
-            onEventClick={handleEventClick}
+      {/* Main Content Area */}
+      <main className="flex-1 px-4 sm:px-6 py-4 space-y-5 max-w-[1600px] w-full mx-auto">
+        {/* Key Stats Cards */}
+        <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+          <StatCards
+            status={filters.status}
+            regionData={activeFilter ? regionFilteredData : undefined}
+            regionLabel={activeFilter?.nama}
+            onClearRegion={activeFilter ? handleClearSearch : undefined}
           />
+        </section>
+
+        {/* Interactive Map & Side Filter Panel */}
+        <section className="grid grid-cols-1 lg:grid-cols-4 gap-5 h-[540px]">
+          {/* Map Container */}
+          <div className="lg:col-span-3 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden relative group">
+            <div className="absolute top-3 left-3 z-[400] bg-white/90 backdrop-blur-md border border-slate-200/80 rounded-xl px-3 py-1.5 shadow-sm text-xs font-semibold text-slate-700 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
+              <Layers className="w-3.5 h-3.5 text-sky-600" />
+              <span>Peta Tematik GIS & Dukcapil GeoJSON</span>
+            </div>
+            <div className="w-full h-full">
+              <DashboardMapK4 data={filteredData} flyTo={flyTo} theme={theme} />
+            </div>
+          </div>
+
+          {/* Side Filter Panel */}
+          <div className="lg:col-span-1 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col">
+            <FilterPanel
+              data={regionFilteredData}
+              filters={filters}
+              onFilter={setFilters}
+              onEventClick={handleEventClick}
+            />
+          </div>
+        </section>
+
+        {/* Section Divider: Chart */}
+        <div className="pt-4 flex items-center gap-4">
+          <div className="h-px flex-1 bg-slate-200" />
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span>Analisis Statistik — Sumber: DIBI BNPB</span>
+          </div>
+          <div className="h-px flex-1 bg-slate-200" />
         </div>
-      </div>
 
-      <div style={{ padding: '24px 16px 8px', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ flex: 1, height: 1, background: 'var(--border-faint)' }} />
-        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.2, whiteSpace: 'nowrap' }}>
-          📊 Analisis Statistik — Sumber: DIBI BNPB 2011–2026
+        {/* Charts Container */}
+        <section className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+          <ChartSection
+            theme={theme}
+            filteredData={activeFilter ? filteredData : undefined}
+            regionLabel={activeFilter?.nama}
+          />
+        </section>
+
+        {/* Section Divider: Analysis */}
+        <div className="pt-4 flex items-center gap-4">
+          <div className="h-px flex-1 bg-slate-200" />
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span>Model Kerentanan, Fase Bencana & Respon</span>
+          </div>
+          <div className="h-px flex-1 bg-slate-200" />
         </div>
-        <div style={{ flex: 1, height: 1, background: 'var(--border-faint)' }} />
-      </div>
 
-      <ChartSection
-        theme={theme}
-        filteredData={activeFilter ? filteredData : undefined}
-        regionLabel={activeFilter?.nama}
-      />
+        {/* Analysis Models Section */}
+        <section className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+          <AnalysisModelsSection />
+        </section>
+      </main>
 
-      <div style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ flex: 1, height: 1, background: 'var(--border-faint)' }} />
-        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1.2, whiteSpace: 'nowrap' }}>
-          🛡 Model Kerentanan, Fase Bencana & Respon
-        </div>
-        <div style={{ flex: 1, height: 1, background: 'var(--border-faint)' }} />
-      </div>
-
-      <AnalysisModelsSection />
+      {/* Clean Footer */}
+      <footer className="mt-8 bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500">
+        <p>© 2026 Satu Bencana — Platform Sistem Informasi & Estimasi Resiko Bencana Nasional</p>
+      </footer>
     </div>
   );
 }
+
