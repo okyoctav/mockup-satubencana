@@ -463,8 +463,8 @@ function buildImpactHtmlK4(data: ImpactDataK4): string {
       `<tr><td style="font-size:11px;color:#475569">👩 Perempuan</td><td style="text-align:right;font-size:13px;font-weight:700;color:#EC4899">${data.totalPerempuan.toLocaleString('id')}</td></tr>` +
       `<tr><td style="font-size:11px;color:#475569">👴 Lansia</td><td style="text-align:right;font-size:13px;font-weight:700;color:#F59E0B">${data.totalLansia.toLocaleString('id')}</td></tr>` +
       `<tr><td style="font-size:11px;color:#475569">🧒 Balita</td><td style="text-align:right;font-size:13px;font-weight:700;color:#22C55E">${data.totalBalita.toLocaleString('id')}</td></tr>` +
-      `<tr><td style="font-size:11px;color:#475569">🧾 PD1</td><td style="text-align:right;font-size:13px;font-weight:700;color:#06B6D4">${data.totalPd1.toLocaleString('id')}</td></tr>` +
-      `<tr><td style="font-size:11px;color:#475569">📊 PD2</td><td style="text-align:right;font-size:13px;font-weight:700;color:#8B5CF6">${data.totalPd2.toLocaleString('id')}</td></tr>` +
+      `<tr><td style="font-size:11px;color:#475569">🧾 Disabilitas Berat</td><td style="text-align:right;font-size:13px;font-weight:700;color:#06B6D4">${data.totalPd1.toLocaleString('id')}</td></tr>` +
+      `<tr><td style="font-size:11px;color:#475569">📊 Disabilitas Sedang</td><td style="text-align:right;font-size:13px;font-weight:700;color:#8B5CF6">${data.totalPd2.toLocaleString('id')}</td></tr>` +
       `<tr><td style="font-size:11px;color:#475569">🏠 Keluarga</td><td style="text-align:right;font-size:13px;font-weight:700;color:#0F172A">${data.totalKeluarga.toLocaleString('id')}</td></tr>` +
     `</table>` +
   `</div>`;
