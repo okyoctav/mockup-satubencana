@@ -155,15 +155,23 @@ const BNPB_LAYERS: BnpbLayer[] = [
 
 export default function DashboardLeafletK5({ flyTo }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const previewMapRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const baseLayersRef = useRef<Record<string, any>>({});
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const previewBaseLayersRef = useRef<Record<string, any>>({});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const overlayLayersRef = useRef<Record<string, any>>({});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const previewOverlayLayersRef = useRef<Record<string, any>>({});
   const kjsLayerRef = useRef<L.GeoJSON | null>(null);
 
   const [activeBasemap, setActiveBasemap] = useState('esri_imagery');
+  const [draftBasemap, setDraftBasemap] = useState('esri_imagery');
   const [activeOverlays, setActiveOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
   const [draftOverlays, setDraftOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
   const [showLayerModal, setShowLayerModal] = useState(false);
@@ -175,12 +183,14 @@ export default function DashboardLeafletK5({ flyTo }: Props) {
 
   // Open layer modal and sync draft
   const handleOpenLayerModal = () => {
+    setDraftBasemap(activeBasemap);
     setDraftOverlays([...activeOverlays]);
     setShowLayerModal(true);
   };
 
-  // Apply selected layers from modal to main map
+  // Apply selected layers and basemap from modal to main map
   const handleApplyLayers = () => {
+    setActiveBasemap(draftBasemap);
     setActiveOverlays([...draftOverlays]);
     setShowLayerModal(false);
   };
@@ -197,7 +207,7 @@ export default function DashboardLeafletK5({ flyTo }: Props) {
     }
   };
 
-  // Initialize Map
+  // Initialize Main Map
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -250,7 +260,75 @@ export default function DashboardLeafletK5({ flyTo }: Props) {
     };
   }, []);
 
-  // Update Basemap
+  // Initialize & Manage Modal Preview Map Canvas (Grid 2)
+  useEffect(() => {
+    if (!showLayerModal || !previewContainerRef.current) return;
+
+    let pMap = previewMapRef.current;
+    if (!pMap) {
+      pMap = L.map(previewContainerRef.current, {
+        center: mapRef.current ? mapRef.current.getCenter() : [-2.5489, 118.0149],
+        zoom: mapRef.current ? mapRef.current.getZoom() : 5,
+        zoomControl: false,
+        attributionControl: false,
+      });
+      previewMapRef.current = pMap;
+
+      // Setup preview basemaps
+      BASEMAPS.forEach((bm) => {
+        const group = L.layerGroup();
+        bm.layers.forEach((l) => {
+          L.tileLayer(l.url, { maxZoom: 19 }).addTo(group);
+        });
+        previewBaseLayersRef.current[bm.id] = group;
+      });
+    }
+
+    // Invalidate map size to ensure full container fit
+    setTimeout(() => {
+      pMap.invalidateSize();
+    }, 100);
+
+    return () => {
+      // Keep preview map instance alive until modal destroyed
+    };
+  }, [showLayerModal]);
+
+  // Update Modal Preview Map Basemap & Overlays live
+  useEffect(() => {
+    if (!previewMapRef.current || !showLayerModal) return;
+    const pMap = previewMapRef.current;
+
+    // Update Draft Basemap
+    Object.keys(previewBaseLayersRef.current).forEach((id) => {
+      if (id === draftBasemap) {
+        previewBaseLayersRef.current[id].addTo(pMap);
+      } else {
+        pMap.removeLayer(previewBaseLayersRef.current[id]);
+      }
+    });
+
+    // Update Draft Overlays
+    BNPB_LAYERS.forEach((l) => {
+      if (draftOverlays.includes(l.id)) {
+        if (!previewOverlayLayersRef.current[l.id]) {
+          if (l.type === 'ImageServer' || l.type === 'MapServer') {
+            const tileLayer = L.tileLayer(`${l.url}/tile/{z}/{y}/{x}`, { maxZoom: 19, opacity: 0.75 });
+            previewOverlayLayersRef.current[l.id] = tileLayer;
+          }
+        }
+        if (previewOverlayLayersRef.current[l.id]) {
+          previewOverlayLayersRef.current[l.id].addTo(pMap);
+        }
+      } else {
+        if (previewOverlayLayersRef.current[l.id]) {
+          pMap.removeLayer(previewOverlayLayersRef.current[l.id]);
+        }
+      }
+    });
+  }, [draftBasemap, draftOverlays, showLayerModal]);
+
+  // Update Main Map Basemap
   useEffect(() => {
     if (!mapRef.current) return;
     Object.keys(baseLayersRef.current).forEach((id) => {
@@ -262,7 +340,7 @@ export default function DashboardLeafletK5({ flyTo }: Props) {
     });
   }, [activeBasemap]);
 
-  // Update Overlay Layers on main map
+  // Update Main Map Overlay Layers
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -270,7 +348,7 @@ export default function DashboardLeafletK5({ flyTo }: Props) {
       if (activeOverlays.includes(l.id)) {
         if (!overlayLayersRef.current[l.id]) {
           if (l.type === 'ImageServer' || l.type === 'MapServer') {
-            const tileLayer = L.tileLayer(`${l.url}/tile/{z}/{y}/{x}`, { maxZoom: 19, opacity: 0.7 });
+            const tileLayer = L.tileLayer(`${l.url}/tile/{z}/{y}/{x}`, { maxZoom: 19, opacity: 0.75 });
             overlayLayersRef.current[l.id] = tileLayer;
           }
         }
@@ -356,7 +434,7 @@ export default function DashboardLeafletK5({ flyTo }: Props) {
 
       {/* 2. FULL MODAL/POPUP LAYER SELECTION (EXPANDED TO MAP CANVAS AREA) */}
       {showLayerModal && (
-        <div className="absolute inset-4 z-[500] bg-white/90 backdrop-blur-2xl border border-white/80 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute inset-4 z-[500] bg-white/95 backdrop-blur-2xl border border-white/80 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {/* Modal Header */}
           <div className="bg-[#19506e] text-white px-6 py-4 flex items-center justify-between border-b border-white/10 shrink-0">
             <div className="flex items-center gap-2.5">
@@ -452,19 +530,19 @@ export default function DashboardLeafletK5({ flyTo }: Props) {
 
             {/* RIGHT SIDE GRID 2 & GRID 3 (70% WIDTH) */}
             <div className="lg:col-span-8 flex flex-col h-full bg-white">
-              {/* GRID 2 (TOP): PREVIEW SECTION */}
-              <div className="h-1/2 p-5 border-b border-slate-200 flex flex-col">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold text-[#19506e] uppercase tracking-wider flex items-center gap-2">
+              {/* GRID 2 (TOP): LIVE INTERACTIVE PREVIEW MAP CANVAS SECTION */}
+              <div className="h-1/2 p-4 border-b border-slate-200 flex flex-col relative">
+                <div className="flex items-center justify-between mb-2 z-10">
+                  <span className="text-xs font-bold text-[#19506e] uppercase tracking-wider flex items-center gap-2 bg-white/90 px-3 py-1 rounded-xl shadow-xs border border-slate-200">
                     <Eye className="w-4 h-4 text-[#1f8080]" />
-                    <span>2. Pratinjau Skema Basemap & Layer</span>
+                    <span>2. Pratinjau Skema Basemap & Layer Aktif</span>
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 bg-white/90 px-3 py-1 rounded-xl shadow-xs border border-slate-200">
                     <span className="text-xs text-slate-500 font-medium">Pilih Basemap:</span>
                     <select
-                      value={activeBasemap}
-                      onChange={(e) => setActiveBasemap(e.target.value)}
-                      className="bg-slate-100 border border-slate-200 rounded-xl px-3 py-1 text-xs font-bold text-[#19506e] outline-none"
+                      value={draftBasemap}
+                      onChange={(e) => setDraftBasemap(e.target.value)}
+                      className="bg-slate-100 border border-slate-200 rounded-xl px-3 py-0.5 text-xs font-bold text-[#19506e] outline-none cursor-pointer"
                     >
                       {BASEMAPS.map((bm) => (
                         <option key={bm.id} value={bm.id}>{bm.emoji} {bm.label}</option>
@@ -473,16 +551,14 @@ export default function DashboardLeafletK5({ flyTo }: Props) {
                   </div>
                 </div>
 
-                {/* Preview Box */}
-                <div className="flex-1 rounded-2xl bg-slate-900 border border-slate-200 p-4 text-white relative overflow-hidden flex flex-col justify-between">
-                  <div className="z-10 bg-black/50 backdrop-blur-md p-3 rounded-xl max-w-sm space-y-1">
-                    <h4 className="text-xs font-bold text-white">Pratinjau Konfigurasi Aktif</h4>
-                    <p className="text-[11px] text-slate-300">Layer yang dipilih akan langsung di-render ke peta GIS utama begitu tombol diterapkan diklik.</p>
-                  </div>
-
-                  <div className="z-10 flex items-center gap-2">
-                    <span className="text-xs font-bold bg-[#1f8080] px-3 py-1 rounded-full">Basemap: {BASEMAPS.find((b) => b.id === activeBasemap)?.label}</span>
-                    <span className="text-xs font-bold bg-white/20 px-3 py-1 rounded-full">{draftOverlays.length} Layer Terpilih</span>
+                {/* Live Mini Leaflet Preview Container */}
+                <div className="flex-1 rounded-2xl border-2 border-[#1f8080]/30 overflow-hidden relative shadow-inner">
+                  <div ref={previewContainerRef} className="w-full h-full z-0 bg-slate-900" />
+                  
+                  {/* Floating Live Badge */}
+                  <div className="absolute bottom-3 left-3 z-[400] bg-[#19506e]/90 text-white backdrop-blur-md px-3 py-1 rounded-xl text-[11px] font-bold border border-white/20 shadow-md flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#1f8080] animate-pulse" />
+                    <span>Live Pratinjau: {BASEMAPS.find((b) => b.id === draftBasemap)?.label} ({draftOverlays.length} Layer)</span>
                   </div>
                 </div>
               </div>
@@ -502,7 +578,7 @@ export default function DashboardLeafletK5({ flyTo }: Props) {
                     )}
                   </div>
 
-                  <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto">
+                  <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
                     {draftOverlays.length === 0 ? (
                       <div className="text-xs text-slate-400 italic py-4">Belum ada layer terpilih. Silakan pilih dari panel sebelah kiri.</div>
                     ) : (
