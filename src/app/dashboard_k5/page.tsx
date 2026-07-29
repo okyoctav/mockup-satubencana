@@ -216,7 +216,7 @@ export default function DashboardK5Page() {
         {/* Top Header Wrapper with Integrated Early Warning Ticker */}
         <header className="sticky top-0 z-20 bg-white border-b border-slate-200 shadow-2xs">
           {/* Integrated Early Warning Alert Ticker */}
-          <div className="bg-[#19506e] border-b border-[#1f8080]/30 text-white">
+          <div className="border-b border-[#1f8080]/30 text-white">
             <AlertTicker onAlertClick={handleAlertClick} />
           </div>
 
