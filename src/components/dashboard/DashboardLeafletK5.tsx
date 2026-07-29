@@ -1,0 +1,557 @@
+'use client';
+
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw/dist/leaflet.draw.css';
+import { useState, useEffect, useRef } from 'react';
+import { Layers, Search, Check, X, Eye } from 'lucide-react';
+import L from 'leaflet';
+import 'leaflet-draw';
+
+interface Kejadian {
+  id: number;
+  nama: string;
+  provinsi: string;
+  kabupaten: string;
+  lat: number;
+  lng: number;
+  jenis: string;
+  tanggal: string;
+  korban_jiwa: number;
+  pengungsi: number;
+  status: string;
+  level: string;
+}
+
+interface Props {
+  data: Kejadian[];
+  flyTo: { lat: number; lng: number; zoom: number } | null;
+  theme: string;
+}
+
+interface BnpbLayer {
+  id: string;
+  label: string;
+  color: string;
+  emoji: string;
+  url: string;
+  type?: 'MapServer' | 'ImageServer' | 'VectorTileServer' | 'WMS';
+  group?: string;
+  useLngLat?: boolean;
+  layersParam?: string;
+  extent?: [number, number, number, number];
+}
+
+const BASEMAPS = [
+  {
+    id: 'esri_imagery',
+    label: 'Citra Satelit',
+    emoji: '🛰️',
+    layers: [
+      { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr: '© Esri, Maxar' },
+      { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', attr: '© Esri' },
+    ],
+  },
+  {
+    id: 'openstreetmap',
+    label: 'OpenStreetMap',
+    emoji: '🗺️',
+    layers: [
+      { url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attr: '© OpenStreetMap' },
+    ],
+  },
+  {
+    id: 'big_rbi',
+    label: 'RBI Indonesia (BIG)',
+    emoji: '🏛️',
+    layers: [
+      { url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/Rupabumi_Indonesia/MapServer/tile/{z}/{y}/{x}', attr: '© BIG' },
+    ],
+  },
+  {
+    id: 'esri_topo',
+    label: 'Topografi',
+    emoji: '🏔️',
+    layers: [
+      { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', attr: '© Esri' },
+    ],
+  },
+];
+
+const BNPB_LAYERS: BnpbLayer[] = [
+  {
+    id: 'kjs_kabkota',
+    label: 'BAPPENAS — KJS Kab/Kota Risk 2024',
+    color: '#1aa7ed',
+    emoji: '🏙️',
+    url: 'https://geoservices.bappenas.go.id/arcgis/rest/services/KJS/KJS_KabKota_Risk_2024/MapServer',
+    type: 'MapServer',
+    group: 'BAPPENAS',
+    extent: [95.0, -11.0, 141.0, 6.0],
+  },
+  {
+    id: 'dukcapil_kabkota',
+    label: 'Kemendagri — Dukcapil GeoJSON Population',
+    color: '#0EA5E9',
+    emoji: '👥',
+    url: '/data/kjs_bencana.json',
+    group: 'KEMENDAGRI',
+  },
+  {
+    id: 'big_batas_prov',
+    label: 'BIG — Batas Provinsi Indonesia',
+    color: '#22C55E',
+    emoji: '🌿',
+    url: 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/Batas_Provinsi_2024/MapServer',
+    type: 'MapServer',
+    group: 'BIG',
+    extent: [95.0, -11.0, 141.0, 6.0],
+  },
+  {
+    id: 'banjir_img',
+    label: 'Banjir — InARISK (BNPB)',
+    color: '#35a7ff',
+    emoji: '🌊',
+    url: 'https://gis.bnpb.go.id/arcgis/rest/services/inarisk/bahaya_banjir/ImageServer',
+    type: 'ImageServer',
+    group: 'BNPB',
+  },
+  {
+    id: 'gempa_img',
+    label: 'Gempa Bumi — InARISK (BNPB)',
+    color: '#ff7f11',
+    emoji: '🌋',
+    url: 'https://gis.bnpb.go.id/arcgis/rest/services/inarisk/bahaya_gempabumi/ImageServer',
+    type: 'ImageServer',
+    group: 'BNPB',
+  },
+  {
+    id: 'tanah_longsor_img',
+    label: 'Tanah Longsor — InARISK (BNPB)',
+    color: '#84cc16',
+    emoji: '⛰️',
+    url: 'https://gis.bnpb.go.id/arcgis/rest/services/inarisk/bahaya_tanah_longsor/ImageServer',
+    type: 'ImageServer',
+    group: 'BNPB',
+  },
+  {
+    id: 'tsunami_img',
+    label: 'Tsunami — InARISK (BNPB)',
+    color: '#06b6d4',
+    emoji: '🌊',
+    url: 'https://gis.bnpb.go.id/arcgis/rest/services/inarisk/bahaya_tsunami/ImageServer',
+    type: 'ImageServer',
+    group: 'BNPB',
+  },
+  {
+    id: 'cuaca_ekstrim_img',
+    label: 'Cuaca Ekstrem — InARISK (BNPB)',
+    color: '#eab308',
+    emoji: '⚡',
+    url: 'https://gis.bnpb.go.id/arcgis/rest/services/inarisk/bahaya_cuaca_ekstrem/ImageServer',
+    type: 'ImageServer',
+    group: 'BNPB',
+  },
+];
+
+export default function DashboardLeafletK5({ flyTo }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mapRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const baseLayersRef = useRef<Record<string, any>>({});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const overlayLayersRef = useRef<Record<string, any>>({});
+  const kjsLayerRef = useRef<L.GeoJSON | null>(null);
+
+  const [activeBasemap, setActiveBasemap] = useState('esri_imagery');
+  const [activeOverlays, setActiveOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
+  const [draftOverlays, setDraftOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
+  const [showLayerModal, setShowLayerModal] = useState(false);
+  const [layerSearch, setLayerSearch] = useState('');
+  const [layerGroupFilter, setLayerGroupFilter] = useState('ALL');
+  
+  const [glassSearchQuery, setGlassSearchQuery] = useState('');
+  const [glassSearchResults, setGlassSearchResults] = useState<Array<{ display_name: string; lat: string; lon: string }>>([]);
+
+  // Open layer modal and sync draft
+  const handleOpenLayerModal = () => {
+    setDraftOverlays([...activeOverlays]);
+    setShowLayerModal(true);
+  };
+
+  // Apply selected layers from modal to main map
+  const handleApplyLayers = () => {
+    setActiveOverlays([...draftOverlays]);
+    setShowLayerModal(false);
+  };
+
+  // Glassmorphic Search Location
+  const handleGlassSearch = async () => {
+    if (!glassSearchQuery.trim()) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(glassSearchQuery)}&countrycodes=id`);
+      const json = await res.json();
+      setGlassSearchResults(json || []);
+    } catch {
+      setGlassSearchResults([]);
+    }
+  };
+
+  // Initialize Map
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    const map = L.map(containerRef.current, {
+      center: [-2.5489, 118.0149],
+      zoom: 5,
+      zoomControl: false,
+    });
+    mapRef.current = map;
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // Setup Basemaps
+    BASEMAPS.forEach((bm) => {
+      const group = L.layerGroup();
+      bm.layers.forEach((l) => {
+        L.tileLayer(l.url, { attribution: l.attr, maxZoom: 19 }).addTo(group);
+      });
+      baseLayersRef.current[bm.id] = group;
+    });
+
+    if (baseLayersRef.current['esri_imagery']) {
+      baseLayersRef.current['esri_imagery'].addTo(map);
+    }
+
+    // Load GeoJSON
+    fetch('/data/kjs_bencana.json')
+      .then((r) => r.json())
+      .then((geoJsonData) => {
+        const geoLayer = L.geoJSON(geoJsonData, {
+          style: { color: '#0EA5E9', weight: 1.5, opacity: 0.8, fillOpacity: 0.15 },
+          onEachFeature: (feature, layer) => {
+            const prop = feature.properties || {};
+            layer.bindPopup(`
+              <div style="font-family:sans-serif; padding:4px;">
+                <div style="font-weight:bold; color:#19506e; font-size:12px;">${prop.WADMKK || prop.NAMOBJ || 'Wilayah Dukcapil'}</div>
+                <div style="font-size:11px; color:#555; margin-top:2px;">Provinsi: ${prop.WADMPR || '-'}</div>
+              </div>
+            `);
+          },
+        });
+        kjsLayerRef.current = geoLayer;
+        geoLayer.addTo(map);
+      })
+      .catch(() => null);
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  // Update Basemap
+  useEffect(() => {
+    if (!mapRef.current) return;
+    Object.keys(baseLayersRef.current).forEach((id) => {
+      if (id === activeBasemap) {
+        baseLayersRef.current[id].addTo(mapRef.current);
+      } else {
+        mapRef.current.removeLayer(baseLayersRef.current[id]);
+      }
+    });
+  }, [activeBasemap]);
+
+  // Update Overlay Layers on main map
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    BNPB_LAYERS.forEach((l) => {
+      if (activeOverlays.includes(l.id)) {
+        if (!overlayLayersRef.current[l.id]) {
+          if (l.type === 'ImageServer' || l.type === 'MapServer') {
+            const tileLayer = L.tileLayer(`${l.url}/tile/{z}/{y}/{x}`, { maxZoom: 19, opacity: 0.7 });
+            overlayLayersRef.current[l.id] = tileLayer;
+          }
+        }
+        if (overlayLayersRef.current[l.id]) {
+          overlayLayersRef.current[l.id].addTo(mapRef.current);
+        }
+      } else {
+        if (overlayLayersRef.current[l.id]) {
+          mapRef.current.removeLayer(overlayLayersRef.current[l.id]);
+        }
+      }
+    });
+  }, [activeOverlays]);
+
+  // Handle FlyTo
+  useEffect(() => {
+    if (mapRef.current && flyTo) {
+      mapRef.current.flyTo([flyTo.lat, flyTo.lng], flyTo.zoom, { duration: 1.5 });
+    }
+  }, [flyTo]);
+
+  // Filtered layers for modal selection
+  const filteredModalLayers = BNPB_LAYERS.filter((l) => {
+    const matchesSearch = l.label.toLowerCase().includes(layerSearch.toLowerCase()) || l.group?.toLowerCase().includes(layerSearch.toLowerCase());
+    const matchesGroup = layerGroupFilter === 'ALL' || l.group === layerGroupFilter;
+    return matchesSearch && matchesGroup;
+  });
+
+  return (
+    <div className="relative w-full h-full overflow-hidden font-sans">
+      {/* Map Container */}
+      <div ref={containerRef} className="w-full h-full z-0" />
+
+      {/* 1. GLASSMORPHIC ELEGANT SEARCH FLOATING TOOLBAR */}
+      <div className="absolute top-4 left-4 z-[400] max-w-sm w-full space-y-2">
+        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white/40 backdrop-blur-xl border border-white/60 shadow-lg transition-all duration-200 focus-within:bg-white/70 focus-within:border-white">
+          <input
+            type="text"
+            placeholder="Cari lokasi / wilayah..."
+            value={glassSearchQuery}
+            onChange={(e) => setGlassSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleGlassSearch()}
+            className="flex-1 bg-transparent border-none outline-none px-3 text-xs text-slate-900 placeholder:text-slate-600 font-medium"
+          />
+          <button
+            onClick={handleGlassSearch}
+            className="w-8 h-8 rounded-xl bg-[#1f8080]/80 hover:bg-[#1f8080] text-white flex items-center justify-center backdrop-blur-md shadow-xs transition-all hover:scale-105"
+            title="Cari"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+
+          {/* Trigger Full Layer Modal Button */}
+          <button
+            onClick={handleOpenLayerModal}
+            className="px-3 h-8 rounded-xl bg-white/50 hover:bg-white/80 text-[#19506e] font-bold text-xs flex items-center gap-1.5 border border-white/80 shadow-xs transition-all hover:scale-105"
+          >
+            <Layers className="w-4 h-4 text-[#1f8080]" />
+            <span className="hidden sm:inline">Layer ({activeOverlays.length})</span>
+          </button>
+        </div>
+
+        {/* Search Results Dropdown Glass Panel */}
+        {glassSearchResults.length > 0 && (
+          <div className="bg-white/80 backdrop-blur-xl border border-white/80 rounded-2xl p-2 shadow-xl space-y-1 max-h-48 overflow-y-auto">
+            {glassSearchResults.map((res, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  if (mapRef.current) {
+                    mapRef.current.flyTo([parseFloat(res.lat), parseFloat(res.lon)], 11);
+                    setGlassSearchResults([]);
+                  }
+                }}
+                className="w-full text-left p-2 rounded-xl text-xs hover:bg-[#1f8080]/10 hover:text-[#19506e] transition-colors truncate font-medium text-slate-700"
+              >
+                📍 {res.display_name}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 2. FULL MODAL/POPUP LAYER SELECTION (EXPANDED TO MAP CANVAS AREA) */}
+      {showLayerModal && (
+        <div className="absolute inset-4 z-[500] bg-white/90 backdrop-blur-2xl border border-white/80 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          {/* Modal Header */}
+          <div className="bg-[#19506e] text-white px-6 py-4 flex items-center justify-between border-b border-white/10 shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-[#1f8080] text-white shadow-xs">
+                <Layers className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="font-bold text-sm tracking-tight text-white">Pusat Layer Geospasial & Tematik Bencana (K5)</h2>
+                <p className="text-[11px] text-slate-300">Pilih layer geospasial resmi BNPB, BAPPENAS, BIG, dan Dukcapil</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowLayerModal(false)}
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Modal Body: 3 GRID LAYOUT */}
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0 overflow-hidden">
+            {/* GRID 1: LEFT 30% WIDTH - SEARCH & LAYER SELECTION LIST */}
+            <div className="lg:col-span-4 border-r border-slate-200/80 p-5 flex flex-col gap-4 bg-slate-50/60 overflow-y-auto">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#19506e] uppercase tracking-wider block">1. Cari & Filter Layer</label>
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Filter nama layer / sumber..."
+                    value={layerSearch}
+                    onChange={(e) => setLayerSearch(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 outline-none focus:border-[#1f8080] font-medium"
+                  />
+                </div>
+              </div>
+
+              {/* Group Filter Buttons */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {['ALL', 'BNPB', 'BIG', 'BAPPENAS', 'KEMENDAGRI'].map((grp) => (
+                  <button
+                    key={grp}
+                    onClick={() => setLayerGroupFilter(grp)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                      layerGroupFilter === grp
+                        ? 'bg-[#1f8080] text-white shadow-xs'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:border-[#1f8080]'
+                    }`}
+                  >
+                    {grp}
+                  </button>
+                ))}
+              </div>
+
+              {/* Available Layers List */}
+              <div className="flex-1 space-y-2 overflow-y-auto pr-1">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Layer Tersedia ({filteredModalLayers.length})</label>
+                {filteredModalLayers.map((layer) => {
+                  const isSelected = draftOverlays.includes(layer.id);
+                  return (
+                    <div
+                      key={layer.id}
+                      onClick={() => {
+                        setDraftOverlays((prev) =>
+                          isSelected ? prev.filter((id) => id !== layer.id) : [...prev, layer.id]
+                        );
+                      }}
+                      className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                        isSelected
+                          ? 'bg-white border-[#1f8080] shadow-sm ring-2 ring-[#1f8080]/20'
+                          : 'bg-white border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded-md flex items-center justify-center border transition-colors ${
+                          isSelected ? 'bg-[#1f8080] border-[#1f8080] text-white' : 'border-slate-300'
+                        }`}>
+                          {isSelected && <Check className="w-3.5 h-3.5" />}
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-slate-800 leading-tight">{layer.emoji} {layer.label}</div>
+                          <span className="text-[10px] text-slate-500 font-medium">{layer.group}</span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 font-bold text-slate-600">
+                        {layer.type || 'GIS'}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* RIGHT SIDE GRID 2 & GRID 3 (70% WIDTH) */}
+            <div className="lg:col-span-8 flex flex-col h-full bg-white">
+              {/* GRID 2 (TOP): PREVIEW SECTION */}
+              <div className="h-1/2 p-5 border-b border-slate-200 flex flex-col">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold text-[#19506e] uppercase tracking-wider flex items-center gap-2">
+                    <Eye className="w-4 h-4 text-[#1f8080]" />
+                    <span>2. Pratinjau Skema Basemap & Layer</span>
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-500 font-medium">Pilih Basemap:</span>
+                    <select
+                      value={activeBasemap}
+                      onChange={(e) => setActiveBasemap(e.target.value)}
+                      className="bg-slate-100 border border-slate-200 rounded-xl px-3 py-1 text-xs font-bold text-[#19506e] outline-none"
+                    >
+                      {BASEMAPS.map((bm) => (
+                        <option key={bm.id} value={bm.id}>{bm.emoji} {bm.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Preview Box */}
+                <div className="flex-1 rounded-2xl bg-slate-900 border border-slate-200 p-4 text-white relative overflow-hidden flex flex-col justify-between">
+                  <div className="z-10 bg-black/50 backdrop-blur-md p-3 rounded-xl max-w-sm space-y-1">
+                    <h4 className="text-xs font-bold text-white">Pratinjau Konfigurasi Aktif</h4>
+                    <p className="text-[11px] text-slate-300">Layer yang dipilih akan langsung di-render ke peta GIS utama begitu tombol diterapkan diklik.</p>
+                  </div>
+
+                  <div className="z-10 flex items-center gap-2">
+                    <span className="text-xs font-bold bg-[#1f8080] px-3 py-1 rounded-full">Basemap: {BASEMAPS.find((b) => b.id === activeBasemap)?.label}</span>
+                    <span className="text-xs font-bold bg-white/20 px-3 py-1 rounded-full">{draftOverlays.length} Layer Terpilih</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* GRID 3 (BOTTOM): SELECTED LAYERS MANAGEMENT & APPLY BUTTON */}
+              <div className="h-1/2 p-5 flex flex-col justify-between bg-slate-50/40">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#19506e] uppercase tracking-wider">3. Layer Yang Dipilih ({draftOverlays.length})</span>
+                    {draftOverlays.length > 0 && (
+                      <button
+                        onClick={() => setDraftOverlays([])}
+                        className="text-xs font-semibold text-rose-500 hover:underline"
+                      >
+                        Reset Pilihan
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto">
+                    {draftOverlays.length === 0 ? (
+                      <div className="text-xs text-slate-400 italic py-4">Belum ada layer terpilih. Silakan pilih dari panel sebelah kiri.</div>
+                    ) : (
+                      draftOverlays.map((id) => {
+                        const lyr = BNPB_LAYERS.find((l) => l.id === id);
+                        if (!lyr) return null;
+                        return (
+                          <div
+                            key={id}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#1f8080]/40 text-xs font-bold text-[#19506e] shadow-2xs"
+                          >
+                            <span>{lyr.emoji} {lyr.label}</span>
+                            <button
+                              onClick={() => setDraftOverlays((prev) => prev.filter((x) => x !== id))}
+                              className="text-slate-400 hover:text-rose-500"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                {/* Footer Apply Button */}
+                <div className="pt-4 border-t border-slate-200 flex items-center justify-between">
+                  <span className="text-xs text-slate-500">Klik &quot;Terapkan Layer&quot; untuk merender data pada peta utama.</span>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setShowLayerModal(false)}
+                      className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      onClick={handleApplyLayers}
+                      className="px-6 py-2.5 rounded-xl bg-[#1f8080] hover:bg-[#1f8080]/90 text-white text-xs font-bold shadow-md transition-all flex items-center gap-2 hover:scale-105"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>Terapkan Layer Ke Peta</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

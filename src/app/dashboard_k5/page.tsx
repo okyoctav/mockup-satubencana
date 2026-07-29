@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import AlertTicker from '@/components/dashboard/AlertTicker';
 import StatCards from '@/components/dashboard/StatCards';
-import DashboardMapK4 from '@/components/dashboard/DashboardMapK4';
+import DashboardMapK5 from '@/components/dashboard/DashboardMapK5';
 import FilterPanel from '@/components/dashboard/FilterPanel';
 import ChartSection from '@/components/dashboard/ChartSection';
 import AnalysisModelsSection from '@/components/dashboard/AnalysisModelsSection';
@@ -331,7 +331,7 @@ export default function DashboardK5Page() {
                 </div>
 
                 <div className="w-full h-full">
-                  <DashboardMapK4 data={filteredData} flyTo={flyTo} theme={theme} />
+                  <DashboardMapK5 data={filteredData} flyTo={flyTo} theme={theme} />
                 </div>
               </div>
 
