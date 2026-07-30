@@ -566,7 +566,7 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
     };
   }, []);
 
-  // Render Disaster JSON Markers
+  // Render Disaster JSON Markers (Smaller size for clean aesthetic)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -577,9 +577,10 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
 
     data.forEach((k) => {
       const color = JENIS_COLOR[k.jenis] ?? '#94A3B8';
-      const radius = Math.min(8 + k.korban_jiwa * 0.3 + k.pengungsi * 0.001, 22);
+      // Reduced radius for cleaner thematic look
+      const radius = Math.min(4 + k.korban_jiwa * 0.15 + k.pengungsi * 0.0005, 12);
       const circle = L.circleMarker([k.lat, k.lng], {
-        radius, color: k.status === 'saat' ? '#EF4444' : color, fillColor: color, fillOpacity: 0.7, weight: 2,
+        radius, color: k.status === 'saat' ? '#EF4444' : color, fillColor: color, fillOpacity: 0.8, weight: 1.5,
       });
       circle.bindPopup(`
         <div style="font-family:sans-serif; min-width:180px;">
@@ -814,13 +815,15 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
         try {
           const stats = await queryHexbinRes9Stats(layer);
           popup.setContent(`
-            <div style="font-family:sans-serif; min-width:220px; font-size:11px;">
-              <div style="font-weight:bold; color:#19506e; border-b:1px solid #ddd; pb-1; margin-bottom:6px;">📐 Estimasi Dampak Kependudukan (BAPPENAS)</div>
-              <div>👨 Laki-laki: <b>${stats.totalLakiLaki.toLocaleString('id')}</b></div>
-              <div>👩 Perempuan: <b>${stats.totalPerempuan.toLocaleString('id')}</b></div>
-              <div>👴 Lansia: <b>${stats.totalLansia.toLocaleString('id')}</b></div>
-              <div>🧒 Balita: <b>${stats.totalBalita.toLocaleString('id')}</b></div>
-              <div>🏠 Total Keluarga: <b>${stats.totalKeluarga.toLocaleString('id')}</b></div>
+            <div style="font-family:sans-serif; min-width:240px; font-size:11px; color:#0F172A;">
+              <div style="font-weight:bold; color:#19506e; border-bottom:1.5px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px;">📐 Estimasi Dampak Kependudukan (BAPPENAS)</div>
+              <div style="display:flex; justify-between; margin-bottom:2px;"><span>👨 Laki-laki:</span><b>${stats.totalLakiLaki.toLocaleString('id')}</b></div>
+              <div style="display:flex; justify-between; margin-bottom:2px;"><span>👩 Perempuan:</span><b>${stats.totalPerempuan.toLocaleString('id')}</b></div>
+              <div style="display:flex; justify-between; margin-bottom:2px;"><span>👴 Lansia:</span><b>${stats.totalLansia.toLocaleString('id')}</b></div>
+              <div style="display:flex; justify-between; margin-bottom:2px;"><span>🧒 Balita:</span><b>${stats.totalBalita.toLocaleString('id')}</b></div>
+              <div style="display:flex; justify-between; margin-bottom:2px; color:#06B6D4;"><span>🧾 Disabilitas Berat (PD1):</span><b>${stats.totalPd1.toLocaleString('id')}</b></div>
+              <div style="display:flex; justify-between; margin-bottom:2px; color:#8B5CF6;"><span>📊 Disabilitas Sedang (PD2):</span><b>${stats.totalPd2.toLocaleString('id')}</b></div>
+              <div style="display:flex; justify-between; margin-top:4px; pt-1; border-top:1px dashed #DDD;"><span>🏠 Total Keluarga:</span><b>${stats.totalKeluarga.toLocaleString('id')}</b></div>
             </div>
           `);
         } catch {
@@ -895,30 +898,28 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
         )}
       </div>
 
-      {/* 2. FLOATING CONTROL BUTTONS (DRAW ESTIMATOR, LIVE BMKG, BENCANA JSON, LEGENDA) */}
+      {/* 2. FLOATING CONTROL BUTTONS (DRAW ESTIMATOR, LIVE BMKG, BENCANA JSON, LEGENDA) - ICON ONLY */}
       <div className="absolute top-4 right-4 z-[400] flex flex-col gap-2">
         {/* Toggle BMKG Live */}
         <button
           onClick={() => setShowBmkg(!showBmkg)}
-          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center gap-2 ${
+          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center ${
             showBmkg ? 'bg-[#19506e] text-white border-white/40' : 'bg-white/80 text-slate-700 border-white/80'
           }`}
           title="Toggle BMKG Gempa Terkini"
         >
           <Activity className="w-4 h-4 text-emerald-400" />
-          <span className="text-xs font-bold hidden sm:inline">BMKG ({bmkgData.length})</span>
         </button>
 
         {/* Toggle Draw Tools Estimator */}
         <button
           onClick={() => setShowDrawTools(!showDrawTools)}
-          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center gap-2 ${
+          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center ${
             showDrawTools ? 'bg-[#1f8080] text-white border-white/40' : 'bg-white/80 text-slate-700 border-white/80'
           }`}
           title="Simulasi Estimasi Demografi Draw"
         >
           <Pencil className="w-4 h-4" />
-          <span className="text-xs font-bold hidden sm:inline">Draw Estimator</span>
         </button>
 
         {/* Draw Tool Panel */}
@@ -943,25 +944,23 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
         {/* Toggle Bencana JSON Markers */}
         <button
           onClick={() => setShowBencanaData(!showBencanaData)}
-          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center gap-2 ${
+          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center ${
             showBencanaData ? 'bg-[#19506e] text-white border-white/40' : 'bg-white/80 text-slate-700 border-white/80'
           }`}
           title="Toggle Titik Kejadian Bencana"
         >
           <MapPin className="w-4 h-4 text-sky-400" />
-          <span className="text-xs font-bold hidden sm:inline">Data Bencana</span>
         </button>
 
         {/* Toggle Legenda */}
         <button
           onClick={() => setShowLegend(!showLegend)}
-          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center gap-2 ${
+          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center ${
             showLegend ? 'bg-[#19506e] text-white border-white/40' : 'bg-white/80 text-slate-700 border-white/80'
           }`}
           title="Tampilkan Legenda Peta"
         >
           <BarChart2 className="w-4 h-4" />
-          <span className="text-xs font-bold hidden sm:inline">Legenda</span>
         </button>
 
         {/* Legenda Floating Box */}

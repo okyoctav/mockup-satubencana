@@ -8,6 +8,7 @@ import DashboardMapK5 from '@/components/dashboard/DashboardMapK5';
 import FilterPanel from '@/components/dashboard/FilterPanel';
 import ChartSection from '@/components/dashboard/ChartSection';
 import AnalysisModelsSection from '@/components/dashboard/AnalysisModelsSection';
+import LogisticAnalysisSection from '@/components/dashboard/LogisticAnalysisSection';
 import bencanaData from '@/data/bencana.json';
 import WilayahDropdown, { FilterWilayah } from '@/components/dashboard/WilayahDropdown';
 import {
@@ -15,6 +16,7 @@ import {
   BarChart3,
   ShieldAlert,
   Layers,
+  PackageCheck,
   Database,
   Lock,
   ArrowLeft,
@@ -51,7 +53,7 @@ export default function DashboardK5Page() {
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [filters, setFilters] = useState({ jenis: 'Semua', status: 'Semua', level: 'Semua' });
   const [activeFilter, setActiveFilter] = useState<FilterWilayah | null>(null);
-  const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics'>('map');
   const [isMapExpanded, setIsMapExpanded] = useState(false);
 
   const handleClearSearch = () => {
@@ -302,14 +304,26 @@ export default function DashboardK5Page() {
 
               <button
                 onClick={() => setActiveTab('models')}
-                className={`flex-1 min-w-[260px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 min-w-[240px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                   activeTab === 'models'
                     ? 'bg-[#19506e] text-white shadow-md'
                     : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
                 }`}
               >
                 <ShieldAlert className="w-4 h-4" />
-                <span>Model Kerentanan & Respon Bencana</span>
+                <span>Model Kerentanan & Respon</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('logistics')}
+                className={`flex-1 min-w-[240px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  activeTab === 'logistics'
+                    ? 'bg-[#19506e] text-white shadow-md'
+                    : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
+                }`}
+              >
+                <PackageCheck className="w-4 h-4" />
+                <span>Analisis Kebutuhan Logistik</span>
               </button>
             </nav>
           </div>
@@ -320,7 +334,7 @@ export default function DashboardK5Page() {
               {/* GIS Map Canvas */}
               <div
                 className={`${
-                  isMapExpanded ? 'lg:col-span-1 h-[720px]' : 'lg:col-span-3 h-[580px]'
+                  isMapExpanded ? 'lg:col-span-1 min-h-[700px]' : 'lg:col-span-3 min-h-[560px]'
                 } bg-white rounded-2xl border-2 border-[#19506e]/20 shadow-md overflow-hidden relative group transition-all duration-300`}
               >
                 {/* Header overlay badge */}
@@ -389,9 +403,15 @@ export default function DashboardK5Page() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+              <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
                 <AnalysisModelsSection />
               </div>
+            </section>
+          )}
+
+          {activeTab === 'logistics' && (
+            <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+              <LogisticAnalysisSection />
             </section>
           )}
         </main>
