@@ -387,10 +387,10 @@ async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDamp
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (json.features ?? []).forEach((ft: any) => {
         const a = ft.attributes ?? {};
-        const kel = a.NAMOBJ || a.KELURAHAN || a.DESA || a.DESA_KEL || a.NAMWS || a.NAME || '';
-        const kec = a.WADMKC || a.KECAMATAN || a.KEC || '';
-        const kab = a.WADMKK || a.KABUPATEN || a.KAB_KOTA || a.KAB || '';
-        const prov = a.WADMPR || a.PROVINSI || a.PROV || '';
+        const prov = a.WADMPR || a.PROVINSI || a.PROV || a.field1 || a.FIELD1 || '';
+        const kab  = a.WADMKK || a.KABUPATEN || a.KAB_KOTA || a.KAB || a.field2 || a.FIELD2 || '';
+        const kec  = a.WADMKC || a.KECAMATAN || a.KEC || a.field3 || a.FIELD3 || '';
+        const kel  = a.NAMOBJ || a.KELURAHAN || a.DESA || a.DESA_KEL || a.field4 || a.FIELD4 || a.NAMWS || a.NAME || '';
         if (kel || kec || kab) {
           const key = `${kel}-${kec}-${kab}`;
           if (!seen.has(key)) {
