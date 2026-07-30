@@ -96,83 +96,113 @@ const BASEMAPS = [
   },
 ];
 
+const BNPB_BASE = 'https://gis.bnpb.go.id/server/rest/services/inarisk';
 const HEXBIN_RES9_URL = 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/hexbin_agg9/MapServer/0';
 
 const BNPB_LAYERS: BnpbLayer[] = [
-  {
-    id: 'kjs_kabkota',
-    label: 'BAPPENAS — KJS Kab/Kota Risk 2024',
-    color: '#1aa7ed',
-    emoji: '🏙️',
-    url: 'https://geoservices.bappenas.go.id/arcgis/rest/services/KJS/KJS_KabKota_Risk_2024/MapServer',
-    type: 'MapServer',
-    group: 'BAPPENAS',
-    extent: [95.0, -11.0, 141.0, 6.0],
-  },
-  {
-    id: 'dukcapil_kabkota',
-    label: 'Kemendagri — Dukcapil GeoJSON Population',
-    color: '#0EA5E9',
-    emoji: '👥',
-    url: '/data/kjs_bencana.json',
-    group: 'KEMENDAGRI',
-  },
-  {
-    id: 'big_batas_prov',
-    label: 'BIG — Batas Provinsi Indonesia',
-    color: '#22C55E',
-    emoji: '🌿',
-    url: 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/Batas_Provinsi_2024/MapServer',
-    type: 'MapServer',
-    group: 'BIG',
-    extent: [95.0, -11.0, 141.0, 6.0],
-  },
-  {
-    id: 'banjir_img',
-    label: 'Banjir — InARISK (BNPB)',
-    color: '#35a7ff',
-    emoji: '🌊',
-    url: 'https://gis.bnpb.go.id/arcgis/rest/services/inarisk/bahaya_banjir/ImageServer',
-    type: 'ImageServer',
-    group: 'BNPB',
-  },
-  {
-    id: 'gempa_img',
-    label: 'Gempa Bumi — InARISK (BNPB)',
-    color: '#ff7f11',
-    emoji: '🌋',
-    url: 'https://gis.bnpb.go.id/arcgis/rest/services/inarisk/bahaya_gempabumi/ImageServer',
-    type: 'ImageServer',
-    group: 'BNPB',
-  },
-  {
-    id: 'tanah_longsor_img',
-    label: 'Tanah Longsor — InARISK (BNPB)',
-    color: '#84cc16',
-    emoji: '⛰️',
-    url: 'https://gis.bnpb.go.id/arcgis/rest/services/inarisk/bahaya_tanah_longsor/ImageServer',
-    type: 'ImageServer',
-    group: 'BNPB',
-  },
-  {
-    id: 'tsunami_img',
-    label: 'Tsunami — InARISK (BNPB)',
-    color: '#06b6d4',
-    emoji: '🌊',
-    url: 'https://gis.bnpb.go.id/arcgis/rest/services/inarisk/bahaya_tsunami/ImageServer',
-    type: 'ImageServer',
-    group: 'BNPB',
-  },
-  {
-    id: 'cuaca_ekstrim_img',
-    label: 'Cuaca Ekstrem — InARISK (BNPB)',
-    color: '#eab308',
-    emoji: '⚡',
-    url: 'https://gis.bnpb.go.id/arcgis/rest/services/inarisk/bahaya_cuaca_ekstrem/ImageServer',
-    type: 'ImageServer',
-    group: 'BNPB',
-  },
+  // BIG — Badan Informasi Geospasial
+  { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
+  { id: 'big_rbi_sulawesi_lot1',       label: 'RBI Sulawesi 2024 Lot 1',      color: '#A855F7', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI_5K_Sulawesi_2024_Lot_1_Jul/VectorTileServer',         type: 'VectorTileServer', group: 'BIG' },
+  { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
+  { id: 'big_bangunan_fasum_sulawesi', label: 'Bangunan Fasum Sulawesi 2024', color: '#F59E0B', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_BANGUNAN_FASUM_SULAWESI_2024/VectorTileServer', type: 'VectorTileServer', group: 'BIG' },
+  { id: 'petadasar_bitung', label: 'Peta Dasar Bitung 2024', color: '#F472B6', emoji: '🏢', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/PETADASAR_SULAWESI_BITUNG_2024_5K/MapServer/18', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:all', extent: [125.088, 1.375, 125.229, 1.476] },
+  // BNPB InARISK
+  { id: 'banjir_wms', label: 'Banjir WMS', color: '#0EA5E9', emoji: '🌊', url: 'https://inarisk1.bnpb.go.id:8443/geoserver/raster/wms', type: 'WMS', group: 'BNPB', layersParam: 'raster:INDEKS_BAHAYA_BANJIR1' },
+  { id: 'longsor_wms', label: 'Longsor WMS', color: '#F97316', emoji: '⛰️', url: 'https://inarisk1.bnpb.go.id:8443/geoserver/raster/wms', type: 'WMS', group: 'BNPB', layersParam: 'raster:INDEKS_BAHAYA_TANAHLONGSOR1' },
+  { id: 'cuacaekstrim_wms', label: 'Cuaca Ekstrim WMS', color: '#F97316', emoji: '⛰️', url: 'https://inarisk1.bnpb.go.id:8443/geoserver/raster/wms', type: 'WMS', group: 'BNPB', layersParam: 'raster:INDEKS_BAHAYA_CUACAEKSTRIM1' },
+  // NEW
+  { id: 'cuaca_ekstrim_img', label: 'Cuaca Ekstrim',      color: '#06B6D4', emoji: '🌪️', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/layer_bahaya_cuaca_ekstrim/ImageServer', type: 'ImageServer', group: 'BNPB' },
+  { id: 'banjir',        label: 'Bahaya Banjir',      color: '#0EA5E9', emoji: '🌊', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/INDEKS_BAHAYA_BANJIR/ImageServer', type: 'ImageServer',group: 'BNPB' },
+  { id: 'banjir_bandang',label: 'Banjir Bandang',     color: '#0369A1', emoji: '💧', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/INDEKS_BAHAYA_BANJIRBANDANG/ImageServer', type: 'ImageServer', group: 'BNPB' },
+  { id: 'longsor',       label: 'Tanah Longsor',       color: '#F97316', emoji: '⛰️', url: `${BNPB_BASE}/layer_bahaya_tanah_longsor_30/MapServer`, group: 'BNPB' },
+  { id: 'gempa',         label: 'Gempa Bumi',          color: '#EF4444', emoji: '📳', url: `${BNPB_BASE}/layer_bahaya_gempabumi_30/MapServer`, group: 'BNPB' },
+  { id: 'tsunami',       label: 'Tsunami',             color: '#EC4899', emoji: '🌊', url: `${BNPB_BASE}/layer_bahaya_tsunami_30/MapServer`, group: 'BNPB' },
+  { id: 'gunungapi',     label: 'Letusan Gunung Api',  color: '#8B5CF6', emoji: '🌋', url: `${BNPB_BASE}/layer_bahaya_letusan_gunungapi/MapServer`, group: 'BNPB' },
+  { id: 'karhutla',      label: 'Kebakaran Hutan',     color: '#F59E0B', emoji: '🔥', url: `${BNPB_BASE}/layer_bahaya_kebakaran_hutan_dan_lahan_30/MapServer`, group: 'BNPB' },
+  { id: 'kekeringan',    label: 'Kekeringan',          color: '#D97706', emoji: '☀️', url: `${BNPB_BASE}/layer_bahaya_kekeringan_30/MapServer`, group: 'BNPB' },
+  { id: 'cuaca_ekstrim', label: 'Cuaca Ekstrim (MS)',  color: '#0891B2', emoji: '⛅', url: `${BNPB_BASE}/layer_bahaya_cuaca_ekstrim_30/MapServer`, group: 'BNPB' },
+  { id: 'dukcapil_kel_fix', label: 'Kependudukan Kelurahan', color: '#3B82F6', emoji: '👥', url: 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/services/AGR_VISUAL_KEL_FIX/MapServer/0', type: 'MapServer', group: 'KEMENDAGRI' },
+  { id: 'Peta_Curah_Hujan_dan_Hari_Hujan', label: 'Curah Hujan', color: '#3B82F6', emoji: '👥', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Peta_Curah_Hujan_dan_Hari_Hujan/MapServer/0', type: 'MapServer', group: 'BMKG' },
+  { id: 'Peta_Curah_Hujan_dan_Hari_Hujan_sebaran', label: 'Curah Hujan Sebaran', color: '#3B82F6', emoji: '👥', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Peta_Curah_Hujan_dan_Hari_Hujan/MapServer/1570', type: 'MapServer', group: 'BMKG' },
 ];
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createVectorTileLayer(L: any, serviceUrl: string, color: string): any {
+  const tileUrl = `${serviceUrl}/tile/{z}/{y}/{x}.pbf`;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const VG = (L as any).vectorGrid ?? (window as any).L?.vectorGrid;
+  if (!VG) return null;
+  return VG.protobuf(tileUrl, {
+    vectorTileLayerStyles: new Proxy({}, {
+      get: () => ({
+        weight: 1,
+        color,
+        fillColor: color,
+        fillOpacity: 0.35,
+        opacity: 0.8,
+        fill: true,
+      }),
+    }),
+    interactive: false,
+    attribution: '© BIG RBI',
+    maxNativeZoom: 14,
+    maxZoom: 20,
+  });
+}
+
+function tileToBbox3857(x: number, y: number, z: number): string {
+  const R = 20037508.342789244;
+  const n = Math.pow(2, z);
+  return `${(x/n)*2*R-R},${R-((y+1)/n)*2*R},${((x+1)/n)*2*R-R},${R-(y/n)*2*R}`;
+}
+
+function tileToBbox4326(x: number, y: number, z: number): string {
+  const n = Math.pow(2, z);
+  const west  = (x / n) * 360 - 180;
+  const east  = ((x + 1) / n) * 360 - 180;
+  const north = (Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))) * 180) / Math.PI;
+  const south = (Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + 1) / n))) * 180) / Math.PI;
+  return `${west},${south},${east},${north}`;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, isImageServer = false, useLngLat = false, layersParam = 'show:0'): any {
+  let cleanUrl = serviceUrl;
+  let localLayersParam = layersParam;
+  const match = serviceUrl.match(/\/MapServer\/(\d+)$/);
+  if (match && match.index !== undefined) {
+    cleanUrl = serviceUrl.substring(0, match.index + 10);
+    localLayersParam = `show:${match[1]}`;
+  }
+
+  const ArcLayer = L.GridLayer.extend({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    createTile(coords: { x: number; y: number; z: number }, done: (e: Error | null, t: HTMLImageElement) => void): HTMLImageElement {
+      const img = document.createElement('img');
+      img.alt = '';
+      const bbox   = useLngLat ? tileToBbox4326(coords.x, coords.y, coords.z) : tileToBbox3857(coords.x, coords.y, coords.z);
+      const bboxSR = useLngLat ? '4326' : '3857';
+      const imgSR  = useLngLat ? '4326' : '3857';
+      if (isImageServer) {
+        const params = new URLSearchParams({
+          bbox, bboxSR, imageSR: imgSR, size: '256,256',
+          format: 'png', transparent: 'true', f: 'image',
+        });
+        img.src = `${cleanUrl}/exportImage?${params}`;
+      } else {
+        const params = new URLSearchParams({
+          bbox, bboxSR, imageSR: imgSR, size: '256,256',
+          layers: localLayersParam, format: 'png32', transparent: 'true', f: 'image',
+        });
+        img.src = `${cleanUrl}/export?${params}`;
+      }
+      img.onload = () => done(null, img);
+      img.onerror = () => done(new Error('err'), img);
+      return img;
+    },
+  });
+  return new ArcLayer({ opacity, attribution: '© BIG / BNPB', tileSize: 256 });
+}
 
 const JENIS_COLOR: Record<string, string> = {
   banjir: '#0EA5E9', gempa: '#EF4444', longsor: '#F97316',
@@ -639,16 +669,35 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
       else pMap.removeLayer(previewBaseLayersRef.current[id]);
     });
 
-    BNPB_LAYERS.forEach((l) => {
-      if (draftOverlays.includes(l.id)) {
-        if (!previewOverlayLayersRef.current[l.id]) {
-          if (l.type === 'ImageServer' || l.type === 'MapServer') {
-            previewOverlayLayersRef.current[l.id] = L.tileLayer(`${l.url}/tile/{z}/{y}/{x}`, { maxZoom: 19, opacity: 0.75 });
-          }
-        }
-        if (previewOverlayLayersRef.current[l.id]) previewOverlayLayersRef.current[l.id].addTo(pMap);
+    Object.keys(previewOverlayLayersRef.current).forEach((id) => {
+      if (!draftOverlays.includes(id)) {
+        pMap.removeLayer(previewOverlayLayersRef.current[id]);
+        delete previewOverlayLayersRef.current[id];
+      }
+    });
+
+    draftOverlays.forEach((id) => {
+      if (previewOverlayLayersRef.current[id]) return;
+      const def = BNPB_LAYERS.find((l) => l.id === id);
+      if (!def) return;
+      if (def.type === 'WMS') {
+        previewOverlayLayersRef.current[id] = L.tileLayer.wms(def.url, {
+          layers: def.layersParam ?? '',
+          format: 'image/png',
+          transparent: true,
+          version: '1.1.0',
+          crs: L.CRS.EPSG3857,
+          opacity: 0.75,
+        });
+        previewOverlayLayersRef.current[id].addTo(pMap);
       } else {
-        if (previewOverlayLayersRef.current[l.id]) pMap.removeLayer(previewOverlayLayersRef.current[l.id]);
+        previewOverlayLayersRef.current[id] = createArcGISExportLayer(
+          L, def.url, 0.75,
+          def.type === 'ImageServer',
+          def.useLngLat ?? false,
+          def.layersParam ?? 'show:0'
+        );
+        previewOverlayLayersRef.current[id].addTo(pMap);
       }
     });
   }, [draftBasemap, draftOverlays, showLayerModal]);
@@ -662,19 +711,59 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
     });
   }, [activeBasemap]);
 
-  // Update Main Map Overlays
+  // Update Main Map Overlays (Identical to K4)
   useEffect(() => {
-    if (!mapRef.current) return;
-    BNPB_LAYERS.forEach((l) => {
-      if (activeOverlays.includes(l.id)) {
-        if (!overlayLayersRef.current[l.id]) {
-          if (l.type === 'ImageServer' || l.type === 'MapServer') {
-            overlayLayersRef.current[l.id] = L.tileLayer(`${l.url}/tile/{z}/{y}/{x}`, { maxZoom: 19, opacity: 0.75 });
+    const map = mapRef.current;
+    if (!map) return;
+
+    Object.keys(overlayLayersRef.current).forEach((id) => {
+      if (!activeOverlays.includes(id)) {
+        map.removeLayer(overlayLayersRef.current[id]);
+        delete overlayLayersRef.current[id];
+      }
+    });
+
+    activeOverlays.forEach((id) => {
+      if (overlayLayersRef.current[id]) return;
+      const def = BNPB_LAYERS.find((l) => l.id === id);
+      if (!def) return;
+
+      if (def.type === 'VectorTileServer') {
+        const tryAddVector = () => {
+          if (!mapRef.current || overlayLayersRef.current[id]) return;
+          const vl = createVectorTileLayer(L, def.url, def.color);
+          if (!vl) {
+            const existing = document.getElementById('leaflet-vectorgrid-js');
+            if (existing) existing.addEventListener('load', tryAddVector, { once: true });
+            return;
           }
-        }
-        if (overlayLayersRef.current[l.id]) overlayLayersRef.current[l.id].addTo(mapRef.current);
+          overlayLayersRef.current[id] = vl;
+          vl.addTo(mapRef.current);
+        };
+        tryAddVector();
+      } else if (def.type === 'WMS') {
+        overlayLayersRef.current[id] = L.tileLayer.wms(def.url, {
+          layers: def.layersParam ?? '',
+          format: 'image/png',
+          transparent: true,
+          version: '1.1.0',
+          attribution: '© BNPB',
+          crs: L.CRS.EPSG3857,
+          opacity: 0.72,
+        });
+        overlayLayersRef.current[id].addTo(map);
       } else {
-        if (overlayLayersRef.current[l.id]) mapRef.current.removeLayer(overlayLayersRef.current[l.id]);
+        overlayLayersRef.current[id] = createArcGISExportLayer(
+          L, def.url, 0.72,
+          def.type === 'ImageServer',
+          def.useLngLat ?? false,
+          def.layersParam ?? 'show:0',
+        );
+        overlayLayersRef.current[id].addTo(map);
+        if (def.extent && mapRef.current) {
+          const [minLng, minLat, maxLng, maxLat] = def.extent;
+          mapRef.current.flyToBounds([[minLat, minLng], [maxLat, maxLng]], { duration: 1.5, padding: [20, 20] });
+        }
       }
     });
   }, [activeOverlays]);
