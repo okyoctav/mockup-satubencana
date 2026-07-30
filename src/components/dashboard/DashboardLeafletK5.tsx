@@ -874,24 +874,46 @@ export default function DashboardLeafletK5({ data, flyTo, onDrawEstimation }: Pr
         queryDukcapilKelurahan(layer),
       ]);
 
-      const kelHtml = kelList.length > 0
-        ? `<div style="margin-top:6px; pt-2; border-top:1px dashed #CBD5E1;">
-             <div style="font-weight:700; color:#19506e; margin-bottom:2px;">🏛️ Kelurahan/Desa Terdampak Kemendagri (${kelList.length}):</div>
-             <div style="max-height:80px; overflow-y:auto; font-size:10px; color:#475569;">
-               ${kelList.map((k) => `• <b>${k.namaKelurahan}</b> (${k.namaKecamatan || k.namaKabupaten})`).join('<br/>')}
+      // Group kelurahanDampak by Provinsi & Kabupaten for clean popup display
+      type RegionGroup = { prov: string; kab: string; kels: string[] };
+      const regionGroups: RegionGroup[] = [];
+
+      kelList.forEach((k) => {
+        const prov = k.namaProvinsi || 'Provinsi';
+        const kab = k.namaKabupaten || k.namaKecamatan || 'Kabupaten/Kota';
+        let group = regionGroups.find((g) => g.prov === prov && g.kab === kab);
+        if (!group) {
+          group = { prov, kab, kels: [] };
+          regionGroups.push(group);
+        }
+        if (!group.kels.includes(k.namaKelurahan)) {
+          group.kels.push(k.namaKelurahan);
+        }
+      });
+
+      const kelHtml = regionGroups.length > 0
+        ? `<div style="margin-top:8px; padding-top:6px; border-top:1.5px solid #E2E8F0;">
+             <div style="font-weight:700; color:#19506e; margin-bottom:4px; font-size:11px;">🏛️ Wilayah Terdampak (${kelList.length} Kel/Desa):</div>
+             <div style="max-height:100px; overflow-y:auto; font-size:10px; color:#334155; space-y:3px;">
+               ${regionGroups.map((g) => `
+                 <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:4px 6px; margin-bottom:4px;">
+                   <div style="font-weight:700; color:#19506e;">📍 ${g.prov}, ${g.kab}</div>
+                   <div style="color:#475569; margin-top:2px;">• <b>Kel/Desa:</b> ${g.kels.join(', ')}</div>
+                 </div>
+               `).join('')}
              </div>
            </div>`
         : '';
 
       const content = `
-        <div style="font-family:sans-serif; min-width:250px; font-size:11px; color:#0F172A;">
+        <div style="font-family:sans-serif; min-width:260px; font-size:11px; color:#0F172A;">
           <div style="font-weight:bold; color:#19506e; border-bottom:1.5px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px;">📐 Estimasi Dampak Kependudukan (BAPPENAS & Kemendagri)</div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👨 Laki-laki:</span><b>${stats.totalLakiLaki.toLocaleString('id')}</b></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👩 Perempuan:</span><b>${stats.totalPerempuan.toLocaleString('id')}</b></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👴 Lansia:</span><b>${stats.totalLansia.toLocaleString('id')}</b></div>
-          <div style="display:flex; justify-between; margin-bottom:2px;"><span>🧒 Balita:</span><b>${stats.totalBalita.toLocaleString('id')}</b></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>🧒 Balita:</span><b>${stats.totalBalita.toLocaleString('id')}</b></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px; color:#06B6D4;"><span>🧾 Disabilitas Berat (PD1):</span><b>${stats.totalPd1.toLocaleString('id')}</b></div>
-          <div style="display:flex; justify-between; margin-bottom:2px; color:#8B5CF6;"><span>📊 Disabilitas Sedang (PD2):</span><b>${stats.totalPd2.toLocaleString('id')}</b></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:2px; color:#8B5CF6;"><span>📊 Disabilitas Sedang (PD2):</span><b>${stats.totalPd2.toLocaleString('id')}</b></div>
           <div style="display:flex; justify-content:space-between; margin-top:4px; padding-top:4px; border-top:1px dashed #DDD;"><span>🏠 Total Keluarga:</span><b>${stats.totalKeluarga.toLocaleString('id')}</b></div>
           ${kelHtml}
         </div>
