@@ -893,6 +893,7 @@ export default function DashboardLeafletK5({ data, flyTo, onDrawEstimation }: Pr
         attachEstimationPopup(layer);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeDraw]);
 
   // Handle FlyTo

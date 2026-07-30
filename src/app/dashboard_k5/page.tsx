@@ -397,7 +397,11 @@ export default function DashboardK5Page() {
               </div>
 
               <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
-                <ChartSection data={filteredData} theme={theme} />
+                <ChartSection
+                  theme={theme}
+                  filteredData={activeFilter ? filteredData : undefined}
+                  regionLabel={activeFilter?.nama}
+                />
               </div>
             </section>
           )}
