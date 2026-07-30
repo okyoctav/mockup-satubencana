@@ -638,11 +638,19 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
 
   // Initialize Modal Preview Map Canvas
   useEffect(() => {
-    if (!showLayerModal || !previewContainerRef.current) return;
+    if (!showLayerModal) return;
 
-    let pMap = previewMapRef.current;
-    if (!pMap) {
-      pMap = L.map(previewContainerRef.current, {
+    const timer = setTimeout(() => {
+      if (!previewContainerRef.current) return;
+
+      if (previewMapRef.current) {
+        previewMapRef.current.remove();
+        previewMapRef.current = null;
+        previewOverlayLayersRef.current = {};
+        previewBaseLayersRef.current = {};
+      }
+
+      const pMap = L.map(previewContainerRef.current, {
         center: mapRef.current ? mapRef.current.getCenter() : [-2.5489, 118.0149],
         zoom: mapRef.current ? mapRef.current.getZoom() : 5,
         zoomControl: false,
@@ -655,9 +663,13 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
         bm.layers.forEach((l) => L.tileLayer(l.url, { maxZoom: 19 }).addTo(group));
         previewBaseLayersRef.current[bm.id] = group;
       });
-    }
 
-    setTimeout(() => pMap.invalidateSize(), 100);
+      pMap.invalidateSize();
+    }, 150);
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, [showLayerModal]);
 
   // Update Preview Map Basemap & Overlays Live
@@ -712,7 +724,7 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
     });
   }, [activeBasemap]);
 
-  // Update Main Map Overlays (Identical to K4)
+  // Update Main Map Overlays (Re-rendered in array order for drag-and-drop z-index)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -725,7 +737,10 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
     });
 
     activeOverlays.forEach((id) => {
-      if (overlayLayersRef.current[id]) return;
+      if (overlayLayersRef.current[id]) {
+        overlayLayersRef.current[id].bringToFront?.();
+        return;
+      }
       const def = BNPB_LAYERS.find((l) => l.id === id);
       if (!def) return;
 
@@ -769,6 +784,47 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
     });
   }, [activeOverlays]);
 
+  // Function to calculate & attach estimation popup to draw shapes
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const attachEstimationPopup = async (layer: any) => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const popupCenter = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLng();
+    const popup = L.popup({ maxWidth: 300 })
+      .setLatLng(popupCenter)
+      .setContent('<div style="font-size:11px; color:#1f8080; font-weight:bold;">⏳ Menghitung estimasi kependudukan BAPPENAS...</div>')
+      .openOn(map);
+
+    try {
+      const stats = await queryHexbinRes9Stats(layer);
+      const content = `
+        <div style="font-family:sans-serif; min-width:240px; font-size:11px; color:#0F172A;">
+          <div style="font-weight:bold; color:#19506e; border-bottom:1.5px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px;">📐 Estimasi Dampak Kependudukan (BAPPENAS)</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👨 Laki-laki:</span><b>${stats.totalLakiLaki.toLocaleString('id')}</b></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👩 Perempuan:</span><b>${stats.totalPerempuan.toLocaleString('id')}</b></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👴 Lansia:</span><b>${stats.totalLansia.toLocaleString('id')}</b></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>🧒 Balita:</span><b>${stats.totalBalita.toLocaleString('id')}</b></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:2px; color:#06B6D4;"><span>🧾 Disabilitas Berat (PD1):</span><b>${stats.totalPd1.toLocaleString('id')}</b></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:2px; color:#8B5CF6;"><span>📊 Disabilitas Sedang (PD2):</span><b>${stats.totalPd2.toLocaleString('id')}</b></div>
+          <div style="display:flex; justify-content:space-between; margin-top:4px; padding-top:4px; border-top:1px dashed #DDD;"><span>🏠 Total Keluarga:</span><b>${stats.totalKeluarga.toLocaleString('id')}</b></div>
+        </div>
+      `;
+      popup.setContent(content);
+      // Bind popup to layer so re-clicking the shape opens it again
+      layer.bindPopup(content);
+    } catch {
+      popup.setContent('<div style="font-size:11px; color:red;">Gagal menghitung estimasi kependudukan.</div>');
+    }
+  };
+
+  // Clear all drawn shapes
+  const handleClearDraw = () => {
+    if (drawLayerRef.current) {
+      drawLayerRef.current.clearLayers();
+    }
+  };
+
   // Handle Leaflet Draw Event & BAPPENAS Estimation
   useEffect(() => {
     const map = mapRef.current;
@@ -804,31 +860,13 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
         drawLayerRef.current.addLayer(layer);
         setActiveDraw(null);
 
+        // Click event on drawn shape to reopen popup anytime
+        layer.on('click', () => {
+          attachEstimationPopup(layer);
+        });
+
         if (e.layerType === 'marker' || e.layerType === 'polyline') return;
-
-        const popupCenter = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLng();
-        const popup = L.popup({ maxWidth: 300 })
-          .setLatLng(popupCenter)
-          .setContent('<div style="font-size:11px; color:#1f8080; font-weight:bold;">⏳ Menghitung estimasi kependudukan BAPPENAS...</div>')
-          .openOn(map);
-
-        try {
-          const stats = await queryHexbinRes9Stats(layer);
-          popup.setContent(`
-            <div style="font-family:sans-serif; min-width:240px; font-size:11px; color:#0F172A;">
-              <div style="font-weight:bold; color:#19506e; border-bottom:1.5px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px;">📐 Estimasi Dampak Kependudukan (BAPPENAS)</div>
-              <div style="display:flex; justify-between; margin-bottom:2px;"><span>👨 Laki-laki:</span><b>${stats.totalLakiLaki.toLocaleString('id')}</b></div>
-              <div style="display:flex; justify-between; margin-bottom:2px;"><span>👩 Perempuan:</span><b>${stats.totalPerempuan.toLocaleString('id')}</b></div>
-              <div style="display:flex; justify-between; margin-bottom:2px;"><span>👴 Lansia:</span><b>${stats.totalLansia.toLocaleString('id')}</b></div>
-              <div style="display:flex; justify-between; margin-bottom:2px;"><span>🧒 Balita:</span><b>${stats.totalBalita.toLocaleString('id')}</b></div>
-              <div style="display:flex; justify-between; margin-bottom:2px; color:#06B6D4;"><span>🧾 Disabilitas Berat (PD1):</span><b>${stats.totalPd1.toLocaleString('id')}</b></div>
-              <div style="display:flex; justify-between; margin-bottom:2px; color:#8B5CF6;"><span>📊 Disabilitas Sedang (PD2):</span><b>${stats.totalPd2.toLocaleString('id')}</b></div>
-              <div style="display:flex; justify-between; margin-top:4px; pt-1; border-top:1px dashed #DDD;"><span>🏠 Total Keluarga:</span><b>${stats.totalKeluarga.toLocaleString('id')}</b></div>
-            </div>
-          `);
-        } catch {
-          popup.setContent('<div style="font-size:11px; color:red;">Gagal menghitung estimasi kependudukan.</div>');
-        }
+        attachEstimationPopup(layer);
       });
     }
   }, [activeDraw]);
@@ -837,6 +875,26 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
   useEffect(() => {
     if (mapRef.current && flyTo) mapRef.current.flyTo([flyTo.lat, flyTo.lng], flyTo.zoom, { duration: 1.5 });
   }, [flyTo]);
+
+  // Drag and drop handlers for layer order
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (dropIndex: number) => {
+    if (draggedIndex === null || draggedIndex === dropIndex) return;
+    const newDraft = [...draftOverlays];
+    const [movedItem] = newDraft.splice(draggedIndex, 1);
+    newDraft.splice(dropIndex, 0, movedItem);
+    setDraftOverlays(newDraft);
+    setDraggedIndex(null);
+  };
 
   const filteredModalLayers = BNPB_LAYERS.filter((l) => {
     const matchesSearch = l.label.toLowerCase().includes(layerSearch.toLowerCase()) || l.group?.toLowerCase().includes(layerSearch.toLowerCase());
@@ -925,7 +983,15 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
         {/* Draw Tool Panel */}
         {showDrawTools && (
           <div className="bg-white/90 backdrop-blur-xl border border-white/80 rounded-2xl p-2 shadow-xl space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 px-2 uppercase block">Pilih Alat Ukur</span>
+            <div className="flex items-center justify-between px-2 pb-1 border-b">
+              <span className="text-[10px] font-bold text-slate-400 uppercase">Pilih Alat Ukur</span>
+              <button
+                onClick={handleClearDraw}
+                className="text-[10px] font-bold text-rose-500 hover:underline"
+              >
+                Hapus Semua Draw
+              </button>
+            </div>
             {DRAW_TOOLS.map((t) => (
               <button
                 key={t.id}
@@ -1017,7 +1083,7 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
 
           {/* Modal Body: 3 GRID LAYOUT */}
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0 overflow-hidden">
-            {/* GRID 1: LEFT 30% WIDTH - SEARCH & LAYER SELECTION LIST */}
+            {/* GRID 1: LEFT 30% WIDTH - SEARCH & LAYER SELECTION LIST (REMOVED EMOJI ICONS) */}
             <div className="lg:col-span-4 border-r border-slate-200/80 p-5 flex flex-col gap-4 bg-slate-50/60 overflow-y-auto">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#19506e] uppercase tracking-wider block">1. Cari & Filter Layer</label>
@@ -1048,7 +1114,7 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
                 ))}
               </div>
 
-              {/* Available Layers List */}
+              {/* Available Layers List (NO EMOJIS) */}
               <div className="flex-1 space-y-2 overflow-y-auto pr-1">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Layer Tersedia ({filteredModalLayers.length})</label>
                 {filteredModalLayers.map((layer) => {
@@ -1070,7 +1136,7 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
                           {isSelected && <Check className="w-3.5 h-3.5" />}
                         </div>
                         <div>
-                          <div className="text-xs font-bold text-slate-800 leading-tight">{layer.emoji} {layer.label}</div>
+                          <div className="text-xs font-bold text-slate-800 leading-tight">{layer.label}</div>
                           <span className="text-[10px] text-slate-500 font-medium">{layer.group}</span>
                         </div>
                       </div>
@@ -1100,7 +1166,7 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
                       className="bg-slate-100 border border-slate-200 rounded-xl px-3 py-0.5 text-xs font-bold text-[#19506e] outline-none cursor-pointer"
                     >
                       {BASEMAPS.map((bm) => (
-                        <option key={bm.id} value={bm.id}>{bm.emoji} {bm.label}</option>
+                        <option key={bm.id} value={bm.id}>{bm.label}</option>
                       ))}
                     </select>
                   </div>
@@ -1116,11 +1182,14 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
                 </div>
               </div>
 
-              {/* GRID 3 (BOTTOM): SELECTED LAYERS MANAGEMENT & APPLY BUTTON */}
+              {/* GRID 3 (BOTTOM): SELECTED LAYERS MANAGEMENT WITH DRAG AND DROP REORDERING */}
               <div className="h-1/2 p-5 flex flex-col justify-between bg-slate-50/40">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#19506e] uppercase tracking-wider">3. Layer Yang Dipilih ({draftOverlays.length})</span>
+                    <div>
+                      <span className="text-xs font-bold text-[#19506e] uppercase tracking-wider block">3. Layer Yang Dipilih ({draftOverlays.length})</span>
+                      <span className="text-[10px] text-slate-400">Geser (Drag & Drop) urutan item untuk mengatur layer atas/bawah</span>
+                    </div>
                     {draftOverlays.length > 0 && (
                       <button onClick={() => setDraftOverlays([])} className="text-xs font-semibold text-rose-500 hover:underline">
                         Reset Pilihan
@@ -1132,18 +1201,24 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
                     {draftOverlays.length === 0 ? (
                       <div className="text-xs text-slate-400 italic py-4">Belum ada layer terpilih. Silakan pilih dari panel sebelah kiri.</div>
                     ) : (
-                      draftOverlays.map((id) => {
+                      draftOverlays.map((id, index) => {
                         const lyr = BNPB_LAYERS.find((l) => l.id === id);
                         if (!lyr) return null;
                         return (
                           <div
                             key={id}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#1f8080]/40 text-xs font-bold text-[#19506e] shadow-2xs"
+                            draggable
+                            onDragStart={() => handleDragStart(index)}
+                            onDragOver={handleDragOver}
+                            onDrop={() => handleDrop(index)}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#1f8080]/50 text-xs font-bold text-[#19506e] shadow-2xs cursor-grab active:cursor-grabbing hover:bg-slate-50 transition-all"
+                            title="Drag untuk mengubah urutan layer stack"
                           >
-                            <span>{lyr.emoji} {lyr.label}</span>
+                            <span className="text-slate-400 text-xs">⋮⋮</span>
+                            <span>{lyr.label}</span>
                             <button
                               onClick={() => setDraftOverlays((prev) => prev.filter((x) => x !== id))}
-                              className="text-slate-400 hover:text-rose-500"
+                              className="text-slate-400 hover:text-rose-500 ml-1"
                             >
                               <X className="w-3.5 h-3.5" />
                             </button>
