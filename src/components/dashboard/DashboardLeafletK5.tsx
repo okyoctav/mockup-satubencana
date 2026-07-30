@@ -34,6 +34,7 @@ interface Props {
     totalPd1: number;
     totalPd2: number;
     totalKeluarga: number;
+    kelurahanDampak?: { namaKelurahan: string; namaKecamatan: string; namaKabupaten: string; namaProvinsi: string }[];
   }) => void;
   theme: string;
 }
@@ -333,6 +334,8 @@ function layerToEsriPolygon(drawLayer: L.Layer): { geometry: unknown; geometryTy
   return null;
 }
 
+const DUKCAPIL_KEL_URL = 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/services/AGR_VISUAL_KEL_FIX/MapServer/0';
+
 type HexbinStats = {
   countHex: number;
   totalLakiLaki: number;
@@ -343,6 +346,65 @@ type HexbinStats = {
   totalPd2: number;
   totalKeluarga: number;
 };
+
+type KelurahanDampak = {
+  namaKelurahan: string;
+  namaKecamatan: string;
+  namaKabupaten: string;
+  namaProvinsi: string;
+};
+
+async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDampak[]> {
+  const queryGeometry = layerToEsriPolygon(drawLayer);
+  if (!queryGeometry) return [];
+
+  const queryUrl = `${DUKCAPIL_KEL_URL}/query`;
+  const params = new URLSearchParams({
+    f: 'json',
+    geometry: JSON.stringify(queryGeometry.geometry),
+    geometryType: queryGeometry.geometryType,
+    spatialRel: 'esriSpatialRelIntersects',
+    inSR: '4326',
+    outSR: '4326',
+    returnGeometry: 'false',
+    outFields: 'NAMOBJ,WADMKC,WADMKK,WADMPR,DESA,KELURAHAN,KECAMATAN,KABUPATEN',
+    where: '1=1',
+  });
+
+  try {
+    const response = await fetch(queryUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    });
+    if (!response.ok) return [];
+    const json = await response.json();
+    const list: KelurahanDampak[] = [];
+    const seen = new Set<string>();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (json.features ?? []).forEach((ft: any) => {
+      const a = ft.attributes ?? {};
+      const kel = a.NAMOBJ || a.KELURAHAN || a.DESA || 'Desa/Kelurahan';
+      const kec = a.WADMKC || a.KECAMATAN || '';
+      const kab = a.WADMKK || a.KABUPATEN || '';
+      const prov = a.WADMPR || '';
+      const key = `${kel}-${kec}-${kab}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        list.push({
+          namaKelurahan: kel,
+          namaKecamatan: kec,
+          namaKabupaten: kab,
+          namaProvinsi: prov,
+        });
+      }
+    });
+    return list;
+  } catch {
+    return [];
+  }
+}
 
 async function queryHexbinRes9Stats(drawLayer: L.Layer): Promise<HexbinStats> {
   const queryGeometry = layerToEsriPolygon(drawLayer);
@@ -801,27 +863,40 @@ export default function DashboardLeafletK5({ data, flyTo, onDrawEstimation }: Pr
     if (!map) return;
 
     const popupCenter = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLng();
-    const popup = L.popup({ maxWidth: 300 })
+    const popup = L.popup({ maxWidth: 320 })
       .setLatLng(popupCenter)
-      .setContent('<div style="font-size:11px; color:#1f8080; font-weight:bold;">⏳ Menghitung estimasi kependudukan BAPPENAS...</div>')
+      .setContent('<div style="font-size:11px; color:#1f8080; font-weight:bold;">⏳ Menghitung estimasi BAPPENAS & wilayah Kemendagri...</div>')
       .openOn(map);
 
     try {
-      const stats = await queryHexbinRes9Stats(layer);
+      const [stats, kelList] = await Promise.all([
+        queryHexbinRes9Stats(layer),
+        queryDukcapilKelurahan(layer),
+      ]);
+
+      const kelHtml = kelList.length > 0
+        ? `<div style="margin-top:6px; pt-2; border-top:1px dashed #CBD5E1;">
+             <div style="font-weight:700; color:#19506e; margin-bottom:2px;">🏛️ Kelurahan/Desa Terdampak Kemendagri (${kelList.length}):</div>
+             <div style="max-height:80px; overflow-y:auto; font-size:10px; color:#475569;">
+               ${kelList.map((k) => `• <b>${k.namaKelurahan}</b> (${k.namaKecamatan || k.namaKabupaten})`).join('<br/>')}
+             </div>
+           </div>`
+        : '';
+
       const content = `
-        <div style="font-family:sans-serif; min-width:240px; font-size:11px; color:#0F172A;">
-          <div style="font-weight:bold; color:#19506e; border-bottom:1.5px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px;">📐 Estimasi Dampak Kependudukan (BAPPENAS)</div>
+        <div style="font-family:sans-serif; min-width:250px; font-size:11px; color:#0F172A;">
+          <div style="font-weight:bold; color:#19506e; border-bottom:1.5px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px;">📐 Estimasi Dampak Kependudukan (BAPPENAS & Kemendagri)</div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👨 Laki-laki:</span><b>${stats.totalLakiLaki.toLocaleString('id')}</b></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👩 Perempuan:</span><b>${stats.totalPerempuan.toLocaleString('id')}</b></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👴 Lansia:</span><b>${stats.totalLansia.toLocaleString('id')}</b></div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>🧒 Balita:</span><b>${stats.totalBalita.toLocaleString('id')}</b></div>
+          <div style="display:flex; justify-between; margin-bottom:2px;"><span>🧒 Balita:</span><b>${stats.totalBalita.toLocaleString('id')}</b></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px; color:#06B6D4;"><span>🧾 Disabilitas Berat (PD1):</span><b>${stats.totalPd1.toLocaleString('id')}</b></div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:2px; color:#8B5CF6;"><span>📊 Disabilitas Sedang (PD2):</span><b>${stats.totalPd2.toLocaleString('id')}</b></div>
+          <div style="display:flex; justify-between; margin-bottom:2px; color:#8B5CF6;"><span>📊 Disabilitas Sedang (PD2):</span><b>${stats.totalPd2.toLocaleString('id')}</b></div>
           <div style="display:flex; justify-content:space-between; margin-top:4px; padding-top:4px; border-top:1px dashed #DDD;"><span>🏠 Total Keluarga:</span><b>${stats.totalKeluarga.toLocaleString('id')}</b></div>
+          ${kelHtml}
         </div>
       `;
       popup.setContent(content);
-      // Bind popup to layer so re-clicking the shape opens it again
       layer.bindPopup(content);
 
       if (onDrawEstimation) {
@@ -835,6 +910,7 @@ export default function DashboardLeafletK5({ data, flyTo, onDrawEstimation }: Pr
           totalPd1: stats.totalPd1,
           totalPd2: stats.totalPd2,
           totalKeluarga: stats.totalKeluarga,
+          kelurahanDampak: kelList,
         });
       }
     } catch {

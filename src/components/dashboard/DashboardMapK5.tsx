@@ -23,6 +23,7 @@ export interface DrawEstimationStats {
   totalPd1: number;
   totalPd2: number;
   totalKeluarga: number;
+  kelurahanDampak?: { namaKelurahan: string; namaKecamatan: string; namaKabupaten: string; namaProvinsi: string }[];
 }
 
 interface Props {
