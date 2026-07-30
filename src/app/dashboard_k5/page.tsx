@@ -55,6 +55,16 @@ export default function DashboardK5Page() {
   const [activeFilter, setActiveFilter] = useState<FilterWilayah | null>(null);
   const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics'>('map');
   const [isMapExpanded, setIsMapExpanded] = useState(false);
+  const [drawEstimation, setDrawEstimation] = useState<{
+    totalPopulasi: number;
+    totalLakiLaki: number;
+    totalPerempuan: number;
+    totalLansia: number;
+    totalBalita: number;
+    totalPd1: number;
+    totalPd2: number;
+    totalKeluarga: number;
+  } | null>(null);
 
   const handleClearSearch = () => {
     setActiveFilter(null);
@@ -329,7 +339,7 @@ export default function DashboardK5Page() {
           </div>
 
           {/* 3. TAB CONTENT SECTION */}
-          {activeTab === 'map' && (
+          <div className={activeTab === 'map' ? 'block' : 'hidden'}>
             <section className={`grid grid-cols-1 ${isMapExpanded ? 'lg:grid-cols-1' : 'lg:grid-cols-4'} gap-6 transition-all duration-300`}>
               {/* GIS Map Canvas */}
               <div
@@ -345,7 +355,12 @@ export default function DashboardK5Page() {
                 </div>
 
                 <div className="w-full h-full">
-                  <DashboardMapK5 data={filteredData} flyTo={flyTo} theme={theme} />
+                  <DashboardMapK5
+                    data={filteredData}
+                    flyTo={flyTo}
+                    theme={theme}
+                    onDrawEstimation={(stats) => setDrawEstimation(stats)}
+                  />
                 </div>
               </div>
 
@@ -367,7 +382,7 @@ export default function DashboardK5Page() {
                 </div>
               )}
             </section>
-          )}
+          </div>
 
           {activeTab === 'analytics' && (
             <section className="space-y-4">
@@ -381,12 +396,8 @@ export default function DashboardK5Page() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
-                <ChartSection
-                  theme={theme}
-                  filteredData={activeFilter ? filteredData : undefined}
-                  regionLabel={activeFilter?.nama}
-                />
+              <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+                <ChartSection data={filteredData} theme={theme} />
               </div>
             </section>
           )}
@@ -394,12 +405,12 @@ export default function DashboardK5Page() {
           {activeTab === 'models' && (
             <section className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-[#19506e]/10 text-[#19506e]">
+                <div className="p-2 rounded-xl bg-[#1f8080]/10 text-[#1f8080]">
                   <ShieldAlert className="w-5 h-5" />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-[#19506e]">Model Kerentanan & Respon Bencana</h2>
-                  <p className="text-xs text-slate-500">Estimasi demografi Dukcapil, kesiapsiagaan, serta alokasi bantuan</p>
+                  <p className="text-xs text-slate-500">Simulasi risiko kerentanan wilayah dan matriks kalkulator respon bencana</p>
                 </div>
               </div>
 
@@ -411,7 +422,7 @@ export default function DashboardK5Page() {
 
           {activeTab === 'logistics' && (
             <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
-              <LogisticAnalysisSection />
+              <LogisticAnalysisSection estimationData={drawEstimation} />
             </section>
           )}
         </main>

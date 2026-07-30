@@ -25,6 +25,16 @@ interface Kejadian {
 interface Props {
   data: Kejadian[];
   flyTo: { lat: number; lng: number; zoom: number } | null;
+  onDrawEstimation?: (stats: {
+    totalPopulasi: number;
+    totalLakiLaki: number;
+    totalPerempuan: number;
+    totalLansia: number;
+    totalBalita: number;
+    totalPd1: number;
+    totalPd2: number;
+    totalKeluarga: number;
+  }) => void;
   theme: string;
 }
 
@@ -384,7 +394,7 @@ async function queryHexbinRes9Stats(drawLayer: L.Layer): Promise<HexbinStats> {
   };
 }
 
-export default function DashboardLeafletK5({ data, flyTo }: Props) {
+export default function DashboardLeafletK5({ data, flyTo, onDrawEstimation }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -813,6 +823,20 @@ export default function DashboardLeafletK5({ data, flyTo }: Props) {
       popup.setContent(content);
       // Bind popup to layer so re-clicking the shape opens it again
       layer.bindPopup(content);
+
+      if (onDrawEstimation) {
+        const totalPop = stats.totalLakiLaki + stats.totalPerempuan;
+        onDrawEstimation({
+          totalPopulasi: totalPop,
+          totalLakiLaki: stats.totalLakiLaki,
+          totalPerempuan: stats.totalPerempuan,
+          totalLansia: stats.totalLansia,
+          totalBalita: stats.totalBalita,
+          totalPd1: stats.totalPd1,
+          totalPd2: stats.totalPd2,
+          totalKeluarga: stats.totalKeluarga,
+        });
+      }
     } catch {
       popup.setContent('<div style="font-size:11px; color:red;">Gagal menghitung estimasi kependudukan.</div>');
     }

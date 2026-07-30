@@ -3,14 +3,38 @@
 import { useState } from 'react';
 import { PackageCheck, Droplets, Tent, Utensils, Shirt, HeartPulse, HeartHandshake, RefreshCw } from 'lucide-react';
 
-export default function LogisticAnalysisSection() {
-  const [populasi, setPopulasi] = useState<number>(1000);
+export interface EstimationData {
+  totalPopulasi: number;
+  totalLakiLaki: number;
+  totalPerempuan: number;
+  totalLansia: number;
+  totalBalita: number;
+  totalPd1: number;
+  totalPd2: number;
+  totalKeluarga: number;
+}
+
+interface Props {
+  estimationData?: EstimationData | null;
+}
+
+export default function LogisticAnalysisSection({ estimationData }: Props) {
+  const defaultPop = estimationData?.totalPopulasi && estimationData.totalPopulasi > 0 ? estimationData.totalPopulasi : 1000;
+  const [populasi, setPopulasi] = useState<number>(defaultPop);
   const [durasiHari, setDurasiHari] = useState<number>(7);
-  const [persenIbuHamil, setPersenIbuHamil] = useState<number>(3);
-  const [persenIbuMenyusui, setPersenIbuMenyusui] = useState<number>(4);
-  const [persenLansia, setPersenLansia] = useState<number>(8);
-  const [persenBalita, setPersenBalita] = useState<number>(10);
-  const [persenDisabilitas] = useState<number>(2);
+
+  // Auto-calc percentages if estimationData is provided
+  const calcBalitaPct = estimationData?.totalPopulasi ? Number(((estimationData.totalBalita / estimationData.totalPopulasi) * 100).toFixed(1)) : 10;
+  const calcLansiaPct = estimationData?.totalPopulasi ? Number(((estimationData.totalLansia / estimationData.totalPopulasi) * 100).toFixed(1)) : 8;
+  const calcBumilPct = 3;
+  const calcBusuiPct = 4;
+  const calcDifabelPct = estimationData?.totalPopulasi ? Number((((estimationData.totalPd1 + estimationData.totalPd2) / estimationData.totalPopulasi) * 100).toFixed(1)) : 2;
+
+  const [persenIbuHamil, setPersenIbuHamil] = useState<number>(calcBumilPct);
+  const [persenIbuMenyusui, setPersenIbuMenyusui] = useState<number>(calcBusuiPct);
+  const [persenLansia, setPersenLansia] = useState<number>(calcLansiaPct);
+  const [persenBalita, setPersenBalita] = useState<number>(calcBalitaPct);
+  const [persenDisabilitas] = useState<number>(calcDifabelPct);
 
   // Kalkulasi Demografi
   const jmlBalita = Math.round((populasi * persenBalita) / 100);
@@ -78,6 +102,18 @@ export default function LogisticAnalysisSection() {
           <span>Reset Parameter</span>
         </button>
       </div>
+
+      {/* LIVE TRIGGER BANNER FROM MAP DRAW */}
+      {estimationData && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-900 text-xs font-medium flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+            <span>
+              <strong>Data Terhubung Dari Simulasi Polygon Peta (BAPPENAS):</strong> Populasi otomatis terisi <strong>{estimationData.totalPopulasi.toLocaleString('id')} jiwa</strong> ({estimationData.totalKeluarga.toLocaleString('id')} KK)
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* INPUT PARAMETER CONTROL PANEL */}
       <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">

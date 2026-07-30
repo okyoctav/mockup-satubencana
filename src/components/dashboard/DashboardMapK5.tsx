@@ -14,16 +14,28 @@ const DashboardLeafletK5 = dynamic(() => import('./DashboardLeafletK5'), {
   ),
 });
 
+export interface DrawEstimationStats {
+  totalPopulasi: number;
+  totalLakiLaki: number;
+  totalPerempuan: number;
+  totalLansia: number;
+  totalBalita: number;
+  totalPd1: number;
+  totalPd2: number;
+  totalKeluarga: number;
+}
+
 interface Props {
   data: { id: number; nama: string; provinsi: string; kabupaten: string; lat: number; lng: number; jenis: string; tanggal: string; korban_jiwa: number; pengungsi: number; rumah_terdampak?: number; status: string; level: string }[];
   flyTo: { lat: number; lng: number; zoom: number } | null;
   theme: string;
+  onDrawEstimation?: (stats: DrawEstimationStats) => void;
 }
 
-export default function DashboardMapK5({ data, flyTo, theme }: Props) {
+export default function DashboardMapK5({ data, flyTo, theme, onDrawEstimation }: Props) {
   return (
     <div style={{ width: '100%', height: '100%' }}>
-      <DashboardLeafletK5 data={data} flyTo={flyTo} theme={theme} />
+      <DashboardLeafletK5 data={data} flyTo={flyTo} theme={theme} onDrawEstimation={onDrawEstimation} />
     </div>
   );
 }

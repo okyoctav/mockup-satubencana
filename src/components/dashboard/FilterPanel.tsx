@@ -76,90 +76,79 @@ export default function FilterPanel({ data, filters, onFilter, onEventClick }: P
       </div>
 
       {/* Filters */}
-      <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border-faint)', flexShrink: 0 }}>
+      <div className="p-3.5 border-b border-slate-200 bg-slate-50/50 space-y-3 shrink-0">
         {/* Jenis */}
-        <div style={{ marginBottom: 10 }}>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+        <div>
+          <label className="text-[10px] font-bold text-[#19506e] uppercase tracking-wider block mb-1.5">
             Jenis Bencana
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-            {JENIS_LIST.map((j) => (
-              <button
-                key={j}
-                onClick={() => onFilter({ ...filters, jenis: j })}
-                style={{
-                  padding: '3px 10px',
-                  borderRadius: 20,
-                  border: `1px solid ${filters.jenis === j ? (JENIS_COLOR[j] ?? '#0EA5E9') : 'var(--border-faint)'}`,
-                  background: filters.jenis === j ? `${JENIS_COLOR[j] ?? '#0EA5E9'}20` : 'transparent',
-                  color: filters.jenis === j ? (JENIS_COLOR[j] ?? '#0EA5E9') : 'var(--text-muted)',
-                  fontSize: 11,
-                  fontWeight: filters.jenis === j ? 700 : 400,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                  textTransform: 'capitalize',
-                }}
-              >
-                {j}
-              </button>
-            ))}
+          </label>
+          <div className="flex flex-wrap gap-1.5">
+            {JENIS_LIST.map((j) => {
+              const isSelected = filters.jenis === j;
+              return (
+                <button
+                  key={j}
+                  onClick={() => onFilter({ ...filters, jenis: j })}
+                  className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all border ${
+                    isSelected
+                      ? 'bg-[#1f8080] text-white border-[#1f8080] shadow-xs scale-105'
+                      : 'bg-white text-slate-700 border-slate-200 hover:border-[#1f8080] hover:text-[#1f8080]'
+                  } capitalize`}
+                >
+                  {j}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Status */}
-        <div style={{ marginBottom: 10 }}>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.8 }}>
-            Status
-          </div>
-          <div style={{ display: 'flex', gap: 5 }}>
-            {STATUS_LIST.map((s) => (
-              <button
-                key={s}
-                onClick={() => onFilter({ ...filters, status: s })}
-                style={{
-                  padding: '3px 10px',
-                  borderRadius: 20,
-                  border: `1px solid ${filters.status === s ? '#0EA5E9' : 'var(--border-faint)'}`,
-                  background: filters.status === s ? 'rgba(14,165,233,0.15)' : 'transparent',
-                  color: filters.status === s ? '#0EA5E9' : 'var(--text-muted)',
-                  fontSize: 11,
-                  fontWeight: filters.status === s ? 700 : 400,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {s === 'Semua' ? 'Semua' : STATUS_LABEL[s]}
-              </button>
-            ))}
+        <div>
+          <label className="text-[10px] font-bold text-[#19506e] uppercase tracking-wider block mb-1.5">
+            Status Terjadi
+          </label>
+          <div className="grid grid-cols-2 gap-1.5">
+            {STATUS_LIST.map((s) => {
+              const isSelected = filters.status === s;
+              return (
+                <button
+                  key={s}
+                  onClick={() => onFilter({ ...filters, status: s })}
+                  className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all border text-center ${
+                    isSelected
+                      ? 'bg-[#19506e] text-white border-[#19506e] shadow-xs scale-105'
+                      : 'bg-white text-slate-700 border-slate-200 hover:border-[#19506e] hover:text-[#19506e]'
+                  }`}
+                >
+                  {s === 'Semua' ? 'Semua Status' : STATUS_LABEL[s]}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Level */}
         <div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+          <label className="text-[10px] font-bold text-[#19506e] uppercase tracking-wider block mb-1.5">
             Level Dampak
-          </div>
-          <div style={{ display: 'flex', gap: 5 }}>
-            {LEVEL_LIST.map((l) => (
-              <button
-                key={l}
-                onClick={() => onFilter({ ...filters, level: l })}
-                style={{
-                  padding: '3px 10px',
-                  borderRadius: 20,
-                  border: `1px solid ${filters.level === l ? (LEVEL_COLOR[l] ?? '#0EA5E9') : 'var(--border-faint)'}`,
-                  background: filters.level === l ? `${LEVEL_COLOR[l] ?? '#0EA5E9'}18` : 'transparent',
-                  color: filters.level === l ? (LEVEL_COLOR[l] ?? '#0EA5E9') : 'var(--text-muted)',
-                  fontSize: 11,
-                  fontWeight: filters.level === l ? 700 : 400,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                  textTransform: 'capitalize',
-                }}
-              >
-                {l}
-              </button>
-            ))}
+          </label>
+          <div className="flex gap-1.5">
+            {LEVEL_LIST.map((l) => {
+              const isSelected = filters.level === l;
+              return (
+                <button
+                  key={l}
+                  onClick={() => onFilter({ ...filters, level: l })}
+                  className={`flex-1 py-1 rounded-xl text-xs font-bold transition-all border text-center ${
+                    isSelected
+                      ? 'bg-[#1f8080] text-white border-[#1f8080] shadow-xs scale-105'
+                      : 'bg-white text-slate-700 border-slate-200 hover:border-[#1f8080] hover:text-[#1f8080]'
+                  } capitalize`}
+                >
+                  {l}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
