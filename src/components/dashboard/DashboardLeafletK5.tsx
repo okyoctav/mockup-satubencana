@@ -358,52 +358,106 @@ async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDamp
   const queryGeometry = layerToEsriPolygon(drawLayer);
   if (!queryGeometry) return [];
 
-  const queryUrl = `${DUKCAPIL_KEL_URL}/query`;
-  const params = new URLSearchParams({
-    f: 'json',
-    geometry: JSON.stringify(queryGeometry.geometry),
-    geometryType: queryGeometry.geometryType,
-    spatialRel: 'esriSpatialRelIntersects',
-    inSR: '4326',
-    outSR: '4326',
-    returnGeometry: 'false',
-    outFields: 'NAMOBJ,WADMKC,WADMKK,WADMPR,DESA,KELURAHAN,KECAMATAN,KABUPATEN',
-    where: '1=1',
-  });
+  const list: KelurahanDampak[] = [];
+  const seen = new Set<string>();
 
+  // 1. Primary spatial query: Kemendagri Dukcapil MapServer Layer 0
   try {
+    const queryUrl = `${DUKCAPIL_KEL_URL}/query`;
+    const params = new URLSearchParams({
+      f: 'json',
+      geometry: JSON.stringify(queryGeometry.geometry),
+      geometryType: queryGeometry.geometryType,
+      spatialRel: 'esriSpatialRelIntersects',
+      inSR: '4326',
+      outSR: '4326',
+      returnGeometry: 'false',
+      outFields: '*',
+      where: '1=1',
+    });
+
     const response = await fetch(queryUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: params.toString(),
     });
-    if (!response.ok) return [];
-    const json = await response.json();
-    const list: KelurahanDampak[] = [];
-    const seen = new Set<string>();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (json.features ?? []).forEach((ft: any) => {
-      const a = ft.attributes ?? {};
-      const kel = a.NAMOBJ || a.KELURAHAN || a.DESA || 'Desa/Kelurahan';
-      const kec = a.WADMKC || a.KECAMATAN || '';
-      const kab = a.WADMKK || a.KABUPATEN || '';
-      const prov = a.WADMPR || '';
-      const key = `${kel}-${kec}-${kab}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        list.push({
-          namaKelurahan: kel,
-          namaKecamatan: kec,
-          namaKabupaten: kab,
-          namaProvinsi: prov,
+    if (response.ok) {
+      const json = await response.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (json.features ?? []).forEach((ft: any) => {
+        const a = ft.attributes ?? {};
+        const kel = a.NAMOBJ || a.KELURAHAN || a.DESA || a.DESA_KEL || a.NAMWS || a.NAME || '';
+        const kec = a.WADMKC || a.KECAMATAN || a.KEC || '';
+        const kab = a.WADMKK || a.KABUPATEN || a.KAB_KOTA || a.KAB || '';
+        const prov = a.WADMPR || a.PROVINSI || a.PROV || '';
+        if (kel || kec || kab) {
+          const key = `${kel}-${kec}-${kab}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            list.push({
+              namaKelurahan: kel || 'Kelurahan/Desa',
+              namaKecamatan: kec,
+              namaKabupaten: kab,
+              namaProvinsi: prov,
+            });
+          }
+        }
+      });
+    }
+  } catch {
+    /* fallback below */
+  }
+
+  // 2. Fallback spatial query: BAPPENAS hexbin_res9 layer if Kemendagri returns empty
+  if (list.length === 0) {
+    try {
+      const queryUrl = `${HEXBIN_RES9_URL}/query`;
+      const params = new URLSearchParams({
+        f: 'json',
+        geometry: JSON.stringify(queryGeometry.geometry),
+        geometryType: queryGeometry.geometryType,
+        spatialRel: 'esriSpatialRelIntersects',
+        inSR: '4326',
+        outSR: '4326',
+        returnGeometry: 'false',
+        outFields: '*',
+        where: '1=1',
+      });
+
+      const response = await fetch(queryUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString(),
+      });
+
+      if (response.ok) {
+        const json = await response.json();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (json.features ?? []).forEach((ft: any) => {
+          const a = ft.attributes ?? {};
+          const kel = a.namobj || a.desa || a.kelurahan || a.nama_kel || a.kab_kota || 'Wilayah Terdampak';
+          const kec = a.kecamatan || a.wadmkc || '';
+          const kab = a.wadmkk || a.kabupaten || a.kab_kota || '';
+          const prov = a.wadmpr || a.provinsi || '';
+          const key = `${kel}-${kec}-${kab}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            list.push({
+              namaKelurahan: kel,
+              namaKecamatan: kec,
+              namaKabupaten: kab,
+              namaProvinsi: prov,
+            });
+          }
         });
       }
-    });
-    return list;
-  } catch {
-    return [];
+    } catch {
+      /* ignore */
+    }
   }
+
+  return list;
 }
 
 async function queryHexbinRes9Stats(drawLayer: L.Layer): Promise<HexbinStats> {
