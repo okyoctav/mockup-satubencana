@@ -933,14 +933,17 @@ export default function DashboardLeafletK5({ data, flyTo, onDrawEstimation }: Pr
       const regionGroups: RegionGroup[] = [];
 
       kelList.forEach((k) => {
-        const prov = k.namaProvinsi || 'Provinsi';
-        const kab = k.namaKabupaten || k.namaKecamatan || 'Kabupaten/Kota';
+        const rawProv = k.namaProvinsi && k.namaProvinsi !== '-' ? k.namaProvinsi : '';
+        const rawKab = k.namaKabupaten && k.namaKabupaten !== '-' ? k.namaKabupaten : (k.namaKecamatan && k.namaKecamatan !== '-' ? k.namaKecamatan : '');
+        const prov = rawProv || 'Wilayah Terdampak';
+        const kab = rawKab;
+
         let group = regionGroups.find((g) => g.prov === prov && g.kab === kab);
         if (!group) {
           group = { prov, kab, kels: [] };
           regionGroups.push(group);
         }
-        if (!group.kels.includes(k.namaKelurahan)) {
+        if (k.namaKelurahan && k.namaKelurahan !== '-' && !group.kels.includes(k.namaKelurahan)) {
           group.kels.push(k.namaKelurahan);
         }
       });
@@ -948,13 +951,17 @@ export default function DashboardLeafletK5({ data, flyTo, onDrawEstimation }: Pr
       const kelHtml = regionGroups.length > 0
         ? `<div style="margin-top:8px; padding-top:6px; border-top:1.5px solid #E2E8F0;">
              <div style="font-weight:700; color:#19506e; margin-bottom:4px; font-size:11px;">🏛️ Wilayah Terdampak (${kelList.length} Kel/Desa):</div>
-             <div style="max-height:100px; overflow-y:auto; font-size:10px; color:#334155; space-y:3px;">
-               ${regionGroups.map((g) => `
-                 <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:4px 6px; margin-bottom:4px;">
-                   <div style="font-weight:700; color:#19506e;">📍 ${g.prov}, ${g.kab}</div>
-                   <div style="color:#475569; margin-top:2px;">• <b>Kel/Desa:</b> ${g.kels.join(', ')}</div>
-                 </div>
-               `).join('')}
+             <div style="max-height:110px; overflow-y:auto; font-size:10px; color:#334155;">
+               ${regionGroups.map((g) => {
+                 const title = g.kab ? `📍 ${g.prov}, ${g.kab}` : `📍 ${g.prov}`;
+                 const kelText = g.kels.length > 0 ? g.kels.join(', ') : 'Area Tersebar';
+                 return `
+                   <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:4px 6px; margin-bottom:4px;">
+                     <div style="font-weight:700; color:#19506e;">${title}</div>
+                     <div style="color:#475569; margin-top:2px;">• <b>Kel/Desa:</b> ${kelText}</div>
+                   </div>
+                 `;
+               }).join('')}
              </div>
            </div>`
         : '';
