@@ -109,10 +109,13 @@ const BASEMAPS = [
 
 const BNPB_BASE = 'https://gis.bnpb.go.id/server/rest/services/inarisk';
 const HEXBIN_RES9_URL = 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/hexbin_agg9/MapServer/0';
+const DUKCAPIL_KEL_URL = 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/services/AGR_VISUAL_KEL_FIX/MapServer/0';
+const BIG_DESAKEL_URL = 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/BATAS_DESAKEL_AR/MapServer/0';
 
 const BNPB_LAYERS: BnpbLayer[] = [
   // BIG — Badan Informasi Geospasial
   { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
+  { id: 'big_batas_desakel',           label: 'Batas Desa/Kelurahan (BIG)',   color: '#3B82F6', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/BATAS_DESAKEL_AR/MapServer', type: 'MapServer', group: 'BIG' },
   { id: 'big_rbi_sulawesi_lot1',       label: 'RBI Sulawesi 2024 Lot 1',      color: '#A855F7', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI_5K_Sulawesi_2024_Lot_1_Jul/VectorTileServer',         type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_bangunan_fasum_sulawesi', label: 'Bangunan Fasum Sulawesi 2024', color: '#F59E0B', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_BANGUNAN_FASUM_SULAWESI_2024/VectorTileServer', type: 'VectorTileServer', group: 'BIG' },
@@ -334,8 +337,6 @@ function layerToEsriPolygon(drawLayer: L.Layer): { geometry: unknown; geometryTy
   return null;
 }
 
-const DUKCAPIL_KEL_URL = 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/services/AGR_VISUAL_KEL_FIX/MapServer/0';
-
 type HexbinStats = {
   countHex: number;
   totalLakiLaki: number;
@@ -361,9 +362,9 @@ async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDamp
   const list: KelurahanDampak[] = [];
   const seen = new Set<string>();
 
-  // 1. Primary spatial query: Kemendagri Dukcapil MapServer Layer 0
+  // 1. Primary spatial query: BIG Batas Desa/Kelurahan MapServer Layer 0
   try {
-    const queryUrl = `${DUKCAPIL_KEL_URL}/query`;
+    const queryUrl = `${BIG_DESAKEL_URL}/query`;
     const params = new URLSearchParams({
       f: 'json',
       geometry: JSON.stringify(queryGeometry.geometry),
@@ -409,7 +410,57 @@ async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDamp
     /* fallback below */
   }
 
-  // 2. Fallback spatial query: BAPPENAS hexbin_res9 layer if Kemendagri returns empty
+  // 2. Secondary spatial query: Kemendagri Dukcapil MapServer Layer 0 if BIG returns empty
+  if (list.length === 0) {
+    try {
+      const queryUrl = `${DUKCAPIL_KEL_URL}/query`;
+      const params = new URLSearchParams({
+        f: 'json',
+        geometry: JSON.stringify(queryGeometry.geometry),
+        geometryType: queryGeometry.geometryType,
+        spatialRel: 'esriSpatialRelIntersects',
+        inSR: '4326',
+        outSR: '4326',
+        returnGeometry: 'false',
+        outFields: '*',
+        where: '1=1',
+      });
+
+      const response = await fetch(queryUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString(),
+      });
+
+      if (response.ok) {
+        const json = await response.json();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (json.features ?? []).forEach((ft: any) => {
+          const a = ft.attributes ?? {};
+          const prov = a.WADMPR || a.PROVINSI || a.PROV || a.field1 || a.FIELD1 || '';
+          const kab  = a.WADMKK || a.KABUPATEN || a.KAB_KOTA || a.KAB || a.field2 || a.FIELD2 || '';
+          const kec  = a.WADMKC || a.KECAMATAN || a.KEC || a.field3 || a.FIELD3 || '';
+          const kel  = a.NAMOBJ || a.KELURAHAN || a.DESA || a.DESA_KEL || a.field4 || a.FIELD4 || a.NAMWS || a.NAME || '';
+          if (kel || kec || kab) {
+            const key = `${kel}-${kec}-${kab}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              list.push({
+                namaKelurahan: kel || 'Kelurahan/Desa',
+                namaKecamatan: kec,
+                namaKabupaten: kab,
+                namaProvinsi: prov,
+              });
+            }
+          }
+        });
+      }
+    } catch {
+      /* fallback below */
+    }
+  }
+
+  // 3. Fallback spatial query: BAPPENAS hexbin_res9 layer
   if (list.length === 0) {
     try {
       const queryUrl = `${HEXBIN_RES9_URL}/query`;
