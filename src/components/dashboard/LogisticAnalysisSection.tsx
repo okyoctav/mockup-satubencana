@@ -104,19 +104,19 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
         </button>
       </div>
 
-      {/* LIVE TRIGGER BANNER FROM MAP DRAW (BAPPENAS & KEMENDAGRI DUKCAPIL) */}
+      {/* LIVE TRIGGER BANNER FROM MAP DRAW (BAPPENAS & BIG) */}
       {estimationData && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-900 text-xs font-medium space-y-2 shadow-xs">
           <div className="flex items-center gap-2.5">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
             <span>
-              <strong>Data Terhubung Dari Simulasi Polygon Peta (BAPPENAS & Kemendagri):</strong> Populasi otomatis terisi <strong>{estimationData.totalPopulasi.toLocaleString('id')} jiwa</strong> ({estimationData.totalKeluarga.toLocaleString('id')} KK)
+              <strong>Data Terhubung Dari Simulasi Polygon Peta:</strong> Populasi otomatis terisi <strong>{estimationData.totalPopulasi.toLocaleString('id')} jiwa</strong> ({estimationData.totalKeluarga.toLocaleString('id')} KK)
             </span>
           </div>
 
           {estimationData.kelurahanDampak && estimationData.kelurahanDampak.length > 0 && (
             <div className="pt-2 border-t border-emerald-200/60">
-              <span className="font-bold text-[#19506e] block mb-1">🏛️ Wilayah Kelurahan / Desa Terdampak (Kemendagri Dukcapil):</span>
+              <span className="font-bold text-[#19506e] block mb-1">🏛️ Wilayah Kelurahan / Desa Terdampak:</span>
               <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                 {estimationData.kelurahanDampak.map((k, idx) => (
                   <span key={idx} className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-[11px] text-[#19506e] font-semibold">
