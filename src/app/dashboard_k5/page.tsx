@@ -19,6 +19,7 @@ import {
   PackageCheck,
   HeartPulse,
   School,
+  Sprout,
   Database,
   Lock,
   ArrowLeft,
@@ -52,13 +53,14 @@ const allData = bencanaData.kejadian as Kejadian[];
 
 import MedicalEmergencySection from '@/components/dashboard/MedicalEmergencySection';
 import InfrastructureEducationSection from '@/components/dashboard/InfrastructureEducationSection';
+import EconomicAgricultureLossSection from '@/components/dashboard/EconomicAgricultureLossSection';
 
 export default function DashboardK5Page() {
   const { theme, toggle } = useTheme();
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [filters, setFilters] = useState({ jenis: 'Semua', status: 'Semua', level: 'Semua' });
   const [activeFilter, setActiveFilter] = useState<FilterWilayah | null>(null);
-  const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical' | 'infrastructure'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical' | 'infrastructure' | 'economic'>('map');
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [drawEstimation, setDrawEstimation] = useState<{
     totalPopulasi: number;
@@ -364,6 +366,18 @@ export default function DashboardK5Page() {
                 <School className="w-4 h-4 text-amber-400" />
                 <span>Analisis Fasum & Infrastruktur Kritis</span>
               </button>
+
+              <button
+                onClick={() => setActiveTab('economic')}
+                className={`flex-1 min-w-[260px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  activeTab === 'economic'
+                    ? 'bg-[#19506e] text-white shadow-md'
+                    : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
+                }`}
+              >
+                <Sprout className="w-4 h-4 text-emerald-400" />
+                <span>Analisis Kerugian Ekonomi & Lahan</span>
+              </button>
             </nav>
           </div>
 
@@ -468,6 +482,12 @@ export default function DashboardK5Page() {
           {activeTab === 'infrastructure' && (
             <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
               <InfrastructureEducationSection estimationData={drawEstimation} />
+            </section>
+          )}
+
+          {activeTab === 'economic' && (
+            <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+              <EconomicAgricultureLossSection estimationData={drawEstimation} />
             </section>
           )}
         </main>
