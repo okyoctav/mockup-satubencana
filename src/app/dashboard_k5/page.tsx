@@ -18,6 +18,7 @@ import {
   Layers,
   PackageCheck,
   HeartPulse,
+  School,
   Database,
   Lock,
   ArrowLeft,
@@ -50,13 +51,14 @@ type Kejadian = {
 const allData = bencanaData.kejadian as Kejadian[];
 
 import MedicalEmergencySection from '@/components/dashboard/MedicalEmergencySection';
+import InfrastructureEducationSection from '@/components/dashboard/InfrastructureEducationSection';
 
 export default function DashboardK5Page() {
   const { theme, toggle } = useTheme();
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [filters, setFilters] = useState({ jenis: 'Semua', status: 'Semua', level: 'Semua' });
   const [activeFilter, setActiveFilter] = useState<FilterWilayah | null>(null);
-  const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical' | 'infrastructure'>('map');
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [drawEstimation, setDrawEstimation] = useState<{
     totalPopulasi: number;
@@ -350,6 +352,18 @@ export default function DashboardK5Page() {
                 <HeartPulse className="w-4 h-4 text-rose-400" />
                 <span>Analisis Medis & Faskes Darurat</span>
               </button>
+
+              <button
+                onClick={() => setActiveTab('infrastructure')}
+                className={`flex-1 min-w-[260px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  activeTab === 'infrastructure'
+                    ? 'bg-[#19506e] text-white shadow-md'
+                    : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
+                }`}
+              >
+                <School className="w-4 h-4 text-amber-400" />
+                <span>Analisis Fasum & Infrastruktur Kritis</span>
+              </button>
             </nav>
           </div>
 
@@ -448,6 +462,12 @@ export default function DashboardK5Page() {
           {activeTab === 'medical' && (
             <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
               <MedicalEmergencySection estimationData={drawEstimation} />
+            </section>
+          )}
+
+          {activeTab === 'infrastructure' && (
+            <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+              <InfrastructureEducationSection estimationData={drawEstimation} />
             </section>
           )}
         </main>
