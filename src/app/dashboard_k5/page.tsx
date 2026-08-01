@@ -32,7 +32,8 @@ import {
   Maximize2,
   Minimize2,
   Radio,
-  LayoutDashboard
+  LayoutDashboard,
+  ChevronDown,
 } from 'lucide-react';
 
 type Kejadian = {
@@ -296,117 +297,150 @@ export default function DashboardK5Page() {
             />
           </section>
 
-          {/* 2. TAB NAVIGATION BAR LOCATED DIRECTLY BELOW CARDS */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-1.5 shadow-2xs">
-            <nav className="flex items-center gap-1.5 overflow-x-auto">
+          {/* 2. TAB NAVIGATION BAR LOCATED DIRECTLY BELOW CARDS (USER-FRIENDLY REDESIGN) */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-xs space-y-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 px-1">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-[#1f8080]/10 text-[#1f8080]">
+                  <LayoutDashboard className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-[#19506e] tracking-tight block">Modul Analisis & Visualisasi Spasial K5</span>
+                  <span className="text-[10px] text-slate-400">Pilih modul analisis bencana di bawah ini</span>
+                </div>
+              </div>
+
+              {/* Quick Select Dropdown for Mobile / Compact Navigation */}
+              <div className="relative w-full sm:w-auto">
+                <select
+                  value={activeTab}
+                  onChange={(e) => setActiveTab(e.target.value as typeof activeTab)}
+                  className="w-full sm:w-64 appearance-none bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 pr-8 text-xs font-bold text-[#19506e] outline-none cursor-pointer focus:border-[#1f8080]"
+                >
+                  <option value="map">🗺️ Peta Utama K5</option>
+                  <option value="analytics">📊 Analisis Statistik Kebencanaan</option>
+                  <option value="models">🛡️ Model Kerentanan & Respon</option>
+                  <option value="logistics">📦 Analisis Kebutuhan Logistik</option>
+                  <option value="medical">🩺 Analisis Medis & Faskes Darurat</option>
+                  <option value="infrastructure">🏫 Analisis Fasum & Infrastruktur Kritis</option>
+                  <option value="economic">🌾 Analisis Kerugian Ekonomi & Lahan</option>
+                  <option value="utilities">⚡ Analisis Energi & Utilitas Kritis</option>
+                  <option value="routes">🚚 Analisis Rute & Aksesibilitas</option>
+                </select>
+                <ChevronDown className="w-4 h-4 absolute right-2.5 top-2 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Responsive Grid Tab Buttons (No Side Scrolling Needed) */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 pt-1 border-t border-slate-100">
               <button
                 onClick={() => setActiveTab('map')}
-                className={`flex-1 min-w-[140px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'map'
-                    ? 'bg-[#19506e] text-white shadow-md'
-                    : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
+                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
-                <Layers className="w-4 h-4" />
-                <span>Peta</span>
+                <Layers className="w-4 h-4 shrink-0 text-[#1f8080]" />
+                <span className="truncate">Peta Utama</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('analytics')}
-                className={`flex-1 min-w-[220px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'analytics'
-                    ? 'bg-[#19506e] text-white shadow-md'
-                    : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
+                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
-                <BarChart3 className="w-4 h-4" />
-                <span>Analisis Statistik Kebencanaan</span>
+                <BarChart3 className="w-4 h-4 shrink-0 text-sky-500" />
+                <span className="truncate">Analisis Statistik</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('models')}
-                className={`flex-1 min-w-[240px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'models'
-                    ? 'bg-[#19506e] text-white shadow-md'
-                    : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
+                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
-                <ShieldAlert className="w-4 h-4" />
-                <span>Model Kerentanan & Respon</span>
+                <ShieldAlert className="w-4 h-4 shrink-0 text-purple-500" />
+                <span className="truncate">Model Kerentanan</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('logistics')}
-                className={`flex-1 min-w-[240px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'logistics'
-                    ? 'bg-[#19506e] text-white shadow-md'
-                    : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
+                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
-                <PackageCheck className="w-4 h-4" />
-                <span>Analisis Kebutuhan Logistik</span>
+                <PackageCheck className="w-4 h-4 shrink-0 text-emerald-500" />
+                <span className="truncate">Analisis Logistik</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('medical')}
-                className={`flex-1 min-w-[240px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'medical'
-                    ? 'bg-[#19506e] text-white shadow-md'
-                    : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
+                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
-                <HeartPulse className="w-4 h-4 text-rose-400" />
-                <span>Analisis Medis & Faskes Darurat</span>
+                <HeartPulse className="w-4 h-4 shrink-0 text-rose-500" />
+                <span className="truncate">Medis & Faskes</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('infrastructure')}
-                className={`flex-1 min-w-[260px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'infrastructure'
-                    ? 'bg-[#19506e] text-white shadow-md'
-                    : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
+                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
-                <School className="w-4 h-4 text-amber-400" />
-                <span>Analisis Fasum & Infrastruktur Kritis</span>
+                <School className="w-4 h-4 shrink-0 text-amber-500" />
+                <span className="truncate">Fasum & Pendidikan</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('economic')}
-                className={`flex-1 min-w-[260px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'economic'
-                    ? 'bg-[#19506e] text-white shadow-md'
-                    : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
+                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
-                <Sprout className="w-4 h-4 text-emerald-400" />
-                <span>Analisis Kerugian Ekonomi & Lahan</span>
+                <Sprout className="w-4 h-4 shrink-0 text-emerald-500" />
+                <span className="truncate">Kerugian Ekonomi</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('utilities')}
-                className={`flex-1 min-w-[260px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'utilities'
-                    ? 'bg-[#19506e] text-white shadow-md'
-                    : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
+                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
-                <Zap className="w-4 h-4 text-amber-400" />
-                <span>Analisis Energi & Utilitas Kritis</span>
+                <Zap className="w-4 h-4 shrink-0 text-amber-500" />
+                <span className="truncate">Energi & Utilitas</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('routes')}
-                className={`flex-1 min-w-[260px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'routes'
-                    ? 'bg-[#19506e] text-white shadow-md'
-                    : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
+                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
-                <Truck className="w-4 h-4 text-sky-400" />
-                <span>Analisis Rute & Aksesibilitas</span>
+                <Truck className="w-4 h-4 shrink-0 text-sky-500" />
+                <span className="truncate">Rute & Aksesibilitas</span>
               </button>
-            </nav>
+            </div>
           </div>
 
           {/* 3. TAB CONTENT SECTION */}
