@@ -20,6 +20,8 @@ import {
   HeartPulse,
   School,
   Sprout,
+  Zap,
+  Truck,
   Database,
   Lock,
   ArrowLeft,
@@ -54,13 +56,15 @@ const allData = bencanaData.kejadian as Kejadian[];
 import MedicalEmergencySection from '@/components/dashboard/MedicalEmergencySection';
 import InfrastructureEducationSection from '@/components/dashboard/InfrastructureEducationSection';
 import EconomicAgricultureLossSection from '@/components/dashboard/EconomicAgricultureLossSection';
+import UtilitiesEnergySection from '@/components/dashboard/UtilitiesEnergySection';
+import AccessibilityRouteSection from '@/components/dashboard/AccessibilityRouteSection';
 
 export default function DashboardK5Page() {
   const { theme, toggle } = useTheme();
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [filters, setFilters] = useState({ jenis: 'Semua', status: 'Semua', level: 'Semua' });
   const [activeFilter, setActiveFilter] = useState<FilterWilayah | null>(null);
-  const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical' | 'infrastructure' | 'economic'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical' | 'infrastructure' | 'economic' | 'utilities' | 'routes'>('map');
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [drawEstimation, setDrawEstimation] = useState<{
     totalPopulasi: number;
@@ -378,6 +382,30 @@ export default function DashboardK5Page() {
                 <Sprout className="w-4 h-4 text-emerald-400" />
                 <span>Analisis Kerugian Ekonomi & Lahan</span>
               </button>
+
+              <button
+                onClick={() => setActiveTab('utilities')}
+                className={`flex-1 min-w-[260px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  activeTab === 'utilities'
+                    ? 'bg-[#19506e] text-white shadow-md'
+                    : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
+                }`}
+              >
+                <Zap className="w-4 h-4 text-amber-400" />
+                <span>Analisis Energi & Utilitas Kritis</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('routes')}
+                className={`flex-1 min-w-[260px] px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  activeTab === 'routes'
+                    ? 'bg-[#19506e] text-white shadow-md'
+                    : 'bg-white text-slate-600 border border-slate-200/80 hover:border-[#1f8080] hover:text-[#1f8080]'
+                }`}
+              >
+                <Truck className="w-4 h-4 text-sky-400" />
+                <span>Analisis Rute & Aksesibilitas</span>
+              </button>
             </nav>
           </div>
 
@@ -488,6 +516,18 @@ export default function DashboardK5Page() {
           {activeTab === 'economic' && (
             <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
               <EconomicAgricultureLossSection estimationData={drawEstimation} />
+            </section>
+          )}
+
+          {activeTab === 'utilities' && (
+            <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+              <UtilitiesEnergySection estimationData={drawEstimation} />
+            </section>
+          )}
+
+          {activeTab === 'routes' && (
+            <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+              <AccessibilityRouteSection estimationData={drawEstimation} />
             </section>
           )}
         </main>
