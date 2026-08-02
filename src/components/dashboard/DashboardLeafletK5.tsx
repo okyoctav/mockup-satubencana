@@ -569,9 +569,24 @@ async function queryDapodikSekolahDampak(drawLayer: L.Layer, kodeKemendagri?: st
           if (circleCenter.distanceTo(latlng) <= circleRadius) {
             inside = true;
           }
-        } else if (bounds) {
-          if (bounds.contains(latlng)) {
-            inside = true;
+        } else if (bounds && bounds.contains(latlng)) {
+          // Precise Point-in-Polygon Check for Custom Drawn Shapes
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const latLngs = dl.getLatLngs ? (Array.isArray(dl.getLatLngs()[0]) ? dl.getLatLngs()[0] : dl.getLatLngs()) : null;
+          if (latLngs && latLngs.length > 2) {
+            const x = latlng.lat, y = latlng.lng;
+            let intersects = false;
+            for (let i = 0, j = latLngs.length - 1; i < latLngs.length; j = i++) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const xi = (latLngs[i] as any).lat, yi = (latLngs[i] as any).lng;
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const xj = (latLngs[j] as any).lat, yj = (latLngs[j] as any).lng;
+              const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+              if (intersect) intersects = !intersects;
+            }
+            inside = intersects;
+          } else {
+            inside = true; // Fallback to bounds check if non-polygon
           }
         }
 
