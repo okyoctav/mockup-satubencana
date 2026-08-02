@@ -529,8 +529,12 @@ async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDamp
 export type SekolahDampakItem = {
   nama: string;
   bentuk: string;
+  status?: string;
   alamat?: string;
   kecamatan?: string;
+  jmlGuru?: number;
+  rombel?: number;
+  jmlTendik?: number;
 };
 
 async function queryDapodikSekolahDampak(drawLayer: L.Layer, kodeKemendagri?: string): Promise<SekolahDampakItem[]> {
@@ -573,10 +577,15 @@ async function queryDapodikSekolahDampak(drawLayer: L.Layer, kodeKemendagri?: st
           const p = ft.properties || {};
           const nama = p.nama || p.NAMA || p.nama_sekolah || 'Sekolah';
           const bentuk = p.bentuk || p.BENTUK || t.toUpperCase();
+          const status = p.status || p.status_sekolah || '';
           const alamat = p.alamat || '';
           const kecamatan = p.kecamatan || '';
+          const jmlGuru = parseInt(p.jml_guru) || 0;
+          const rombel = parseInt(p.rombel) || 0;
+          const jmlTendik = parseInt(p.jml_tendik) || 0;
+
           if (!result.find((s) => s.nama === nama)) {
-            result.push({ nama, bentuk, alamat, kecamatan });
+            result.push({ nama, bentuk, status, alamat, kecamatan, jmlGuru, rombel, jmlTendik });
           }
         }
       });
@@ -1039,13 +1048,23 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
               onEachFeature: (feature, layer) => {
                 const p = feature.properties || {};
                 const nama = p.nama || p.NAMA || p.nama_sekolah || p.NAMA_SEKOLAH || 'Sekolah';
-                const bentuk = p.bentuk || p.BENTUK || p.npsn || p.NPSN || '';
-                const alamat = p.alamat || p.ALAMAT || p.desa_kelurahan || p.DESA_KELURAHAN || '';
+                const bentuk = p.bentuk || p.BENTUK || '';
+                const status = p.status || p.status_sekolah || '';
+                const alamat = p.alamat || p.ALAMAT || '';
+                const jmlGuru = p.jml_guru || '0';
+                const rombel = p.rombel || '0';
+                const jmlTendik = p.jml_tendik || '0';
+
                 layer.bindPopup(`
-                  <div style="font-family:sans-serif; min-width:180px;">
+                  <div style="font-family:sans-serif; min-width:200px; padding:2px;">
                     <div style="font-weight:bold; color:${def.color}; font-size:12px;">🏫 ${nama}</div>
-                    <div style="font-size:11px; color:#475569; margin-top:2px;">Bentuk: <b>${bentuk}</b></div>
-                    ${alamat ? `<div style="font-size:10px; color:#64748B; margin-top:2px;">📍 ${alamat}</div>` : ''}
+                    <div style="font-size:10px; color:#64748B; margin-top:1px;">Jenjang: <b>${bentuk}</b> ${status ? `(${status})` : ''}</div>
+                    <div style="margin-top:6px; padding:4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; font-size:10px; display:flex; justify-content:space-between; gap:6px;">
+                      <span>👨‍🏫 Guru: <b>${jmlGuru}</b></span>
+                      <span>📐 Rombel: <b>${rombel}</b></span>
+                      <span>📋 Tendik: <b>${jmlTendik}</b></span>
+                    </div>
+                    ${alamat ? `<div style="font-size:10px; color:#475569; margin-top:4px;">📍 ${alamat}</div>` : ''}
                   </div>
                 `);
               },

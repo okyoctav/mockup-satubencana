@@ -6,8 +6,12 @@ import { PackageCheck, Droplets, Tent, Utensils, Shirt, HeartPulse, HeartHandsha
 export interface SekolahDampakItem {
   nama: string;
   bentuk: string;
+  status?: string;
   alamat?: string;
   kecamatan?: string;
+  jmlGuru?: number;
+  rombel?: number;
+  jmlTendik?: number;
 }
 
 export interface EstimationData {

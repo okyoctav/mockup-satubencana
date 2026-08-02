@@ -89,24 +89,85 @@ export default function InfrastructureEducationSection({ estimationData }: Props
                 </div>
               </div>
 
-              {estimationData.sekolahDampak && estimationData.sekolahDampak.length > 0 && (
-                <div className="pt-2 border-t border-emerald-200/60">
-                  <span className="font-bold text-amber-900 block mb-1">
-                    🏫 Sekolah Terdampak Dapodik ({estimationData.sekolahDampak.length} Lokasi):
-                  </span>
-                  <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto">
-                    {estimationData.sekolahDampak.map((s, idx) => (
-                      <span key={idx} className="px-2 py-0.5 rounded-md bg-amber-50 border border-amber-300 text-[11px] text-amber-900 font-semibold flex items-center gap-1">
-                        <span>🏫 {s.nama}</span>
-                        <span className="text-[9px] bg-amber-200/80 px-1 py-0.2 rounded font-mono text-amber-950 font-bold">
-                          {s.bentuk}
-                        </span>
-                        {s.kecamatan && <span className="text-amber-700 font-normal">({s.kecamatan})</span>}
+              {estimationData.sekolahDampak && estimationData.sekolahDampak.length > 0 && (() => {
+                const list = estimationData.sekolahDampak;
+                const totalGuru = list.reduce((acc, s) => acc + (s.jmlGuru || 0), 0);
+                const totalRombel = list.reduce((acc, s) => acc + (s.rombel || 0), 0);
+                const totalTendik = list.reduce((acc, s) => acc + (s.jmlTendik || 0), 0);
+
+                // Group per jenjang
+                const jenjangGroups: { key: string; label: string; color: string; bgColor: string; borderColor: string; items: typeof list }[] = [
+                  { key: 'SD', label: 'Sekolah Dasar (SD/SDLB)', color: '#EF4444', bgColor: 'bg-rose-50', borderColor: 'border-rose-200', items: list.filter((s) => s.bentuk.toUpperCase().includes('SD')) },
+                  { key: 'SMP', label: 'Sekolah Menengah Pertama (SMP/SMPLB)', color: '#3B82F6', bgColor: 'bg-blue-50', borderColor: 'border-blue-200', items: list.filter((s) => s.bentuk.toUpperCase().includes('SMP')) },
+                  { key: 'SMA', label: 'Sekolah Menengah Atas (SMA/SMK/SMLB)', color: '#10B981', bgColor: 'bg-emerald-50', borderColor: 'border-emerald-200', items: list.filter((s) => s.bentuk.toUpperCase().includes('SMA') || s.bentuk.toUpperCase().includes('SMK')) },
+                  { key: 'SLB', label: 'Sekolah Luar Biasa (SLB)', color: '#8B5CF6', bgColor: 'bg-purple-50', borderColor: 'border-purple-200', items: list.filter((s) => s.bentuk.toUpperCase() === 'SLB') },
+                  { key: 'SPK', label: 'Sekolah SPK', color: '#F59E0B', bgColor: 'bg-amber-50', borderColor: 'border-amber-200', items: list.filter((s) => s.bentuk.toUpperCase().includes('SPK')) },
+                ].filter((g) => g.items.length > 0);
+
+                // Catch uncategorized
+                const knownKeys = ['SD', 'SMP', 'SMA', 'SMK', 'SLB', 'SPK'];
+                const others = list.filter((s) => !knownKeys.some((k) => s.bentuk.toUpperCase().includes(k)));
+                if (others.length > 0) {
+                  jenjangGroups.push({ key: 'LAIN', label: 'Sekolah Lainnya', color: '#64748B', bgColor: 'bg-slate-50', borderColor: 'border-slate-200', items: others });
+                }
+
+                return (
+                  <div className="pt-3 border-t border-emerald-200/80 space-y-3">
+                    {/* Header Summary Stats */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-amber-500/10 border border-amber-300/80 p-2.5 rounded-xl">
+                      <span className="font-bold text-amber-950 text-xs flex items-center gap-1.5">
+                        <School className="w-4 h-4 text-amber-700" />
+                        <span>🏫 Rincian Sekolah Terdampak Dapodik ({list.length} Lokasi):</span>
                       </span>
-                    ))}
+                      <div className="flex items-center gap-2 text-[11px] font-bold text-amber-900 flex-wrap">
+                        <span className="px-2 py-0.5 rounded-md bg-white border border-amber-200">👨‍🏫 {totalGuru.toLocaleString('id')} Guru</span>
+                        <span className="px-2 py-0.5 rounded-md bg-white border border-amber-200">📐 {totalRombel.toLocaleString('id')} Rombel</span>
+                        <span className="px-2 py-0.5 rounded-md bg-white border border-amber-200">📋 {totalTendik.toLocaleString('id')} Tendik</span>
+                      </div>
+                    </div>
+
+                    {/* Grouped Lists per Jenjang */}
+                    <div className="space-y-2.5">
+                      {jenjangGroups.map((group) => (
+                        <div key={group.key} className={`p-3 rounded-xl border ${group.bgColor} ${group.borderColor} space-y-1.5`}>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold flex items-center gap-1.5" style={{ color: group.color }}>
+                              <span className="w-2.5 h-2.5 rounded-full" style={{ background: group.color }} />
+                              <span>{group.label} ({group.items.length} Sekolah)</span>
+                            </span>
+                            <span className="text-[10px] font-semibold text-slate-500">
+                              Total Guru: {group.items.reduce((a, s) => a + (s.jmlGuru || 0), 0)} | Rombel: {group.items.reduce((a, s) => a + (s.rombel || 0), 0)}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pt-1">
+                            {group.items.map((s, idx) => (
+                              <div key={idx} className="px-2 py-1 rounded-lg bg-white border border-slate-200 text-[11px] text-slate-800 shadow-2xs space-y-0.5">
+                                <div className="font-bold flex items-center gap-1">
+                                  <span>🏫 {s.nama}</span>
+                                  {s.status && <span className="text-[9px] px-1 py-0.2 rounded bg-slate-100 font-normal text-slate-600">({s.status})</span>}
+                                </div>
+                                <div className="text-[10px] text-slate-500 flex items-center gap-2">
+                                  <span>👨‍🏫 {s.jmlGuru || 0} Guru</span>
+                                  <span>•</span>
+                                  <span>📐 {s.rombel || 0} Rombel</span>
+                                  {s.jmlTendik !== undefined && s.jmlTendik > 0 && (
+                                    <>
+                                      <span>•</span>
+                                      <span>📋 {s.jmlTendik} Tendik</span>
+                                    </>
+                                  )}
+                                  {s.kecamatan && <span className="text-slate-400">📍 {s.kecamatan}</span>}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
           )}
         </div>
