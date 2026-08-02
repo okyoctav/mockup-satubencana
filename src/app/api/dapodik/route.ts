@@ -58,8 +58,25 @@ export async function GET(request: NextRequest) {
       })
       .filter(Boolean);
 
-    return NextResponse.json({ type: 'FeatureCollection', features });
+    return NextResponse.json(
+      { type: 'FeatureCollection', features },
+      {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        },
+      }
+    );
   } catch (error) {
-    return NextResponse.json({ type: 'FeatureCollection', features: [], error: String(error) }, { status: 500 });
+    return NextResponse.json(
+      { type: 'FeatureCollection', features: [], error: String(error) },
+      {
+        status: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+      }
+    );
   }
 }
