@@ -464,6 +464,7 @@ export default function DashboardK5Page() {
                     data={filteredData}
                     flyTo={flyTo}
                     theme={theme}
+                    kodeKemendagri={activeFilter?.kodeKemendagri}
                     onDrawEstimation={(stats) => setDrawEstimation(stats)}
                   />
                 </div>

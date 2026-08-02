@@ -25,6 +25,7 @@ interface Kejadian {
 interface Props {
   data: Kejadian[];
   flyTo: { lat: number; lng: number; zoom: number } | null;
+  kodeKemendagri?: string;
   onDrawEstimation?: (stats: {
     totalPopulasi: number;
     totalLakiLaki: number;
@@ -45,11 +46,12 @@ interface BnpbLayer {
   color: string;
   emoji: string;
   url: string;
-  type?: 'MapServer' | 'ImageServer' | 'VectorTileServer' | 'WMS';
+  type?: 'ImageServer' | 'MapServer' | 'VectorTileServer' | 'WMS' | 'Dapodik';
   group?: string;
   useLngLat?: boolean;
   layersParam?: string;
   extent?: [number, number, number, number];
+  requiresFilter?: boolean;
 }
 
 interface MapServerLegendItem {
@@ -113,8 +115,13 @@ const DUKCAPIL_KEL_URL = 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/serv
 const BIG_DESAKEL_URL = 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/BATAS_DESAKEL_AR/MapServer/0';
 
 const BNPB_LAYERS: BnpbLayer[] = [
-  // BIG — Badan Informasi Geospasial
+  // BIG & BAPPENAS
   { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
+  { id: 'dapodik_sd', label: 'Sekolah Dasar (Dapodik)', color: '#EF4444', emoji: '🏫', url: 'https://sepakat.bappenas.go.id/analisis-mandiri/map/point/dapodik?bentuk=SD,SDLB', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
+  { id: 'dapodik_smp', label: 'Sekolah Menengah Pertama (Dapodik)', color: '#3B82F6', emoji: '🏫', url: 'https://sepakat.bappenas.go.id/analisis-mandiri/map/point/dapodik?bentuk=SMP,SMPLB', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
+  { id: 'dapodik_sma', label: 'Sekolah Menengah Atas (Dapodik)', color: '#10B981', emoji: '🏫', url: 'https://sepakat.bappenas.go.id/analisis-mandiri/map/point/dapodik?bentuk=SMA,SMLB', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
+  { id: 'dapodik_slb', label: 'Sekolah Luar Biasa (Dapodik)', color: '#8B5CF6', emoji: '🏫', url: 'https://sepakat.bappenas.go.id/analisis-mandiri/map/point/dapodik?bentuk=SLB', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
+  { id: 'dapodik_spk', label: 'Sekolah SPK (Dapodik)', color: '#F59E0B', emoji: '🏫', url: 'https://sepakat.bappenas.go.id/analisis-mandiri/map/point/dapodik?bentuk=SPK%20SD,SPK%20SMA,SPK%20SMP', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
   { id: 'big_batas_desakel',           label: 'Batas Desa/Kelurahan (BIG)',   color: '#3B82F6', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/BATAS_DESAKEL_AR/MapServer', type: 'MapServer', group: 'BIG' },
   { id: 'big_rbi_sulawesi_lot1',       label: 'RBI Sulawesi 2024 Lot 1',      color: '#A855F7', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI_5K_Sulawesi_2024_Lot_1_Jul/VectorTileServer',         type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
@@ -568,7 +575,7 @@ async function queryHexbinRes9Stats(drawLayer: L.Layer): Promise<HexbinStats> {
   };
 }
 
-export default function DashboardLeafletK5({ data, flyTo, onDrawEstimation }: Props) {
+export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDrawEstimation }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -941,6 +948,42 @@ export default function DashboardLeafletK5({ data, flyTo, onDrawEstimation }: Pr
           vl.addTo(mapRef.current);
         };
         tryAddVector();
+      } else if (def.type === 'Dapodik') {
+        if (!kodeKemendagri) return;
+        const fetchDapodikUrl = `${def.url}&provinsi=${kodeKemendagri}`;
+        fetch(fetchDapodikUrl)
+          .then((r) => r.json())
+          .then((geoJson) => {
+            if (!mapRef.current) return;
+            const dapodikLayer = L.geoJSON(geoJson, {
+              pointToLayer: (feature, latlng) => {
+                return L.circleMarker(latlng, {
+                  radius: 6,
+                  fillColor: def.color,
+                  color: '#FFFFFF',
+                  weight: 1.5,
+                  opacity: 1,
+                  fillOpacity: 0.9,
+                });
+              },
+              onEachFeature: (feature, layer) => {
+                const p = feature.properties || {};
+                const nama = p.nama || p.NAMA || p.nama_sekolah || p.NAMA_SEKOLAH || 'Sekolah';
+                const bentuk = p.bentuk || p.BENTUK || p.npsn || p.NPSN || '';
+                const alamat = p.alamat || p.ALAMAT || p.desa_kelurahan || p.DESA_KELURAHAN || '';
+                layer.bindPopup(`
+                  <div style="font-family:sans-serif; min-width:180px;">
+                    <div style="font-weight:bold; color:${def.color}; font-size:12px;">🏫 ${nama}</div>
+                    <div style="font-size:11px; color:#475569; margin-top:2px;">Bentuk: <b>${bentuk}</b></div>
+                    ${alamat ? `<div style="font-size:10px; color:#64748B; margin-top:2px;">📍 ${alamat}</div>` : ''}
+                  </div>
+                `);
+              },
+            });
+            overlayLayersRef.current[id] = dapodikLayer;
+            dapodikLayer.addTo(mapRef.current);
+          })
+          .catch(() => null);
       } else if (def.type === 'WMS') {
         overlayLayersRef.current[id] = L.tileLayer.wms(def.url, {
           layers: def.layersParam ?? '',
@@ -966,7 +1009,7 @@ export default function DashboardLeafletK5({ data, flyTo, onDrawEstimation }: Pr
         }
       }
     });
-  }, [activeOverlays]);
+  }, [activeOverlays, kodeKemendagri]);
 
   // Function to calculate & attach estimation popup to draw shapes
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1384,8 +1427,15 @@ export default function DashboardLeafletK5({ data, flyTo, onDrawEstimation }: Pr
                           {isSelected && <Check className="w-3.5 h-3.5" />}
                         </div>
                         <div>
-                          <div className="text-xs font-bold text-slate-800 leading-tight">{layer.label}</div>
-                          <span className="text-[10px] text-slate-500 font-medium">{layer.group}</span>
+                          <div className="text-xs font-bold text-slate-800 leading-tight flex items-center gap-1.5 flex-wrap">
+                            <span>{layer.label}</span>
+                            {layer.requiresFilter && !kodeKemendagri && (
+                              <span className="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-semibold border border-amber-300">
+                                ⚠️ Butuh Filter Provinsi
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-slate-400 mt-0.5">{layer.group} · {layer.type}</div>
                         </div>
                       </div>
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 font-bold text-slate-600">

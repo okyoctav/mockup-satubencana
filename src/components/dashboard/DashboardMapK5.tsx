@@ -30,13 +30,14 @@ interface Props {
   data: { id: number; nama: string; provinsi: string; kabupaten: string; lat: number; lng: number; jenis: string; tanggal: string; korban_jiwa: number; pengungsi: number; rumah_terdampak?: number; status: string; level: string }[];
   flyTo: { lat: number; lng: number; zoom: number } | null;
   theme: string;
+  kodeKemendagri?: string;
   onDrawEstimation?: (stats: DrawEstimationStats) => void;
 }
 
-export default function DashboardMapK5({ data, flyTo, theme, onDrawEstimation }: Props) {
+export default function DashboardMapK5({ data, flyTo, theme, kodeKemendagri, onDrawEstimation }: Props) {
   return (
     <div style={{ width: '100%', height: '100%' }}>
-      <DashboardLeafletK5 data={data} flyTo={flyTo} theme={theme} onDrawEstimation={onDrawEstimation} />
+      <DashboardLeafletK5 data={data} flyTo={flyTo} theme={theme} kodeKemendagri={kodeKemendagri} onDrawEstimation={onDrawEstimation} />
     </div>
   );
 }
