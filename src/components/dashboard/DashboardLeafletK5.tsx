@@ -577,16 +577,23 @@ async function queryDapodikSekolahDampak(drawLayer: L.Layer, kodeKemendagri?: st
 
         if (inside) {
           const p = ft.properties || {};
-          const nama = p.nama || p.NAMA || p.nama_sekolah || 'Sekolah';
-          const bentuk = p.bentuk || p.BENTUK || t.toUpperCase();
-          const status = p.status || p.status_sekolah || '';
-          const alamat = p.alamat || '';
-          const kecamatan = p.kecamatan || '';
-          const jmlGuru = parseInt(p.jml_guru) || 0;
-          const rombel = parseInt(p.rombel) || 0;
-          const jmlTendik = parseInt(p.jml_tendik) || 0;
-          const jmlLab = parseInt(p.jml_lab) || 0;
-          const jmlPerpus = parseInt(p.jml_perpus) || 0;
+          const nama = p.nama || p.NAMA || p.nama_sekolah || p.NAMA_SEKOLAH || 'Sekolah';
+          const bentuk = p.bentuk || p.BENTUK || p.bentuk_pendidikan || p.BENTUK_PENDIDIKAN || t.toUpperCase();
+          const status = p.status || p.STATUS || p.status_sekolah || p.STATUS_SEKOLAH || '';
+          const alamat = p.alamat || p.ALAMAT || '';
+          const kecamatan = p.kecamatan || p.KECAMATAN || '';
+
+          const rawGuru = p.jml_guru ?? p.JML_GURU ?? p.jmlGuru ?? p.guru ?? 0;
+          const rawRombel = p.rombel ?? p.ROMBEL ?? p.jml_rombel ?? 0;
+          const rawTendik = p.jml_tendik ?? p.JML_TENDIK ?? p.jmlTendik ?? p.tendik ?? 0;
+          const rawLab = p.jml_lab ?? p.JML_LAB ?? p.jmlLab ?? p.lab ?? 0;
+          const rawPerpus = p.jml_perpus ?? p.JML_PERPUS ?? p.jmlPerpus ?? p.perpus ?? 0;
+
+          const jmlGuru = typeof rawGuru === 'number' ? rawGuru : parseInt(String(rawGuru), 10) || 0;
+          const rombel = typeof rawRombel === 'number' ? rawRombel : parseInt(String(rawRombel), 10) || 0;
+          const jmlTendik = typeof rawTendik === 'number' ? rawTendik : parseInt(String(rawTendik), 10) || 0;
+          const jmlLab = typeof rawLab === 'number' ? rawLab : parseInt(String(rawLab), 10) || 0;
+          const jmlPerpus = typeof rawPerpus === 'number' ? rawPerpus : parseInt(String(rawPerpus), 10) || 0;
 
           if (!result.find((s) => s.nama === nama)) {
             result.push({ nama, bentuk, status, alamat, kecamatan, jmlGuru, rombel, jmlTendik, jmlLab, jmlPerpus });
@@ -1052,14 +1059,14 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
               onEachFeature: (feature, layer) => {
                 const p = feature.properties || {};
                 const nama = p.nama || p.NAMA || p.nama_sekolah || p.NAMA_SEKOLAH || 'Sekolah';
-                const bentuk = p.bentuk || p.BENTUK || '';
-                const status = p.status || p.status_sekolah || '';
+                const bentuk = p.bentuk || p.BENTUK || p.bentuk_pendidikan || p.BENTUK_PENDIDIKAN || '';
+                const status = p.status || p.STATUS || p.status_sekolah || p.STATUS_SEKOLAH || '';
                 const alamat = p.alamat || p.ALAMAT || '';
-                const jmlGuru = p.jml_guru || '0';
-                const rombel = p.rombel || '0';
-                const jmlTendik = p.jml_tendik || '0';
-                const jmlLab = p.jml_lab || '0';
-                const jmlPerpus = p.jml_perpus || '0';
+                const jmlGuru = p.jml_guru ?? p.JML_GURU ?? p.jmlGuru ?? p.guru ?? '0';
+                const rombel = p.rombel ?? p.ROMBEL ?? p.jml_rombel ?? '0';
+                const jmlTendik = p.jml_tendik ?? p.JML_TENDIK ?? p.jmlTendik ?? p.tendik ?? '0';
+                const jmlLab = p.jml_lab ?? p.JML_LAB ?? p.jmlLab ?? p.lab ?? '0';
+                const jmlPerpus = p.jml_perpus ?? p.JML_PERPUS ?? p.jmlPerpus ?? p.perpus ?? '0';
 
                 layer.bindPopup(`
                   <div style="font-family:sans-serif; min-width:210px; padding:2px;">
