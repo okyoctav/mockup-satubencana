@@ -34,6 +34,8 @@ import {
   Radio,
   LayoutDashboard,
   ChevronDown,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 
 type Kejadian = {
@@ -64,6 +66,7 @@ import { EstimationData } from '@/components/dashboard/LogisticAnalysisSection';
 
 export default function DashboardK5Page() {
   const { theme, toggle } = useTheme();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [filters, setFilters] = useState({ jenis: 'Semua', status: 'Semua', level: 'Semua' });
   const [activeFilter, setActiveFilter] = useState<FilterWilayah | null>(null);
@@ -111,112 +114,151 @@ export default function DashboardK5Page() {
 
   return (
     <div className="min-h-screen flex bg-white text-slate-800 font-sans selection:bg-[#1f8080] selection:text-white antialiased">
-      {/* 1. LEFT SIDEBAR NAVIGATION */}
-      <aside className="w-64 bg-[#19506e] text-white flex flex-col shrink-0 border-r border-[#19506e]/20 shadow-lg z-30 sticky top-0 h-screen">
-        {/* Brand Header (Full Logo Only without box background, filter brightness-0 invert) */}
-        <div className="p-5 border-b border-white/10 flex items-center justify-center">
-          <img
-            src="/logo/logo_mdb.png"
-            alt="Logo MDB"
-            className="h-12 w-auto object-contain brightness-0 invert transition-transform hover:scale-105 duration-200"
-          />
+      {/* 1. LEFT SIDEBAR NAVIGATION WITH TOGGLE */}
+      <aside
+        className={`${
+          isSidebarOpen ? 'w-64' : 'w-20'
+        } bg-[#19506e] text-white flex flex-col shrink-0 border-r border-[#19506e]/20 shadow-lg z-30 sticky top-0 h-screen transition-all duration-300 ease-in-out`}
+      >
+        {/* Brand Header */}
+        <div className={`p-4 border-b border-white/10 flex items-center ${isSidebarOpen ? 'justify-between' : 'justify-center'}`}>
+          {isSidebarOpen ? (
+            <img
+              src="/logo/logo_mdb.png"
+              alt="Logo MDB"
+              className="h-10 w-auto object-contain brightness-0 invert transition-transform hover:scale-105 duration-200"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center font-bold text-white tracking-widest">
+              MDB
+            </div>
+          )}
+
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="hidden sm:flex items-center justify-center w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white transition-all border border-white/10 shadow-xs"
+            title={isSidebarOpen ? 'Sembunyikan Sidebar' : 'Tampilkan Sidebar'}
+          >
+            {isSidebarOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
+          </button>
         </div>
 
         {/* Navigation Menu */}
-        <div className="px-3 py-4 flex-1 space-y-6 overflow-y-auto">
+        <div className="px-3 py-4 flex-1 space-y-6 overflow-y-auto overflow-x-hidden">
           <div>
-            <div className="px-3 text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">
-              Menu Utama
-            </div>
+            {isSidebarOpen && (
+              <div className="px-3 text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">
+                Menu Utama
+              </div>
+            )}
             <nav className="space-y-1">
               <a
                 href="/dashboard_k5"
-                className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold bg-[#1f8080] text-white shadow-md transition-all"
+                className={`w-full flex items-center ${isSidebarOpen ? 'gap-3 px-3.5' : 'justify-center px-0'} py-3 rounded-xl text-xs font-bold bg-[#1f8080] text-white shadow-md transition-all`}
+                title={!isSidebarOpen ? 'Dashboard K5' : undefined}
               >
-                <LayoutDashboard className="w-4 h-4 text-white" />
-                <span>Dashboard K5</span>
+                <LayoutDashboard className="w-4 h-4 text-white shrink-0" />
+                {isSidebarOpen && <span>Dashboard K5</span>}
               </a>
             </nav>
           </div>
 
           {/* Konsep Switcher Nav */}
           <div>
-            <div className="px-3 text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">
-              Konsep Tampilan
-            </div>
+            {isSidebarOpen && (
+              <div className="px-3 text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">
+                Konsep Tampilan
+              </div>
+            )}
             <div className="space-y-1 text-xs">
               <a
                 href="/dashboard"
-                className="flex items-center justify-between px-3 py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors"
+                className={`flex items-center ${isSidebarOpen ? 'justify-between px-3' : 'justify-center px-0'} py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors`}
+                title={!isSidebarOpen ? 'Konsep 1 (Leaflet)' : undefined}
               >
-                <span>Konsep 1 (Leaflet)</span>
+                {isSidebarOpen ? <span>Konsep 1 (Leaflet)</span> : <span className="text-[10px] font-bold">K1</span>}
               </a>
               <a
                 href="/dashboard_k2"
-                className="flex items-center justify-between px-3 py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors"
+                className={`flex items-center ${isSidebarOpen ? 'justify-between px-3' : 'justify-center px-0'} py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors`}
+                title={!isSidebarOpen ? 'Konsep 2 (ArcGIS)' : undefined}
               >
-                <span>Konsep 2 (ArcGIS)</span>
+                {isSidebarOpen ? <span>Konsep 2 (ArcGIS)</span> : <span className="text-[10px] font-bold">K2</span>}
               </a>
               <a
                 href="/dashboard_k3"
-                className="flex items-center justify-between px-3 py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors"
+                className={`flex items-center ${isSidebarOpen ? 'justify-between px-3' : 'justify-center px-0'} py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors`}
+                title={!isSidebarOpen ? 'Konsep 3' : undefined}
               >
-                <span>Konsep 3</span>
+                {isSidebarOpen ? <span>Konsep 3</span> : <span className="text-[10px] font-bold">K3</span>}
               </a>
               <a
                 href="/dashboard_k4"
-                className="flex items-center justify-between px-3 py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors"
+                className={`flex items-center ${isSidebarOpen ? 'justify-between px-3' : 'justify-center px-0'} py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors`}
+                title={!isSidebarOpen ? 'Konsep 4' : undefined}
               >
-                <span>Konsep 4</span>
+                {isSidebarOpen ? <span>Konsep 4</span> : <span className="text-[10px] font-bold">K4</span>}
               </a>
               <a
                 href="/dashboard_k5"
-                className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/15 text-white font-semibold border-l-4 border-[#1f8080]"
+                className={`flex items-center ${isSidebarOpen ? 'justify-between px-3 border-l-4' : 'justify-center px-0 border-l-0'} py-2 rounded-lg bg-white/15 text-white font-semibold border-[#1f8080]`}
+                title={!isSidebarOpen ? 'Konsep 5 (Aktif)' : undefined}
               >
-                <span>Konsep 5 (Clean Sidebar)</span>
-                <span className="w-2 h-2 rounded-full bg-[#1f8080]" />
+                {isSidebarOpen ? (
+                  <>
+                    <span>Konsep 5</span>
+                    <span className="w-2 h-2 rounded-full bg-[#1f8080]" />
+                  </>
+                ) : (
+                  <span className="text-[10px] font-bold text-[#1f8080]">K5</span>
+                )}
               </a>
             </div>
           </div>
 
           {/* Action Navigation */}
           <div>
-            <div className="px-3 text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">
-              Akses Sistem
-            </div>
+            {isSidebarOpen && (
+              <div className="px-3 text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">
+                Akses Sistem
+              </div>
+            )}
             <div className="space-y-1.5 text-xs">
               <a
                 href="/management"
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/10 transition-colors"
+                className={`flex items-center ${isSidebarOpen ? 'gap-2.5 px-3' : 'justify-center px-0'} py-2 rounded-xl text-slate-200 hover:bg-white/10 transition-colors`}
+                title={!isSidebarOpen ? 'Management Data' : undefined}
               >
-                <Database className="w-4 h-4 text-[#1f8080]" />
-                <span>Management Data</span>
+                <Database className="w-4 h-4 text-[#1f8080] shrink-0" />
+                {isSidebarOpen && <span>Management Data</span>}
               </a>
               <a
                 href="/login"
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-200 hover:bg-white/10 transition-colors"
+                className={`flex items-center ${isSidebarOpen ? 'gap-2.5 px-3' : 'justify-center px-0'} py-2 rounded-xl text-slate-200 hover:bg-white/10 transition-colors`}
+                title={!isSidebarOpen ? 'Login Submisi' : undefined}
               >
-                <Lock className="w-4 h-4 text-[#1f8080]" />
-                <span>Login Submisi</span>
+                <Lock className="w-4 h-4 text-[#1f8080] shrink-0" />
+                {isSidebarOpen && <span>Login Submisi</span>}
               </a>
               <a
                 href="https://inarisk.bnpb.go.id/databencana/webgis/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-white bg-[#1f8080] hover:bg-[#1f8080]/90 transition-colors font-medium shadow-sm"
+                className={`flex items-center ${isSidebarOpen ? 'gap-2.5 px-3' : 'justify-center px-0'} py-2 rounded-xl text-white bg-[#1f8080] hover:bg-[#1f8080]/90 transition-colors font-medium shadow-sm`}
+                title={!isSidebarOpen ? 'WebGIS BNPB' : undefined}
               >
-                <MapIcon className="w-4 h-4" />
-                <span>WebGIS BNPB</span>
+                <MapIcon className="w-4 h-4 shrink-0" />
+                {isSidebarOpen && <span>WebGIS BNPB</span>}
               </a>
             </div>
           </div>
         </div>
 
         {/* Sidebar Footer */}
-        <div className="p-3 border-t border-white/10 bg-[#19506e]/80 flex items-center justify-between text-xs">
-          <a href="/" className="flex items-center gap-1.5 text-slate-200 hover:text-white transition-colors">
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Kembali</span>
+        <div className={`p-3 border-t border-white/10 bg-[#19506e]/80 flex items-center ${isSidebarOpen ? 'justify-between' : 'justify-center flex-col gap-2'} text-xs`}>
+          <a href="/" className="flex items-center gap-1.5 text-slate-200 hover:text-white transition-colors" title={!isSidebarOpen ? 'Kembali' : undefined}>
+            <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
+            {isSidebarOpen && <span>Kembali</span>}
           </a>
           <button
             onClick={toggle}
@@ -240,6 +282,19 @@ export default function DashboardK5Page() {
           {/* Header Controls Bar */}
           <div className="px-6 py-2.5 flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-3 flex-wrap">
+              {/* Header Burger Trigger Button */}
+              <button
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="flex items-center justify-center p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-[#19506e] transition-all shadow-2xs group"
+                title={isSidebarOpen ? 'Sembunyikan Sidebar' : 'Tampilkan Sidebar'}
+              >
+                {isSidebarOpen ? (
+                  <PanelLeftClose className="w-4 h-4 text-slate-600 group-hover:text-[#19506e] transition-colors" />
+                ) : (
+                  <PanelLeftOpen className="w-4 h-4 text-[#1f8080] group-hover:text-[#19506e] transition-colors" />
+                )}
+              </button>
+
               <WilayahDropdown onSelect={handleDropdownFilter} theme={theme} />
               {activeFilter && (
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#1f8080]/10 border border-[#1f8080]/30 text-xs text-[#19506e] font-semibold">
