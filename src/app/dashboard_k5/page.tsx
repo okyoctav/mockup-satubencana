@@ -134,7 +134,7 @@ export default function DashboardK5Page() {
     <div className="min-h-screen flex bg-white text-slate-800 font-sans selection:bg-[#1f8080] selection:text-white antialiased relative">
       {/* FULLSCREEN BUMPER LOGO VIDEO (Played 1x on first-time visit) */}
       {showBumper && (
-        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center overflow-hidden transition-opacity duration-500">
+        <div className="fixed inset-0 z-[99999] bg-black flex items-center justify-center overflow-hidden transition-opacity duration-500">
           <video
             autoPlay
             muted
@@ -150,7 +150,7 @@ export default function DashboardK5Page() {
           {/* SKIP BUTTON */}
           <button
             onClick={handleFinishBumper}
-            className="absolute bottom-6 right-6 px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-1.5 cursor-pointer z-50"
+            className="absolute bottom-6 right-6 px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-1.5 cursor-pointer z-[100000]"
           >
             <span>Lewati Intro</span>
             <span>&rarr;</span>
