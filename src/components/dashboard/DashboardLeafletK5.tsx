@@ -353,6 +353,7 @@ type KelurahanDampak = {
   namaKecamatan: string;
   namaKabupaten: string;
   namaProvinsi: string;
+  kodeKemendagri?: string;
 };
 
 async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDampak[]> {
@@ -392,6 +393,7 @@ async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDamp
         const kab  = a.WADMKK || a.KABUPATEN || a.KAB_KOTA || a.KAB || a.field2 || a.FIELD2 || '';
         const kec  = a.WADMKC || a.KECAMATAN || a.KEC || a.field3 || a.FIELD3 || '';
         const kel  = a.NAMOBJ || a.KELURAHAN || a.DESA || a.DESA_KEL || a.field4 || a.FIELD4 || a.NAMWS || a.NAME || '';
+        const kode = a.KDPPUM || a.KDEPUM || a.KDKCUM || a.KDCPUM || a.KODE_WILAYAH || a.KODE_DESA || a.KODE_KEL || a.KODE || a.CODE || '';
         if (kel || kec || kab) {
           const key = `${kel}-${kec}-${kab}`;
           if (!seen.has(key)) {
@@ -401,6 +403,7 @@ async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDamp
               namaKecamatan: kec,
               namaKabupaten: kab,
               namaProvinsi: prov,
+              kodeKemendagri: kode ? String(kode) : undefined,
             });
           }
         }
@@ -441,6 +444,7 @@ async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDamp
           const kab  = a.WADMKK || a.KABUPATEN || a.KAB_KOTA || a.KAB || a.field2 || a.FIELD2 || '';
           const kec  = a.WADMKC || a.KECAMATAN || a.KEC || a.field3 || a.FIELD3 || '';
           const kel  = a.NAMOBJ || a.KELURAHAN || a.DESA || a.DESA_KEL || a.field4 || a.FIELD4 || a.NAMWS || a.NAME || '';
+          const kode = a.KDPPUM || a.KDEPUM || a.KDKCUM || a.KDCPUM || a.KODE_WILAYAH || a.KODE_DESA || a.KODE_KEL || a.KODE || a.CODE || '';
           if (kel || kec || kab) {
             const key = `${kel}-${kec}-${kab}`;
             if (!seen.has(key)) {
@@ -450,6 +454,7 @@ async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDamp
                 namaKecamatan: kec,
                 namaKabupaten: kab,
                 namaProvinsi: prov,
+                kodeKemendagri: kode ? String(kode) : undefined,
               });
             }
           }
@@ -491,6 +496,7 @@ async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDamp
           const kec = a.kecamatan || a.wadmkc || '';
           const kab = a.wadmkk || a.kabupaten || a.kab_kota || '';
           const prov = a.wadmpr || a.provinsi || '';
+          const kode = a.kdppum || a.kdepum || a.kode_wilayah || a.kode || '';
           const key = `${kel}-${kec}-${kab}`;
           if (!seen.has(key)) {
             seen.add(key);
@@ -499,6 +505,7 @@ async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDamp
               namaKecamatan: kec,
               namaKabupaten: kab,
               namaProvinsi: prov,
+              kodeKemendagri: kode ? String(kode) : undefined,
             });
           }
         });
@@ -1005,11 +1012,17 @@ export default function DashboardLeafletK5({ data, flyTo, onDrawEstimation }: Pr
              <div style="max-height:110px; overflow-y:auto; font-size:10px; color:#334155;">
                ${regionGroups.map((g) => {
                  const title = g.kab ? `📍 ${g.prov}, ${g.kab}` : `📍 ${g.prov}`;
-                 const kelText = g.kels.length > 0 ? g.kels.join(', ') : 'Area Tersebar';
                  return `
                    <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:4px 6px; margin-bottom:4px;">
                      <div style="font-weight:700; color:#19506e;">${title}</div>
-                     <div style="color:#475569; margin-top:2px;">• <b>Kel/Desa:</b> ${kelText}</div>
+                     <div style="color:#475569; margin-top:2px;">• <b>Kel/Desa:</b> ${
+                       g.kels.map((kName) => {
+                         const item = kelList.find((x) => x.namaKelurahan === kName);
+                         return item?.kodeKemendagri
+                           ? `${kName} <span style="font-size:9px; background:#E2E8F0; padding:1px 4px; border-radius:4px; font-weight:bold; color:#0F172A;">(${item.kodeKemendagri})</span>`
+                           : kName;
+                       }).join(', ')
+                     }</div>
                    </div>
                  `;
                }).join('')}

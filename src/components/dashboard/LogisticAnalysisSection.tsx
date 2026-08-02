@@ -12,7 +12,7 @@ export interface EstimationData {
   totalPd1: number;
   totalPd2: number;
   totalKeluarga: number;
-  kelurahanDampak?: { namaKelurahan: string; namaKecamatan: string; namaKabupaten: string; namaProvinsi: string }[];
+  kelurahanDampak?: { namaKelurahan: string; namaKecamatan: string; namaKabupaten: string; namaProvinsi: string; kodeKemendagri?: string }[];
 }
 
 interface Props {
@@ -119,8 +119,14 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
               <span className="font-bold text-[#19506e] block mb-1">🏛️ Wilayah Kelurahan / Desa Terdampak:</span>
               <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                 {estimationData.kelurahanDampak.map((k, idx) => (
-                  <span key={idx} className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-[11px] text-[#19506e] font-semibold">
-                    📍 {k.namaKelurahan} <span className="text-slate-500 font-normal">({k.namaKecamatan || k.namaKabupaten})</span>
+                  <span key={idx} className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-[11px] text-[#19506e] font-semibold flex items-center gap-1">
+                    <span>📍 {k.namaKelurahan}</span>
+                    {k.kodeKemendagri && (
+                      <span className="text-[9px] bg-slate-100 px-1 py-0.2 rounded font-mono font-bold text-slate-700">
+                        [{k.kodeKemendagri}]
+                      </span>
+                    )}
+                    <span className="text-slate-500 font-normal">({k.namaKecamatan || k.namaKabupaten})</span>
                   </span>
                 ))}
               </div>
