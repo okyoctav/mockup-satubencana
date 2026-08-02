@@ -60,6 +60,8 @@ import EconomicAgricultureLossSection from '@/components/dashboard/EconomicAgric
 import UtilitiesEnergySection from '@/components/dashboard/UtilitiesEnergySection';
 import AccessibilityRouteSection from '@/components/dashboard/AccessibilityRouteSection';
 
+import { EstimationData } from '@/components/dashboard/LogisticAnalysisSection';
+
 export default function DashboardK5Page() {
   const { theme, toggle } = useTheme();
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
@@ -67,16 +69,7 @@ export default function DashboardK5Page() {
   const [activeFilter, setActiveFilter] = useState<FilterWilayah | null>(null);
   const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical' | 'infrastructure' | 'economic' | 'utilities' | 'routes'>('map');
   const [isMapExpanded, setIsMapExpanded] = useState(false);
-  const [drawEstimation, setDrawEstimation] = useState<{
-    totalPopulasi: number;
-    totalLakiLaki: number;
-    totalPerempuan: number;
-    totalLansia: number;
-    totalBalita: number;
-    totalPd1: number;
-    totalPd2: number;
-    totalKeluarga: number;
-  } | null>(null);
+  const [drawEstimation, setDrawEstimation] = useState<EstimationData | null>(null);
 
   const handleClearSearch = () => {
     setActiveFilter(null);

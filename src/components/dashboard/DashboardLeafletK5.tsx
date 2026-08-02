@@ -35,7 +35,8 @@ interface Props {
     totalPd1: number;
     totalPd2: number;
     totalKeluarga: number;
-    kelurahanDampak?: { namaKelurahan: string; namaKecamatan: string; namaKabupaten: string; namaProvinsi: string }[];
+    kelurahanDampak?: { namaKelurahan: string; namaKecamatan: string; namaKabupaten: string; namaProvinsi: string; kodeKemendagri?: string }[];
+    sekolahDampak?: SekolahDampakItem[];
   }) => void;
   theme: string;
 }
@@ -523,6 +524,68 @@ async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDamp
   }
 
   return list;
+}
+
+export type SekolahDampakItem = {
+  nama: string;
+  bentuk: string;
+  alamat?: string;
+  kecamatan?: string;
+};
+
+async function queryDapodikSekolahDampak(drawLayer: L.Layer, kodeKemendagri?: string): Promise<SekolahDampakItem[]> {
+  const result: SekolahDampakItem[] = [];
+  if (!kodeKemendagri || typeof window === 'undefined' || !L) return result;
+
+  const types = ['sd', 'smp', 'sma', 'slb', 'spk'];
+  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dl = drawLayer as any;
+  const isCircle = !!dl.getRadius;
+  const circleCenter = isCircle ? dl.getLatLng() : null;
+  const circleRadius = isCircle ? dl.getRadius() : 0;
+  const bounds = dl.getBounds ? dl.getBounds() : null;
+
+  for (const t of types) {
+    try {
+      const url = `/data/dapodik/${t}/${kodeKemendagri}.json`;
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const geoJson = await res.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (geoJson.features ?? []).forEach((ft: any) => {
+        const coords = ft.geometry?.coordinates;
+        if (!coords || coords.length < 2) return;
+        const latlng = L.latLng(coords[1], coords[0]);
+        let inside = false;
+
+        if (isCircle && circleCenter) {
+          if (circleCenter.distanceTo(latlng) <= circleRadius) {
+            inside = true;
+          }
+        } else if (bounds) {
+          if (bounds.contains(latlng)) {
+            inside = true;
+          }
+        }
+
+        if (inside) {
+          const p = ft.properties || {};
+          const nama = p.nama || p.NAMA || p.nama_sekolah || 'Sekolah';
+          const bentuk = p.bentuk || p.BENTUK || t.toUpperCase();
+          const alamat = p.alamat || '';
+          const kecamatan = p.kecamatan || '';
+          if (!result.find((s) => s.nama === nama)) {
+            result.push({ nama, bentuk, alamat, kecamatan });
+          }
+        }
+      });
+    } catch {
+      /* ignore */
+    }
+  }
+
+  return result;
 }
 
 async function queryHexbinRes9Stats(drawLayer: L.Layer): Promise<HexbinStats> {
@@ -1031,9 +1094,10 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       .openOn(map);
 
     try {
-      const [stats, kelList] = await Promise.all([
+      const [stats, kelList, sekolahList] = await Promise.all([
         queryHexbinRes9Stats(layer),
         queryDukcapilKelurahan(layer),
+        queryDapodikSekolahDampak(layer, kodeKemendagri),
       ]);
 
       // Group kelurahanDampak by Provinsi & Kabupaten for clean popup display
@@ -1097,9 +1161,8 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       layer.bindPopup(content);
 
       if (onDrawEstimation) {
-        const totalPop = stats.totalLakiLaki + stats.totalPerempuan;
         onDrawEstimation({
-          totalPopulasi: totalPop,
+          totalPopulasi: stats.totalLakiLaki + stats.totalPerempuan,
           totalLakiLaki: stats.totalLakiLaki,
           totalPerempuan: stats.totalPerempuan,
           totalLansia: stats.totalLansia,
@@ -1108,6 +1171,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
           totalPd2: stats.totalPd2,
           totalKeluarga: stats.totalKeluarga,
           kelurahanDampak: kelList,
+          sekolahDampak: sekolahList,
         });
       }
     } catch {

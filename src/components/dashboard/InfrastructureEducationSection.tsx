@@ -71,21 +71,42 @@ export default function InfrastructureEducationSection({ estimationData }: Props
           </div>
 
           {estimationData.kelurahanDampak && estimationData.kelurahanDampak.length > 0 && (
-            <div className="pt-2 border-t border-emerald-200/60">
-              <span className="font-bold text-[#19506e] block mb-1">🏛️ Wilayah Kelurahan / Desa Terdampak:</span>
-              <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
-                {estimationData.kelurahanDampak.map((k, idx) => (
-                  <span key={idx} className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-[11px] text-[#19506e] font-semibold flex items-center gap-1">
-                    <span>📍 {k.namaKelurahan}</span>
-                    {k.kodeKemendagri && (
-                      <span className="text-[9px] bg-slate-100 px-1 py-0.2 rounded font-mono font-bold text-slate-700">
-                        [{k.kodeKemendagri}]
-                      </span>
-                    )}
-                    <span className="text-slate-500 font-normal">({k.namaKecamatan || k.namaKabupaten})</span>
-                  </span>
-                ))}
+            <div className="pt-2 border-t border-emerald-200/60 space-y-2">
+              <div>
+                <span className="font-bold text-[#19506e] block mb-1">🏛️ Wilayah Kelurahan / Desa Terdampak:</span>
+                <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
+                  {estimationData.kelurahanDampak.map((k, idx) => (
+                    <span key={idx} className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-[11px] text-[#19506e] font-semibold flex items-center gap-1">
+                      <span>📍 {k.namaKelurahan}</span>
+                      {k.kodeKemendagri && (
+                        <span className="text-[9px] bg-slate-100 px-1 py-0.2 rounded font-mono font-bold text-slate-700">
+                          [{k.kodeKemendagri}]
+                        </span>
+                      )}
+                      <span className="text-slate-500 font-normal">({k.namaKecamatan || k.namaKabupaten})</span>
+                    </span>
+                  ))}
+                </div>
               </div>
+
+              {estimationData.sekolahDampak && estimationData.sekolahDampak.length > 0 && (
+                <div className="pt-2 border-t border-emerald-200/60">
+                  <span className="font-bold text-amber-900 block mb-1">
+                    🏫 Sekolah Terdampak Dapodik ({estimationData.sekolahDampak.length} Lokasi):
+                  </span>
+                  <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto">
+                    {estimationData.sekolahDampak.map((s, idx) => (
+                      <span key={idx} className="px-2 py-0.5 rounded-md bg-amber-50 border border-amber-300 text-[11px] text-amber-900 font-semibold flex items-center gap-1">
+                        <span>🏫 {s.nama}</span>
+                        <span className="text-[9px] bg-amber-200/80 px-1 py-0.2 rounded font-mono text-amber-950 font-bold">
+                          {s.bentuk}
+                        </span>
+                        {s.kecamatan && <span className="text-amber-700 font-normal">({s.kecamatan})</span>}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

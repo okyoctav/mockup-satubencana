@@ -3,6 +3,13 @@
 import { useState } from 'react';
 import { PackageCheck, Droplets, Tent, Utensils, Shirt, HeartPulse, HeartHandshake, RefreshCw } from 'lucide-react';
 
+export interface SekolahDampakItem {
+  nama: string;
+  bentuk: string;
+  alamat?: string;
+  kecamatan?: string;
+}
+
 export interface EstimationData {
   totalPopulasi: number;
   totalLakiLaki: number;
@@ -13,6 +20,7 @@ export interface EstimationData {
   totalPd2: number;
   totalKeluarga: number;
   kelurahanDampak?: { namaKelurahan: string; namaKecamatan: string; namaKabupaten: string; namaProvinsi: string; kodeKemendagri?: string }[];
+  sekolahDampak?: SekolahDampakItem[];
 }
 
 interface Props {

@@ -14,17 +14,9 @@ const DashboardLeafletK5 = dynamic(() => import('./DashboardLeafletK5'), {
   ),
 });
 
-export interface DrawEstimationStats {
-  totalPopulasi: number;
-  totalLakiLaki: number;
-  totalPerempuan: number;
-  totalLansia: number;
-  totalBalita: number;
-  totalPd1: number;
-  totalPd2: number;
-  totalKeluarga: number;
-  kelurahanDampak?: { namaKelurahan: string; namaKecamatan: string; namaKabupaten: string; namaProvinsi: string }[];
-}
+import { EstimationData } from './LogisticAnalysisSection';
+
+export type DrawEstimationStats = EstimationData;
 
 interface Props {
   data: { id: number; nama: string; provinsi: string; kabupaten: string; lat: number; lng: number; jenis: string; tanggal: string; korban_jiwa: number; pengungsi: number; rumah_terdampak?: number; status: string; level: string }[];
