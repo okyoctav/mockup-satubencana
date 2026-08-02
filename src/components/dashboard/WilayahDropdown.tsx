@@ -37,9 +37,51 @@ for (const prov of PROVINSI_LIST) {
   PROV_CENTER[prov] = { lat, lng };
 }
 
+// Pemetaan Kode Kemendagri 2-digit resmi untuk 38 Provinsi Indonesia
+export const KODE_KEMENDAGRI_PROVINSI: Record<string, string> = {
+  'ACEH': '11',
+  'SUMATERA UTARA': '12',
+  'SUMATERA BARAT': '13',
+  'RIAU': '14',
+  'JAMBI': '15',
+  'SUMATERA SELATAN': '16',
+  'BENGKULU': '17',
+  'LAMPUNG': '18',
+  'KEPULAUAN BANGKA BELITUNG': '19',
+  'KEPULAUAN RIAU': '21',
+  'DKI JAKARTA': '31',
+  'JAWA BARAT': '32',
+  'JAWA TENGAH': '33',
+  'DI YOGYAKARTA': '34',
+  'JAWA TIMUR': '35',
+  'BANTEN': '36',
+  'BALI': '51',
+  'NUSA TENGGARA BARAT': '52',
+  'NUSA TENGGARA TIMUR': '53',
+  'KALIMANTAN BARAT': '61',
+  'KALIMANTAN TENGAH': '62',
+  'KALIMANTAN SELATAN': '63',
+  'KALIMANTAN TIMUR': '64',
+  'KALIMANTAN UTARA': '65',
+  'SULAWESI UTARA': '71',
+  'SULAWESI TENGAH': '72',
+  'SULAWESI SELATAN': '73',
+  'SULAWESI TENGGARA': '74',
+  'GORONTALO': '75',
+  'SULAWESI BARAT': '76',
+  'MALUKU': '81',
+  'MALUKU UTARA': '82',
+  'PAPUA BARAT': '91',
+  'PAPUA': '92',
+  'PAPUA SELATAN': '93',
+  'PAPUA TENGAH': '94',
+  'PAPUA PEGUNUNGAN': '95',
+  'PAPUA BARAT DAYA': '96',
+};
+
 export type FilterWilayah =
-  | { tipe: 'provinsi'; nama: string; lat: number; lng: number }
-  | { tipe: 'kabupaten'; nama: string; provinsi: string; lat: number; lng: number };
+  | { tipe: 'provinsi'; nama: string; kodeKemendagri?: string; lat: number; lng: number }
+  | { tipe: 'kabupaten'; nama: string; provinsi: string; kodeKemendagri?: string; lat: number; lng: number };
 
 interface Props {
   onSelect: (w: FilterWilayah | null) => void;
@@ -77,20 +119,22 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
       return;
     }
     const c = PROV_CENTER[prov];
-    onSelect({ tipe: 'provinsi', nama: prov, lat: c.lat, lng: c.lng });
+    const kode = KODE_KEMENDAGRI_PROVINSI[prov.toUpperCase()] || '';
+    onSelect({ tipe: 'provinsi', nama: prov, kodeKemendagri: kode, lat: c.lat, lng: c.lng });
   };
 
   const handleKabChange = (kab: string) => {
     setSelectedKab(kab);
     if (!kab) {
-      // fall back to province
       const c = PROV_CENTER[selectedProv];
-      onSelect({ tipe: 'provinsi', nama: selectedProv, lat: c.lat, lng: c.lng });
+      const kode = KODE_KEMENDAGRI_PROVINSI[selectedProv.toUpperCase()] || '';
+      onSelect({ tipe: 'provinsi', nama: selectedProv, kodeKemendagri: kode, lat: c.lat, lng: c.lng });
       return;
     }
     const found = kabList.find((k) => k.nama === kab);
     if (!found) return;
-    onSelect({ tipe: 'kabupaten', nama: kab, provinsi: selectedProv, lat: found.lat, lng: found.lng });
+    const kode = KODE_KEMENDAGRI_PROVINSI[selectedProv.toUpperCase()] || '';
+    onSelect({ tipe: 'kabupaten', nama: kab, provinsi: selectedProv, kodeKemendagri: kode, lat: found.lat, lng: found.lng });
   };
 
   const handleClear = () => {
@@ -129,11 +173,14 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
         style={selectStyle}
       >
         <option value="">— Semua Provinsi —</option>
-        {PROVINSI_LIST.map((p) => (
-          <option key={p} value={p}>
-            {p}
-          </option>
-        ))}
+        {PROVINSI_LIST.map((p) => {
+          const kode = KODE_KEMENDAGRI_PROVINSI[p.toUpperCase()];
+          return (
+            <option key={p} value={p}>
+              {kode ? `[${kode}] ${p}` : p}
+            </option>
+          );
+        })}
       </select>
 
       {/* Kabupaten/Kota */}
