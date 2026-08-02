@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import AlertTicker from '@/components/dashboard/AlertTicker';
 import StatCards from '@/components/dashboard/StatCards';
@@ -66,6 +66,7 @@ import { EstimationData } from '@/components/dashboard/LogisticAnalysisSection';
 
 export default function DashboardK5Page() {
   const { theme, toggle } = useTheme();
+  const [showBumper, setShowBumper] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [filters, setFilters] = useState({ jenis: 'Semua', status: 'Semua', level: 'Semua' });
@@ -73,6 +74,23 @@ export default function DashboardK5Page() {
   const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical' | 'infrastructure' | 'economic' | 'utilities' | 'routes'>('map');
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [drawEstimation, setDrawEstimation] = useState<EstimationData | null>(null);
+
+  // First-time visit Bumper Video check
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasPlayedBumper = sessionStorage.getItem('mdb_bumper_played');
+      if (!hasPlayedBumper) {
+        setShowBumper(true);
+      }
+    }
+  }, []);
+
+  const handleFinishBumper = () => {
+    setShowBumper(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('mdb_bumper_played', 'true');
+    }
+  };
 
   const handleClearSearch = () => {
     setActiveFilter(null);
@@ -113,7 +131,33 @@ export default function DashboardK5Page() {
   }, [regionFilteredData, filters]);
 
   return (
-    <div className="min-h-screen flex bg-white text-slate-800 font-sans selection:bg-[#1f8080] selection:text-white antialiased">
+    <div className="min-h-screen flex bg-white text-slate-800 font-sans selection:bg-[#1f8080] selection:text-white antialiased relative">
+      {/* FULLSCREEN BUMPER LOGO VIDEO (Played 1x on first-time visit) */}
+      {showBumper && (
+        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center overflow-hidden transition-opacity duration-500">
+          <video
+            autoPlay
+            muted
+            playsInline
+            onEnded={handleFinishBumper}
+            onError={handleFinishBumper}
+            className="w-full h-full object-cover sm:object-contain"
+          >
+            <source src="/logo/bumperlogo.mp4" type="video/mp4" />
+            Browser Anda tidak mendukung tag video.
+          </video>
+
+          {/* SKIP BUTTON */}
+          <button
+            onClick={handleFinishBumper}
+            className="absolute bottom-6 right-6 px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-1.5 cursor-pointer z-50"
+          >
+            <span>Lewati Intro</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+      )}
+
       {/* 1. LEFT SIDEBAR NAVIGATION WITH TOGGLE */}
       <aside
         className={`${
