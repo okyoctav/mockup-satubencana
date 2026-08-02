@@ -177,14 +177,6 @@ export default function DashboardK5Page() {
               MDB
             </div>
           )}
-
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="hidden sm:flex items-center justify-center w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white transition-all border border-white/10 shadow-xs"
-            title={isSidebarOpen ? 'Sembunyikan Sidebar' : 'Tampilkan Sidebar'}
-          >
-            {isSidebarOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
-          </button>
         </div>
 
         {/* Navigation Menu */}
