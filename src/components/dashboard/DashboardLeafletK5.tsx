@@ -117,11 +117,11 @@ const BIG_DESAKEL_URL = 'https://geoservices.big.go.id/rbi/rest/services/BATASWI
 const BNPB_LAYERS: BnpbLayer[] = [
   // BIG & BAPPENAS
   { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
-  { id: 'dapodik_sd', label: 'Sekolah Dasar (Dapodik)', color: '#EF4444', emoji: '🏫', url: '/api/dapodik?bentuk=SD,SDLB', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
-  { id: 'dapodik_smp', label: 'Sekolah Menengah Pertama (Dapodik)', color: '#3B82F6', emoji: '🏫', url: '/api/dapodik?bentuk=SMP,SMPLB', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
-  { id: 'dapodik_sma', label: 'Sekolah Menengah Atas (Dapodik)', color: '#10B981', emoji: '🏫', url: '/api/dapodik?bentuk=SMA,SMLB', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
-  { id: 'dapodik_slb', label: 'Sekolah Luar Biasa (Dapodik)', color: '#8B5CF6', emoji: '🏫', url: '/api/dapodik?bentuk=SLB', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
-  { id: 'dapodik_spk', label: 'Sekolah SPK (Dapodik)', color: '#F59E0B', emoji: '🏫', url: '/api/dapodik?bentuk=SPK%20SD,SPK%20SMA,SPK%20SMP', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
+  { id: 'dapodik_sd', label: 'Sekolah Dasar (Dapodik)', color: '#EF4444', emoji: '🏫', url: '/data/dapodik/sd', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
+  { id: 'dapodik_smp', label: 'Sekolah Menengah Pertama (Dapodik)', color: '#3B82F6', emoji: '🏫', url: '/data/dapodik/smp', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
+  { id: 'dapodik_sma', label: 'Sekolah Menengah Atas (Dapodik)', color: '#10B981', emoji: '🏫', url: '/data/dapodik/sma', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
+  { id: 'dapodik_slb', label: 'Sekolah Luar Biasa (Dapodik)', color: '#8B5CF6', emoji: '🏫', url: '/data/dapodik/slb', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
+  { id: 'dapodik_spk', label: 'Sekolah SPK (Dapodik)', color: '#F59E0B', emoji: '🏫', url: '/data/dapodik/spk', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
   { id: 'big_batas_desakel',           label: 'Batas Desa/Kelurahan (BIG)',   color: '#3B82F6', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/BATAS_DESAKEL_AR/MapServer', type: 'MapServer', group: 'BIG' },
   { id: 'big_rbi_sulawesi_lot1',       label: 'RBI Sulawesi 2024 Lot 1',      color: '#A855F7', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI_5K_Sulawesi_2024_Lot_1_Jul/VectorTileServer',         type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
@@ -950,9 +950,16 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
         tryAddVector();
       } else if (def.type === 'Dapodik') {
         if (!kodeKemendagri) return;
-        const fetchDapodikUrl = `${def.url}&provinsi=${kodeKemendagri}`;
-        fetch(fetchDapodikUrl)
-          .then((r) => r.json())
+        const staticJsonUrl = `${def.url}/${kodeKemendagri}.json`;
+        fetch(staticJsonUrl)
+          .then((r) => {
+            if (!r.ok) throw new Error('Static file not found, trying API proxy...');
+            return r.json();
+          })
+          .catch(() => {
+            const apiProxyUrl = `/api/dapodik?bentuk=${def.id === 'dapodik_sd' ? 'SD,SDLB' : def.id === 'dapodik_smp' ? 'SMP,SMPLB' : def.id === 'dapodik_sma' ? 'SMA,SMLB' : def.id === 'dapodik_slb' ? 'SLB' : 'SPK%20SD,SPK%20SMA,SPK%20SMP'}&provinsi=${kodeKemendagri}`;
+            return fetch(apiProxyUrl).then((r) => r.json());
+          })
           .then((geoJson) => {
             if (!mapRef.current) return;
             const dapodikLayer = L.geoJSON(geoJson, {
