@@ -53,6 +53,9 @@ export async function GET(request: NextRequest) {
             provinsi: item.provinsi || '',
             jml_guru: item.jml_guru || '0',
             rombel: item.rombel || '0',
+            jml_tendik: item.jml_tendik || '0',
+            jml_lab: item.jml_lab || '0',
+            jml_perpus: item.jml_perpus || '0',
           },
         };
       })

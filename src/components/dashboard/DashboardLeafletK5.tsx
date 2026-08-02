@@ -535,6 +535,8 @@ export type SekolahDampakItem = {
   jmlGuru?: number;
   rombel?: number;
   jmlTendik?: number;
+  jmlLab?: number;
+  jmlPerpus?: number;
 };
 
 async function queryDapodikSekolahDampak(drawLayer: L.Layer, kodeKemendagri?: string): Promise<SekolahDampakItem[]> {
@@ -583,9 +585,11 @@ async function queryDapodikSekolahDampak(drawLayer: L.Layer, kodeKemendagri?: st
           const jmlGuru = parseInt(p.jml_guru) || 0;
           const rombel = parseInt(p.rombel) || 0;
           const jmlTendik = parseInt(p.jml_tendik) || 0;
+          const jmlLab = parseInt(p.jml_lab) || 0;
+          const jmlPerpus = parseInt(p.jml_perpus) || 0;
 
           if (!result.find((s) => s.nama === nama)) {
-            result.push({ nama, bentuk, status, alamat, kecamatan, jmlGuru, rombel, jmlTendik });
+            result.push({ nama, bentuk, status, alamat, kecamatan, jmlGuru, rombel, jmlTendik, jmlLab, jmlPerpus });
           }
         }
       });
@@ -1054,15 +1058,19 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                 const jmlGuru = p.jml_guru || '0';
                 const rombel = p.rombel || '0';
                 const jmlTendik = p.jml_tendik || '0';
+                const jmlLab = p.jml_lab || '0';
+                const jmlPerpus = p.jml_perpus || '0';
 
                 layer.bindPopup(`
-                  <div style="font-family:sans-serif; min-width:200px; padding:2px;">
+                  <div style="font-family:sans-serif; min-width:210px; padding:2px;">
                     <div style="font-weight:bold; color:${def.color}; font-size:12px;">🏫 ${nama}</div>
                     <div style="font-size:10px; color:#64748B; margin-top:1px;">Jenjang: <b>${bentuk}</b> ${status ? `(${status})` : ''}</div>
-                    <div style="margin-top:6px; padding:4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; font-size:10px; display:flex; justify-content:space-between; gap:6px;">
-                      <span>👨‍🏫 Guru: <b>${jmlGuru}</b></span>
-                      <span>📐 Rombel: <b>${rombel}</b></span>
-                      <span>📋 Tendik: <b>${jmlTendik}</b></span>
+                    <div style="margin-top:6px; padding:4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; font-size:10px; grid grid-cols-3 gap-1">
+                      <div>👨‍🏫 Guru: <b>${jmlGuru}</b></div>
+                      <div>📐 Rombel: <b>${rombel}</b></div>
+                      <div>📋 Tendik: <b>${jmlTendik}</b></div>
+                      <div>🔬 Lab: <b>${jmlLab}</b></div>
+                      <div>📚 Perpus: <b>${jmlPerpus}</b></div>
                     </div>
                     ${alamat ? `<div style="font-size:10px; color:#475569; margin-top:4px;">📍 ${alamat}</div>` : ''}
                   </div>

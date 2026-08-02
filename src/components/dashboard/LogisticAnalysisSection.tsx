@@ -12,6 +12,8 @@ export interface SekolahDampakItem {
   jmlGuru?: number;
   rombel?: number;
   jmlTendik?: number;
+  jmlLab?: number;
+  jmlPerpus?: number;
 }
 
 export interface EstimationData {

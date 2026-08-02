@@ -94,6 +94,8 @@ export default function InfrastructureEducationSection({ estimationData }: Props
                 const totalGuru = list.reduce((acc, s) => acc + (s.jmlGuru || 0), 0);
                 const totalRombel = list.reduce((acc, s) => acc + (s.rombel || 0), 0);
                 const totalTendik = list.reduce((acc, s) => acc + (s.jmlTendik || 0), 0);
+                const totalLab = list.reduce((acc, s) => acc + (s.jmlLab || 0), 0);
+                const totalPerpus = list.reduce((acc, s) => acc + (s.jmlPerpus || 0), 0);
 
                 // Group per jenjang
                 const jenjangGroups: { key: string; label: string; color: string; bgColor: string; borderColor: string; items: typeof list }[] = [
@@ -123,6 +125,8 @@ export default function InfrastructureEducationSection({ estimationData }: Props
                         <span className="px-2 py-0.5 rounded-md bg-white border border-amber-200">👨‍🏫 {totalGuru.toLocaleString('id')} Guru</span>
                         <span className="px-2 py-0.5 rounded-md bg-white border border-amber-200">📐 {totalRombel.toLocaleString('id')} Rombel</span>
                         <span className="px-2 py-0.5 rounded-md bg-white border border-amber-200">📋 {totalTendik.toLocaleString('id')} Tendik</span>
+                        <span className="px-2 py-0.5 rounded-md bg-white border border-amber-200">🔬 {totalLab.toLocaleString('id')} Lab</span>
+                        <span className="px-2 py-0.5 rounded-md bg-white border border-amber-200">📚 {totalPerpus.toLocaleString('id')} Perpus</span>
                       </div>
                     </div>
 
@@ -136,27 +140,27 @@ export default function InfrastructureEducationSection({ estimationData }: Props
                               <span>{group.label} ({group.items.length} Sekolah)</span>
                             </span>
                             <span className="text-[10px] font-semibold text-slate-500">
-                              Total Guru: {group.items.reduce((a, s) => a + (s.jmlGuru || 0), 0)} | Rombel: {group.items.reduce((a, s) => a + (s.rombel || 0), 0)}
+                              Total Guru: {group.items.reduce((a, s) => a + (s.jmlGuru || 0), 0)} | Rombel: {group.items.reduce((a, s) => a + (s.rombel || 0), 0)} | Lab: {group.items.reduce((a, s) => a + (s.jmlLab || 0), 0)}
                             </span>
                           </div>
 
                           <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pt-1">
                             {group.items.map((s, idx) => (
-                              <div key={idx} className="px-2 py-1 rounded-lg bg-white border border-slate-200 text-[11px] text-slate-800 shadow-2xs space-y-0.5">
+                              <div key={idx} className="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] text-slate-800 shadow-2xs space-y-0.5">
                                 <div className="font-bold flex items-center gap-1">
                                   <span>🏫 {s.nama}</span>
                                   {s.status && <span className="text-[9px] px-1 py-0.2 rounded bg-slate-100 font-normal text-slate-600">({s.status})</span>}
                                 </div>
-                                <div className="text-[10px] text-slate-500 flex items-center gap-2">
+                                <div className="text-[10px] text-slate-500 flex items-center gap-2 flex-wrap">
                                   <span>👨‍🏫 {s.jmlGuru || 0} Guru</span>
                                   <span>•</span>
                                   <span>📐 {s.rombel || 0} Rombel</span>
-                                  {s.jmlTendik !== undefined && s.jmlTendik > 0 && (
-                                    <>
-                                      <span>•</span>
-                                      <span>📋 {s.jmlTendik} Tendik</span>
-                                    </>
-                                  )}
+                                  <span>•</span>
+                                  <span>📋 {s.jmlTendik || 0} Tendik</span>
+                                  <span>•</span>
+                                  <span>🔬 {s.jmlLab || 0} Lab</span>
+                                  <span>•</span>
+                                  <span>📚 {s.jmlPerpus || 0} Perpus</span>
                                   {s.kecamatan && <span className="text-slate-400">📍 {s.kecamatan}</span>}
                                 </div>
                               </div>
