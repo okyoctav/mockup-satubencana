@@ -38,9 +38,9 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
   const [populasi, setPopulasi] = useState<number>(defaultPop);
   const [durasiHari, setDurasiHari] = useState<number>(7);
 
-  // Auto-calc percentages if estimationData is provided
-  const calcBalitaPct = estimationData?.totalPopulasi ? Number(((estimationData.totalBalita / estimationData.totalPopulasi) * 100).toFixed(1)) : 10;
-  const calcLansiaPct = estimationData?.totalPopulasi ? Number(((estimationData.totalLansia / estimationData.totalPopulasi) * 100).toFixed(1)) : 8;
+  // Auto-calc percentages if estimationData is provided (2 decimal precision to align exact headcounts)
+  const calcBalitaPct = estimationData?.totalPopulasi ? Number(((estimationData.totalBalita / estimationData.totalPopulasi) * 100).toFixed(2)) : 10;
+  const calcLansiaPct = estimationData?.totalPopulasi ? Number(((estimationData.totalLansia / estimationData.totalPopulasi) * 100).toFixed(2)) : 8;
   const calcBumilPct = 3;
   const calcBusuiPct = 4;
   const calcDifabelPct = estimationData?.totalPopulasi ? Number((((estimationData.totalPd1 + estimationData.totalPd2) / estimationData.totalPopulasi) * 100).toFixed(1)) : 2;
@@ -78,13 +78,14 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
     },
   };
 
-  // Kalkulasi Demografi
-  const jmlBalita = Math.round((populasi * persenBalita) / 100);
-  const jmlLansia = Math.round((populasi * persenLansia) / 100);
+  // Precision calculation: Use exact count from estimationData when available to guarantee 100% consistency
+  const jmlBalita = estimationData ? estimationData.totalBalita : Math.round((populasi * persenBalita) / 100);
+  const jmlLansia = estimationData ? estimationData.totalLansia : Math.round((populasi * persenLansia) / 100);
+  const jmlDisabilitas = estimationData ? (estimationData.totalPd1 + estimationData.totalPd2) : Math.round((populasi * persenDisabilitas) / 100);
+  
   const jmlIbuHamil = Math.round((populasi * persenIbuHamil) / 100);
   const jmlIbuMenyusui = Math.round((populasi * persenIbuMenyusui) / 100);
-  const jmlDisabilitas = Math.round((populasi * persenDisabilitas) / 100);
-  const jmlKeluarga = Math.ceil(populasi / 4);
+  const jmlKeluarga = estimationData?.totalKeluarga && estimationData.totalKeluarga > 0 ? estimationData.totalKeluarga : Math.ceil(populasi / 4);
 
   // 1. Air Minum (Permen PPPA No 8/2024)
   const airHari1 = populasi * 5;
