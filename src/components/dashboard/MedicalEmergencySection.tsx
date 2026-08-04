@@ -66,12 +66,44 @@ export default function MedicalEmergencySection({ estimationData }: Props) {
 
       {/* LIVE SYNC BANNER FROM MAP DRAW */}
       {estimationData && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-900 text-xs font-medium space-y-2 shadow-xs">
+        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-900 text-xs font-medium space-y-3 shadow-xs">
           <div className="flex items-center gap-2.5">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
             <span>
-              <strong>Data Spasial Terhubung Dari Peta (BAPPENAS & BIG):</strong> Populasi <strong>{estimationData.totalPopulasi.toLocaleString('id')} jiwa</strong> ({totalBalita} Balita, {totalLansia} Lansia, {totalDisabilitas} Disabilitas)
+              <strong>Data Terhubung Dari Simulasi Polygon Peta:</strong> Total Populasi Terestimasi <strong>{estimationData.totalPopulasi.toLocaleString('id')} Jiwa</strong>
             </span>
+          </div>
+
+          {/* Rincian Demografi Lengkap (Sama Seperti Popup Estimasi Peta) */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 pt-2 border-t border-emerald-200/80">
+            <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
+              <span className="text-[10px] text-slate-500 font-semibold block">👨 Laki-laki</span>
+              <span className="font-extrabold text-[#19506e] text-xs">{estimationData.totalLakiLaki.toLocaleString('id')}</span>
+            </div>
+            <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
+              <span className="text-[10px] text-slate-500 font-semibold block">👩 Perempuan</span>
+              <span className="font-extrabold text-[#19506e] text-xs">{estimationData.totalPerempuan.toLocaleString('id')}</span>
+            </div>
+            <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
+              <span className="text-[10px] text-slate-500 font-semibold block">👴 Lansia</span>
+              <span className="font-extrabold text-[#19506e] text-xs">{estimationData.totalLansia.toLocaleString('id')}</span>
+            </div>
+            <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
+              <span className="text-[10px] text-slate-500 font-semibold block">🧒 Balita</span>
+              <span className="font-extrabold text-[#19506e] text-xs">{estimationData.totalBalita.toLocaleString('id')}</span>
+            </div>
+            <div className="bg-white/80 border border-cyan-200 p-2 rounded-xl text-center">
+              <span className="text-[10px] text-cyan-700 font-semibold block">🧾 Disabilitas (PD1)</span>
+              <span className="font-extrabold text-cyan-700 text-xs">{estimationData.totalPd1.toLocaleString('id')}</span>
+            </div>
+            <div className="bg-white/80 border border-purple-200 p-2 rounded-xl text-center">
+              <span className="text-[10px] text-purple-700 font-semibold block">📊 Disabilitas (PD2)</span>
+              <span className="font-extrabold text-purple-700 text-xs">{estimationData.totalPd2.toLocaleString('id')}</span>
+            </div>
+            <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
+              <span className="text-[10px] text-slate-500 font-semibold block">🏠 Total KK</span>
+              <span className="font-extrabold text-[#1f8080] text-xs">{estimationData.totalKeluarga.toLocaleString('id')}</span>
+            </div>
           </div>
 
           {estimationData.kelurahanDampak && estimationData.kelurahanDampak.length > 0 && (
