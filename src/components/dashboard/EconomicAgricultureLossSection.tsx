@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Sprout, Tractor, Factory, Home, RefreshCw } from 'lucide-react';
+import { Sprout, Tractor, Factory, Home, RefreshCw, ChevronDown, ChevronUp, Info, X } from 'lucide-react';
 import { EstimationData } from './LogisticAnalysisSection';
 
 interface Props {
@@ -9,6 +9,23 @@ interface Props {
 }
 
 export default function EconomicAgricultureLossSection({ estimationData }: Props) {
+  const [isVariableOpen, setIsVariableOpen] = useState(false);
+  const [activeInfoModal, setActiveInfoModal] = useState<{ title: string; content: string } | null>(null);
+
+  const PARAM_INFOS = {
+    populasi: {
+      title: '👥 Populasi Pemukiman Terdampak (Jiwa)',
+      content: 'Populasi total terestimasi yang dikonversi menjadi KK (Kepala Keluarga) untuk mengkalkulasi estimasi nilai kerusakan fisik rumah warga (Rusak Berat/Sedang/Ringan).',
+    },
+    luasHa: {
+      title: '🌾 Estimasi Luas Area Terdampak (Hektar)',
+      content: 'Luas total area bahaya bencana yang digunakan untuk menghitung porsi lahan pertanian terendam (padi, jagung, hortikultura) dan tonase gagal panen (Puso).',
+    },
+    lahanPct: {
+      title: '🚜 Proporsi Lahan Pertanian (%)',
+      content: 'Berdasarkan standar Kementan & Perka BNPB No. 07/2008, proporsi lahan pertanian menentukan perkiraan kerugian ekonomi gabah (Rp 6,5 Juta/Ton) dan bantuan bibit subsidi.',
+    },
+  };
   const defaultPop = estimationData?.totalPopulasi && estimationData.totalPopulasi > 0 ? estimationData.totalPopulasi : 1000;
   const [populasi, setPopulasi] = useState<number>(defaultPop);
   const [estimasiLuasHa, setEstimasiLuasHa] = useState<number>(120); // Estimasi 120 Hektar area terdampak
@@ -127,41 +144,116 @@ export default function EconomicAgricultureLossSection({ estimationData }: Props
         </div>
       )}
 
-      {/* PARAMETER CONTROL PANEL */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="text-xs font-bold text-[#19506e] uppercase tracking-wider block mb-1.5">
-            Estimasi Luas Area Terdampak (Hektar)
-          </label>
-          <input
-            type="number"
-            value={estimasiLuasHa}
-            onChange={(e) => setEstimasiLuasHa(Math.max(1, parseInt(e.target.value) || 0))}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1f8080]"
-          />
-        </div>
+      {/* VARIABLE ACCORDION CONTROL PANEL */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden transition-all">
+        {/* Accordion Toggle Header */}
+        <button
+          onClick={() => setIsVariableOpen(!isVariableOpen)}
+          className="w-full px-5 py-3.5 bg-slate-50 hover:bg-slate-100/80 flex items-center justify-between transition-colors border-b border-slate-200/60"
+        >
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-bold text-xs text-[#19506e] tracking-wide uppercase">⚙️ Variable Estimasi & Parameter Kerugian Ekonomi</span>
+            <span className="text-[10px] bg-[#1f8080]/10 text-[#1f8080] font-semibold px-2 py-0.5 rounded-md border border-[#1f8080]/20">
+              Populasi {populasi.toLocaleString('id')} Jiwa • Area {estimasiLuasHa} Ha ({luasLahanPertanianHa} Ha Lahan) • Kerugian Rp {(totalKerugianEkonomiRp / 1000000000).toFixed(2)} Miliar
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
+            <span>{isVariableOpen ? 'Sembunyikan' : 'Pengaturan Parameter Variable'}</span>
+            {isVariableOpen ? <ChevronUp className="w-4 h-4 text-[#19506e]" /> : <ChevronDown className="w-4 h-4 text-[#19506e]" />}
+          </div>
+        </button>
 
-        <div>
-          <label className="text-xs font-bold text-[#19506e] uppercase tracking-wider block mb-1.5">
-            Proporsi Lahan Pertanian / Perkebunan (%)
-          </label>
-          <input
-            type="number"
-            min="1"
-            max="100"
-            value={persenLahanPertanian}
-            onChange={(e) => setPersenLahanPertanian(Math.max(1, parseInt(e.target.value) || 0))}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1f8080]"
-          />
-        </div>
+        {/* Accordion Content Form Body */}
+        {isVariableOpen && (
+          <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4 bg-white border-t border-slate-100">
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-bold text-[#19506e] uppercase tracking-wider">Luas Area Terdampak (Hektar)</label>
+                <button
+                  type="button"
+                  onClick={() => setActiveInfoModal(PARAM_INFOS.luasHa)}
+                  className="text-amber-600 hover:text-amber-700 p-0.5 rounded-full hover:bg-amber-50 transition-colors"
+                  title="Informasi Metodologi Luas Area"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <input
+                type="number"
+                value={estimasiLuasHa}
+                onChange={(e) => setEstimasiLuasHa(Math.max(1, parseInt(e.target.value) || 0))}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1f8080]"
+              />
+            </div>
 
-        <div className="bg-[#19506e] text-white rounded-xl p-3 flex flex-col justify-center space-y-1 shadow-md">
-          <span className="text-[11px] font-bold text-emerald-300 uppercase tracking-wider">Total Estimasi Kerugian Ekonomi:</span>
-          <span className="text-base font-extrabold text-white">
-            Rp {(totalKerugianEkonomiRp / 1000000000).toFixed(2)} Miliar
-          </span>
-        </div>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-bold text-[#19506e] uppercase tracking-wider">Proporsi Lahan Pertanian (%)</label>
+                <button
+                  type="button"
+                  onClick={() => setActiveInfoModal(PARAM_INFOS.lahanPct)}
+                  className="text-amber-600 hover:text-amber-700 p-0.5 rounded-full hover:bg-amber-50 transition-colors"
+                  title="Informasi Metodologi Lahan Pertanian"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                value={persenLahanPertanian}
+                onChange={(e) => setPersenLahanPertanian(Math.max(1, parseInt(e.target.value) || 0))}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1f8080]"
+              />
+              <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500 font-medium px-1">
+                <span>Luas Pertanian Terdampak:</span>
+                <span className="font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded">
+                  = {luasLahanPertanianHa} Hektar
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-[#19506e] text-white rounded-xl p-3 flex flex-col justify-center space-y-1 shadow-md">
+              <span className="text-[11px] font-bold text-emerald-300 uppercase tracking-wider">Total Kerugian Ekonomi:</span>
+              <span className="text-base font-extrabold text-white">
+                Rp {(totalKerugianEkonomiRp / 1000000000).toFixed(2)} Miliar
+              </span>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* INFO EXPLANATION POPUP MODAL */}
+      {activeInfoModal && (
+        <div className="fixed inset-0 z-[99999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                <Info className="w-4 h-4 text-[#1f8080]" />
+                <span>{activeInfoModal.title}</span>
+              </h3>
+              <button
+                onClick={() => setActiveInfoModal(null)}
+                className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="text-xs leading-relaxed text-slate-600 space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <p>{activeInfoModal.content}</p>
+            </div>
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => setActiveInfoModal(null)}
+                className="px-4 py-2 bg-[#19506e] hover:bg-[#19506e]/90 text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
+              >
+                Mengerti
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 3 GRID CARDS KERUSAKAN SEKTOR EKONOMI */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">

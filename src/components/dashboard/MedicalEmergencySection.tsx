@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { HeartPulse, Stethoscope, Building2, Pill, RefreshCw } from 'lucide-react';
+import { HeartPulse, Stethoscope, Building2, Pill, RefreshCw, ChevronDown, ChevronUp, Info, X } from 'lucide-react';
 import { EstimationData } from './LogisticAnalysisSection';
 
 interface Props {
@@ -12,6 +12,19 @@ export default function MedicalEmergencySection({ estimationData }: Props) {
   const defaultPop = estimationData?.totalPopulasi && estimationData.totalPopulasi > 0 ? estimationData.totalPopulasi : 1000;
   const [populasi, setPopulasi] = useState<number>(defaultPop);
   const [estimasiKorbanLukaPct, setEstimasiKorbanLukaPct] = useState<number>(5);
+  const [isVariableOpen, setIsVariableOpen] = useState(false);
+  const [activeInfoModal, setActiveInfoModal] = useState<{ title: string; content: string } | null>(null);
+
+  const PARAM_INFOS = {
+    populasi: {
+      title: '👥 Total Populasi Terdampak (Jiwa)',
+      content: 'Populasi dasar terestimasi yang digunakan sebagai perkalian utama seluruh kebutuhan SDM kesehatan, paket obat esensial IEHK 1.000, cairan infus, dan posko kesehatan tenda darurat.',
+    },
+    korbanLuka: {
+      title: '🏥 Estimasi Tingkat Korban Luka (%)',
+      content: 'Berdasarkan standar triase medis lapangan (WHO & Permenkes No. 75/2019), estimasi korban luka secara otomatis diklasifikasikan menjadi 30% Korban Luka Berat (membutuhkan rawat inap & rujukan rumah sakit) dan 70% Korban Luka Ringan (rawat jalan posko).',
+    },
+  };
 
   const totalKorbanLuka = Math.round((populasi * estimasiKorbanLukaPct) / 100);
   const korbanLukaBerat = Math.round(totalKorbanLuka * 0.3);
@@ -127,42 +140,117 @@ export default function MedicalEmergencySection({ estimationData }: Props) {
         </div>
       )}
 
-      {/* PARAMETER CONTROL PANEL */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="text-xs font-bold text-[#19506e] uppercase tracking-wider block mb-1.5">
-            Total Populasi Terdampak (Jiwa)
-          </label>
-          <input
-            type="number"
-            value={populasi}
-            onChange={(e) => setPopulasi(Math.max(1, parseInt(e.target.value) || 0))}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1f8080]"
-          />
-        </div>
+      {/* VARIABLE ACCORDION CONTROL PANEL */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden transition-all">
+        {/* Accordion Toggle Header */}
+        <button
+          onClick={() => setIsVariableOpen(!isVariableOpen)}
+          className="w-full px-5 py-3.5 bg-slate-50 hover:bg-slate-100/80 flex items-center justify-between transition-colors border-b border-slate-200/60"
+        >
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-bold text-xs text-[#19506e] tracking-wide uppercase">⚙️ Variable Estimasi & Parameter Medis</span>
+            <span className="text-[10px] bg-[#1f8080]/10 text-[#1f8080] font-semibold px-2 py-0.5 rounded-md border border-[#1f8080]/20">
+              Populasi {populasi.toLocaleString('id')} Jiwa • Korban Luka {estimasiKorbanLukaPct}% ({totalKorbanLuka.toLocaleString('id')} jiwa)
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
+            <span>{isVariableOpen ? 'Sembunyikan' : 'Pengaturan Parameter Variable'}</span>
+            {isVariableOpen ? <ChevronUp className="w-4 h-4 text-[#19506e]" /> : <ChevronDown className="w-4 h-4 text-[#19506e]" />}
+          </div>
+        </button>
 
-        <div>
-          <label className="text-xs font-bold text-[#19506e] uppercase tracking-wider block mb-1.5">
-            Estimasi Tingkat Korban Luka (%)
-          </label>
-          <input
-            type="number"
-            min="1"
-            max="50"
-            value={estimasiKorbanLukaPct}
-            onChange={(e) => setEstimasiKorbanLukaPct(Math.max(1, parseInt(e.target.value) || 0))}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1f8080]"
-          />
-        </div>
+        {/* Accordion Content Form Body */}
+        {isVariableOpen && (
+          <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4 bg-white border-t border-slate-100">
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-bold text-[#19506e] uppercase tracking-wider">Total Populasi Terdampak (Jiwa)</label>
+                <button
+                  type="button"
+                  onClick={() => setActiveInfoModal(PARAM_INFOS.populasi)}
+                  className="text-amber-600 hover:text-amber-700 p-0.5 rounded-full hover:bg-amber-50 transition-colors"
+                  title="Informasi Metodologi Populasi"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <input
+                type="number"
+                value={populasi}
+                onChange={(e) => setPopulasi(Math.max(1, parseInt(e.target.value) || 0))}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1f8080]"
+              />
+            </div>
 
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-center space-y-1">
-          <span className="text-[11px] font-bold text-slate-500">Breakdown Estimasi Korban Luka:</span>
-          <div className="flex justify-between text-xs font-bold">
-            <span className="text-amber-600">🩹 Luka Ringan: {korbanLukaRingan.toLocaleString('id')} jiwa</span>
-            <span className="text-rose-600">🚑 Luka Berat: {korbanLukaBerat.toLocaleString('id')} jiwa</span>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-bold text-[#19506e] uppercase tracking-wider">Estimasi Korban Luka (%)</label>
+                <button
+                  type="button"
+                  onClick={() => setActiveInfoModal(PARAM_INFOS.korbanLuka)}
+                  className="text-amber-600 hover:text-amber-700 p-0.5 rounded-full hover:bg-amber-50 transition-colors"
+                  title="Informasi Metodologi Korban Luka"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <input
+                type="number"
+                min="1"
+                max="50"
+                value={estimasiKorbanLukaPct}
+                onChange={(e) => setEstimasiKorbanLukaPct(Math.max(1, parseInt(e.target.value) || 0))}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1f8080]"
+              />
+              <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500 font-medium px-1">
+                <span>Hasil Estimasi:</span>
+                <span className="font-extrabold text-rose-600 bg-rose-50 border border-rose-200/60 px-1.5 py-0.5 rounded">
+                  = {totalKorbanLuka.toLocaleString('id')} Jiwa Luka
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-center space-y-1">
+              <span className="text-[11px] font-bold text-slate-500">Breakdown Triase Korban Luka:</span>
+              <div className="flex flex-col gap-1 text-xs font-bold">
+                <span className="text-amber-600">🩹 Luka Ringan (70%): {korbanLukaRingan.toLocaleString('id')} jiwa</span>
+                <span className="text-rose-600">🚑 Luka Berat (30%): {korbanLukaBerat.toLocaleString('id')} jiwa</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* INFO EXPLANATION POPUP MODAL */}
+      {activeInfoModal && (
+        <div className="fixed inset-0 z-[99999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                <Info className="w-4 h-4 text-[#1f8080]" />
+                <span>{activeInfoModal.title}</span>
+              </h3>
+              <button
+                onClick={() => setActiveInfoModal(null)}
+                className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="text-xs leading-relaxed text-slate-600 space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <p>{activeInfoModal.content}</p>
+            </div>
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => setActiveInfoModal(null)}
+                className="px-4 py-2 bg-[#19506e] hover:bg-[#19506e]/90 text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
+              >
+                Mengerti
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 3 GRID CARDS KLUSTER KESEHATAN */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
