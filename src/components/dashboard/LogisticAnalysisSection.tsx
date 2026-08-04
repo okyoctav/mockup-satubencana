@@ -215,10 +215,10 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
           onClick={() => setIsVariableOpen(!isVariableOpen)}
           className="w-full px-5 py-3.5 bg-slate-50 hover:bg-slate-100/80 flex items-center justify-between transition-colors border-b border-slate-200/60"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-bold text-xs text-[#19506e] tracking-wide uppercase">⚙️ Variable Estimasi & Parameter Logistik</span>
             <span className="text-[10px] bg-[#1f8080]/10 text-[#1f8080] font-semibold px-2 py-0.5 rounded-md border border-[#1f8080]/20">
-              {durasiHari} Hari • Bumil {persenIbuHamil}% • Busui {persenIbuMenyusui}% • Lansia {persenLansia}% • Balita {persenBalita}%
+              {durasiHari} Hari • Bumil {persenIbuHamil}% ({jmlIbuHamil.toLocaleString('id')} jiwa) • Busui {persenIbuMenyusui}% ({jmlIbuMenyusui.toLocaleString('id')} jiwa) • Lansia {persenLansia}% ({jmlLansia.toLocaleString('id')} jiwa) • Balita {persenBalita}% ({jmlBalita.toLocaleString('id')} jiwa)
             </span>
           </div>
           <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
@@ -249,6 +249,10 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
                 onChange={(e) => setDurasiHari(Math.max(1, parseInt(e.target.value) || 0))}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1f8080]"
               />
+              <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500 font-medium px-1">
+                <span>Total Siklus:</span>
+                <span className="font-bold text-[#19506e] bg-slate-100 px-1.5 py-0.5 rounded">{durasiHari} Hari Tanggap</span>
+              </div>
             </div>
 
             {/* 2. Ibu Hamil */}
@@ -270,6 +274,12 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
                 onChange={(e) => setPersenIbuHamil(parseFloat(e.target.value) || 0)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-[#1f8080]"
               />
+              <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500 font-medium px-1">
+                <span>Hasil Estimasi:</span>
+                <span className="font-extrabold text-[#1f8080] bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded">
+                  = {jmlIbuHamil.toLocaleString('id')} Jiwa
+                </span>
+              </div>
             </div>
 
             {/* 3. Ibu Menyusui */}
@@ -291,6 +301,12 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
                 onChange={(e) => setPersenIbuMenyusui(parseFloat(e.target.value) || 0)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-[#1f8080]"
               />
+              <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500 font-medium px-1">
+                <span>Hasil Estimasi:</span>
+                <span className="font-extrabold text-[#1f8080] bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded">
+                  = {jmlIbuMenyusui.toLocaleString('id')} Jiwa
+                </span>
+              </div>
             </div>
 
             {/* 4. Lansia */}
@@ -312,6 +328,12 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
                 onChange={(e) => setPersenLansia(parseFloat(e.target.value) || 0)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-[#1f8080]"
               />
+              <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500 font-medium px-1">
+                <span>Hasil Estimasi:</span>
+                <span className="font-extrabold text-[#19506e] bg-sky-50 border border-sky-200/60 px-1.5 py-0.5 rounded">
+                  = {jmlLansia.toLocaleString('id')} Jiwa
+                </span>
+              </div>
             </div>
 
             {/* 5. Balita */}
@@ -333,6 +355,12 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
                 onChange={(e) => setPersenBalita(parseFloat(e.target.value) || 0)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-[#1f8080]"
               />
+              <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500 font-medium px-1">
+                <span>Hasil Estimasi:</span>
+                <span className="font-extrabold text-[#19506e] bg-amber-50 border border-amber-200/60 px-1.5 py-0.5 rounded">
+                  = {jmlBalita.toLocaleString('id')} Jiwa
+                </span>
+              </div>
             </div>
           </div>
         )}
