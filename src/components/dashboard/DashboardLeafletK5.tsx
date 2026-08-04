@@ -113,6 +113,7 @@ const BASEMAPS = [
 const BNPB_BASE = 'https://gis.bnpb.go.id/server/rest/services/inarisk';
 const HEXBIN_RES9_URL = 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/hexbin_agg9/MapServer/0';
 const DUKCAPIL_KEL_URL = 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/services/AGR_VISUAL_KEL_FIX/MapServer/0';
+const BIG_DESAKEL_URL = 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/BATAS_DESAKEL_AR/MapServer/0';
 
 const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
@@ -370,51 +371,54 @@ async function queryDukcapilKelurahan(drawLayer: L.Layer): Promise<KelurahanDamp
   const list: KelurahanDampak[] = [];
   const seen = new Set<string>();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const dl = drawLayer as any;
-
-  // 1. Primary spatial query: BAPPENAS GeoServer WFS Batas Kelurahan/Desa 10K 2023
+  // 1. Primary spatial query: BIG Batas Desa/Kelurahan MapServer Layer 0
   try {
-    const bounds = dl.getBounds ? dl.getBounds() : null;
-    const minLng = bounds ? bounds.getWest() : 0;
-    const minLat = bounds ? bounds.getSouth() : 0;
-    const maxLng = bounds ? bounds.getEast() : 0;
-    const maxLat = bounds ? bounds.getNorth() : 0;
+    const queryUrl = `${BIG_DESAKEL_URL}/query`;
+    const params = new URLSearchParams({
+      f: 'json',
+      geometry: JSON.stringify(queryGeometry.geometry),
+      geometryType: queryGeometry.geometryType,
+      spatialRel: 'esriSpatialRelIntersects',
+      inSR: '4326',
+      outSR: '4326',
+      returnGeometry: 'false',
+      outFields: '*',
+      where: '1=1',
+    });
 
-    if (bounds) {
-      // WFS GetFeature with BBOX filter
-      const wfsUrl = `https://mandata.bappenas.go.id/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=BATAS_WILAYAH:ADMINISTRASI_AR_KELDESA_10K_2023&maxFeatures=100&outputFormat=application/json&bbox=${minLng},${minLat},${maxLng},${maxLat},EPSG:4326`;
+    const response = await fetch(queryUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    });
 
-      const response = await fetch(wfsUrl);
-      if (response.ok) {
-        const json = await response.json();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (json.features ?? []).forEach((ft: any) => {
-          const p = ft.properties ?? {};
-          const kel = p['Nama Wilayah Administrasi Kelurahan/Desa'] || p['Nama Objek'] || '';
-          const kec = p['Nama Wilayah Administrasi Kecamatan/Distrik'] || '';
-          const kab = p['Nama Wilayah Administrasi Kabupaten/Kota'] || '';
-          const prov = p['Nama Wilayah Administrasi Provinsi'] || '';
-          const kode = p['Kode PUM Desa/Kelurahan'] || p['Kode PUM Kecamatan/Distrik'] || p['Kode PUM Provinsi'] || '';
-
-          if (kel || kec || kab) {
-            const key = `${kel}-${kec}-${kab}`;
-            if (!seen.has(key)) {
-              seen.add(key);
-              list.push({
-                namaKelurahan: kel || 'Kelurahan/Desa',
-                namaKecamatan: kec,
-                namaKabupaten: kab,
-                namaProvinsi: prov,
-                kodeKemendagri: kode ? String(kode) : undefined,
-              });
-            }
+    if (response.ok) {
+      const json = await response.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (json.features ?? []).forEach((ft: any) => {
+        const a = ft.attributes ?? {};
+        const prov = a.WADMPR || a.PROVINSI || a.PROV || a.field1 || a.FIELD1 || '';
+        const kab  = a.WADMKK || a.KABUPATEN || a.KAB_KOTA || a.KAB || a.field2 || a.FIELD2 || '';
+        const kec  = a.WADMKC || a.KECAMATAN || a.KEC || a.field3 || a.FIELD3 || '';
+        const kel  = a.NAMOBJ || a.KELURAHAN || a.DESA || a.DESA_KEL || a.field4 || a.FIELD4 || a.NAMWS || a.NAME || '';
+        const kode = a.KDPPUM || a.KDEPUM || a.KDKCUM || a.KDCPUM || a.KODE_WILAYAH || a.KODE_DESA || a.KODE_KEL || a.KODE || a.CODE || '';
+        if (kel || kec || kab) {
+          const key = `${kel}-${kec}-${kab}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            list.push({
+              namaKelurahan: kel || 'Kelurahan/Desa',
+              namaKecamatan: kec,
+              namaKabupaten: kab,
+              namaProvinsi: prov,
+              kodeKemendagri: kode ? String(kode) : undefined,
+            });
           }
-        });
-      }
+        }
+      });
     }
   } catch {
-    /* fallback to Kemendagri / BAPPENAS hexbin below */
+    /* fallback to Kemendagri Dukcapil below */
   }
 
   // 2. Secondary spatial query: Kemendagri Dukcapil MapServer Layer 0 if BIG returns empty
@@ -1135,7 +1139,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
     const popupCenter = layer.getBounds ? layer.getBounds().getCenter() : layer.getLatLng();
     const popup = L.popup({ maxWidth: 320 })
       .setLatLng(popupCenter)
-      .setContent('<div style="font-size:11px; color:#1f8080; font-weight:bold;">⏳ Menghitung estimasi BAPPENAS & wilayah Kemendagri...</div>')
+      .setContent('<div style="font-size:11px; color:#1f8080; font-weight:bold;">⏳ Menghitung estimasi Cepat Area Terdampak</div>')
       .openOn(map);
 
     try {
