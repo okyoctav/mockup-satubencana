@@ -13,8 +13,6 @@ export default function AccessibilityRouteSection({ estimationData }: Props) {
   const [populasi, setPopulasi] = useState<number>(defaultPop);
   const [estimasiJarakKm, setEstimasiJarakKm] = useState<number>(45); // 45 Km ke gudang BPBD/BNPB
 
-  const totalKK = estimationData ? estimationData.totalKeluarga : Math.ceil(populasi / 4);
-
   // 1. Kebutuhan Armada Mobilisasi & Truk Logistik
   const trukLogistik6Roda = Math.ceil(populasi / 1000); // 1 truk (6 Ton) per 1000 jiwa
   const mobilOperasionalDoubleCabin = Math.max(2, Math.ceil(populasi / 1500));
