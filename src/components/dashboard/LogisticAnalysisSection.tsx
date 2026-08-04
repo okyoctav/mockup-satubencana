@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PackageCheck, Droplets, Tent, Utensils, Shirt, HeartPulse, HeartHandshake, RefreshCw } from 'lucide-react';
+import { PackageCheck, Droplets, Tent, Utensils, Shirt, HeartPulse, HeartHandshake, RefreshCw, ChevronDown, ChevronUp, Info, X } from 'lucide-react';
 
 export interface SekolahDampakItem {
   nama: string;
@@ -50,6 +50,33 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
   const [persenLansia, setPersenLansia] = useState<number>(calcLansiaPct);
   const [persenBalita, setPersenBalita] = useState<number>(calcBalitaPct);
   const [persenDisabilitas] = useState<number>(calcDifabelPct);
+
+  const [isVariableOpen, setIsVariableOpen] = useState(false);
+  const [activeInfoModal, setActiveInfoModal] = useState<{ title: string; content: string } | null>(null);
+
+  // Info explanations derived from metode_analisis.md
+  const PARAM_INFOS: Record<string, { title: string; content: string }> = {
+    durasiHari: {
+      title: '⏱️ Durasi Tanggap (Hari)',
+      content: 'Status Tanggap Darurat Bencana pertama kali ditetapkan oleh Kepala Daerah / BNPB untuk siklus awal 7 Hari (Fase Emergency Relief Pertama - UU No. 24/2007 & Perka BNPB No. 10/2012). Angka durasi ini menjadi perkalian linier harian untuk menghitung konsumsi beras, air minum, kantong sampah, dan higiene kit.',
+    },
+    ibuHamil: {
+      title: '🤱 Ibu Hamil (%)',
+      content: 'Berdasarkan Standar Paket Pelayanan Awal Minimum (PPAM) Kesehatan Reproduksi Bencana (Kemenkes RI & UNFPA), persentase Ibu Hamil dihitung dari Crude Birth Rate (CBR) dan prevalensi kehamilan nasional sebesar 3% dari total populasi. Digunakan untuk menentukan kebutuhan Maternity Kit, PMT biskuit ibu hamil, dan bidan posko.',
+    },
+    ibuMenyusui: {
+      title: '🍼 Ibu Menyusui (%)',
+      content: 'Mengacu pada standar PPAM Kemenkes RI & WHO, ibu menyusui dihitung dari estimasi jumlah ibu yang memiliki bayi usia 0–24 bulan (ASI Eksklusif & Pendamping) yang bernilai rata-rata 4% dari total populasi. Digunakan untuk penyediaan ruang laktasi kit, suplemen gizi, dan alat simpan ASI perah.',
+    },
+    lansia: {
+      title: '👴 Lansia (%)',
+      content: 'Persentase lansia (populasi usia ≥ 60 tahun) diperoleh secara otomatis (Real-Time) dari irisan polygon peta BAPPENAS DTSEN. Jika tanpa peta, digunakan standar demografi nasional BPS sebesar 8% dari populasi. Digunakan untuk menentukan kebutuhan tim medis geriatri, popok dewasa, dan tensimeter lansia.',
+    },
+    balita: {
+      title: '👶 Balita (%)',
+      content: 'Persentase balita (anak usia 0–5 tahun) diperoleh secara otomatis (Real-Time) dari irisan polygon peta BAPPENAS DTSEN. Jika tanpa peta, digunakan acuan demografi nasional BPS sebesar 10% dari populasi. Digunakan untuk menentukan kebutuhan popok balita (4 pcs/hari), makanan pendamping ASI (MP-ASI), dan School-in-a-Box PAUD.',
+    },
+  };
 
   // Kalkulasi Demografi
   const jmlBalita = Math.round((populasi * persenBalita) / 100);
@@ -181,59 +208,166 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
         </div>
       )}
 
-      {/* INPUT PARAMETER CONTROL PANEL */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      {/* VARIABLE ACCORDION CONTROL PANEL */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden transition-all">
+        {/* Accordion Toggle Header */}
+        <button
+          onClick={() => setIsVariableOpen(!isVariableOpen)}
+          className="w-full px-5 py-3.5 bg-slate-50 hover:bg-slate-100/80 flex items-center justify-between transition-colors border-b border-slate-200/60"
+        >
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-xs text-[#19506e] tracking-wide uppercase">⚙️ Variable Estimasi & Parameter Logistik</span>
+            <span className="text-[10px] bg-[#1f8080]/10 text-[#1f8080] font-semibold px-2 py-0.5 rounded-md border border-[#1f8080]/20">
+              {durasiHari} Hari • Bumil {persenIbuHamil}% • Busui {persenIbuMenyusui}% • Lansia {persenLansia}% • Balita {persenBalita}%
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
+            <span>{isVariableOpen ? 'Sembunyikan' : 'Pengaturan Parameter Variable'}</span>
+            {isVariableOpen ? <ChevronUp className="w-4 h-4 text-[#19506e]" /> : <ChevronDown className="w-4 h-4 text-[#19506e]" />}
+          </div>
+        </button>
 
-        <div>
-          <label className="text-[11px] font-bold text-[#19506e] uppercase tracking-wider block mb-1">Durasi Tanggap (Hari)</label>
-          <input
-            type="number"
-            value={durasiHari}
-            onChange={(e) => setDurasiHari(Math.max(1, parseInt(e.target.value) || 0))}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1f8080]"
-          />
-        </div>
+        {/* Accordion Content Form Body */}
+        {isVariableOpen && (
+          <div className="p-5 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 bg-white border-t border-slate-100">
+            {/* 1. Durasi Tanggap */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-bold text-[#19506e] uppercase tracking-wider">Durasi Tanggap (Hari)</label>
+                <button
+                  type="button"
+                  onClick={() => setActiveInfoModal(PARAM_INFOS.durasiHari)}
+                  className="text-amber-600 hover:text-amber-700 p-0.5 rounded-full hover:bg-amber-50 transition-colors"
+                  title="Informasi Metodologi Durasi Tanggap"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <input
+                type="number"
+                value={durasiHari}
+                onChange={(e) => setDurasiHari(Math.max(1, parseInt(e.target.value) || 0))}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1f8080]"
+              />
+            </div>
 
-        <div>
-          <label className="text-[11px] font-bold text-slate-600 block mb-1">Ibu Hamil (%)</label>
-          <input
-            type="number"
-            value={persenIbuHamil}
-            onChange={(e) => setPersenIbuHamil(parseFloat(e.target.value) || 0)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none"
-          />
-        </div>
+            {/* 2. Ibu Hamil */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-bold text-slate-700">Ibu Hamil (%)</label>
+                <button
+                  type="button"
+                  onClick={() => setActiveInfoModal(PARAM_INFOS.ibuHamil)}
+                  className="text-amber-600 hover:text-amber-700 p-0.5 rounded-full hover:bg-amber-50 transition-colors"
+                  title="Informasi Metodologi Ibu Hamil"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <input
+                type="number"
+                value={persenIbuHamil}
+                onChange={(e) => setPersenIbuHamil(parseFloat(e.target.value) || 0)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-[#1f8080]"
+              />
+            </div>
 
-        <div>
-          <label className="text-[11px] font-bold text-slate-600 block mb-1">Ibu Menyusui (%)</label>
-          <input
-            type="number"
-            value={persenIbuMenyusui}
-            onChange={(e) => setPersenIbuMenyusui(parseFloat(e.target.value) || 0)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none"
-          />
-        </div>
+            {/* 3. Ibu Menyusui */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-bold text-slate-700">Ibu Menyusui (%)</label>
+                <button
+                  type="button"
+                  onClick={() => setActiveInfoModal(PARAM_INFOS.ibuMenyusui)}
+                  className="text-amber-600 hover:text-amber-700 p-0.5 rounded-full hover:bg-amber-50 transition-colors"
+                  title="Informasi Metodologi Ibu Menyusui"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <input
+                type="number"
+                value={persenIbuMenyusui}
+                onChange={(e) => setPersenIbuMenyusui(parseFloat(e.target.value) || 0)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-[#1f8080]"
+              />
+            </div>
 
-        <div>
-          <label className="text-[11px] font-bold text-slate-600 block mb-1">Lansia (%)</label>
-          <input
-            type="number"
-            value={persenLansia}
-            onChange={(e) => setPersenLansia(parseFloat(e.target.value) || 0)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none"
-          />
-        </div>
+            {/* 4. Lansia */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-bold text-slate-700">Lansia (%)</label>
+                <button
+                  type="button"
+                  onClick={() => setActiveInfoModal(PARAM_INFOS.lansia)}
+                  className="text-amber-600 hover:text-amber-700 p-0.5 rounded-full hover:bg-amber-50 transition-colors"
+                  title="Informasi Metodologi Lansia"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <input
+                type="number"
+                value={persenLansia}
+                onChange={(e) => setPersenLansia(parseFloat(e.target.value) || 0)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-[#1f8080]"
+              />
+            </div>
 
-        <div>
-          <label className="text-[11px] font-bold text-slate-600 block mb-1">Balita (%)</label>
-          <input
-            type="number"
-            value={persenBalita}
-            onChange={(e) => setPersenBalita(parseFloat(e.target.value) || 0)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none"
-          />
-        </div>
+            {/* 5. Balita */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-bold text-slate-700">Balita (%)</label>
+                <button
+                  type="button"
+                  onClick={() => setActiveInfoModal(PARAM_INFOS.balita)}
+                  className="text-amber-600 hover:text-amber-700 p-0.5 rounded-full hover:bg-amber-50 transition-colors"
+                  title="Informasi Metodologi Balita"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <input
+                type="number"
+                value={persenBalita}
+                onChange={(e) => setPersenBalita(parseFloat(e.target.value) || 0)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-[#1f8080]"
+              />
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* INFO EXPLANATION POPUP MODAL */}
+      {activeInfoModal && (
+        <div className="fixed inset-0 z-[99999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                <Info className="w-4 h-4 text-[#1f8080]" />
+                <span>{activeInfoModal.title}</span>
+              </h3>
+              <button
+                onClick={() => setActiveInfoModal(null)}
+                className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="text-xs leading-relaxed text-slate-600 space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <p>{activeInfoModal.content}</p>
+            </div>
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => setActiveInfoModal(null)}
+                className="px-4 py-2 bg-[#19506e] hover:bg-[#19506e]/90 text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
+              >
+                Mengerti
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ESTIMATION SUMMARY CARDS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
