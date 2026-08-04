@@ -1150,6 +1150,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       const regionGroups: RegionGroup[] = [];
 
       kelList.forEach((k) => {
+        const rawKel = k.namaKelurahan && k.namaKelurahan !== '-' ? k.namaKelurahan : 'Kelurahan Terdampak';
         const rawProv = k.namaProvinsi && k.namaProvinsi !== '-' ? k.namaProvinsi : '';
         const rawKab = k.namaKabupaten && k.namaKabupaten !== '-' ? k.namaKabupaten : (k.namaKecamatan && k.namaKecamatan !== '-' ? k.namaKecamatan : '');
         const prov = rawProv || 'Wilayah Terdampak';
@@ -1160,16 +1161,18 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
           group = { prov, kab, kels: [] };
           regionGroups.push(group);
         }
-        if (k.namaKelurahan && k.namaKelurahan !== '-' && !group.kels.includes(k.namaKelurahan)) {
-          group.kels.push(k.namaKelurahan);
+        if (rawKel && !group.kels.includes(rawKel)) {
+          group.kels.push(rawKel);
         }
       });
 
-      const kelHtml = regionGroups.length > 0
+      const validRegionGroups = regionGroups.filter((g) => g.kels.length > 0);
+
+      const kelHtml = validRegionGroups.length > 0
         ? `<div style="margin-top:8px; padding-top:6px; border-top:1.5px solid #E2E8F0;">
              <div style="font-weight:700; color:#19506e; margin-bottom:4px; font-size:11px;">🏛️ Wilayah Terdampak (${kelList.length} Kel/Desa):</div>
              <div style="max-height:110px; overflow-y:auto; font-size:10px; color:#334155;">
-               ${regionGroups.map((g) => {
+               ${validRegionGroups.map((g) => {
                  const title = g.kab ? `📍 ${g.prov}, ${g.kab}` : `📍 ${g.prov}`;
                  return `
                    <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:4px 6px; margin-bottom:4px;">
