@@ -672,6 +672,110 @@ async function queryHexbinRes9Stats(drawLayer: L.Layer): Promise<HexbinStats> {
     totalKeluarga: parseNumber(attrs.sum_jml_klg),
   };
 }
+// Dictionary for BIG Bitung 2024 Layer 18 Penutup Lahan (JNSPL Coded Values)
+const JNSPL_DICTIONARY: Record<number, string> = {
+  101010101: 'Bangunan Kesehatan',
+  101010102: 'Bangunan Perdagangan dan Jasa',
+  101010103: 'Bangunan Pariwisata, Seni, dan Budaya',
+  101010104: 'Bangunan Perkantoran',
+  101010105: 'Bangunan Industri',
+  101010106: 'Bangunan Peribadatan',
+  101010107: 'Bangunan Olahraga',
+  101010108: 'Bangunan Pertahanan dan Keamanan',
+  101010109: 'Bangunan Pendidikan',
+  101010110: 'Bangunan Sosial',
+  101010111: 'Bangunan Transportasi',
+  101010112: 'Bangunan Utilitas',
+  101010113: 'Bangunan Non-Permukiman Lain',
+  101010201: 'Bangunan Hunian',
+  101010202: 'Pekarangan',
+  102010101: 'Pertambangan',
+  102010201: 'Tempat Penimbunan dan Pembuangan Sampah',
+  102010301: 'Hutan Kota',
+  102010302: 'Taman',
+  102010303: 'Jalur Hijau',
+  102010304: 'Lapangan Tidak Diperkeras',
+  102010305: 'Pemakaman',
+  102010401: 'Landas Pacu',
+  102010402: 'Taxiway',
+  102010501: 'Rel Kereta',
+  102010601: 'Jalan',
+  102010701: 'Padang Golf',
+  102010801: 'Permukaan/Lapangan Diperkeras',
+  102010802: 'Area Parkir',
+  201010101: 'Sawah',
+  202010201: 'Tegalan/Ladang',
+  202020101: 'Perkebunan',
+  202020201: 'Kebun Campuran',
+  301010101: 'Hutan',
+  301020101: 'Padang Rumput',
+  301030101: 'Semak Belukar',
+  401010101: 'Hamparan Pasir',
+  401010201: 'Rataan Lumpur',
+  401010301: 'Tanah Terbuka',
+  401010401: 'Hamparan Batuan',
+  501010101: 'Sungai',
+  501010201: 'Rawa',
+  501010301: 'Danau',
+  501010401: 'Laguna',
+  501010501: 'Laut',
+  501020101: 'Waduk',
+  501020201: 'Kolam',
+  501020202: 'Kolam Renang',
+  501020301: 'Saluran Air',
+  501020401: 'Tambak',
+};
+
+export type BitungLandCoverStat = { label: string; count: number };
+
+async function queryBitungBasemapLayer18(drawLayer: L.Layer): Promise<BitungLandCoverStat[]> {
+  const queryGeometry = layerToEsriPolygon(drawLayer);
+  if (!queryGeometry) return [];
+
+  try {
+    const queryUrl = 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/PETADASAR_SULAWESI_BITUNG_2024_5K/MapServer/18/query';
+    const params = new URLSearchParams({
+      f: 'json',
+      geometry: JSON.stringify(queryGeometry.geometry),
+      geometryType: queryGeometry.geometryType,
+      spatialRel: 'esriSpatialRelIntersects',
+      inSR: '4326',
+      outSR: '4326',
+      returnGeometry: 'false',
+      outFields: 'JNSPL',
+      groupByFieldsForStatistics: 'JNSPL',
+      outStatistics: JSON.stringify([
+        { statisticType: 'count', onStatisticField: 'OBJECTID', outStatisticFieldName: 'jumlah' },
+      ]),
+      where: '1=1',
+    });
+
+    const response = await fetch(queryUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    });
+
+    if (!response.ok) return [];
+    const json = await response.json();
+    const result: BitungLandCoverStat[] = [];
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (json.features ?? []).forEach((ft: any) => {
+      const jnspl = ft.attributes?.JNSPL;
+      const count = Number(ft.attributes?.jumlah || 0);
+      if (jnspl && count > 0) {
+        const label = JNSPL_DICTIONARY[jnspl] || `Fasilitas (${jnspl})`;
+        result.push({ label, count });
+      }
+    });
+
+    // Sort descending by count
+    return result.sort((a, b) => b.count - a.count);
+  } catch {
+    return [];
+  }
+}
 
 export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDrawEstimation }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -1143,10 +1247,11 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       .openOn(map);
 
     try {
-      const [stats, kelList, sekolahList] = await Promise.all([
+      const [stats, kelList, sekolahList, landCoverList] = await Promise.all([
         queryHexbinRes9Stats(layer),
         queryDukcapilKelurahan(layer),
         queryDapodikSekolahDampak(layer, kodeKemendagri),
+        queryBitungBasemapLayer18(layer),
       ]);
 
       // Group kelurahanDampak by Provinsi & Kabupaten for clean popup display
@@ -1196,6 +1301,20 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
            </div>`
         : '';
 
+      const landCoverHtml = landCoverList.length > 0
+        ? `<div style="margin-top:8px; padding-top:6px; border-top:1.5px solid #E2E8F0;">
+             <div style="font-weight:700; color:#19506e; margin-bottom:4px; font-size:11px;">🏗️ Penutup Lahan & Fasilitas (BIG 2024):</div>
+             <div style="max-height:100px; overflow-y:auto; font-size:10px; color:#334155; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:4px 6px;">
+               ${landCoverList.map((lc) => `
+                 <div style="display:flex; justify-content:space-between; border-bottom:1px border-slate-100 py-0.5;">
+                   <span style="font-medium; color:#475569;">• ${lc.label}:</span>
+                   <b style="color:#19506e;">${lc.count.toLocaleString('id')}</b>
+                 </div>
+               `).join('')}
+             </div>
+           </div>`
+        : '';
+
       const content = `
         <div style="font-family:sans-serif; min-width:260px; font-size:11px; color:#0F172A;">
           <div style="font-weight:bold; color:#19506e; border-bottom:1.5px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px;">📐 Estimasi Cepat Area Terdampak</div>
@@ -1207,6 +1326,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
           <div style="display:flex; justify-content:space-between; margin-bottom:2px; color:#8B5CF6;"><span>📊 Disabilitas Sedang (PD2):</span><b>${stats.totalPd2.toLocaleString('id')}</b></div>
           <div style="display:flex; justify-content:space-between; margin-top:4px; padding-top:4px; border-top:1px dashed #DDD;"><span>🏠 Total Keluarga:</span><b>${stats.totalKeluarga.toLocaleString('id')}</b></div>
           ${kelHtml}
+          ${landCoverHtml}
         </div>
       `;
       popup.setContent(content);
