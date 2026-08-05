@@ -11,21 +11,38 @@ interface Props {
 export default function AiGenerateSection({ estimationData }: Props) {
   const [apiKey, setApiKey] = useState<string>('sk-69d85b197b53b2e9-6vjduo-ddf53562');
   const [endpoint, setEndpoint] = useState<string>('https://rzh4rfn.abc-tunnel.us/v1');
-  const [selectedModel, setSelectedModel] = useState<string>('ag/gemini-3-flash');
+  const [selectedModel, setSelectedModel] = useState<string>('xai/grok-4');
   const [prompt, setPrompt] = useState<string>('Buatkan ringkasan rekomendasi analisis penanganan darurat bencana berdasarkan populasi terestimasi.');
   
   const [loading, setLoading] = useState<boolean>(false);
   const [testResult, setTestResult] = useState<{ success?: boolean; message?: string; responseText?: string } | null>(null);
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
 
-  // List of verified models on 9router tunnel
+  // Complete list of 24 models available on your 9Router tunnel
   const availableModels = [
-    { id: 'ag/gemini-3-flash', name: 'Gemini 3 Flash (Fast & Smart)' },
-    { id: 'ag/gemini-3.5-flash-low', name: 'Gemini 3.5 Flash Low' },
-    { id: 'ag/gemini-pro-agent', name: 'Gemini Pro Agent' },
-    { id: 'ag/claude-sonnet-4-6', name: 'Claude Sonnet 4.6' },
-    { id: 'xai/grok-4', name: 'xAI Grok 4' },
-    { id: 'kimi/kimi-k3', name: 'Kimi K3 (1M Context)' },
+    // { id: 'ag/gemini-3-flash', name: '⚡ Gemini 3 Flash (Fast)' },
+    // { id: 'ag/gemini-3-flash-agent', name: '🤖 Gemini 3 Flash Agent' },
+    // { id: 'ag/gemini-3.5-flash-low', name: '🔹 Gemini 3.5 Flash Low' },
+    // { id: 'ag/gemini-3.5-flash-extra-low', name: '🔹 Gemini 3.5 Flash Extra Low' },
+    // { id: 'ag/gemini-pro-agent', name: '🧠 Gemini Pro Agent' },
+    // { id: 'ag/gemini-3.1-pro-low', name: '🧠 Gemini 3.1 Pro Low' },
+    // { id: 'ag/claude-sonnet-4-6', name: '🟧 Claude Sonnet 4.6' },
+    // { id: 'ag/claude-opus-4-6-thinking', name: '🎓 Claude Opus 4.6 (Thinking)' },
+    // { id: 'ag/gpt-oss-120b-medium', name: '🟩 GPT-OSS 120B Medium' },
+    { id: 'xai/grok-4', name: '🚀 Grok 4 (xAI)' },
+    { id: 'xai/grok-4-fast-reasoning', name: '🚀 Grok 4 Fast Reasoning' },
+    { id: 'xai/grok-code-fast-1', name: '💻 Grok Code Fast 1' },
+    { id: 'xai/grok-3', name: '🚀 Grok 3 (xAI)' },
+    { id: 'kimi/kimi-k3', name: '🌙 Kimi K3 (1M Context)' },
+    { id: 'kimi/k3', name: '🌙 Kimi K3' },
+    { id: 'kimi/kimi-for-coding', name: '💻 Kimi For Coding' },
+    { id: 'kimi/kimi-for-coding-highspeed', name: '⚡ Kimi For Coding Highspeed' },
+    { id: 'kimi/kimi-k2.7-code', name: '💻 Kimi K2.7 Code' },
+    { id: 'kimi/kimi-k2.7-code-highspeed', name: '⚡ Kimi K2.7 Code Highspeed' },
+    { id: 'kimi/kimi-k2.6', name: '🌙 Kimi K2.6' },
+    { id: 'kimi/kimi-k2.5', name: '🌙 Kimi K2.5' },
+    { id: 'kimi/kimi-k2.5-thinking', name: '🎓 Kimi K2.5 Thinking' },
+    { id: 'kimi/kimi-latest', name: '🌙 Kimi Latest' },
   ];
 
   // Test tunnel connection & send completion request
