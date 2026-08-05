@@ -36,6 +36,7 @@ import {
   ChevronDown,
   PanelLeftClose,
   PanelLeftOpen,
+  Sparkles,
 } from 'lucide-react';
 
 type Kejadian = {
@@ -61,6 +62,7 @@ import InfrastructureEducationSection from '@/components/dashboard/Infrastructur
 import EconomicAgricultureLossSection from '@/components/dashboard/EconomicAgricultureLossSection';
 import UtilitiesEnergySection from '@/components/dashboard/UtilitiesEnergySection';
 import AccessibilityRouteSection from '@/components/dashboard/AccessibilityRouteSection';
+import AiGenerateSection from '@/components/dashboard/AiGenerateSection';
 
 import { EstimationData } from '@/components/dashboard/LogisticAnalysisSection';
 
@@ -71,7 +73,7 @@ export default function DashboardK5Page() {
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [filters, setFilters] = useState({ jenis: 'Semua', status: 'Semua', level: 'Semua' });
   const [activeFilter, setActiveFilter] = useState<FilterWilayah | null>(null);
-  const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical' | 'infrastructure' | 'economic' | 'utilities' | 'routes'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical' | 'infrastructure' | 'economic' | 'utilities' | 'routes' | 'ai'>('map');
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [drawEstimation, setDrawEstimation] = useState<EstimationData | null>(null);
 
@@ -410,6 +412,7 @@ export default function DashboardK5Page() {
                   <option value="economic">🌾 Analisis Kerugian Ekonomi & Lahan</option>
                   <option value="utilities">⚡ Analisis Energi & Utilitas Kritis</option>
                   <option value="routes">🚚 Analisis Rute & Aksesibilitas</option>
+                  <option value="ai">✨ Generate AI (9Router)</option>
                 </select>
                 <ChevronDown className="w-4 h-4 absolute right-2.5 top-2 text-slate-400 pointer-events-none" />
               </div>
@@ -523,6 +526,18 @@ export default function DashboardK5Page() {
               >
                 <Truck className="w-4 h-4 shrink-0 text-sky-500" />
                 <span className="truncate">Rute & Aksesibilitas</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('ai')}
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                  activeTab === 'ai'
+                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    : 'bg-gradient-to-r from-purple-50 to-emerald-50 text-purple-900 border border-purple-200 hover:bg-purple-100'
+                }`}
+              >
+                <Sparkles className="w-4 h-4 shrink-0 text-purple-600 animate-pulse" />
+                <span className="truncate">Generate AI</span>
               </button>
             </div>
           </div>
@@ -647,6 +662,12 @@ export default function DashboardK5Page() {
           {activeTab === 'routes' && (
             <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
               <AccessibilityRouteSection estimationData={drawEstimation} />
+            </section>
+          )}
+
+          {activeTab === 'ai' && (
+            <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+              <AiGenerateSection estimationData={drawEstimation} />
             </section>
           )}
         </main>
