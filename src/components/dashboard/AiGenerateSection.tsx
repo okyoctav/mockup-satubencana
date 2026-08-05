@@ -1,11 +1,50 @@
-'use client';
-
 import { useState } from 'react';
-import { Bot, Send, Sparkles, RefreshCw, CheckCircle2, AlertCircle, Cpu } from 'lucide-react';
+import { Bot, Send, Sparkles, RefreshCw, CheckCircle2, AlertCircle, Cpu, ChevronDown, ChevronUp } from 'lucide-react';
 import { EstimationData } from './LogisticAnalysisSection';
 
 interface Props {
   estimationData?: EstimationData | null;
+}
+
+// Simple & clean markdown formatter for bolding, headers, and list bullets
+function renderFormattedMarkdown(content: string) {
+  const lines = content.split('\n');
+  return lines.map((line, i) => {
+    // Check header lines (#, ##, ###)
+    if (line.startsWith('### ')) {
+      return <h4 key={i} className="font-bold text-slate-800 text-xs mt-2 mb-1">{line.replace('### ', '')}</h4>;
+    }
+    if (line.startsWith('## ')) {
+      return <h3 key={i} className="font-bold text-slate-900 text-xs mt-2.5 mb-1 text-[#19506e]">{line.replace('## ', '')}</h3>;
+    }
+    if (line.startsWith('# ')) {
+      return <h2 key={i} className="font-bold text-slate-900 text-sm mt-3 mb-1 text-[#19506e]">{line.replace('# ', '')}</h2>;
+    }
+
+    // Process bold text **text**
+    const parts = line.split(/(\*\*.*?\*\*)/g);
+    const formattedLine = parts.map((part, pIdx) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={pIdx} className="font-bold text-[#19506e]">{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+
+    // Check list bullets (*, -, 1.)
+    if (line.trim().startsWith('* ') || line.trim().startsWith('- ')) {
+      return (
+        <li key={i} className="ml-4 list-disc text-xs my-0.5">
+          {formattedLine}
+        </li>
+      );
+    }
+
+    if (!line.trim()) {
+      return <div key={i} className="h-1.5" />;
+    }
+
+    return <p key={i} className="my-0.5">{formattedLine}</p>;
+  });
 }
 
 export default function AiGenerateSection({ estimationData }: Props) {
@@ -14,6 +53,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
   const [selectedModel, setSelectedModel] = useState<string>('ag/gpt-oss-120b-medium');
   const [prompt, setPrompt] = useState<string>('Buatkan ringkasan rekomendasi analisis penanganan darurat bencana berdasarkan populasi terestimasi.');
   
+  const [isConfigOpen, setIsConfigOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [testResult, setTestResult] = useState<{ success?: boolean; message?: string; responseText?: string } | null>(null);
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
@@ -142,71 +182,88 @@ export default function AiGenerateSection({ estimationData }: Props) {
         </div>
       </div>
 
-      {/* CONFIG & TEST PANEL */}
-      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
-          <h3 className="font-bold text-xs uppercase tracking-wider text-[#19506e] flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-[#1f8080]" />
-            <span>⚙️ Pengaturan Tunnel & Model AI</span>
-          </h3>
-          <span className="text-[11px] font-semibold text-slate-500">9Router API Endpoint</span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="text-[11px] font-bold text-slate-600 block mb-1">Tunnel Endpoint URL</label>
-            <input
-              type="text"
-              value={endpoint}
-              onChange={(e) => setEndpoint(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-800 outline-none focus:border-[#1f8080]"
-            />
+      {/* CONFIG & TEST PANEL (ACCORDION CONTROL) */}
+      <div className="bg-[#19506e]/5 border border-[#19506e]/20 rounded-2xl overflow-hidden transition-all shadow-xs">
+        {/* Accordion Header Toggle */}
+        <button
+          onClick={() => setIsConfigOpen(!isConfigOpen)}
+          className="w-full px-5 py-3.5 bg-slate-50 hover:bg-slate-100/80 flex items-center justify-between transition-colors border-b border-slate-200/60"
+        >
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-bold text-xs text-[#19506e] tracking-wide uppercase flex items-center gap-2">
+              <Cpu className="w-4 h-4 text-[#1f8080]" />
+              <span>⚙️ Pengaturan Tunnel & Model AI</span>
+            </span>
+            <span className="text-[10px] bg-[#1f8080]/10 text-[#1f8080] font-semibold px-2 py-0.5 rounded-md border border-[#1f8080]/20 font-mono">
+              {selectedModel} • {endpoint}
+            </span>
           </div>
-
-          <div>
-            <label className="text-[11px] font-bold text-slate-600 block mb-1">Authorization Bearer Token</label>
-            <input
-              type="password"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-800 outline-none focus:border-[#1f8080]"
-            />
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
+            <span>{isConfigOpen ? 'Sembunyikan' : 'Buka Pengaturan API'}</span>
+            {isConfigOpen ? <ChevronUp className="w-4 h-4 text-[#19506e]" /> : <ChevronDown className="w-4 h-4 text-[#19506e]" />}
           </div>
+        </button>
 
-          <div>
-            <label className="text-[11px] font-bold text-slate-600 block mb-1">Pilih Model AI (9Router)</label>
-            <select
-              value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1f8080]"
-            >
-              {availableModels.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name} ({m.id})
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+        {/* Accordion Body Form */}
+        {isConfigOpen && (
+          <div className="p-5 space-y-4 bg-white border-t border-slate-100">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-[11px] font-bold text-slate-600 block mb-1">Tunnel Endpoint URL</label>
+                <input
+                  type="text"
+                  value={endpoint}
+                  onChange={(e) => setEndpoint(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-800 outline-none focus:border-[#1f8080]"
+                />
+              </div>
 
-        {/* STATUS TEST RESULT BADGE */}
-        {testResult && (
-          <div
-            className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-between gap-3 ${
-              testResult.success
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                : 'bg-rose-50 border-rose-200 text-rose-900'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              {testResult.success ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              ) : (
-                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-              )}
-              <span>{testResult.message}</span>
+              <div>
+                <label className="text-[11px] font-bold text-slate-600 block mb-1">Authorization Bearer Token</label>
+                <input
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-800 outline-none focus:border-[#1f8080]"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-600 block mb-1">Pilih Model AI (9Router)</label>
+                <select
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1f8080]"
+                >
+                  {availableModels.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name} ({m.id})
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <span className="text-[10px] opacity-80 font-mono">STATUS: {testResult.success ? '200 OK' : 'FAILED'}</span>
+
+            {/* STATUS TEST RESULT BADGE */}
+            {testResult && (
+              <div
+                className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-between gap-3 ${
+                  testResult.success
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                    : 'bg-rose-50 border-rose-200 text-rose-900'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {testResult.success ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                  )}
+                  <span>{testResult.message}</span>
+                </div>
+                <span className="text-[10px] opacity-80 font-mono">STATUS: {testResult.success ? '200 OK' : 'FAILED'}</span>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -240,13 +297,13 @@ export default function AiGenerateSection({ estimationData }: Props) {
                 )}
 
                 <div
-                  className={`p-3.5 rounded-2xl max-w-2xl leading-relaxed ${
+                  className={`p-4 rounded-2xl max-w-2xl leading-relaxed ${
                     msg.role === 'user'
-                      ? 'bg-[#19506e] text-white rounded-br-none'
-                      : 'bg-slate-100 text-slate-800 border border-slate-200/80 rounded-bl-none font-medium whitespace-pre-wrap'
+                      ? 'bg-[#19506e] text-white rounded-br-none font-medium'
+                      : 'bg-slate-50 text-slate-800 border border-slate-200/80 rounded-bl-none shadow-2xs space-y-1'
                   }`}
                 >
-                  {msg.content}
+                  {msg.role === 'assistant' ? renderFormattedMarkdown(msg.content) : msg.content}
                 </div>
 
                 {msg.role === 'user' && (
