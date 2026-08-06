@@ -785,6 +785,56 @@ async function queryBitungBasemapLayer18(drawLayer: L.Layer): Promise<BitungLand
   }
 }
 
+export type HakAtasTanahStat = { label: string; count: number };
+
+async function queryAtrBpnHakAtasTanah(drawLayer: L.Layer): Promise<HakAtasTanahStat[]> {
+  const queryGeometry = layerToEsriPolygon(drawLayer);
+  if (!queryGeometry) return [];
+
+  try {
+    const queryUrl = 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/kota_bitung_aht/MapServer/0/query';
+    const params = new URLSearchParams({
+      f: 'json',
+      geometry: JSON.stringify(queryGeometry.geometry),
+      geometryType: queryGeometry.geometryType,
+      spatialRel: 'esriSpatialRelIntersects',
+      inSR: '4326',
+      outSR: '4326',
+      returnGeometry: 'false',
+      outFields: 'tipehak',
+      groupByFieldsForStatistics: 'tipehak',
+      outStatistics: JSON.stringify([
+        { statisticType: 'count', onStatisticField: 'objectid_1', outStatisticFieldName: 'jumlah' },
+      ]),
+      where: '1=1',
+    });
+
+    const response = await fetch(queryUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    });
+
+    if (!response.ok) return [];
+    const json = await response.json();
+    const result: HakAtasTanahStat[] = [];
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (json.features ?? []).forEach((ft: any) => {
+      const tipehak = ft.attributes?.tipehak || 'Lainnya';
+      const count = Number(ft.attributes?.jumlah || 0);
+      if (tipehak && count > 0) {
+        result.push({ label: tipehak, count });
+      }
+    });
+
+    // Sort descending by count
+    return result.sort((a, b) => b.count - a.count);
+  } catch {
+    return [];
+  }
+}
+
 export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDrawEstimation }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
@@ -1255,11 +1305,12 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       .openOn(map);
 
     try {
-      const [stats, kelList, sekolahList, landCoverList] = await Promise.all([
+      const [stats, kelList, sekolahList, landCoverList, hakAtasTanahList] = await Promise.all([
         queryHexbinRes9Stats(layer),
         queryDukcapilKelurahan(layer),
         queryDapodikSekolahDampak(layer, kodeKemendagri),
         queryBitungBasemapLayer18(layer),
+        queryAtrBpnHakAtasTanah(layer),
       ]);
 
       // Group kelurahanDampak by Provinsi & Kabupaten for clean popup display
@@ -1323,6 +1374,20 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
            </div>`
         : '';
 
+      const hakAtasTanahHtml = hakAtasTanahList.length > 0
+        ? `<div style="margin-top:8px; padding-top:6px; border-top:1.5px solid #E2E8F0;">
+             <div style="font-weight:700; color:#19506e; margin-bottom:4px; font-size:11px;">📜 Status Hak Atas Tanah (ATR/BPN):</div>
+             <div style="max-height:100px; overflow-y:auto; font-size:10px; color:#334155; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:4px 6px;">
+               ${hakAtasTanahList.map((hat) => `
+                 <div style="display:flex; justify-content:space-between; border-bottom:1px border-slate-100 py-0.5;">
+                   <span style="font-medium; color:#475569;">• ${hat.label}:</span>
+                   <b style="color:#8B5CF6;">${hat.count.toLocaleString('id')}</b>
+                 </div>
+               `).join('')}
+             </div>
+           </div>`
+        : '';
+
       const content = `
         <div style="font-family:sans-serif; min-width:260px; font-size:11px; color:#0F172A;">
           <div style="font-weight:bold; color:#19506e; border-bottom:1.5px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px;">📐 Estimasi Cepat Area Terdampak</div>
@@ -1335,6 +1400,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
           <div style="display:flex; justify-content:space-between; margin-top:4px; padding-top:4px; border-top:1px dashed #DDD;"><span>🏠 Total Keluarga:</span><b>${stats.totalKeluarga.toLocaleString('id')}</b></div>
           ${kelHtml}
           ${landCoverHtml}
+          ${hakAtasTanahHtml}
         </div>
       `;
       popup.setContent(content);
