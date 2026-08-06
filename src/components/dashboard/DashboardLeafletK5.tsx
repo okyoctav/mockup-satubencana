@@ -3,7 +3,7 @@
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { useState, useEffect, useRef } from 'react';
-import { Layers, Search, Check, X, Eye, Activity, MapPin, Pencil, BarChart2 } from 'lucide-react';
+import { Layers, Search, Check, X, Eye, Activity, MapPin, Pencil, BarChart2, Maximize2, Minimize2 } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet-draw';
 
@@ -1510,8 +1510,35 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
     return matchesSearch && matchesGroup;
   });
 
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const mapContainerWrapperRef = useRef<HTMLDivElement>(null);
+
+  const handleToggleFullscreen = () => {
+    if (!mapContainerWrapperRef.current) return;
+    if (!document.fullscreenElement) {
+      mapContainerWrapperRef.current.requestFullscreen().then(() => {
+        setIsFullscreen(true);
+        setTimeout(() => mapRef.current?.invalidateSize(), 200);
+      }).catch(() => null);
+    } else {
+      document.exitFullscreen().then(() => {
+        setIsFullscreen(false);
+        setTimeout(() => mapRef.current?.invalidateSize(), 200);
+      }).catch(() => null);
+    }
+  };
+
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+      setTimeout(() => mapRef.current?.invalidateSize(), 200);
+    };
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
+  }, []);
+
   return (
-    <div className="relative w-full h-full overflow-hidden font-sans">
+    <div ref={mapContainerWrapperRef} className="relative w-full h-full overflow-hidden font-sans bg-slate-900">
       {/* Map Container */}
       <div ref={containerRef} className="w-full h-full z-0" />
 
@@ -1624,6 +1651,17 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
           title="Toggle Titik Kejadian Bencana"
         >
           <MapPin className="w-4 h-4 text-sky-400" />
+        </button>
+
+        {/* Toggle Fullscreen Mode */}
+        <button
+          onClick={handleToggleFullscreen}
+          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center ${
+            isFullscreen ? 'bg-amber-600 text-white border-amber-400/40 ring-2 ring-amber-400/30' : 'bg-white/80 text-slate-700 border-white/80 hover:bg-white'
+          }`}
+          title={isFullscreen ? 'Keluar Fullscreen Peta' : 'Mode Layar Penuh (Fullscreen Peta)'}
+        >
+          {isFullscreen ? <Minimize2 className="w-4 h-4 text-amber-200" /> : <Maximize2 className="w-4 h-4 text-[#19506e]" />}
         </button>
 
         {/* Toggle Legenda */}
