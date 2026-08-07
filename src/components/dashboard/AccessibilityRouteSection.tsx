@@ -1,11 +1,179 @@
-'use client';
-
 import { useState } from 'react';
-import { Truck, Compass, Route, RefreshCw, ChevronDown, ChevronUp, Info, X } from 'lucide-react';
+import { Truck, Compass, Route, RefreshCw, ChevronDown, ChevronUp, Info, X, MapPin, Navigation } from 'lucide-react';
 import { EstimationData } from './LogisticAnalysisSection';
 
 interface Props {
   estimationData?: EstimationData | null;
+}
+
+// Interactive OSRM Route Calculator Component
+function RouteCalculatorWidget({ onDistanceCalculated }: { onDistanceCalculated: (km: number) => void }) {
+  const [pointA, setPointA] = useState({ name: 'Gudang Logistik BPBD Sulut (Manado)', lat: 1.4748, lng: 124.8428 });
+  const [pointB, setPointB] = useState({ name: 'Posko Pengungsian Bitung (Maesa)', lat: 1.4429, lng: 125.1834 });
+  const [loading, setLoading] = useState(false);
+  const [routeResult, setRouteResult] = useState<{ distanceKm: number; durationMin: number; summary: string } | null>(null);
+
+  const presets = [
+    { label: 'Gudang Manado ➔ Posko Bitung', a: { name: 'Gudang BPBD Sulut (Manado)', lat: 1.4748, lng: 124.8428 }, b: { name: 'Posko Pengungsian Bitung', lat: 1.4429, lng: 125.1834 } },
+    { label: 'Posko Komando ➔ Faskes RSUD Bitung', a: { name: 'Posko Utama Evakuasi', lat: 1.4450, lng: 125.1700 }, b: { name: 'RSUD Manembo-nembo Bitung', lat: 1.4350, lng: 125.1320 } },
+    { label: 'Pelabuhan Bitung ➔ Gudang Logistik', a: { name: 'Pelabuhan Samudera Bitung', lat: 1.4400, lng: 125.1900 }, b: { name: 'Gudang Darurat BPBD', lat: 1.4550, lng: 125.1500 } },
+  ];
+
+  const calculateOSRMRoute = async () => {
+    setLoading(true);
+    try {
+      const url = `https://router.project-osrm.org/route/v1/driving/${pointA.lng},${pointA.lat};${pointB.lng},${pointB.lat}?overview=false`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Gagal mengambil rute OSRM');
+      const data = await res.json();
+      if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+        const route = data.routes[0];
+        const distKm = Math.round((route.distance / 1000) * 10) / 10;
+        const durMin = Math.round(route.duration / 60);
+        setRouteResult({
+          distanceKm: distKm,
+          durationMin: durMin,
+          summary: route.legs?.[0]?.summary || 'Jalur Utama Lintas Provinsi/Kota',
+        });
+        onDistanceCalculated(distKm);
+      }
+    } catch {
+      // Fallback straight line Haversine distance calculation
+      const R = 6371;
+      const dLat = ((pointB.lat - pointA.lat) * Math.PI) / 180;
+      const dLon = ((pointB.lng - pointA.lng) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((pointA.lat * Math.PI) / 180) * Math.cos((pointB.lat * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distKm = Math.round(R * c * 1.25 * 10) / 10;
+      const durMin = Math.round(distKm * 1.8);
+      setRouteResult({
+        distanceKm: distKm,
+        durationMin: durMin,
+        summary: 'Estimasi Jarak Vektor Darat (Fallback)',
+      });
+      onDistanceCalculated(distKm);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* Preset Quick Select Buttons */}
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <span className="text-[11px] font-bold text-slate-500 mr-1">Rute Cepat Bencana:</span>
+        {presets.map((p, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => {
+              setPointA(p.a);
+              setPointB(p.b);
+            }}
+            className="px-2.5 py-1 bg-slate-100 hover:bg-[#1f8080]/10 hover:text-[#19506e] text-slate-700 font-bold text-[11px] rounded-lg border border-slate-200 transition-all"
+          >
+            📍 {p.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* Titik A */}
+        <div className="p-3 bg-emerald-50/60 border border-emerald-200/80 rounded-xl space-y-1.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800">
+            <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+            <span>TITIK A (Asal Evakuasi / Gudang)</span>
+          </div>
+          <input
+            type="text"
+            value={pointA.name}
+            onChange={(e) => setPointA({ ...pointA, name: e.target.value })}
+            className="w-full bg-white border border-emerald-200 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-800 outline-none"
+          />
+          <div className="grid grid-cols-2 gap-2 text-[11px]">
+            <div>
+              <span className="text-slate-500 font-medium">Latitude:</span>
+              <input
+                type="number"
+                step="0.0001"
+                value={pointA.lat}
+                onChange={(e) => setPointA({ ...pointA, lat: parseFloat(e.target.value) || 0 })}
+                className="w-full bg-white border border-slate-200 rounded-md px-2 py-1 font-mono text-slate-700"
+              />
+            </div>
+            <div>
+              <span className="text-slate-500 font-medium">Longitude:</span>
+              <input
+                type="number"
+                step="0.0001"
+                value={pointA.lng}
+                onChange={(e) => setPointA({ ...pointA, lng: parseFloat(e.target.value) || 0 })}
+                className="w-full bg-white border border-slate-200 rounded-md px-2 py-1 font-mono text-slate-700"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Titik B */}
+        <div className="p-3 bg-sky-50/60 border border-sky-200/80 rounded-xl space-y-1.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-sky-800">
+            <MapPin className="w-3.5 h-3.5 text-sky-600" />
+            <span>TITIK B (Tujuan Posko / Faskes)</span>
+          </div>
+          <input
+            type="text"
+            value={pointB.name}
+            onChange={(e) => setPointB({ ...pointB, name: e.target.value })}
+            className="w-full bg-white border border-sky-200 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-800 outline-none"
+          />
+          <div className="grid grid-cols-2 gap-2 text-[11px]">
+            <div>
+              <span className="text-slate-500 font-medium">Latitude:</span>
+              <input
+                type="number"
+                step="0.0001"
+                value={pointB.lat}
+                onChange={(e) => setPointB({ ...pointB, lat: parseFloat(e.target.value) || 0 })}
+                className="w-full bg-white border border-slate-200 rounded-md px-2 py-1 font-mono text-slate-700"
+              />
+            </div>
+            <div>
+              <span className="text-slate-500 font-medium">Longitude:</span>
+              <input
+                type="number"
+                step="0.0001"
+                value={pointB.lng}
+                onChange={(e) => setPointB({ ...pointB, lng: parseFloat(e.target.value) || 0 })}
+                className="w-full bg-white border border-slate-200 rounded-md px-2 py-1 font-mono text-slate-700"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-3 pt-1">
+        <button
+          type="button"
+          onClick={calculateOSRMRoute}
+          disabled={loading}
+          className="px-4 py-2.5 bg-[#19506e] hover:bg-[#19506e]/90 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-2"
+        >
+          {loading ? <RefreshCw className="w-4 h-4 animate-spin text-sky-300" /> : <Navigation className="w-4 h-4 text-sky-300" />}
+          <span>Hitung Rute Tercepat (OSRM API)</span>
+        </button>
+
+        {routeResult && (
+          <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-3.5 py-2 text-xs">
+            <span className="font-bold text-emerald-900">📏 Jarak Tercepat: <u className="no-underline text-emerald-700">{routeResult.distanceKm} Km</u></span>
+            <span className="text-slate-400">•</span>
+            <span className="font-bold text-emerald-900">⏱️ Waktu Tempuh: <u className="no-underline text-emerald-700">{routeResult.durationMin} Menit</u></span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function AccessibilityRouteSection({ estimationData }: Props) {
@@ -207,6 +375,21 @@ export default function AccessibilityRouteSection({ estimationData }: Props) {
             </div>
           </div>
         )}
+      </div>
+
+      {/* OSRM ROUTING INTERACTIVE CALCULATOR (JARAK TERCEPAT TITIK A KE B) */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <Route className="w-5 h-5 text-[#1f8080]" />
+            <h3 className="font-bold text-sm text-[#19506e]">📍 Kalkulator Rute Tercepat (OSRM Routing Engine)</h3>
+          </div>
+          <span className="text-[10px] bg-[#1f8080]/10 text-[#1f8080] font-bold px-2 py-0.5 rounded-md border border-[#1f8080]/20">
+            OpenStreetMap OSRM Service API
+          </span>
+        </div>
+
+        <RouteCalculatorWidget onDistanceCalculated={(km) => setEstimasiJarakKm(km)} />
       </div>
 
       {/* INFO EXPLANATION POPUP MODAL */}
