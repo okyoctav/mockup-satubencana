@@ -51,6 +51,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
   const [apiKey, setApiKey] = useState<string>('sk-69d85b197b53b2e9-6vjduo-ddf53562');
   const [endpoint, setEndpoint] = useState<string>('https://rzh4rfn.abc-tunnel.us/v1');
   const [selectedModel, setSelectedModel] = useState<string>('ag/gpt-oss-120b-medium');
+  const [maxTokens, setMaxTokens] = useState<number>(4096);
   const [prompt, setPrompt] = useState<string>('Buatkan ringkasan rekomendasi analisis penanganan darurat bencana berdasarkan populasi terestimasi.');
   
   const [isConfigOpen, setIsConfigOpen] = useState<boolean>(false);
@@ -82,14 +83,26 @@ export default function AiGenerateSection({ estimationData }: Props) {
     setPrompt('');
 
     try {
-      // Build contextual prompt if spatial estimation data exists
+      // Build rich contextual prompt automatically from active spatial simulation data
       let contextPrefix = '';
-      if (estimationData) {
-        contextPrefix = `[DATA SPASIAL BENCANA TERHUBUNG]\n` +
-          `- Total Populasi: ${estimationData.totalPopulasi.toLocaleString('id')} jiwa\n` +
-          `- Balita: ${estimationData.totalBalita.toLocaleString('id')}, Lansia: ${estimationData.totalLansia.toLocaleString('id')}\n` +
-          `- Laki-laki: ${estimationData.totalLakiLaki.toLocaleString('id')}, Perempuan: ${estimationData.totalPerempuan.toLocaleString('id')}\n` +
-          `- Disabilitas: ${estimationData.totalPd1 + estimationData.totalPd2} jiwa\n\n`;
+      if (estimationData && estimationData.totalPopulasi > 0) {
+        const kelListStr = (estimationData.kelurahanDampak ?? [])
+          .map((k) => `${k.namaKelurahan} (${k.namaKabupaten || k.namaKecamatan || ''})`)
+          .join(', ');
+        const sekolahListStr = (estimationData.sekolahDampak ?? [])
+          .map((s) => `${s.nama} [${s.bentuk}]`)
+          .slice(0, 8)
+          .join(', ');
+
+        contextPrefix = `[DATA SIMULASI SPASIAL SPESIFIK BENCANA - SANGAT PENTING]\n` +
+          `Sistem telah mendeteksi area poligon bencana dengan data terhitung:\n` +
+          `- Total Populasi Terdampak: ${estimationData.totalPopulasi.toLocaleString('id')} jiwa (${estimationData.totalKeluarga.toLocaleString('id')} KK)\n` +
+          `- Rincian Kependudukan: Laki-laki ${estimationData.totalLakiLaki.toLocaleString('id')} jiwa | Perempuan ${estimationData.totalPerempuan.toLocaleString('id')} jiwa\n` +
+          `- Kelompok Rentan: Balita ${estimationData.totalBalita.toLocaleString('id')} jiwa | Lansia ${estimationData.totalLansia.toLocaleString('id')} jiwa\n` +
+          `- Disabilitas: PD1 Berat ${(estimationData.totalPd1 || 0).toLocaleString('id')} jiwa | PD2 Sedang ${(estimationData.totalPd2 || 0).toLocaleString('id')} jiwa\n` +
+          (kelListStr ? `- Kelurahan/Desa Terdampak: ${kelListStr}\n` : '') +
+          (sekolahListStr ? `- Fasilitas Sekolah Terdampak: ${sekolahListStr}\n` : '') +
+          `Gunakan data riil di atas secara konsisten untuk menjawab pertanyaan berikut.\n\n`;
       }
 
       const response = await fetch(`${endpoint.replace(/\/$/, '')}/chat/completions`, {
@@ -103,14 +116,14 @@ export default function AiGenerateSection({ estimationData }: Props) {
           messages: [
             {
               role: 'system',
-              content: 'Anda adalah Asisten AI Antigravity untuk Penanggulangan Bencana Indonesia. Berikan analisis profesional, terstruktur, dan solutif.',
+              content: 'Anda adalah Asisten AI Antigravity untuk Penanggulangan Bencana Indonesia. Berikan analisis profesional, terstruktur, berbasis data riil spasial bencana, komprehensif tanpa terpotong, dan solutif.',
             },
             {
               role: 'user',
               content: `${contextPrefix}${userMsg}`,
             },
           ],
-          max_tokens: 1000,
+          max_tokens: maxTokens,
         }),
       });
 
@@ -182,6 +195,31 @@ export default function AiGenerateSection({ estimationData }: Props) {
         </div>
       </div>
 
+      {/* ACTIVE SPATIAL SIMULATION DATA BANNER */}
+      {estimationData && estimationData.totalPopulasi > 0 && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+              📊
+            </div>
+            <div>
+              <h4 className="font-bold text-xs text-emerald-900 flex items-center gap-2">
+                <span>Peta Terhubung: Data Simulasi Poligon Terdeteksi</span>
+                <span className="bg-emerald-200 text-emerald-900 text-[10px] px-2 py-0.5 rounded-full font-extrabold">
+                  {estimationData.totalPopulasi.toLocaleString('id')} Jiwa
+                </span>
+              </h4>
+              <p className="text-[11px] text-emerald-700 font-medium mt-0.5">
+                Balita: {estimationData.totalBalita.toLocaleString('id')} | Lansia: {estimationData.totalLansia.toLocaleString('id')} | Disabilitas: {(estimationData.totalPd1 || 0) + (estimationData.totalPd2 || 0)} | Kel/Desa: {estimationData.kelurahanDampak?.length || 0} Wilayah
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] font-bold text-emerald-800 bg-white border border-emerald-300 px-3 py-1 rounded-xl shadow-2xs">
+            ✨ Otomatis Disuntikkan ke AI Prompt
+          </span>
+        </div>
+      )}
+
       {/* CONFIG & TEST PANEL (ACCORDION CONTROL) */}
       <div className="bg-[#19506e]/5 border border-[#19506e]/20 rounded-2xl overflow-hidden transition-all shadow-xs">
         {/* Accordion Header Toggle */}
@@ -207,7 +245,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
         {/* Accordion Body Form */}
         {isConfigOpen && (
           <div className="p-5 space-y-4 bg-white border-t border-slate-100">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="text-[11px] font-bold text-slate-600 block mb-1">Tunnel Endpoint URL</label>
                 <input
@@ -240,6 +278,21 @@ export default function AiGenerateSection({ estimationData }: Props) {
                       {m.name} ({m.id})
                     </option>
                   ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-600 block mb-1">Batas Maksimum Output Token</label>
+                <select
+                  value={maxTokens}
+                  onChange={(e) => setMaxTokens(parseInt(e.target.value) || 4096)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#1f8080]"
+                >
+                  <option value={1000}>1.000 Token (~800 Kata)</option>
+                  <option value={2048}>2.048 Token (~1.600 Kata)</option>
+                  <option value={4096}>4.096 Token (~3.200 Kata - Default)</option>
+                  <option value={8192}>8.192 Token (~6.400 Kata - Sangat Panjang)</option>
+                  <option value={16384}>16.384 Token (~13.000 Kata - Laporan Lengkap)</option>
                 </select>
               </div>
             </div>
