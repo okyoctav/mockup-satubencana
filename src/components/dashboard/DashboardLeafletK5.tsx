@@ -944,20 +944,32 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
   // Fetch MapServer Legends
   useEffect(() => {
     BNPB_LAYERS.filter((l) => l.type === 'MapServer' && activeOverlays.includes(l.id)).forEach((layer) => {
-      fetch(`${layer.url}/legend?f=pjson`)
-        .then((r) => r.json())
-        .then((json) => {
-          const items: MapServerLegendItem[] = [];
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (json?.layers ?? []).forEach((lyr: any) => {
+      const fetchLegendWithToken = (tok?: string) => {
+        const legendUrl = tok ? `${layer.url}/legend?f=pjson&token=${tok}` : `${layer.url}/legend?f=pjson`;
+        fetch(legendUrl)
+          .then((r) => r.json())
+          .then((json) => {
+            const items: MapServerLegendItem[] = [];
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (lyr.legend ?? []).forEach((item: any) => {
-              if (item.imageData) items.push({ label: item.label || lyr.layerName || '—', imageData: item.imageData, layerName: lyr.layerName ?? '' });
+            (json?.layers ?? []).forEach((lyr: any) => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (lyr.legend ?? []).forEach((item: any) => {
+                if (item.imageData) items.push({ label: item.label || lyr.layerName || '—', imageData: item.imageData, layerName: lyr.layerName ?? '' });
+              });
             });
-          });
-          setMapserverLegends((p) => ({ ...p, [layer.id]: items }));
-        })
-        .catch(() => null);
+            setMapserverLegends((p) => ({ ...p, [layer.id]: items }));
+          })
+          .catch(() => null);
+      };
+
+      if (layer.requiresToken) {
+        fetch('/api/big-token')
+          .then((r) => r.json())
+          .then((res) => fetchLegendWithToken(res?.token))
+          .catch(() => fetchLegendWithToken());
+      } else {
+        fetchLegendWithToken();
+      }
     });
   }, [activeOverlays]);
 
