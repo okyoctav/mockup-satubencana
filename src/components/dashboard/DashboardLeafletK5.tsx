@@ -139,7 +139,7 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'petadasar_bitung', label: 'Peta Dasar Bitung 2024', color: '#F472B6', emoji: '🏢', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/PETADASAR_SULAWESI_BITUNG_2024_5K/MapServer/18', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:all', extent: [125.088, 1.375, 125.229, 1.476] },
   { id: 'rbi5k_sulawesi_2024', label: 'Peta Dasar RBI 5K Sulawesi 2024 (Token BIG Required)', color: '#EC4899', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:all', requiresToken: true },
   { id: 'rbi5k_sulawesi_layer36', label: 'Penutup Lahan RBI 5K Sulawesi 2024 (Layer 36)', color: '#10B981', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer/36', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:36', requiresToken: true },
-  { id: 'atr_bpn_aht_bitung', label: 'Hak Atas Tanah (ATR/BPN Bitung)', color: '#8B5CF6', emoji: '📜', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/kota_bitung_aht/MapServer/0', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:0', extent: [125.060, 1.386, 125.293, 1.600] },
+  { id: 'atr_bpn_aht_bitung', label: 'Hak Atas Tanah (ATR/BPN Bitung)', color: '#8B5CF6', emoji: '📜', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/kota_bitung_aht/MapServer/0', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:0'},
   // ATR/BPN RPJPN Sarana & Prasarana RTRWN Struktur
   { id: 'rpjpn_rtrwn_semua', label: 'RPJPN Sarana & Prasarana RTRWN (Semua Layer)', color: '#0EA5E9', emoji: '🌐', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/RPJPN_Sarana_Prasarana_RTRWN_Struktur/MapServer', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:all' },
   { id: 'penutup_lahan_2024', label: 'Penutup Lahan 2024 (Semua Layer)', color: '#0EA5E9', emoji: '🌐', url: 'https://geoportal.planologi.kehutanan.go.id/server/rest/services/Peta_Interaktif_2026/PL_AR_250K/mapserver', type: 'MapServer', group: 'BAPPENAS', useLngLat: true, layersParam: 'show:all' },
@@ -1848,7 +1848,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
               {/* Group Filter Buttons */}
               <div className="flex items-center gap-1.5 flex-wrap">
-                {['ALL', 'BNPB', 'BIG', 'BAPPENAS', 'ATR/BPN', 'KEMENDAGRI'].map((grp) => (
+                {['ALL', 'BNPB', 'BIG', 'BAPPENAS', 'ATR/BPN', 'KEMENDAGRI','BMKG'].map((grp) => (
                   <button
                     key={grp}
                     onClick={() => setLayerGroupFilter(grp)}
