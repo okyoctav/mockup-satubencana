@@ -53,6 +53,7 @@ interface BnpbLayer {
   layersParam?: string;
   extent?: [number, number, number, number];
   requiresFilter?: boolean;
+  requiresToken?: boolean;
 }
 
 interface MapServerLegendItem {
@@ -128,6 +129,7 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_bangunan_fasum_sulawesi', label: 'Bangunan Fasum Sulawesi 2024', color: '#F59E0B', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_BANGUNAN_FASUM_SULAWESI_2024/VectorTileServer', type: 'VectorTileServer', group: 'BIG' },
   { id: 'petadasar_bitung', label: 'Peta Dasar Bitung 2024', color: '#F472B6', emoji: '🏢', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/PETADASAR_SULAWESI_BITUNG_2024_5K/MapServer/18', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:all', extent: [125.088, 1.375, 125.229, 1.476] },
+  { id: 'rbi5k_sulawesi_2024', label: 'Peta Dasar RBI 5K Sulawesi 2024 (Token BIG Required)', color: '#EC4899', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:all', requiresToken: true },
   { id: 'atr_bpn_aht_bitung', label: 'Hak Atas Tanah (ATR/BPN Bitung)', color: '#8B5CF6', emoji: '📜', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/kota_bitung_aht/MapServer/0', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:0', extent: [125.060, 1.386, 125.293, 1.600] },
   // ATR/BPN RPJPN Sarana & Prasarana RTRWN Struktur
   { id: 'rpjpn_rtrwn_semua', label: 'RPJPN Sarana & Prasarana RTRWN (Semua Layer)', color: '#0EA5E9', emoji: '🌐', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/RPJPN_Sarana_Prasarana_RTRWN_Struktur/MapServer', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:all' },
@@ -198,7 +200,7 @@ function tileToBbox4326(x: number, y: number, z: number): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, isImageServer = false, useLngLat = false, layersParam = 'show:0'): any {
+function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, isImageServer = false, useLngLat = false, layersParam = 'show:0', token?: string): any {
   let cleanUrl = serviceUrl;
   let localLayersParam = layersParam;
   const match = serviceUrl.match(/\/MapServer\/(\d+)$/);
@@ -216,16 +218,20 @@ function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, is
       const bboxSR = useLngLat ? '4326' : '3857';
       const imgSR  = useLngLat ? '4326' : '3857';
       if (isImageServer) {
-        const params = new URLSearchParams({
+        const queryParams: Record<string, string> = {
           bbox, bboxSR, imageSR: imgSR, size: '256,256',
           format: 'png', transparent: 'true', f: 'image',
-        });
+        };
+        if (token) queryParams.token = token;
+        const params = new URLSearchParams(queryParams);
         img.src = `${cleanUrl}/exportImage?${params}`;
       } else {
-        const params = new URLSearchParams({
+        const queryParams: Record<string, string> = {
           bbox, bboxSR, imageSR: imgSR, size: '256,256',
           layers: localLayersParam, format: 'png32', transparent: 'true', f: 'image',
-        });
+        };
+        if (token) queryParams.token = token;
+        const params = new URLSearchParams(queryParams);
         img.src = `${cleanUrl}/export?${params}`;
       }
       img.onload = () => done(null, img);
@@ -1279,13 +1285,33 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
         });
         overlayLayersRef.current[id].addTo(map);
       } else {
-        overlayLayersRef.current[id] = createArcGISExportLayer(
-          L, def.url, 0.72,
-          def.type === 'ImageServer',
-          def.useLngLat ?? false,
-          def.layersParam ?? 'show:0',
-        );
-        overlayLayersRef.current[id].addTo(map);
+        const addMapServerLayer = (tok?: string) => {
+          if (!mapRef.current || overlayLayersRef.current[id]) return;
+          overlayLayersRef.current[id] = createArcGISExportLayer(
+            L, def.url, 0.72,
+            def.type === 'ImageServer',
+            def.useLngLat ?? false,
+            def.layersParam ?? 'show:0',
+            tok
+          );
+          overlayLayersRef.current[id].addTo(mapRef.current);
+        };
+
+        if (def.requiresToken) {
+          fetch('/api/big-token')
+            .then((r) => r.json())
+            .then((res) => {
+              if (res?.token) {
+                addMapServerLayer(res.token);
+              } else {
+                addMapServerLayer();
+              }
+            })
+            .catch(() => addMapServerLayer());
+        } else {
+          addMapServerLayer();
+        }
+
         if (def.extent && mapRef.current) {
           const [minLng, minLat, maxLng, maxLat] = def.extent;
           mapRef.current.flyToBounds([[minLat, minLng], [maxLat, maxLng]], { duration: 1.5, padding: [20, 20] });
