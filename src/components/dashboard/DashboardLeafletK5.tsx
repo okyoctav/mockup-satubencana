@@ -1163,13 +1163,26 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
         });
         previewOverlayLayersRef.current[id].addTo(pMap);
       } else {
-        previewOverlayLayersRef.current[id] = createArcGISExportLayer(
-          L, def.url, 0.75,
-          def.type === 'ImageServer',
-          def.useLngLat ?? false,
-          def.layersParam ?? 'show:0'
-        );
-        previewOverlayLayersRef.current[id].addTo(pMap);
+        const addPreviewLayer = (tok?: string) => {
+          if (!previewMapRef.current || previewOverlayLayersRef.current[id]) return;
+          previewOverlayLayersRef.current[id] = createArcGISExportLayer(
+            L, def.url, 0.75,
+            def.type === 'ImageServer',
+            def.useLngLat ?? false,
+            def.layersParam ?? 'show:0',
+            tok
+          );
+          previewOverlayLayersRef.current[id].addTo(previewMapRef.current);
+        };
+
+        if (def.requiresToken) {
+          fetch('/api/big-token')
+            .then((r) => r.json())
+            .then((res) => addPreviewLayer(res?.token))
+            .catch(() => addPreviewLayer());
+        } else {
+          addPreviewLayer();
+        }
       }
     });
   }, [draftBasemap, draftOverlays, showLayerModal]);
