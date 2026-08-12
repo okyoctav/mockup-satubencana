@@ -881,6 +881,8 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
   const [draftBasemap, setDraftBasemap] = useState('esri_imagery');
   const [activeOverlays, setActiveOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
   const [draftOverlays, setDraftOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
+  const [layerOpacities, setLayerOpacities] = useState<Record<string, number>>({});
+  const [draftOpacities, setDraftOpacities] = useState<Record<string, number>>({});
   const [showLayerModal, setShowLayerModal] = useState(false);
   const [layerSearch, setLayerSearch] = useState('');
   const [layerGroupFilter, setLayerGroupFilter] = useState('ALL');
@@ -899,12 +901,14 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
   const handleOpenLayerModal = () => {
     setDraftBasemap(activeBasemap);
     setDraftOverlays([...activeOverlays]);
+    setDraftOpacities({ ...layerOpacities });
     setShowLayerModal(true);
   };
 
   const handleApplyLayers = () => {
     setActiveBasemap(draftBasemap);
     setActiveOverlays([...draftOverlays]);
+    setLayerOpacities({ ...draftOpacities });
     setShowLayerModal(false);
   };
 
@@ -1355,8 +1359,9 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       } else {
         const addMapServerLayer = (tok?: string) => {
           if (!mapRef.current || overlayLayersRef.current[id]) return;
+          const currentOpacity = layerOpacities[id] ?? 1.0;
           overlayLayersRef.current[id] = createArcGISExportLayer(
-            L, def.url, 0.72,
+            L, def.url, currentOpacity,
             def.type === 'ImageServer',
             def.useLngLat ?? false,
             def.layersParam ?? 'show:0',
@@ -1386,7 +1391,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
         }
       }
     });
-  }, [activeOverlays, kodeKemendagri]);
+  }, [activeOverlays, kodeKemendagri, layerOpacities]);
 
   // Function to calculate & attach estimation popup to draw shapes
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1946,13 +1951,14 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                     )}
                   </div>
 
-                  <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
                     {draftOverlays.length === 0 ? (
                       <div className="text-xs text-slate-400 italic py-4">Belum ada layer terpilih. Silakan pilih dari panel sebelah kiri.</div>
                     ) : (
                       draftOverlays.map((id, index) => {
                         const lyr = BNPB_LAYERS.find((l) => l.id === id);
                         if (!lyr) return null;
+                        const currentOp = draftOpacities[id] ?? 1.0;
                         return (
                           <div
                             key={id}
@@ -1960,17 +1966,41 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                             onDragStart={() => handleDragStart(index)}
                             onDragOver={handleDragOver}
                             onDrop={() => handleDrop(index)}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#1f8080]/50 text-xs font-bold text-[#19506e] shadow-2xs cursor-grab active:cursor-grabbing hover:bg-slate-50 transition-all"
+                            className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-white border border-[#1f8080]/30 text-xs font-bold text-[#19506e] shadow-2xs cursor-grab active:cursor-grabbing hover:bg-slate-50 transition-all"
                             title="Drag untuk mengubah urutan layer stack"
                           >
-                            <span className="text-slate-400 text-xs">⋮⋮</span>
-                            <span>{lyr.label}</span>
-                            <button
-                              onClick={() => setDraftOverlays((prev) => prev.filter((x) => x !== id))}
-                              className="text-slate-400 hover:text-rose-500 ml-1"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                            </button>
+                            <div className="flex items-center gap-2 truncate">
+                              <span className="text-slate-400 text-xs shrink-0">⋮⋮</span>
+                              <span className="truncate">{lyr.label}</span>
+                            </div>
+
+                            {/* Opacity Slider Control */}
+                            <div className="flex items-center gap-2 shrink-0 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg">
+                              <span className="text-[10px] text-slate-500 font-semibold">Opasitas:</span>
+                              <input
+                                type="range"
+                                min="0.1"
+                                max="1.0"
+                                step="0.05"
+                                value={currentOp}
+                                onChange={(e) => {
+                                  const val = parseFloat(e.target.value);
+                                  setDraftOpacities((prev) => ({ ...prev, [id]: val }));
+                                }}
+                                className="w-16 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#1f8080]"
+                              />
+                              <span className="text-[10px] font-mono font-bold text-[#1f8080] min-w-[32px] text-right">
+                                {Math.round(currentOp * 100)}%
+                              </span>
+
+                              <button
+                                onClick={() => setDraftOverlays((prev) => prev.filter((x) => x !== id))}
+                                className="text-slate-400 hover:text-rose-500 ml-1.5"
+                                title="Hapus Layer"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           </div>
                         );
                       })
