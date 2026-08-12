@@ -102,6 +102,14 @@ const BASEMAPS = [
     ],
   },
   {
+    id: 'big_rbi5k_sulawesi_2024_base',
+    label: 'RBI 5K Sulawesi 2024 (BIG)',
+    emoji: '🏔️',
+    isMapServerExport: true,
+    url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer',
+    requiresToken: true,
+  },
+  {
     id: 'esri_topo',
     label: 'Topografi',
     emoji: '🏔️',
@@ -1003,9 +1011,26 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
     // Setup Basemaps
     BASEMAPS.forEach((bm) => {
-      const group = L.layerGroup();
-      bm.layers.forEach((l) => L.tileLayer(l.url, { attribution: l.attr, maxZoom: 19 }).addTo(group));
-      baseLayersRef.current[bm.id] = group;
+      if (bm.isMapServerExport) {
+        const group = L.layerGroup();
+        const addLayerToGroup = (tok?: string) => {
+          const arcLayer = createArcGISExportLayer(L, bm.url, 1, false, true, 'show:all', tok);
+          arcLayer.addTo(group);
+        };
+        if (bm.requiresToken) {
+          fetch('/api/big-token')
+            .then((r) => r.json())
+            .then((res) => addLayerToGroup(res?.token))
+            .catch(() => addLayerToGroup());
+        } else {
+          addLayerToGroup();
+        }
+        baseLayersRef.current[bm.id] = group;
+      } else if (bm.layers) {
+        const group = L.layerGroup();
+        bm.layers.forEach((l) => L.tileLayer(l.url, { attribution: l.attr, maxZoom: 19 }).addTo(group));
+        baseLayersRef.current[bm.id] = group;
+      }
     });
 
     if (baseLayersRef.current['esri_imagery']) baseLayersRef.current['esri_imagery'].addTo(map);
@@ -1130,9 +1155,26 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       previewMapRef.current = pMap;
 
       BASEMAPS.forEach((bm) => {
-        const group = L.layerGroup();
-        bm.layers.forEach((l) => L.tileLayer(l.url, { maxZoom: 19 }).addTo(group));
-        previewBaseLayersRef.current[bm.id] = group;
+        if (bm.isMapServerExport) {
+          const group = L.layerGroup();
+          const addPreviewBase = (tok?: string) => {
+            const arcLayer = createArcGISExportLayer(L, bm.url, 1, false, true, 'show:all', tok);
+            arcLayer.addTo(group);
+          };
+          if (bm.requiresToken) {
+            fetch('/api/big-token')
+              .then((r) => r.json())
+              .then((res) => addPreviewBase(res?.token))
+              .catch(() => addPreviewBase());
+          } else {
+            addPreviewBase();
+          }
+          previewBaseLayersRef.current[bm.id] = group;
+        } else if (bm.layers) {
+          const group = L.layerGroup();
+          bm.layers.forEach((l) => L.tileLayer(l.url, { maxZoom: 19 }).addTo(group));
+          previewBaseLayersRef.current[bm.id] = group;
+        }
       });
 
       pMap.invalidateSize();
