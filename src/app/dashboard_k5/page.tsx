@@ -311,7 +311,7 @@ export default function DashboardK5Page() {
       {/* MAIN DASHBOARD CONTENT AREA */}
       <div className="flex-1 flex flex-col min-w-0 bg-white">
         {/* Top Header Wrapper with Integrated Early Warning Ticker */}
-        <header className="sticky top-0 z-20 bg-white border-b border-slate-200 shadow-2xs">
+        <header className="sticky top-0 z-[500] bg-white border-b border-slate-200 shadow-2xs">
           {/* Integrated Early Warning Alert Ticker */}
           <div className="border-b border-[#1f8080]/30 text-white">
             <AlertTicker onAlertClick={handleAlertClick} />

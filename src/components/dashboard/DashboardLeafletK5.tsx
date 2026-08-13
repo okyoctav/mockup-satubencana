@@ -1657,7 +1657,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       <div ref={containerRef} className="w-full h-full z-0" />
 
       {/* 1. GLASSMORPHIC ELEGANT SEARCH FLOATING TOOLBAR */}
-      <div className="absolute top-4 left-4 z-[400] max-w-sm w-full space-y-2">
+      <div className="absolute top-4 left-4 z-[300] max-w-sm w-full space-y-2">
         <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white/40 backdrop-blur-xl border border-white/60 shadow-lg transition-all duration-200 focus-within:bg-white/70 focus-within:border-white">
           <input
             type="text"
