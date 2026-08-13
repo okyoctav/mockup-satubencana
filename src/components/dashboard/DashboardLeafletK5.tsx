@@ -763,8 +763,14 @@ async function queryBitungBasemapLayer18(drawLayer: L.Layer): Promise<BitungLand
   if (!queryGeometry) return [];
 
   try {
-    const queryUrl = 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/PETADASAR_SULAWESI_BITUNG_2024_5K/MapServer/18/query';
-    const params = new URLSearchParams({
+    let token = '';
+    try {
+      const tokRes = await fetch('/api/big-token').then((r) => r.json());
+      if (tokRes?.token) token = tokRes.token;
+    } catch { /* ignore */ }
+
+    const queryUrl = 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer/36/query';
+    const queryParams: Record<string, string> = {
       f: 'json',
       geometry: JSON.stringify(queryGeometry.geometry),
       geometryType: queryGeometry.geometryType,
@@ -778,7 +784,10 @@ async function queryBitungBasemapLayer18(drawLayer: L.Layer): Promise<BitungLand
         { statisticType: 'count', onStatisticField: 'OBJECTID', outStatisticFieldName: 'jumlah' },
       ]),
       where: '1=1',
-    });
+    };
+    if (token) queryParams.token = token;
+
+    const params = new URLSearchParams(queryParams);
 
     const response = await fetch(queryUrl, {
       method: 'POST',
@@ -1213,7 +1222,13 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
     });
 
     draftOverlays.forEach((id) => {
-      if (previewOverlayLayersRef.current[id]) return;
+      const currentOp = draftOpacities[id] ?? 1.0;
+      if (previewOverlayLayersRef.current[id]) {
+        if (typeof previewOverlayLayersRef.current[id].setOpacity === 'function') {
+          previewOverlayLayersRef.current[id].setOpacity(currentOp);
+        }
+        return;
+      }
       const def = BNPB_LAYERS.find((l) => l.id === id);
       if (!def) return;
       if (def.type === 'WMS') {
@@ -1223,14 +1238,14 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
           transparent: true,
           version: '1.1.0',
           crs: L.CRS.EPSG3857,
-          opacity: 0.75,
+          opacity: currentOp,
         });
         previewOverlayLayersRef.current[id].addTo(pMap);
       } else {
         const addPreviewLayer = (tok?: string) => {
           if (!previewMapRef.current || previewOverlayLayersRef.current[id]) return;
           previewOverlayLayersRef.current[id] = createArcGISExportLayer(
-            L, def.url, 0.75,
+            L, def.url, currentOp,
             def.type === 'ImageServer',
             def.useLngLat ?? false,
             def.layersParam ?? 'show:0',
@@ -1249,7 +1264,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
         }
       }
     });
-  }, [draftBasemap, draftOverlays, showLayerModal]);
+  }, [draftBasemap, draftOverlays, draftOpacities, showLayerModal]);
 
   // Update Main Map Basemap
   useEffect(() => {
@@ -1276,7 +1291,12 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
     // Add or bring to front in exact array order (bottom to top)
     activeOverlays.forEach((id) => {
       const existing = overlayLayersRef.current[id];
+      const targetOpacity = layerOpacities[id] ?? 1.0;
+
       if (existing) {
+        if (typeof existing.setOpacity === 'function') {
+          existing.setOpacity(targetOpacity);
+        }
         if (typeof existing.bringToFront === 'function') {
           existing.bringToFront();
         } else if (typeof existing.removeFrom === 'function') {
@@ -1917,9 +1937,9 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
             </div>
 
             {/* RIGHT SIDE GRID 2 & GRID 3 (70% WIDTH) */}
-            <div className="lg:col-span-8 flex flex-col h-full bg-white">
-              {/* GRID 2 (TOP): LIVE INTERACTIVE PREVIEW MAP CANVAS SECTION */}
-              <div className="h-1/2 p-4 border-b border-slate-200 flex flex-col relative">
+            <div className="lg:col-span-8 flex flex-col h-full bg-white overflow-hidden">
+              {/* GRID 2 (TOP): LIVE INTERACTIVE PREVIEW MAP CANVAS SECTION (FIXED HEIGHT) */}
+              <div className="h-56 p-4 border-b border-slate-200 flex flex-col relative shrink-0">
                 <div className="flex items-center justify-between mb-2 z-10">
                   <span className="text-xs font-bold text-[#19506e] uppercase tracking-wider flex items-center gap-2 bg-white/90 px-3 py-1 rounded-xl shadow-xs border border-slate-200">
                     <Eye className="w-4 h-4 text-[#1f8080]" />
@@ -1950,7 +1970,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
               </div>
 
               {/* GRID 3 (BOTTOM): SELECTED LAYERS MANAGEMENT WITH DRAG AND DROP REORDERING */}
-              <div className="h-1/2 flex flex-col justify-between bg-slate-50/40 overflow-hidden">
+              <div className="flex-1 min-h-0 flex flex-col justify-between bg-slate-50/40 overflow-hidden">
                 <div className="p-4 space-y-2.5 overflow-y-auto flex-1">
                   <div className="flex items-center justify-between">
                     <div>
