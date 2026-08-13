@@ -552,11 +552,7 @@ export default function DashboardK5Page() {
                 } bg-white rounded-2xl border-2 border-[#19506e]/20 shadow-md overflow-hidden relative group transition-all duration-300`}
               >
                 {/* Header overlay badge */}
-                <div className="absolute top-4 left-4 z-[400] bg-white/95 backdrop-blur-md border border-[#19506e]/20 rounded-xl px-3.5 py-2 shadow-md flex items-center gap-2.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#1f8080] animate-pulse" />
-                  <Layers className="w-4 h-4 text-[#19506e]" />
-                  <span className="text-xs font-bold text-[#19506e] tracking-tight">Peta Kebencanaan & Feature Service Dukcapil</span>
-                </div>
+                
 
                 <div className="w-full h-full">
                   <DashboardMapK5
