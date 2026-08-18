@@ -142,7 +142,7 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'rbi5k_sulawesi_layer4', label: 'Batas Desa/Kelurahan RBI 5K Sulawesi (Layer 4)', color: '#3B82F6', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer/4', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:4', requiresToken: true },
   { id: 'rbi5k_sulawesi_layer6', label: 'Bangunan & Fasum RBI 5K Sulawesi (Layer 6)', color: '#F59E0B', emoji: '🏢', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer/6', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:6', requiresToken: true },
   { id: 'rbi5k_sulawesi_layer23', label: 'Jaringan Jalan RBI 5K Sulawesi (Layer 23)', color: '#EF4444', emoji: '🛣️', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer/23', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:23', requiresToken: true },
-  { id: 'atr_bpn_aht_bitung', label: 'Hak Atas Tanah (ATR/BPN Bitung)', color: '#8B5CF6', emoji: '📜', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/kota_bitung_aht/MapServer/0', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:0'},
+  { id: 'atr_bpn_aht_sulawesi', label: 'Hak Atas Tanah (ATR/BPN Sulawesi)', color: '#8B5CF6', emoji: '📜', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/test_hat_sul/MapServer/0', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:0'},
   // ATR/BPN RPJPN Sarana & Prasarana RTRWN Struktur
   { id: 'rpjpn_rtrwn_semua', label: 'RPJPN Sarana & Prasarana RTRWN (Semua Layer)', color: '#0EA5E9', emoji: '🌐', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/RPJPN_Sarana_Prasarana_RTRWN_Struktur/MapServer', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:all' },
   { id: 'penutup_lahan_2024', label: 'Penutup Lahan 2024 (Semua Layer)', color: '#0EA5E9', emoji: '🌐', url: 'https://geoportal.planologi.kehutanan.go.id/server/rest/services/Peta_Interaktif_2026/PL_AR_250K/mapserver', type: 'MapServer', group: 'BAPPENAS', useLngLat: true, layersParam: 'show:all' },
@@ -823,7 +823,7 @@ async function queryAtrBpnHakAtasTanah(drawLayer: L.Layer): Promise<HakAtasTanah
   if (!queryGeometry) return [];
 
   try {
-    const queryUrl = 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/kota_bitung_aht/MapServer/0/query';
+    const queryUrl = 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/test_hat_sul/MapServer/0/query';
     const params = new URLSearchParams({
       f: 'json',
       geometry: JSON.stringify(queryGeometry.geometry),
@@ -835,7 +835,7 @@ async function queryAtrBpnHakAtasTanah(drawLayer: L.Layer): Promise<HakAtasTanah
       outFields: 'tipehak',
       groupByFieldsForStatistics: 'tipehak',
       outStatistics: JSON.stringify([
-        { statisticType: 'count', onStatisticField: 'objectid_1', outStatisticFieldName: 'jumlah' },
+        { statisticType: 'count', onStatisticField: 'objectid', outStatisticFieldName: 'jumlah' },
       ]),
       where: '1=1',
     });
