@@ -175,9 +175,9 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'bmkg_sifat_hujan_bulanan', label: 'Prakiraan Sifat Hujan Bulanan (BMKG)', color: '#0EA5E9', emoji: '🌧️', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakiraan_hujan_bulanan/Prakiraan_Sifat_Hujan_Bulanan/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:all' },
   { id: 'bmkg_curah_hujan_bulanan', label: 'Prakiraan Curah Hujan Bulanan (BMKG)', color: '#0284C7', emoji: '☔', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakiraan_hujan_bulanan/Prakiraan_Curah_Hujan_Bulanan/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:all' },
   { id: 'bmkg_curah_hujan_10hari', label: 'Prakiraan Curah Hujan 10 Hari Kedepan (BMKG)', color: '#0369A1', emoji: '🌦️', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakicu10days/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:all' },
-  { id: 'bmkg_seismisitas_dangkal', label: 'Peta Seismisitas Indonesia - Dangkal (BMKG)', color: '#EF4444', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/FeatureServer/30', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:30' },
-  { id: 'bmkg_seismisitas_menengah', label: 'Peta Seismisitas Indonesia - Menengah (BMKG)', color: '#F59E0B', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/FeatureServer/31', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:31' },
-  { id: 'bmkg_seismisitas_dalam', label: 'Peta Seismisitas Indonesia - Dalam (BMKG)', color: '#8B5CF6', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/FeatureServer/29', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:29' },
+  { id: 'bmkg_seismisitas_dangkal', label: 'Peta Seismisitas Indonesia - Dangkal (BMKG)', color: '#EF4444', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/30', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:30' },
+  { id: 'bmkg_seismisitas_menengah', label: 'Peta Seismisitas Indonesia - Menengah (BMKG)', color: '#F59E0B', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/31', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:31' },
+  { id: 'bmkg_seismisitas_dalam', label: 'Peta Seismisitas Indonesia - Dalam (BMKG)', color: '#8B5CF6', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/29', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:29' },
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -223,10 +223,12 @@ function tileToBbox4326(x: number, y: number, z: number): string {
 function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, isImageServer = false, useLngLat = false, layersParam = 'show:0', token?: string): any {
   let cleanUrl = serviceUrl;
   let localLayersParam = layersParam;
-  const match = serviceUrl.match(/\/MapServer\/(\d+)$/);
+  const match = serviceUrl.match(/\/(MapServer|FeatureServer)\/(\d+)$/);
   if (match && match.index !== undefined) {
-    cleanUrl = serviceUrl.substring(0, match.index + 10);
-    localLayersParam = `show:${match[1]}`;
+    const serviceType = match[1];
+    const layerId = match[2];
+    cleanUrl = serviceUrl.substring(0, match.index + serviceType.length + 11);
+    localLayersParam = "show:" + layerId;
   } else if (!serviceUrl.includes('/export')) {
     cleanUrl = serviceUrl.replace(/\/+$/, '');
   }
