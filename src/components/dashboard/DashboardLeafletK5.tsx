@@ -172,12 +172,12 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'dukcapil_kel_fix', label: 'Kependudukan Kelurahan', color: '#3B82F6', emoji: '👥', url: 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/services/AGR_VISUAL_KEL_FIX/MapServer/0', type: 'MapServer', group: 'KEMENDAGRI' },
   { id: 'Peta_Curah_Hujan_dan_Hari_Hujan', label: 'Curah Hujan', color: '#3B82F6', emoji: '👥', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Peta_Curah_Hujan_dan_Hari_Hujan/MapServer/0', type: 'MapServer', group: 'BMKG' },
   { id: 'Peta_Curah_Hujan_dan_Hari_Hujan_sebaran', label: 'Curah Hujan Sebaran', color: '#3B82F6', emoji: '👥', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Peta_Curah_Hujan_dan_Hari_Hujan/MapServer/1570', type: 'MapServer', group: 'BMKG' },
-  { id: 'bmkg_sifat_hujan_bulanan', label: 'Prakiraan Sifat Hujan Bulanan (BMKG)', color: '#0EA5E9', emoji: '🌧️', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakiraan_hujan_bulanan/Prakiraan_Sifat_Hujan_Bulanan/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:all' },
-  { id: 'bmkg_curah_hujan_bulanan', label: 'Prakiraan Curah Hujan Bulanan (BMKG)', color: '#0284C7', emoji: '☔', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakiraan_hujan_bulanan/Prakiraan_Curah_Hujan_Bulanan/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:all' },
-  { id: 'bmkg_curah_hujan_10hari', label: 'Prakiraan Curah Hujan 10 Hari Kedepan (BMKG)', color: '#0369A1', emoji: '🌦️', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakicu10days/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:all' },
-  { id: 'bmkg_seismisitas_dangkal', label: 'Peta Seismisitas Indonesia - Dangkal (BMKG)', color: '#EF4444', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/30', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:30' },
-  { id: 'bmkg_seismisitas_menengah', label: 'Peta Seismisitas Indonesia - Menengah (BMKG)', color: '#F59E0B', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/31', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:31' },
-  { id: 'bmkg_seismisitas_dalam', label: 'Peta Seismisitas Indonesia - Dalam (BMKG)', color: '#8B5CF6', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/29', type: 'MapServer', group: 'BMKG', useLngLat: true, layersParam: 'show:29' },
+  { id: 'bmkg_sifat_hujan_bulanan', label: 'Prakiraan Sifat Hujan Bulanan (BMKG)', color: '#0EA5E9', emoji: '🌧️', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakiraan_hujan_bulanan/Prakiraan_Sifat_Hujan_Bulanan/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:all' },
+  { id: 'bmkg_curah_hujan_bulanan', label: 'Prakiraan Curah Hujan Bulanan (BMKG)', color: '#0284C7', emoji: '☔', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakiraan_hujan_bulanan/Prakiraan_Curah_Hujan_Bulanan/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:all' },
+  { id: 'bmkg_curah_hujan_10hari', label: 'Prakiraan Curah Hujan 10 Hari Kedepan (BMKG)', color: '#0369A1', emoji: '🌦️', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakicu10days/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:all' },
+  { id: 'bmkg_seismisitas_dangkal', label: 'Peta Seismisitas Indonesia - Dangkal (BMKG)', color: '#EF4444', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/30', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:30' },
+  { id: 'bmkg_seismisitas_menengah', label: 'Peta Seismisitas Indonesia - Menengah (BMKG)', color: '#F59E0B', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/31', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:31' },
+  { id: 'bmkg_seismisitas_dalam', label: 'Peta Seismisitas Indonesia - Dalam (BMKG)', color: '#8B5CF6', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/29', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:29' },
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1838,7 +1838,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
               if (!items || items.length === 0) return null;
               return (
                 <div key={lyrId} className="border-t pt-2 space-y-1">
-                  <span className="font-bold text-[10px] text-slate-500 uppercase block">Layer: {lyrId}</span>
+                  <span className="font-bold text-[10px] text-slate-500 uppercase block">Layer: {BNPB_LAYERS.find((l) => l.id === lyrId)?.label || lyrId}</span>
                   {items.map((it, idx) => (
                     <div key={idx} className="flex items-center gap-2">
                       <img src={`data:image/png;base64,${it.imageData}`} alt={it.label} className="w-4 h-4 object-contain" />
