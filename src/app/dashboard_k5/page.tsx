@@ -209,7 +209,7 @@ export default function DashboardK5Page() {
               </div>
             )}
             <div className="space-y-1 text-xs">
-              <a
+              {/* <a
                 href="/dashboard"
                 className={`flex items-center ${isSidebarOpen ? 'justify-between px-3' : 'justify-center px-0'} py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors`}
                 title={!isSidebarOpen ? 'Konsep 1 (Leaflet)' : undefined}
@@ -236,7 +236,7 @@ export default function DashboardK5Page() {
                 title={!isSidebarOpen ? 'Konsep 4' : undefined}
               >
                 {isSidebarOpen ? <span>Konsep 4</span> : <span className="text-[10px] font-bold">K4</span>}
-              </a>
+              </a> */}
               <a
                 href="/dashboard_k5"
                 className={`flex items-center ${isSidebarOpen ? 'justify-between px-3 border-l-4' : 'justify-center px-0 border-l-0'} py-2 rounded-lg bg-white/15 text-white font-semibold border-[#1f8080]`}
@@ -244,7 +244,7 @@ export default function DashboardK5Page() {
               >
                 {isSidebarOpen ? (
                   <>
-                    <span>Konsep 5</span>
+                    <span>Konsep MDB</span>
                     <span className="w-2 h-2 rounded-full bg-[#1f8080]" />
                   </>
                 ) : (
