@@ -912,6 +912,9 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
   const [layerGroupFilter, setLayerGroupFilter] = useState('ALL');
   
   const [showBmkg, setShowBmkg] = useState(true);
+  const [bmkgMode, setBmkgMode] = useState<'terkini' | 'dirasakan' | 'autogempa'>('terkini');
+  const [bmkgDirasakanData, setBmkgDirasakanData] = useState<BmkgGempa[]>([]);
+  const [bmkgAutoData, setBmkgAutoData] = useState<BmkgGempa[]>([]);
   const [bmkgData, setBmkgData] = useState<BmkgGempa[]>([]);
   const [showBencanaData, setShowBencanaData] = useState(true);
   const [showLegend, setShowLegend] = useState(false);
@@ -962,15 +965,29 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
     document.head.appendChild(style);
   }, []);
 
-  // Fetch BMKG earthquakes
+  // Fetch all 3 BMKG Earthquake Endpoints (Gempa Terkini, Gempa Dirasakan, Gempa Terbaru/Autogempa)
   useEffect(() => {
     const fetchBmkg = async () => {
       try {
-        const res = await fetch('https://data.bmkg.go.id/DataMKG/TEWS/gempaterkini.json', { cache: 'no-store' });
-        const json = await res.json();
-        setBmkgData(json?.Infogempa?.gempa ?? []);
+        // 1. Gempa Terkini (M >= 5.0)
+        const r1 = await fetch('https://data.bmkg.go.id/DataMKG/TEWS/gempaterkini.json', { cache: 'no-store' });
+        const j1 = await r1.json();
+        setBmkgData(j1?.Infogempa?.gempa ?? []);
+
+        // 2. Gempa Dirasakan
+        const r2 = await fetch('https://data.bmkg.go.id/DataMKG/TEWS/gempadirasakan.json', { cache: 'no-store' });
+        const j2 = await r2.json();
+        setBmkgDirasakanData(j2?.Infogempa?.gempa ?? []);
+
+        // 3. Gempa Terbaru (Autogempa)
+        const r3 = await fetch('https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json', { cache: 'no-store' });
+        const j3 = await r3.json();
+        const autoObj = j3?.Infogempa?.gempa;
+        setBmkgAutoData(autoObj ? [autoObj] : []);
       } catch {
         setBmkgData([]);
+        setBmkgDirasakanData([]);
+        setBmkgAutoData([]);
       }
     };
     fetchBmkg();
@@ -1119,7 +1136,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
     });
   }, [data, showBencanaData]);
 
-  // Render BMKG Earthquakes
+  // Render BMKG Earthquakes (Supports 1-Click Modes: Gempa Terkini M>=5, Gempa Dirasakan, Gempa Terbaru Autogempa)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -1129,7 +1146,13 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
     if (!showBmkg) return;
 
-    bmkgData.forEach((g) => {
+    const currentList = bmkgMode === 'dirasakan' 
+      ? bmkgDirasakanData 
+      : bmkgMode === 'autogempa' 
+      ? bmkgAutoData 
+      : bmkgData;
+
+    currentList.forEach((g) => {
       const parts = g.Coordinates.split(',');
       if (parts.length < 2) return;
       const lat = parseFloat(parts[0]);
@@ -1159,7 +1182,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       marker.addTo(map);
       bmkgMarkersRef.current.push(marker);
     });
-  }, [bmkgData, showBmkg]);
+  }, [bmkgData, bmkgDirasakanData, bmkgAutoData, bmkgMode, showBmkg]);
 
   // Initialize Modal Preview Map Canvas
   useEffect(() => {
@@ -1737,16 +1760,51 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
       {/* 2. FLOATING CONTROL BUTTONS (DRAW ESTIMATOR, LIVE BMKG, BENCANA JSON, LEGENDA) - ICON ONLY */}
       <div className="absolute top-4 right-4 z-[400] flex flex-col gap-2">
-        {/* Toggle BMKG Live */}
-        <button
-          onClick={() => setShowBmkg(!showBmkg)}
-          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center ${
-            showBmkg ? 'bg-[#19506e] text-white border-white/40' : 'bg-white/80 text-slate-700 border-white/80'
-          }`}
-          title="Toggle BMKG Gempa Terkini"
-        >
-          <Activity className="w-4 h-4 text-emerald-400" />
-        </button>
+        {/* Toggle BMKG Live (1-Click Switch: Terkini M>=5, Gempa Dirasakan, Gempa Terbaru) */}
+        <div className="flex items-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl p-1 shadow-md gap-1">
+          <button
+            onClick={() => { setShowBmkg(true); setBmkgMode("terkini"); }}
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              showBmkg && bmkgMode === "terkini" ? "bg-[#19506e] text-white shadow-xs" : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+            }`}
+            title="Gempa Terkini M >= 5.0 (gempaterkini.json)"
+          >
+            <Activity className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Gempa Terkini</span>
+          </button>
+
+          <button
+            onClick={() => { setShowBmkg(true); setBmkgMode("dirasakan"); }}
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              showBmkg && bmkgMode === "dirasakan" ? "bg-[#19506e] text-white shadow-xs" : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+            }`}
+            title="Gempa Dirasakan MMI (gempadirasakan.json)"
+          >
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+            <span>Gempa Dirasakan</span>
+          </button>
+
+          <button
+            onClick={() => { setShowBmkg(true); setBmkgMode("autogempa"); }}
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              showBmkg && bmkgMode === "autogempa" ? "bg-[#19506e] text-white shadow-xs" : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+            }`}
+            title="Gempa Terbaru Autogempa TEWS (autogempa.json)"
+          >
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+            <span>Gempa Terbaru</span>
+          </button>
+
+          {showBmkg && (
+            <button
+              onClick={() => setShowBmkg(false)}
+              className="px-2 py-1.5 rounded-xl text-[10px] font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
+              title="Matikan Layer Gempa BMKG"
+            >
+              Matikan
+            </button>
+          )}
+        </div>
 
         {/* Toggle Draw Tools Estimator */}
         <button
