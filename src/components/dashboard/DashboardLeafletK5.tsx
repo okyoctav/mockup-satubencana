@@ -1758,9 +1758,9 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
         )}
       </div>
 
-      {/* 2. FLOATING CONTROL BUTTONS (DRAW ESTIMATOR, LIVE BMKG, BENCANA JSON, LEGENDA) - ICON ONLY */}
-      <div className="absolute top-4 right-4 z-[400] flex flex-col gap-2">
-        {/* Toggle BMKG Live (1-Click Switch: Terkini M>=5, Gempa Dirasakan, Gempa Terbaru) */}
+      {/* 2. FLOATING CONTROL BUTTONS & BMKG BAR SEPARATION */}
+      {/* BMKG 1-Click Switch Bar (Independent Div Container) */}
+      <div className="absolute top-4 right-16 z-[400]">
         <div className="flex items-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl p-1 shadow-md gap-1">
           <button
             onClick={() => { setShowBmkg(true); setBmkgMode("terkini"); }}
@@ -1805,7 +1805,10 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
             </button>
           )}
         </div>
+      </div>
 
+      {/* Floating Action Buttons Column (Draw, Bencana, Fullscreen, Legenda) - Fixed Square Width (w-10 h-10) */}
+      <div className="absolute top-4 right-4 z-[400] flex flex-col items-end gap-2">
         {/* Toggle Draw Tools Estimator */}
         <button
           onClick={() => setShowDrawTools(!showDrawTools)}
