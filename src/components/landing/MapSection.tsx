@@ -176,7 +176,7 @@ export default function MapSection() {
 
         {/* 1. LARGE FEATURED POST AT THE TOP */}
         <div className="group">
-          <div className="bg-white/80 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 grid grid-cols-1 lg:grid-cols-12">
+          <div className="bg-white dark:bg-slate-900 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 grid grid-cols-1 lg:grid-cols-12">
             {/* Image Container */}
             <div className="lg:col-span-7 relative min-h-[320px] lg:min-h-[440px] overflow-hidden">
               <Image
@@ -251,7 +251,7 @@ export default function MapSection() {
             {currentGridPosts.map((post) => (
               <article
                 key={post.id}
-                className="bg-white/80 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 rounded-3xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group"
+                className="bg-white dark:bg-slate-900 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group"
               >
                 <div>
                   {/* Image */}
