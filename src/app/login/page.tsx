@@ -21,7 +21,7 @@ export default function LoginPage() {
 
     client.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        router.replace('/admin');
+        const nextUrl = new URLSearchParams(window.location.search).get('next') || '/dashboard_k5'; localStorage.setItem('is_logged_in', 'true'); router.replace(nextUrl);
       }
     });
   }, [router]);
@@ -39,7 +39,7 @@ export default function LoginPage() {
     try {
       if (!isConfigured) {
         setNotice('Mode demo aktif. Anda akan diarahkan ke dashboard admin.');
-        router.push('/admin');
+        const nextUrl = new URLSearchParams(window.location.search).get('next') || '/dashboard_k5'; localStorage.setItem('is_logged_in', 'true'); router.push(nextUrl);
         return true;
       }
 
@@ -65,7 +65,7 @@ export default function LoginPage() {
         }
 
         if (signUpResult.data.session) {
-          router.push('/admin');
+          const nextUrl = new URLSearchParams(window.location.search).get('next') || '/dashboard_k5'; localStorage.setItem('is_logged_in', 'true'); router.push(nextUrl);
           return true;
         }
 
@@ -75,7 +75,7 @@ export default function LoginPage() {
         }
       }
 
-      router.push('/admin');
+      const nextUrl = new URLSearchParams(window.location.search).get('next') || '/dashboard_k5'; localStorage.setItem('is_logged_in', 'true'); router.push(nextUrl);
       return true;
     } catch (err: unknown) {
       const messageText = err instanceof Error ? err.message : 'Gagal masuk. Coba lagi.';

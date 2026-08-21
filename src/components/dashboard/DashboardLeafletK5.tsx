@@ -53,6 +53,7 @@ interface BnpbLayer {
   layersParam?: string;
   extent?: [number, number, number, number];
   requiresFilter?: boolean;
+  ignoreScale?: boolean;
   requiresToken?: boolean;
 }
 
@@ -142,7 +143,7 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'rbi5k_sulawesi_layer4', label: 'Batas Desa/Kelurahan RBI 5K Sulawesi (Layer 4)', color: '#3B82F6', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer/4', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:4', requiresToken: true },
   { id: 'rbi5k_sulawesi_layer6', label: 'Bangunan & Fasum RBI 5K Sulawesi (Layer 6)', color: '#F59E0B', emoji: '🏢', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer/6', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:6', requiresToken: true },
   { id: 'rbi5k_sulawesi_layer23', label: 'Jaringan Jalan RBI 5K Sulawesi (Layer 23)', color: '#EF4444', emoji: '🛣️', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer/23', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:23', requiresToken: true },
-  { id: 'atr_bpn_aht_sulawesi', label: 'Hak Atas Tanah (ATR/BPN Sulawesi)', color: '#8B5CF6', emoji: '📜', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/test_hat_sul/MapServer/0', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:0'},
+  { id: 'atr_bpn_aht_sulawesi', label: 'Hak Atas Tanah (ATR/BPN Sulawesi)', color: '#8B5CF6', emoji: '📜', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/test_hat_sul/MapServer/0', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:0', ignoreScale: true },
   // ATR/BPN RPJPN Sarana & Prasarana RTRWN Struktur
   { id: 'rpjpn_rtrwn_semua', label: 'RPJPN Sarana & Prasarana RTRWN (Semua Layer)', color: '#0EA5E9', emoji: '🌐', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/RPJPN_Sarana_Prasarana_RTRWN_Struktur/MapServer', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:all' },
   { id: 'penutup_lahan_2024', label: 'Penutup Lahan 2024 (Semua Layer)', color: '#0EA5E9', emoji: '🌐', url: 'https://geoportal.planologi.kehutanan.go.id/server/rest/services/Peta_Interaktif_2026/PL_AR_250K/mapserver', type: 'MapServer', group: 'BAPPENAS', useLngLat: true, layersParam: 'show:all' },
@@ -252,7 +253,7 @@ function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, is
       } else {
         const queryParams: Record<string, string> = {
           bbox, bboxSR, imageSR: imgSR, size: '256,256',
-          layers: localLayersParam, format: 'png32', transparent: 'true', f: 'image',
+          layers: localLayersParam, format: 'png32', transparent: 'true', f: 'image', ignoreScale: 'true',
         };
         if (token) queryParams.token = token;
         const params = new URLSearchParams(queryParams);

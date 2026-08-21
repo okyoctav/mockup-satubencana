@@ -67,6 +67,43 @@ import AiGenerateSection from '@/components/dashboard/AiGenerateSection';
 import { EstimationData } from '@/components/dashboard/LogisticAnalysisSection';
 
 export default function DashboardK5Page() {
+  const [, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { getSupabaseBrowserClient } = await import('@/lib/supabase/client');
+        const client = getSupabaseBrowserClient();
+        if (!client) {
+          // If Supabase not configured, allow access or check localStorage
+          const localAuth = localStorage.getItem('is_logged_in') === 'true';
+          if (!localAuth && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+            window.location.href = '/login?next=/dashboard_k5';
+            return;
+          }
+          setIsAuthenticated(true);
+          setAuthLoading(false);
+          return;
+        }
+
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) {
+          const localAuth = localStorage.getItem('is_logged_in') === 'true';
+          if (!localAuth) {
+            window.location.href = '/login?next=/dashboard_k5';
+            return;
+          }
+        }
+        setIsAuthenticated(true);
+      } catch {
+        setIsAuthenticated(true);
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+    checkAuth();
+  }, []);
   const { theme, toggle } = useTheme();
   const [showBumper, setShowBumper] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -131,6 +168,15 @@ export default function DashboardK5Page() {
       return true;
     });
   }, [regionFilteredData, filters]);
+
+    if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white space-y-4">
+        <div className="w-12 h-12 border-4 border-sky-500 border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm font-semibold tracking-wider text-slate-300">Memeriksa Sesi Autentikasi Pengguna...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex bg-white text-slate-800 font-sans selection:bg-[#1f8080] selection:text-white antialiased relative">

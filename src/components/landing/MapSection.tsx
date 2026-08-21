@@ -174,72 +174,25 @@ export default function MapSection() {
           </p>
         </div>
 
-        {/* 1. LARGE FEATURED POST AT THE TOP */}
-        <div className="group">
-          <div className="bg-white dark:bg-slate-900 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 grid grid-cols-1 lg:grid-cols-12">
-            {/* Image Container */}
-            <div className="lg:col-span-7 relative min-h-[320px] lg:min-h-[440px] overflow-hidden">
-              <Image
-                src={featuredPost.image}
-                alt={featuredPost.title}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent lg:hidden" />
-              <div className="absolute top-4 left-4 z-10">
-                <span
-                  className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold text-white shadow-lg backdrop-blur-md"
-                  style={{ backgroundColor: featuredPost.tagColor }}
-                >
-                  🔥 Laporan Utama
-                </span>
-              </div>
-            </div>
-
-            {/* Content Container */}
-            <div className="lg:col-span-5 p-7 lg:p-10 flex flex-col justify-between space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                  <span className="text-[#0EA5E9] font-bold">{featuredPost.category}</span>
-                  <span>•</span>
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5" />
-                    <span>{featuredPost.date}</span>
-                  </div>
-                  <span>•</span>
-                  <span>{featuredPost.readTime}</span>
+        {/* 1. POSTER UTAMA (PUBLIC/IMAGE/POSTER.JPEG) */}
+        <div className="group relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 hover:shadow-[#0EA5E9]/20 transition-all duration-300">
+          <div className="relative w-full aspect-[16/9] md:aspect-[21/9] lg:aspect-[24/9] bg-slate-900 overflow-hidden">
+            <Image
+              src="/image/poster.jpeg"
+              alt="Poster Informasi Kebencanaan"
+              fill
+              className="object-cover object-center group-hover:scale-102 transition-transform duration-500"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent pointer-events-none" />
+            <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 flex flex-col md:flex-row md:items-center justify-between gap-4 z-10">
+              <div className="space-y-1 max-w-2xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#0EA5E9] text-white text-xs font-extrabold shadow-lg">
+                  <span>📢 Poster Informasi Utama</span>
                 </div>
-
-                <Link href={`/blog/${featuredPost.id}`}>
-                  <h3 className="text-xl lg:text-2.5xl font-extrabold text-slate-900 dark:text-white leading-tight group-hover:text-[#0EA5E9] transition-colors cursor-pointer">
-                    {featuredPost.title}
-                  </h3>
-                </Link>
-
-                <p className="text-xs lg:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                  {featuredPost.excerpt}
-                </p>
-              </div>
-
-              <div className="pt-6 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-[#0EA5E9]/20 border border-[#0EA5E9]/40 flex items-center justify-center text-[#0EA5E9] font-bold text-xs">
-                    BNPB
-                  </div>
-                  <div>
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">{featuredPost.author}</span>
-                    <span className="text-[10px] text-slate-400">Tim Riset Utama</span>
-                  </div>
-                </div>
-
-                <Link
-                  href={`/blog/${featuredPost.id}`}
-                  className="px-4 py-2.5 rounded-xl bg-[#0EA5E9] hover:bg-[#0EA5E9]/90 text-white text-xs font-bold shadow-md transition-all flex items-center gap-2 hover:translate-x-1"
-                >
-                  <span>Baca Artikel</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
+                <h3 className="text-lg md:text-2xl font-bold text-white tracking-tight drop-shadow-md">
+                  Sistem Pemodelan Kebencanaan Spasial & Informasi Kependudukan K5
+                </h3>
               </div>
             </div>
           </div>
