@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Calendar, User, ArrowRight, Tag, ChevronLeft, ChevronRight, Quote, Star } from 'lucide-react';
+import { Calendar, ArrowRight, Tag, ChevronLeft, ChevronRight, Quote, Star } from 'lucide-react';
 
 const BLOG_POSTS = [
   {
@@ -111,8 +111,7 @@ const TESTIMONIALS = [
 ];
 
 export default function MapSection() {
-  const featuredPost = BLOG_POSTS.find((p) => p.featured) || BLOG_POSTS[0];
-  const allGridPosts = BLOG_POSTS.filter((p) => !p.featured);
+  const allGridPosts = BLOG_POSTS;
 
   // Pagination state for 3 cards per page
   const [currentPage, setCurrentPage] = useState(1);
