@@ -174,27 +174,14 @@ export default function MapSection() {
           </p>
         </div>
 
-        {/* 1. POSTER UTAMA (PUBLIC/IMAGE/POSTER.JPEG) */}
-        <div className="group relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 hover:shadow-[#0EA5E9]/20 transition-all duration-300">
-          <div className="relative w-full aspect-[16/9] md:aspect-[21/9] lg:aspect-[24/9] bg-slate-900 overflow-hidden">
-            <Image
+        {/* 1. BANNER POSTER UTAMA (FULL UNCROPPED) */}
+        <div className="group relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 transition-all duration-300">
+          <div className="relative w-full overflow-hidden bg-slate-900 flex items-center justify-center">
+            <img
               src="/image/poster.jpeg"
               alt="Poster Informasi Kebencanaan"
-              fill
-              className="object-cover object-center group-hover:scale-102 transition-transform duration-500"
-              priority
+              className="w-full h-auto max-h-[600px] object-contain rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-[1.01]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent pointer-events-none" />
-            <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 flex flex-col md:flex-row md:items-center justify-between gap-4 z-10">
-              <div className="space-y-1 max-w-2xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#0EA5E9] text-white text-xs font-extrabold shadow-lg">
-                  <span>📢 Poster Informasi Utama</span>
-                </div>
-                <h3 className="text-lg md:text-2xl font-bold text-white tracking-tight drop-shadow-md">
-                  Sistem Pemodelan Kebencanaan Spasial & Informasi Kependudukan K5
-                </h3>
-              </div>
-            </div>
           </div>
         </div>
 
