@@ -174,15 +174,13 @@ export default function MapSection() {
           </p>
         </div>
 
-        {/* 1. BANNER POSTER UTAMA (FULL UNCROPPED) */}
+        {/* 1. BANNER POSTER UTAMA (FULL WIDTH, HEIGHT AUTOMATIC) */}
         <div className="group relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 transition-all duration-300">
-          <div className="relative w-full overflow-hidden bg-slate-900 flex items-center justify-center">
-            <img
-              src="/image/poster.jpeg"
-              alt="Poster Informasi Kebencanaan"
-              className="w-full h-auto max-h-[600px] object-contain rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-[1.01]"
-            />
-          </div>
+          <img
+            src="/image/poster.jpeg"
+            alt="Poster Informasi Kebencanaan"
+            className="w-full h-auto block rounded-3xl transition-transform duration-500 group-hover:scale-[1.005]"
+          />
         </div>
 
         {/* 2. SMALLER POST CARDS ARRANGED IN A GRID WITH PAGINATION (3 CARDS PER PAGE) */}
