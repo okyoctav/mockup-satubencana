@@ -1,45 +1,40 @@
 [
   {
     "id": "1",
-    "category": "Sistem Peringatan Dini (EWS)",
+    "category": "Mitigasi Bencana Alam",
     "tagColor": "#0EA5E9",
-    "title": "Integrasi Pemodelan Spasial AI 9Router & Data Terpadu Dukcapil K5 dalam Mitigasi Bencana Nasional",
-    "excerpt": "Bagaimana arsitektur K5 menggabungkan simulasi demografi mikro, peta dasar RBI 5K BIG, dan AI LLM 16.384 token untuk mempercepat keputusan tanggap darurat saat Pra, Saat, dan Pasca Bencana.",
+    "title": "Peran Kementerian Agama dalam Mitigasi Bencana Alam di Aceh",
+    "excerpt": "Kajian ini (yang merupakan kerja sama dengan ICAIOS pada tahun 2019) bertujuan untuk menggali kearifan lokal serta langkah praktis masyarakat dan ulama Aceh dalam penanggulangan bencana berdasarkan manuskrip keagamaan",
     "author": "Tim Geospasial BNPB",
     "authorRole": "Subdit Pemodelan Kebencanaan",
-    "date": "18 Agustus 2026",
+    "date": "23 Agustus 2026",
     "readTime": "6 menit baca",
-    "image": "/images/blog/featured.jpg",
+    "image": "/images/blog/berita1.png",
     "sections": [
       {
         "id": "pendahuluan",
-        "title": "1. Pendahuluan & Latar Belakang Arsitektur K5",
-        "content": "Dalam tata kelola bencana modern, kecepatan dan presisi informasi geospasial menjadi penentu utama dalam mengurangi angka fatalitas. Sistem Informasi Kebencanaan K5 mengintegrasikan peta dasar Skala 1:5.000 (RBI 5K BIG) dengan agregasi data kependudukan Dukcapil hingga level Kelurahan/Desa. Sinergi ini memungkinkan petugas posko bencana menghitung estimasi jumlah lansia, balita, disabilitas, dan jumlah keluarga yang terdampak hanya dalam hitungan detik setelah sebuah poligon bencana digambar di canvas peta interaktif."
+        "title": "1. Latar Belakang dan Tujuan Kajian",
+        "content": "Kajian ini (yang merupakan kerja sama dengan ICAIOS pada tahun 2019) bertujuan untuk menggali kearifan lokal serta langkah praktis masyarakat dan ulama Aceh dalam penanggulangan bencana berdasarkan manuskrip keagamaan. Tujuan utamanya adalah mengidentifikasi tindak lanjut bagi Kementerian Agama untuk meningkatkan peran Penyuluh Agama dalam membangun masyarakat yang tangguh bencana."
       },
       {
         "id": "integrasi-ai-9router",
-        "title": "2. Pemodelan Spasial AI & 9Router Dynamic Tokens",
-        "content": "Integrasi AI LLM via 9Router memberikan terobosan baru dalam penyusunan laporan rekomendasi situasi. Dengan dukungan batas token keluaran hingga 16.384 token (~13.000 kata), sistem AI mampu memproses seluruh konteks demografi mikro dan variabel cuaca BMKG tanpa risiko teks terpotong di tengah jalan. AI secara otomatis menginjeksi data kejadian terkini (seperti jumlah korban, titik koordinat, dan status siaga) ke dalam prompt untuk menghasilkan dokumen rekomendasi aksi darurat secara otomatis."
+        "title": "2. Tingkat Risiko Bencana di Aceh",
+        "content": "Berdasarkan Kajian Risiko Bencana Aceh 2016-2020 oleh BNPB, Aceh merupakan wilayah dengan risiko tinggi terhadap berbagai bencana seperti banjir, tsunami, gempa bumi, dan letusan gunung api. Aceh juga memiliki risiko sedang untuk wabah penyakit dan kekeringan."
       },
       {
         "id": "analisis-pra-bencana",
-        "title": "3. Simulasi Pra Bencana: Mitigasi & Kesiapsiagaan",
-        "content": "Pada tahap Pra Bencana, arsitektur K5 memanfaatkan pemetaan kerentanan berbasis Hexbin Resolution 9 (DTSEN BAPPENAS). Petugas dapat mengidentifikasi area permukiman padat penduduk yang berada di sepanjang garis sesar aktif atau bantaran sungai rawan banjir bandang. Tindakan pencegahan seperti simulasi evakuasi mandiri, penyuluhan warga, dan alokasi logistik pra-bencana dapat diskenariokan secara akurat."
+        "title": "3. Pentingnya Mitigasi Sejak Dini",
+        "content": "Tingginya risiko tersebut menuntut adanya edukasi sejak dini kepada masyarakat terkait pengetahuan dan keterampilan penyelamatan diri. Pengurangan risiko bencana dilakukan dengan cara mengurangi kerentanan dan meningkatkan kapasitas melalui berbagai kegiatan mitigasi struktural maupun non-struktural."
       },
       {
         "id": "tanggap-darurat",
-        "title": "4. Fase Saat Bencana: Tanggap Darurat & Penyelamatan",
-        "content": "Saat bencana terjadi, layar Peta Utama K5 secara otomatis menampilkan indikator peringatan BMKG Gempa Terkini dan peringatan dini cuaca ekstrim. Fitur OSRM Routing Engine membantu pengemudi armada logistik menemukan jalur tercepat menuju posko pengungsian terdekat dengan kalkulasi konsumsi bahan bakar kendaraan secara akurat."
+        "title": "4. Peran Strategis Penyuluh Agama",
+        "content": "Kunci utama pengurangan risiko bencana adalah perubahan perilaku masyarakat. Penyuluh Agama memiliki potensi besar karena dapat menjangkau masyarakat hingga ke tingkat desa (gampong). Mereka dapat mengubah sikap masyarakat, misalnya dari yang sebelumnya hanya pasrah terhadap bencana menjadi sikap berikhtiar (berusaha maksimal) melalui anjuran agama, serta memanfaatkan forum pengajian sebagai sarana penyampaian pesan mitigasi bencana."
       },
       {
-        "id": "pemulihan-pasca-bencana",
-        "title": "5. Pemulihan Pasca Bencana & Transparansi Hak Atas Tanah",
-        "content": "Pada tahap Pasca Bencana, pemulihan permukiman warga membutuhkan kepastian hukum. Integrasi layer Hak Atas Tanah (ATR/BPN Sulawesi) memungkinkan tim verifikasi mengidentifikasi batas kepemilikan tanah Hak Milik, Hak Pakai, dan Hak Pengelolaan warga yang terdampak, sehingga program bantuan rekonstruksi rumah tepat sasaran dan bebas sengketa."
-      },
-      {
-        "id": "kesimpulan",
-        "title": "6. Kesimpulan & Rekomendasi Masa Depan",
-        "content": "Penerapan Sistem Kebencanaan K5 membuktikan bahwa kolaborasi antar-lembaga (BNPB, BAPPENAS, BIG, BMKG, Kemendagri, dan ATR/BPN) yang didukung oleh teknologi geospasial cerdas dan AI dapat meningkatkan kesiapsiagaan bangsa Indonesia dalam menghadapi bencana di masa depan."
+        "id": "download-files",
+        "title": "Download File Kajian",
+        "content": "- [Kajian Peran Kementerian Agama dalam Mitigasi Bencana Alam di Aceh (PDF)](https://drive.google.com/file/d/1Xf6Ar4j00AOI7shyokEHiTBUMIl-Eg2T/view?usp=sharing)"
       }
     ]
   },
