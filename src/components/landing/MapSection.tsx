@@ -4,81 +4,8 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, ArrowRight, Tag, ChevronLeft, ChevronRight, Quote, Star } from 'lucide-react';
+import blogData from '@/data/blog.json';
 
-const BLOG_POSTS = [
-  {
-    id: 1,
-    category: 'Sistem Peringatan Dini (EWS)',
-    tagColor: '#0EA5E9',
-    title: 'Integrasi Pemodelan Spasial AI 9Router & Data Terpadu Dukcapil K5 dalam Mitigasi Bencana Nasional',
-    excerpt: 'Bagaimana arsitektur K5 menggabungkan simulasi demografi mikro, peta dasar RBI 5K BIG, dan AI LLM 16.384 token untuk mempercepat keputusan tanggap darurat saat Pra, Saat, dan Pasca Bencana.',
-    author: 'Tim Geospasial BNPB',
-    date: '18 Agustus 2026',
-    readTime: '6 menit baca',
-    image: '/images/blog/featured.jpg',
-    featured: true,
-  },
-  {
-    id: 2,
-    category: 'Teknologi AI & Prediksi',
-    tagColor: '#22C55E',
-    title: 'Penerapan Digital Twin & AI Predictive Analytics untuk Simulasi Risiko Banjir Bandang',
-    excerpt: 'Studi kasus penggunaan model elevasi 3D dan data curah hujan BMKG 10 hari dalam mengestimasi wilayah terdampak secara real-time.',
-    author: 'Pusat Riset Kebencanaan',
-    date: '15 Agustus 2026',
-    readTime: '4 menit baca',
-    image: '/images/blog/early_warning.jpg',
-    featured: false,
-  },
-  {
-    id: 3,
-    category: 'Logistik & Evakuasi',
-    tagColor: '#F59E0B',
-    title: 'Optimasi Rute Evakuasi & Dispersi Logistik Darurat Menggunakan OSRM Routing Engine',
-    excerpt: 'Menghitung waktu tempuh tercepat, estimasi bahan bakar armada truk, dan jalur aman antar posko bantuan utama.',
-    author: 'Subdit Logistik & Perbekalan',
-    date: '12 Agustus 2026',
-    readTime: '5 menit baca',
-    image: '/images/blog/logistics.jpg',
-    featured: false,
-  },
-  {
-    id: 4,
-    category: 'Sistem Geospasial',
-    tagColor: '#A855F7',
-    title: 'Visualisasi Multi-Layer RBI 5K Sulawesi 2024 & Hak Atas Tanah (ATR/BPN)',
-    excerpt: 'Penataan 37 sub-layer peta dasar BIG dan analisis kepemilikan tanah AHT untuk transparansi pemulihan pasca bencana.',
-    author: 'Direktorat Informasi Geospasial',
-    date: '10 Agustus 2026',
-    readTime: '5 menit baca',
-    image: '/images/blog/gis_mapping.jpg',
-    featured: false,
-  },
-  {
-    id: 5,
-    category: 'Manajemen Bencana',
-    tagColor: '#EC4899',
-    title: 'Ketahanan Infrastruktur Kritis & Jalur Logistik Medis Darurat',
-    excerpt: 'Analisis jangkauan fasilitas kesehatan darurat dan pasokan listrik dalam meminimalisir korban jiwa.',
-    author: 'Pusat Krisis Kesehatan',
-    date: '08 Agustus 2026',
-    readTime: '4 menit baca',
-    image: '/images/blog/logistics.jpg',
-    featured: false,
-  },
-  {
-    id: 6,
-    category: 'Model Dampak Ekonomi',
-    tagColor: '#10B981',
-    title: 'Kalkulasi Estimasi Kerugian Ekonomi & Lahan Pertanian Terdampak',
-    excerpt: 'Sistem agregasi kerugian lahan sawah dan penutup lahan berbasis data spasial BIG 2024.',
-    author: 'Badan Pengelola Kerugian',
-    date: '05 Agustus 2026',
-    readTime: '5 menit baca',
-    image: '/images/blog/gis_mapping.jpg',
-    featured: false,
-  },
-];
 
 const TESTIMONIALS = [
   {
@@ -111,7 +38,7 @@ const TESTIMONIALS = [
 ];
 
 export default function MapSection() {
-  const allGridPosts = BLOG_POSTS;
+  const allGridPosts = blogData;
 
   // Pagination state for 3 cards per page
   const [currentPage, setCurrentPage] = useState(1);

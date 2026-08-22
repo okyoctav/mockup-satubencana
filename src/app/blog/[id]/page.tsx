@@ -6,146 +6,12 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Calendar, ArrowLeft, Share2, Check, ChevronRight } from 'lucide-react';
 
-const BLOG_DATA: Record<string, {
-  title: string;
-  category: string;
-  tagColor: string;
-  date: string;
-  readTime: string;
-  author: string;
-  authorRole: string;
-  image: string;
-  summary: string;
-  sections: { id: string; title: string; content: string }[];
-}> = {
-  '1': {
-    title: 'Integrasi Pemodelan Spasial AI 9Router & Data Terpadu Dukcapil K5 dalam Mitigasi Bencana Nasional',
-    category: 'Sistem Peringatan Dini (EWS)',
-    tagColor: '#0EA5E9',
-    date: '18 Agustus 2026',
-    readTime: '6 menit baca',
-    author: 'Tim Geospasial BNPB',
-    authorRole: 'Subdit Pemodelan Kebencanaan',
-    image: '/images/blog/featured.jpg',
-    summary: 'Bagaimana arsitektur K5 menggabungkan simulasi demografi mikro, peta dasar RBI 5K BIG, dan AI LLM 16.384 token untuk mempercepat keputusan tanggap darurat saat Pra, Saat, dan Pasca Bencana.',
-    sections: [
-      {
-        id: 'pendahuluan',
-        title: '1. Pendahuluan & Latar Belakang Arsitektur K5',
-        content: 'Dalam tata kelola bencana modern, kecepatan dan presisi informasi geospasial menjadi penentu utama dalam mengurangi angka fatalitas. Sistem Informasi Kebencanaan K5 mengintegrasikan peta dasar Skala 1:5.000 (RBI 5K BIG) dengan agregasi data kependudukan Dukcapil hingga level Kelurahan/Desa. Sinergi ini memungkinkan petugas posko bencana menghitung estimasi jumlah lansia, balita, disabilitas, dan jumlah keluarga yang terdampak hanya dalam hitungan detik setelah sebuah poligon bencana digambar di canvas peta interaktif.',
-      },
-      {
-        id: 'integrasi-ai-9router',
-        title: '2. Pemodelan Spasial AI & 9Router Dynamic Tokens',
-        content: 'Integrasi AI LLM via 9Router memberikan terobosan baru dalam penyusunan laporan rekomendasi situasi. Dengan dukungan batas token keluaran hingga 16.384 token (~13.000 kata), sistem AI mampu memproses seluruh konteks demografi mikro dan variabel cuaca BMKG tanpa risiko teks terpotong di tengah jalan. AI secara otomatis menginjeksi data kejadian terkini (seperti jumlah korban, titik koordinat, dan status siaga) ke dalam prompt untuk menghasilkan dokumen rekomendasi aksi darurat secara otomatis.',
-      },
-      {
-        id: 'analisis-pra-bencana',
-        title: '3. Simulasi Pra Bencana: Mitigasi & Kesiapsiagaan',
-        content: 'Pada tahap Pra Bencana, arsitektur K5 memanfaatkan pemetaan kerentanan berbasis Hexbin Resolution 9 (DTSEN BAPPENAS). Petugas dapat mengidentifikasi area permukiman padat penduduk yang berada di sepanjang garis sesar aktif atau bantaran sungai rawan banjir bandang. Tindakan pencegahan seperti simulasi evakuasi mandiri, penyuluhan warga, dan alokasi logistik pra-bencana dapat diskenariokan secara akurat.',
-      },
-      {
-        id: 'tanggap-darurat',
-        title: '4. Fase Saat Bencana: Tanggap Darurat & Penyelamatan',
-        content: 'Saat bencana terjadi, layar Peta Utama K5 secara otomatis menampilkan indikator peringatan BMKG Gempa Terkini dan peringatan dini cuaca ekstrim. Fitur OSRM Routing Engine membantu pengemudi armada logistik menemukan jalur tercepat menuju posko pengungsian terdekat dengan kalkulasi konsumsi bahan bakar kendaraan secara akurat.',
-      },
-      {
-        id: 'pemulihan-pasca-bencana',
-        title: '5. Pemulihan Pasca Bencana & Transparansi Hak Atas Tanah',
-        content: 'Pada tahap Pasca Bencana, pemulihan permukiman warga membutuhkan kepastian hukum. Integrasi layer Hak Atas Tanah (ATR/BPN Sulawesi) memungkinkan tim verifikasi mengidentifikasi batas kepemilikan tanah Hak Milik, Hak Pakai, dan Hak Pengelolaan warga yang terdampak, sehingga program bantuan rekonstruksi rumah tepat sasaran dan bebas sengketa.',
-      },
-      {
-        id: 'kesimpulan',
-        title: '6. Kesimpulan & Rekomendasi Masa Depan',
-        content: 'Penerapan Sistem Kebencanaan K5 membuktikan bahwa kolaborasi antar-lembaga (BNPB, BAPPENAS, BIG, BMKG, Kemendagri, dan ATR/BPN) yang didukung oleh teknologi geospasial cerdas dan AI dapat meningkatkan kesiapsiagaan bangsa Indonesia dalam menghadapi bencana di masa depan.',
-      },
-    ],
-  },
-  '2': {
-    title: 'Penerapan Digital Twin & AI Predictive Analytics untuk Simulasi Risiko Banjir Bandang',
-    category: 'Teknologi AI & Prediksi',
-    tagColor: '#22C55E',
-    date: '15 Agustus 2026',
-    readTime: '4 menit baca',
-    author: 'Pusat Riset Kebencanaan',
-    authorRole: 'Laboratorium Digital Twin',
-    image: '/images/blog/early_warning.jpg',
-    summary: 'Studi kasus penggunaan model elevasi 3D dan data curah hujan BMKG 10 hari dalam mengestimasi wilayah terdampak secara real-time.',
-    sections: [
-      {
-        id: 'konsep-digital-twin',
-        title: '1. Konsep Digital Twin Topografi 3D',
-        content: 'Digital Twin topografi memanfaatkan data citra satelit dan Digital Terrain Model (DTM) untuk merepresentasikan kondisi kontur permukaan bumi secara presisi tinggi dalam bentuk 3D digital.',
-      },
-      {
-        id: 'simulasi-curah-hujan',
-        title: '2. Simulasi Curah Hujan BMKG 10 Hari',
-        content: 'Dengan mengintegrasikan data prakiraan curah hujan 10 hari BMKG, model AI dapat mensimulasikan debit limpasan air hujan di daerah aliran sungai (DAS) dan memprediksi genangan banjir.',
-      },
-      {
-        id: 'rekomendasi-evakuasi',
-        title: '3. Rekomendasi Evakuasi & Mitigasi Risiko',
-        content: 'Hasil simulasi risiko banjir memberikan peringatan dini otomatis kepada masyarakat di zona bahaya untuk segera melakukan evakuasi mandiri sebelum luapan air mencapai permukiman.',
-      },
-    ],
-  },
-  '3': {
-    title: 'Optimasi Rute Evakuasi & Dispersi Logistik Darurat Menggunakan OSRM Routing Engine',
-    category: 'Logistik & Evakuasi',
-    tagColor: '#F59E0B',
-    date: '12 Agustus 2026',
-    readTime: '5 menit baca',
-    author: 'Subdit Logistik & Perbekalan',
-    authorRole: 'Manajemen Rantai Pasok',
-    image: '/images/blog/logistics.jpg',
-    summary: 'Menghitung waktu tempuh tercepat, estimasi bahan bakar armada truk, dan jalur aman antar posko bantuan utama.',
-    sections: [
-      {
-        id: 'tantangan-distribusi',
-        title: '1. Tantangan Distribusi Logistik Darurat',
-        content: 'Kerusakan infrastruktur jalan dan jembatan akibat gempa atau banjir sering kali menghambat pengiriman bantuan medis dan makanan bagi korban selamat.',
-      },
-      {
-        id: 'algoritma-osrm',
-        title: '2. Algoritma OSRM Fast Routing Engine',
-        content: 'Teknologi OSRM memproses jaringan jalan OpenStreetMap secara waktu nyata untuk menghitung rute alternatif tercepat dan teraman dari gudang logistik ke posko pengungsian.',
-      },
-      {
-        id: 'efisiensi-bahan-bakar',
-        title: '3. Estimasi Bahan Bakar & Armada Truk',
-        content: 'Kalkulasi kebutuhan BBM dan kapasitas tonase kendaraan memastikan efisiensi distribusi bantuan logistik tanpa hambatan kelangkaan bahan bakar di daerah bencana.',
-      },
-    ],
-  },
-  '4': {
-    title: 'Visualisasi Multi-Layer RBI 5K Sulawesi 2024 & Hak Atas Tanah (ATR/BPN)',
-    category: 'Sistem Geospasial',
-    tagColor: '#A855F7',
-    date: '10 Agustus 2026',
-    readTime: '5 menit baca',
-    author: 'Direktorat Informasi Geospasial',
-    authorRole: 'Subdit Peta Dasar',
-    image: '/images/blog/gis_mapping.jpg',
-    summary: 'Penataan 37 sub-layer peta dasar BIG dan analisis kepemilikan tanah AHT untuk transparansi pemulihan pasca bencana.',
-    sections: [
-      {
-        id: 'peta-dasar-big',
-        title: '1. Peta Dasar Skala 1:5.000 Sulawesi 2024',
-        content: 'Peta Dasar RBI 5K BIG menyajikan detail geospasial tingkat tinggi mencakup garis pantai, batas wilayah administrasi, jaringan transportasi, hipsografi kontur, dan penutup lahan.',
-      },
-      {
-        id: 'layer-atr-bpn',
-        title: '2. Integrasi Layer Hak Atas Tanah ATR/BPN',
-        content: 'Peta Hak Atas Tanah (AHT) ATR/BPN Se-Sulawesi memberikan data kepemilikan lahan yang transparan untuk mempercepat pemulihan ekonomi dan pembangunan kembali kawasan bencana.',
-      },
-    ],
-  },
-};
+import blogData from '@/data/blog.json';
 
 export default function BlogDetailPage() {
   const params = useParams();
   const id = (params?.id as string) || '1';
-  const post = BLOG_DATA[id] || BLOG_DATA['1'];
+  const post = (blogData as Array<{ id: string; title: string; category: string; tagColor: string; date: string; readTime: string; author: string; authorRole: string; image: string; summary?: string; excerpt?: string; sections: Array<{ id: string; title: string; content: string }> }>).find((b) => b.id === id) || blogData[0];
 
   const [activeSection, setActiveSection] = useState(post.sections[0]?.id || '');
   const [copied, setCopied] = useState(false);
@@ -222,7 +88,7 @@ export default function BlogDetailPage() {
           </h1>
 
           <p className="text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
-            {post.summary}
+            {post.excerpt}
           </p>
 
           <div className="pt-4 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
@@ -258,7 +124,7 @@ export default function BlogDetailPage() {
               </div>
 
               <nav className="space-y-1 text-xs">
-                {post.sections.map((sec) => {
+                {post.sections.map((sec: { id: string; title: string; content: string }) => {
                   const isActive = activeSection === sec.id;
                   return (
                     <a
@@ -288,7 +154,7 @@ export default function BlogDetailPage() {
 
             {/* Content Sections */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-8 md:p-12 shadow-sm space-y-10">
-              {post.sections.map((sec) => (
+              {post.sections.map((sec: { id: string; title: string; content: string }) => (
                 <section key={sec.id} id={sec.id} className="scroll-mt-28 space-y-4">
                   <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
                     {sec.title}
