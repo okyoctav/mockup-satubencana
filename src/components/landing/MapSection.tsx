@@ -213,7 +213,7 @@ export default function MapSection() {
 
           <div className="max-w-4xl mx-auto space-y-8 relative z-10">
             {/* Header Badge */}
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-xs font-bold tracking-widest uppercase text-sky-300">
                 <span>Apresiasi & Testimoni Pakar</span>
               </div>
@@ -223,7 +223,7 @@ export default function MapSection() {
                   <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Testimonial Quote Content */}
             <div className="min-h-[140px] flex items-center">
