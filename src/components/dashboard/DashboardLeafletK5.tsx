@@ -162,11 +162,11 @@ const BIG_DESAKEL_URL = 'https://geoservices.big.go.id/rbi/rest/services/BATASWI
 const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
   { id: 'bappenas_batas_desakel', label: 'Batas Kelurahan/Desa (BAPPENAS)', color: '#0284C7', emoji: '🏛️', url: 'https://mandata.bappenas.go.id/geoserver/ows', type: 'WMS', group: 'BAPPENAS', layersParam: 'BATAS_WILAYAH:ADMINISTRASI_AR_KELDESA_10K_2023' },
-  { id: 'dapodik_sd', label: 'Sekolah Dasar (Dapodik)', color: '#EF4444', emoji: '🏫', url: '/data/dapodik/sd', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
-  { id: 'dapodik_smp', label: 'Sekolah Menengah Pertama (Dapodik)', color: '#3B82F6', emoji: '🏫', url: '/data/dapodik/smp', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
-  { id: 'dapodik_sma', label: 'Sekolah Menengah Atas (Dapodik)', color: '#10B981', emoji: '🏫', url: '/data/dapodik/sma', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
-  { id: 'dapodik_slb', label: 'Sekolah Luar Biasa (Dapodik)', color: '#8B5CF6', emoji: '🏫', url: '/data/dapodik/slb', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
-  { id: 'dapodik_spk', label: 'Sekolah SPK (Dapodik)', color: '#F59E0B', emoji: '🏫', url: '/data/dapodik/spk', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
+  { id: 'dapodik_sd', label: 'Sekolah Dasar (Dapodik)', color: '#EF4444', emoji: '🏠', url: '/data/dapodik/sd', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
+  { id: 'dapodik_smp', label: 'Sekolah Menengah Pertama (Dapodik)', color: '#3B82F6', emoji: '🏠', url: '/data/dapodik/smp', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
+  { id: 'dapodik_sma', label: 'Sekolah Menengah Atas (Dapodik)', color: '#10B981', emoji: '🏠', url: '/data/dapodik/sma', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
+  { id: 'dapodik_slb', label: 'Sekolah Luar Biasa (Dapodik)', color: '#8B5CF6', emoji: '🏠', url: '/data/dapodik/slb', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
+  { id: 'dapodik_spk', label: 'Sekolah SPK (Dapodik)', color: '#F59E0B', emoji: '🏠', url: '/data/dapodik/spk', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
   { id: 'big_batas_desakel',           label: 'Batas Desa/Kelurahan (BIG)',   color: '#3B82F6', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/BATAS_DESAKEL_AR/MapServer', type: 'MapServer', group: 'BIG' },
   { id: 'big_rbi_sulawesi_lot1',       label: 'RBI Sulawesi 2024 Lot 1',      color: '#A855F7', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI_5K_Sulawesi_2024_Lot_1_Jul/VectorTileServer',         type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
@@ -1487,7 +1487,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
                 layer.bindPopup(`
                   <div style="font-family:sans-serif; min-width:210px; padding:2px;">
-                    <div style="font-weight:bold; color:${def.color}; font-size:12px;">🏫 ${nama}</div>
+                    <div style="font-weight:bold; color:${def.color}; font-size:12px;">🏠 ${nama}</div>
                     <div style="font-size:10px; color:#64748B; margin-top:1px;">Jenjang: <b>${bentuk}</b> ${status ? `(${status})` : ''}</div>
                     <div style="margin-top:6px; padding:4px 6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; font-size:10px; grid grid-cols-3 gap-1">
                       <div>👨‍🏫 Guru: <b>${jmlGuru}</b></div>
