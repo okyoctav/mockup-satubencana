@@ -3,7 +3,7 @@
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { useState, useEffect, useRef } from 'react';
-import { Layers, Search, Check, X, Eye, Activity, MapPin, Pencil, BarChart2, Maximize2, Minimize2 } from 'lucide-react';
+import { Layers, Search, Check, X, Eye, Activity, MapPin, Pencil, Home, BarChart2, Maximize2, Minimize2 } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet-draw';
 
@@ -39,6 +39,40 @@ interface Props {
     sekolahDampak?: SekolahDampakItem[];
   }) => void;
   theme: string;
+}
+
+interface KerentananData {
+  no_kuesioner?: string;
+  nama_responden?: string;
+  hubungan_dengan_penghuni?: string;
+  jenis_kelamin?: string;
+  usia?: string;
+  pendidikan_terakhir?: string;
+  nama_desa?: string;
+  kecamatan?: string;
+  rt?: string;
+  rw?: string;
+  latitude?: string;
+  longitude?: string;
+  foto?: string[];
+  hasil_jumlah_penghuni?: number;
+  hasil_penghuni_siang?: string;
+  hasil_penghuni_malam?: string;
+  ada_perempuan?: string;
+  hasil_perempuan?: number;
+  ada_balita?: string;
+  hasil_balita?: number;
+  ada_manula?: string;
+  hasil_manula?: number;
+  ada_difabel?: string;
+  hasil_difabel?: number;
+  risk?: number;
+  hasil_penderita_penyakit?: number;
+  terima_pkh?: string;
+  penghasilan?: string;
+  answer_date?: string;
+  fungsi_bangunan?: string;
+  nilai_index_kerentanan?: string;
 }
 
 interface BnpbLayer {
@@ -920,6 +954,9 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
   const [bmkgAutoData, setBmkgAutoData] = useState<BmkgGempa[]>([]);
   const [bmkgData, setBmkgData] = useState<BmkgGempa[]>([]);
   const [showBencanaData, setShowBencanaData] = useState(true);
+  const [showKerentanan, setShowKerentanan] = useState(true);
+  const [kerentananData, setKerentananData] = useState<KerentananData[]>([]);
+  const kerentananMarkersRef = useRef<L.CircleMarker[]>([]);
   const [showLegend, setShowLegend] = useState(false);
   const [showDrawTools, setShowDrawTools] = useState(false);
   const [activeDraw, setActiveDraw] = useState<string | null>(null);
@@ -966,6 +1003,22 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       .bmkg-dot { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); border-radius:50%; border:2px solid rgba(255,255,255,0.9); z-index:3; }
     `;
     document.head.appendChild(style);
+  }, []);
+
+    // Fetch InARISK Kerentanan Data (7172)
+  useEffect(() => {
+    const fetchKerentanan = async () => {
+      try {
+        const res = await fetch("https://inarisk2.bnpb.go.id/api/kerentanan/get-data/7172", { cache: "no-store" });
+        const json = await res.json();
+        if (Array.isArray(json)) {
+          setKerentananData(json);
+        }
+      } catch {
+        setKerentananData([]);
+      }
+    };
+    fetchKerentanan();
   }, []);
 
   // Fetch all 3 BMKG Earthquake Endpoints (Gempa Terkini, Gempa Dirasakan, Gempa Terbaru/Autogempa)
@@ -1118,6 +1171,63 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       markersRef.current.push(circle);
     });
   }, [data, showBencanaData]);
+
+    // Render InARISK Kerentanan Markers
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    kerentananMarkersRef.current.forEach((m) => map.removeLayer(m));
+    kerentananMarkersRef.current = [];
+
+    if (!showKerentanan) return;
+
+    kerentananData.forEach((item) => {
+      if (!item.latitude || !item.longitude) return;
+      const lat = parseFloat(item.latitude);
+      const lng = parseFloat(item.longitude);
+      if (isNaN(lat) || isNaN(lng)) return;
+
+      const riskColor = item.nilai_index_kerentanan === "Tinggi" ? "#DC2626" : item.nilai_index_kerentanan === "Sedang" ? "#F59E0B" : "#10B981";
+      const circle = L.circleMarker([lat, lng], {
+        radius: 7,
+        color: "#FFFFFF",
+        fillColor: riskColor,
+        fillOpacity: 0.9,
+        weight: 2,
+      });
+
+      const fotoHtml = item.foto && item.foto.length > 0
+        ? `<div style="margin-top:6px; text-align:center;"><img src="${item.foto[0]}" alt="Foto Bangunan" style="width:100%; max-height:140px; object-fit:cover; border-radius:8px; border:1px solid #ddd;" /></div>`
+        : "";
+
+      circle.bindPopup(`
+        <div style="font-family:sans-serif; min-width:240px; max-width:280px; font-size:11px; color:#333; line-height:1.4;">
+          <div style="font-weight:bold; color:#0EA5E9; font-size:12px; border-bottom:1px solid #eee; padding-bottom:3px; margin-bottom:4px;">
+            🏚️ Survey Kerentanan InARISK
+          </div>
+          <div style="font-weight:bold; font-size:11px; color:#1e293b;">${item.no_kuesioner || "-"}</div>
+          ${fotoHtml}
+          <table style="width:100%; margin-top:6px; border-collapse:collapse; font-size:10.5px;">
+            <tr><td style="color:#64748b;">Responden:</td><td style="font-weight:600;">${item.nama_responden || "-"} (${item.hubungan_dengan_penghuni || "-"})</td></tr>
+            <tr><td style="color:#64748b;">Gender/Usia:</td><td style="font-weight:600;">${item.jenis_kelamin?.toUpperCase() || "-"} / ${item.usia || "-"} thn</td></tr>
+            <tr><td style="color:#64748b;">Pendidikan:</td><td style="font-weight:600;">${item.pendidikan_terakhir || "-"}</td></tr>
+            <tr><td style="color:#64748b;">Wilayah:</td><td style="font-weight:600;">Desa ${item.nama_desa || "-"} (RT ${item.rt || "-"}/RW ${item.rw || "-"})</td></tr>
+            <tr><td style="color:#64748b;">Kecamatan:</td><td style="font-weight:600;">${item.kecamatan || "-"}</td></tr>
+            <tr><td style="color:#64748b;">Fungsi Bangunan:</td><td style="font-weight:600;">${item.fungsi_bangunan || "-"}</td></tr>
+            <tr><td style="color:#64748b;">Jumlah Penghuni:</td><td style="font-weight:600;">${item.hasil_jumlah_penghuni ?? 0} (Siang: ${item.hasil_penghuni_siang || 0}, Malam: ${item.hasil_penghuni_malam || 0})</td></tr>
+            <tr><td style="color:#64748b;">Kelompok Rentan:</td><td style="font-weight:600;">Perempuan:${item.hasil_perempuan ?? 0}, Balita:${item.hasil_balita ?? 0}, Manula:${item.hasil_manula ?? 0}, Difabel:${item.hasil_difabel ?? 0}</td></tr>
+            <tr><td style="color:#64748b;">Penyakit/PKH:</td><td style="font-weight:600;">${item.hasil_penderita_penyakit ?? 0} / PKH: ${item.terima_pkh || "-"}</td></tr>
+            <tr><td style="color:#64748b;">Penghasilan:</td><td style="font-weight:600;">${item.penghasilan || "-"}</td></tr>
+            <tr><td style="color:#64748b;">Indeks Risiko:</td><td style="font-weight:700; color:${riskColor};">${item.nilai_index_kerentanan || "Rendah"} (${item.risk?.toFixed(3) || "0.000"})</td></tr>
+            <tr><td style="color:#64748b;">Waktu Survey:</td><td style="color:#64748b;">${item.answer_date ? new Date(item.answer_date).toLocaleString("id-ID") : "-"}</td></tr>
+          </table>
+        </div>
+      `);
+      circle.addTo(map);
+      kerentananMarkersRef.current.push(circle);
+    });
+  }, [kerentananData, showKerentanan]);
 
   // Render BMKG Earthquakes (Supports 1-Click Modes: Gempa Terkini M>=5, Gempa Dirasakan, Gempa Terbaru Autogempa)
   useEffect(() => {
@@ -1829,6 +1939,17 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
             ))}
           </div>
         )}
+
+                {/* Toggle Kerentanan InARISK */}
+        <button
+          onClick={() => setShowKerentanan(!showKerentanan)}
+          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center ${
+            showKerentanan ? "bg-[#10B981] text-white border-white/40" : "bg-white/80 text-slate-700 border-white/80"
+          }`}
+          title="Toggle Survey Kerentanan InARISK (7172)"
+        >
+          <Home className="w-4 h-4 text-white" />
+        </button>
 
         {/* Toggle Bencana JSON Markers */}
         <button
