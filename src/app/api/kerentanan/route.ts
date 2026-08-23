@@ -2,18 +2,21 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-export async function GET() {
-  try {
-    // 1. Try Live InARISK API with 3s timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const code = searchParams.get('code') || '7171';
 
-    const res = await fetch('https://inarisk2.bnpb.go.id/api/kerentanan/get-data/7172', {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    const targetUrl = 'https://inarisk2.bnpb.go.id/api/kerentanan/get-data/' + code;
+    const res = await fetch(targetUrl, {
       cache: 'no-store',
       signal: controller.signal,
       headers: {
         'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
       },
     });
     clearTimeout(timeoutId);
@@ -25,11 +28,11 @@ export async function GET() {
         headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
       });
     }
-  } catch {
-    // Fallback to local cached JSON if server network is blocked/slow
+  } catch (e) {
+    console.error('Fetch inarisk error:', e);
   }
 
-  // 2. Local JSON Cache Fallback (/public/data/kerentanan_7172.json)
+  // Fallback to local file if fetch fails or times out
   try {
     const filePath = path.join(process.cwd(), 'public', 'data', 'kerentanan_7172.json');
     if (fs.existsSync(filePath)) {
@@ -39,10 +42,9 @@ export async function GET() {
         headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
       });
     }
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Gagal memuat cache lokal';
-    return NextResponse.json({ error: message }, { status: 500 });
+  } catch {
+    // ignore
   }
 
-  return NextResponse.json({ error: 'Data kerentanan tidak ditemukan' }, { status: 404 });
+  return NextResponse.json([], { status: 200 });
 }
