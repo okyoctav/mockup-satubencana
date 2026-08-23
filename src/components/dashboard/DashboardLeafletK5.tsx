@@ -226,10 +226,12 @@ function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, is
   let localLayersParam = layersParam;
   const match = serviceUrl.match(/\/(MapServer|FeatureServer)\/(\d+)$/);
   if (match && match.index !== undefined) {
-    const serviceType = match[1];
-    const layerId = match[2];
-    cleanUrl = serviceUrl.substring(0, match.index + serviceType.length + 11);
-    localLayersParam = "show:" + layerId;
+    // const serviceType = match[1];
+    // const layerId = match[2];
+    // cleanUrl = serviceUrl.substring(0, match.index + serviceType.length + 11);
+    // localLayersParam = "show:" + layerId;
+    cleanUrl = serviceUrl.substring(0, match.index + 10);
+    localLayersParam = `show:${match[1]}`;
   } else if (!serviceUrl.includes('/export')) {
     cleanUrl = serviceUrl.replace(/\/+$/, '');
   }
