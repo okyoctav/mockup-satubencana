@@ -73,34 +73,44 @@
   ]
 },
   {
-    "id": "3",
-    "category": "Logistik & Evakuasi",
-    "tagColor": "#F59E0B",
-    "title": "Optimasi Rute Evakuasi & Dispersi Logistik Darurat Menggunakan OSRM Routing Engine",
-    "excerpt": "Menghitung waktu tempuh tercepat, estimasi bahan bakar armada truk, dan jalur aman antar posko bantuan utama.",
-    "author": "Subdit Logistik & Perbekalan",
-    "authorRole": "Manajemen Rantai Pasok",
-    "date": "12 Agustus 2026",
-    "readTime": "5 menit baca",
-    "image": "/images/blog/logistics.jpg",
-    "sections": [
-      {
-        "id": "tantangan-distribusi",
-        "title": "1. Tantangan Distribusi Logistik Darurat",
-        "content": "Kerusakan infrastruktur jalan dan jembatan akibat gempa atau banjir sering kali menghambat pengiriman bantuan medis dan makanan bagi korban selamat."
-      },
-      {
-        "id": "algoritma-osrm",
-        "title": "2. Algoritma OSRM Fast Routing Engine",
-        "content": "Teknologi OSRM memproses jaringan jalan OpenStreetMap secara waktu nyata untuk menghitung rute alternatif tercepat dan teraman dari gudang logistik ke posko pengungsian."
-      },
-      {
-        "id": "efisiensi-bahan-bakar",
-        "title": "3. Estimasi Bahan Bakar & Armada Truk",
-        "content": "Kalkulasi kebutuhan BBM dan kapasitas tonase kendaraan memastikan efisiensi distribusi bantuan logistik tanpa hambatan kelangkaan bahan bakar di daerah bencana."
-      }
-    ]
-  },
+  "id": "3",
+  "category": "Mitigasi Bencana Alam",
+  "tagColor": "#0EA5E9",
+  "title": "Peran Kementerian Agama dalam Mitigasi Bencana Alam di Sumatera Barat",
+  "excerpt": "Buku ini memaparkan Sumatera Barat sebagai daerah dengan koleksi naskah yang kaya akan kearifan lokal terkait bencana, memadukan adat Minangkabau dan tradisi keagamaan Islam dalam merespons fenomena gempa.",
+  "author": "Tim Geospasial BNPB",
+  "authorRole": "Subdit Pemodelan Kebencanaan",
+  "date": "23 Agustus 2026",
+  "readTime": "6 menit baca",
+  "image": "/images/blog/berita3.png",
+  "sections": [
+    {
+      "id": "naskah-kearifan-lokal",
+      "title": "1. Naskah Kebencanaan dan Kearifan Lokal",
+      "content": "Sumatera Barat memiliki banyak koleksi naskah yang memuat kearifan lokal terkait bencana, seperti gempa dan banjir. Naskah yang berkaitan dengan gempa umumnya berisi prediksi terhadap fenomena yang akan terjadi setelah peristiwa gempa, yang dalam literatur ini dikenal dengan istilah takwil (memalingkan dari makna asal) atau tafsir."
+    },
+    {
+      "id": "integrasi-adat-syarak",
+      "title": "2. Integrasi Adat dan Syarak (Agama)",
+      "content": "Teks-teks gempa tersebut sangat hidup di tengah masyarakat karena melekat pada dua elemen dominan di Sumatera Barat, yaitu adat Minangkabau dan syarak (agama Islam). Keduanya telah menjadi pijakan kokoh dan identitas yang tak terpisahkan dalam membentuk cara pandang masyarakat terhadap bencana."
+    },
+    {
+      "id": "dinamika-darek-pesisir",
+      "title": "3. Dinamika Persebaran Naskah di Pesisir dan Darek",
+      "content": "Penelitian menunjukkan bahwa teks gempa tidak hanya beredar di daerah pesisir (rantau) melalui jaringan surau ordo Syattariyah sebagai respon terhadap gempa tektonik laut. Secara mengejutkan, naskah serupa juga ditemukan di daerah 'darek' yang secara sosio-keagamaan dikenal lebih intelek. Naskah di darek diproduksi oleh surau Naqsyabandiyah, yang biasanya diasosiasikan jauh dari hal-hal bersifat ramalan atau bid'ah."
+    },
+    {
+      "id": "kajian-puslitbang",
+      "title": "4. Kajian Tematik Puslitbang LKKMO",
+      "content": "Pola-pola kearifan lokal dari naskah kuno inilah yang diungkap melalui kajian tematik manuskrip keagamaan oleh Puslitbang LKKMO Badan Litbang dan Diklat Kementerian Agama. Kajian ini merupakan penyempurnaan dari riset tahun-tahun sebelumnya, dengan menggunakan pendekatan filologi, teologi, folklor, antropologi, dan sosio-histori keagamaan untuk memberikan rekomendasi penanganan bencana yang tepat bagi Kemenag di Sumatera Barat."
+    },
+    {
+      "id": "download-files",
+      "title": "Download File Kajian",
+      "content": "- [Kajian Peran Kementerian Agama dalam Mitigasi Bencana Alam di Sumatera Barat (PDF)](https://drive.google.com/file/d/1fQYujwewu8wWiw8-DopULKMnm3j9oWys/view?usp=sharing)"
+    }
+  ]
+},
   {
     "id": "4",
     "category": "Sistem Geospasial",
