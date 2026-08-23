@@ -39,34 +39,39 @@
     ]
   },
   {
-    "id": "2",
-    "category": "Teknologi AI & Prediksi",
-    "tagColor": "#22C55E",
-    "title": "Penerapan Digital Twin & AI Predictive Analytics untuk Simulasi Risiko Banjir Bandang",
-    "excerpt": "Studi kasus penggunaan model elevasi 3D dan data curah hujan BMKG 10 hari dalam mengestimasi wilayah terdampak secara real-time.",
-    "author": "Pusat Riset Kebencanaan",
-    "authorRole": "Laboratorium Digital Twin",
-    "date": "15 Agustus 2026",
-    "readTime": "4 menit baca",
-    "image": "/images/blog/early_warning.jpg",
-    "sections": [
-      {
-        "id": "konsep-digital-twin",
-        "title": "1. Konsep Digital Twin Topografi 3D",
-        "content": "Digital Twin topografi memanfaatkan data citra satelit dan Digital Terrain Model (DTM) untuk merepresentasikan kondisi kontur permukaan bumi secara presisi tinggi dalam bentuk 3D digital."
-      },
-      {
-        "id": "simulasi-curah-hujan",
-        "title": "2. Simulasi Curah Hujan BMKG 10 Hari",
-        "content": "Dengan mengintegrasikan data prakiraan curah hujan 10 hari BMKG, model AI dapat mensimulasikan debit limpasan air hujan di daerah aliran sungai (DAS) dan memprediksi genangan banjir."
-      },
-      {
-        "id": "rekomendasi-evakuasi",
-        "title": "3. Rekomendasi Evakuasi & Mitigasi Risiko",
-        "content": "Hasil simulasi risiko banjir memberikan peringatan dini otomatis kepada masyarakat di zona bahaya untuk segera melakukan evakuasi mandiri sebelum luapan air mencapai permukiman."
-      }
-    ]
-  },
+  "id": "2",
+  "category": "Mitigasi Bencana Alam",
+  "tagColor": "#0EA5E9",
+  "title": "Peran Kementerian Agama dalam Mitigasi Bencana Alam di Banten",
+  "excerpt": "Teks ini menyoroti pentingnya pendekatan keagamaan dan kultural dalam mitigasi bencana di wilayah Banten untuk melengkapi pendekatan sains murni yang seringkali belum merangkul kondisi sosiologis masyarakat.",
+  "author": "Tim Geospasial BNPB",
+  "authorRole": "Subdit Pemodelan Kebencanaan",
+  "date": "23 Agustus 2026",
+  "readTime": "5 menit baca",
+  "image": "/images/blog/berita2.png",
+  "sections": [
+    {
+      "id": "latar-belakang-agama",
+      "title": "1. Latar Belakang Pendekatan Agama",
+      "content": "Pendekatan sains murni (seperti geologi) terkadang mengabaikan aspek kultural dan agama. Padahal, masyarakat Indonesia sangat lekat dengan budaya dan agama, sehingga sering menyikapi bencana sebagai takdir, azab, atau kemurkaan alam. Jika tidak diarahkan dengan tepat, sikap ini bisa menghambat kesadaran akan pentingnya mitigasi fisik dan memperbesar risiko korban."
+    },
+    {
+      "id": "optimalisasi-riset",
+      "title": "2. Optimalisasi Riset Keagamaan",
+      "content": "Melalui LKKMO (Puslitbang Lektur, Khazanah Keagamaan, dan Manajemen Organisasi), Kementerian Agama berupaya agar riset-riset berbasis literatur dan khazanah keagamaan dapat dijadikan landasan kebijakan yang konkret untuk mendukung edukasi mitigasi bencana di masyarakat."
+    },
+    {
+      "id": "tugas-vital-penyuluh",
+      "title": "3. Tugas Vital Penyuluh Agama di Banten",
+      "content": "Hasil riset di Banten menunjukkan bahwa penyuluh agama memiliki peran yang sangat nyata di lapangan. Mereka bertugas menangani pemulihan psikis (trauma healing) korban bencana dari segi spiritual, menjadi perantara penyaluran bantuan material, serta menyampaikan edukasi spiritual untuk menyadarkan umat sebagai bentuk ikhtiar."
+    },
+    {
+      "id": "download-files",
+      "title": "Download File Kajian",
+      "content": "- [Kajian Peran Kementerian Agama dalam Mitigasi Bencana Alam di Banten (PDF)](#)"
+    }
+  ]
+},
   {
     "id": "3",
     "category": "Logistik & Evakuasi",
