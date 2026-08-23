@@ -955,6 +955,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
   const [bmkgData, setBmkgData] = useState<BmkgGempa[]>([]);
   const [showBencanaData, setShowBencanaData] = useState(true);
   const [showKerentanan, setShowKerentanan] = useState(true);
+  const [kerentananCode, setKerentananCode] = useState<'7171' | '7172'>('7172');
   const [kerentananData, setKerentananData] = useState<KerentananData[]>([]);
   const kerentananMarkersRef = useRef<L.CircleMarker[]>([]);
   const [showLegend, setShowLegend] = useState(false);
@@ -1005,11 +1006,11 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
     document.head.appendChild(style);
   }, []);
 
-    // Fetch InARISK Kerentanan Data (7172)
+    // Fetch InARISK Kerentanan Data (Supports 7171 & 7172 selector)
   useEffect(() => {
     const fetchKerentanan = async () => {
       try {
-        const res = await fetch("/api/kerentanan?code=7171", { cache: "no-store" });
+        const res = await fetch(`/api/kerentanan?code=${kerentananCode}`, { cache: "no-store" });
         const json = await res.json();
         if (Array.isArray(json)) {
           setKerentananData(json);
@@ -1019,7 +1020,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       }
     };
     fetchKerentanan();
-  }, []);
+  }, [kerentananCode]);
 
   // Fetch all 3 BMKG Earthquake Endpoints (Gempa Terkini, Gempa Dirasakan, Gempa Terbaru/Autogempa)
   useEffect(() => {
@@ -1940,16 +1941,42 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
           </div>
         )}
 
-                {/* Toggle Kerentanan InARISK */}
-        <button
-          onClick={() => setShowKerentanan(!showKerentanan)}
-          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center ${
-            showKerentanan ? "bg-[#10B981] text-white border-white/40" : "bg-white/80 text-slate-700 border-white/80"
-          }`}
-          title="Toggle Survey Kerentanan InARISK (7172)"
-        >
-          <Home className="w-4 h-4 text-white" />
-        </button>
+                {/* Toggle & Version Selector Survey Kerentanan InARISK */}
+        <div className="flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-1 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md">
+          <button
+            onClick={() => setShowKerentanan(!showKerentanan)}
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              showKerentanan ? "bg-[#10B981] text-white shadow-xs" : "bg-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900"
+            }`}
+            title="Toggle Survey Kerentanan InARISK"
+          >
+            <Home className="w-3.5 h-3.5" />
+            <span>Kerentanan</span>
+          </button>
+
+          {showKerentanan && (
+            <div className="flex items-center gap-1 border-l border-slate-200 dark:border-slate-800 pl-1">
+              <button
+                onClick={() => setKerentananCode("7171")}
+                className={`px-2 py-1 rounded-lg text-[10.5px] font-extrabold transition-all ${
+                  kerentananCode === "7171" ? "bg-[#0EA5E9] text-white shadow-xs" : "text-slate-500 hover:text-slate-900"
+                }`}
+                title="Muat Survey Kerentanan 7171"
+              >
+                7171
+              </button>
+              <button
+                onClick={() => setKerentananCode("7172")}
+                className={`px-2 py-1 rounded-lg text-[10.5px] font-extrabold transition-all ${
+                  kerentananCode === "7172" ? "bg-[#0EA5E9] text-white shadow-xs" : "text-slate-500 hover:text-slate-900"
+                }`}
+                title="Muat Survey Kerentanan 7172"
+              >
+                7172
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Toggle Bencana JSON Markers */}
         <button

@@ -4,11 +4,12 @@ import path from 'path';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const code = searchParams.get('code') || '7171';
+  const code = searchParams.get('code') || '7172';
 
+  // 1. Try Live InARISK API with 3s timeout
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
 
     const targetUrl = 'https://inarisk2.bnpb.go.id/api/kerentanan/get-data/' + code;
     const res = await fetch(targetUrl, {
@@ -29,12 +30,13 @@ export async function GET(request: Request) {
       });
     }
   } catch (e) {
-    console.error('Fetch inarisk error:', e);
+    console.error('Fetch inarisk live API error:', e);
   }
 
-  // Fallback to local file if fetch fails or times out
+  // 2. Fallback to local cached JSON file (/public/data/kerentanan_7171.json or kerentanan_7172.json)
   try {
-    const filePath = path.join(process.cwd(), 'public', 'data', 'kerentanan_7172.json');
+    const fileName = 'kerentanan_' + code + '.json';
+    const filePath = path.join(process.cwd(), 'public', 'data', fileName);
     if (fs.existsSync(filePath)) {
       const localData = fs.readFileSync(filePath, 'utf-8');
       return new NextResponse(localData, {
