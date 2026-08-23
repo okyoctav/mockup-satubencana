@@ -224,7 +224,7 @@ function tileToBbox4326(x: number, y: number, z: number): string {
 function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, isImageServer = false, useLngLat = false, layersParam = 'show:0', token?: string): any {
   let cleanUrl = serviceUrl;
   let localLayersParam = layersParam;
-  const match = serviceUrl.match(/\/(MapServer|FeatureServer)\/(\d+)$/);
+  const match = serviceUrl.match(/\/MapServer\/(\d+)$/);
   if (match && match.index !== undefined) {
     // const serviceType = match[1];
     // const layerId = match[2];
@@ -902,7 +902,6 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
   const drawLayerRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activeDrawRef = useRef<any>(null);
-  const kjsLayerRef = useRef<L.GeoJSON | null>(null);
 
   const [activeBasemap, setActiveBasemap] = useState('esri_imagery');
   const [draftBasemap, setDraftBasemap] = useState('esri_imagery');
@@ -1084,27 +1083,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
     if (baseLayersRef.current['esri_imagery']) baseLayersRef.current['esri_imagery'].addTo(map);
 
-    // Load GeoJSON
-    fetch('/data/kjs_bencana.json')
-      .then((r) => r.json())
-      .then((geoJsonData) => {
-        const geoLayer = L.geoJSON(geoJsonData, {
-          style: { color: '#0EA5E9', weight: 1.5, opacity: 0.8, fillOpacity: 0.15 },
-          onEachFeature: (feature, layer) => {
-            const prop = feature.properties || {};
-            layer.bindPopup(`
-              <div style="font-family:sans-serif; padding:4px;">
-                <div style="font-weight:bold; color:#19506e; font-size:12px;">${prop.WADMKK || prop.NAMOBJ || 'Wilayah Dukcapil'}</div>
-                <div style="font-size:11px; color:#555; margin-top:2px;">Provinsi: ${prop.WADMPR || '-'}</div>
-              </div>
-            `);
-          },
-        });
-        kjsLayerRef.current = geoLayer;
-        geoLayer.addTo(map);
-      })
-      .catch(() => null);
-
+    // kjs_bencana.json disabled as requested
     return () => {
       map.remove();
       mapRef.current = null;
