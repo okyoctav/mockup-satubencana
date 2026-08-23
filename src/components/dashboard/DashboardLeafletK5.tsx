@@ -1009,7 +1009,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
   useEffect(() => {
     const fetchKerentanan = async () => {
       try {
-        const res = await fetch("https://inarisk2.bnpb.go.id/api/kerentanan/get-data/7172", { cache: "no-store" });
+        const res = await fetch("https://inarisk2.bnpb.go.id/api/kerentanan/get-data/7171", { cache: "no-store" });
         const json = await res.json();
         if (Array.isArray(json)) {
           setKerentananData(json);
