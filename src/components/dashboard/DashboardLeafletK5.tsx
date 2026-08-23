@@ -1974,6 +1974,33 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
               >
                 7172
               </button>
+
+              {/* Sync Realtime Button */}
+              <button
+                onClick={async () => {
+                  try {
+                    const r = await fetch("/api/kerentanan/sync", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ code: kerentananCode }),
+                    });
+                    const res = await r.json();
+                    if (res.success) {
+                      alert(`✅ File kerentanan_${kerentananCode}.json berhasil diperbarui!`);
+                      // Trigger refetch
+                      setKerentananCode((prev) => (prev === "7171" ? "7171" : "7172"));
+                    } else {
+                      alert("⚠️ " + (res.error || "Gagal memperbarui file JSON"));
+                    }
+                  } catch {
+                    alert("⚠️ Gagal memperbarui file JSON lokal");
+                  }
+                }}
+                className="px-1.5 py-1 rounded-lg text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-all flex items-center gap-0.5"
+                title="Sync & Update JSON Realtime dari InARISK"
+              >
+                🔄 <span className="hidden sm:inline">Sync</span>
+              </button>
             </div>
           )}
         </div>
