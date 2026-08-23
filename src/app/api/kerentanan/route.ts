@@ -14,8 +14,14 @@ export async function GET() {
       return NextResponse.json({ error: 'Gagal mengambil data kerentanan dari InARISK' }, { status: res.status });
     }
 
-    const data = await res.json();
-    return NextResponse.json(data);
+    const rawText = await res.text();
+    return new NextResponse(rawText, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, max-age=0',
+      },
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Terjadi kesalahan server';
     return NextResponse.json({ error: message }, { status: 500 });
