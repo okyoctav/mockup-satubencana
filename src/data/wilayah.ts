@@ -118,6 +118,12 @@ export const WILAYAH: Wilayah[] = [
   { nama: 'Makassar', tipe: 'kota', provinsi: 'Sulawesi Selatan', lat: -5.1477, lng: 119.4327, zoom: 12 },
   { nama: 'Palu', tipe: 'kota', provinsi: 'Sulawesi Tengah', lat: -0.8917, lng: 119.8707, zoom: 12 },
   { nama: 'Manado', tipe: 'kota', provinsi: 'Sulawesi Utara', lat: 1.4748, lng: 124.8421, zoom: 12 },
+  // Sulawesi Utara kabupaten/kota
+  { nama: 'Bitung', tipe: 'kota', provinsi: 'Sulawesi Utara', lat: 1.4451, lng: 125.1895, zoom: 12 },
+  { nama: 'Minahasa Utara', tipe: 'kabupaten', provinsi: 'Sulawesi Utara', lat: 1.4285, lng: 124.9754, zoom: 11 },
+  { nama: 'Minahasa', tipe: 'kabupaten', provinsi: 'Sulawesi Utara', lat: 1.2589, lng: 124.8761, zoom: 11 },
+  { nama: 'Tomohon', tipe: 'kota', provinsi: 'Sulawesi Utara', lat: 1.3283, lng: 124.8398, zoom: 12 },
+  { nama: 'Kotamobagu', tipe: 'kota', provinsi: 'Sulawesi Utara', lat: 0.7225, lng: 124.3168, zoom: 12 },
   { nama: 'Kendari', tipe: 'kota', provinsi: 'Sulawesi Tenggara', lat: -3.9985, lng: 122.5127, zoom: 12 },
   { nama: 'Donggala', tipe: 'kabupaten', provinsi: 'Sulawesi Tengah', lat: -0.5437, lng: 119.7422, zoom: 11 },
   { nama: 'Sigi', tipe: 'kabupaten', provinsi: 'Sulawesi Tengah', lat: -1.1325, lng: 120.0014, zoom: 11 },
