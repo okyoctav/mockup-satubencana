@@ -1068,7 +1068,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
   // Fetch MapServer Legends
   useEffect(() => {
-    BNPB_LAYERS.filter((l) => l.type === 'MapServer' && activeOverlays.includes(l.id)).forEach((layer) => {
+    BNPB_LAYERS.filter((l) => l.type === 'MapServer' && !l.url.endsWith('.json') && activeOverlays.includes(l.id)).forEach((layer) => {
       const fetchLegendWithToken = (tok?: string) => {
         const legendUrl = tok ? `${layer.url}/legend?f=pjson&token=${tok}` : `${layer.url}/legend?f=pjson`;
         fetch(legendUrl)
