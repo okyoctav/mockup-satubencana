@@ -1491,7 +1491,71 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       const def = BNPB_LAYERS.find((l) => l.id === id);
       if (!def) return;
 
-      if (def.type === 'VectorTileServer') {
+      if (id === 'kjs_individu') {
+        if (!mapRef.current || overlayLayersRef.current[id]) return;
+        
+        // Fetch page_1.json through page_276.json in parallel
+        const pagePromises = Array.from({ length: 276 }, (_, i) =>
+          fetch(`/datakjs/page_${i + 1}.json`, { cache: 'no-store' })
+            .then((r) => r.json())
+            .then((json) => (Array.isArray(json) ? json : json?.data || []))
+            .catch(() => [])
+        );
+
+        Promise.all(pagePromises).then((results) => {
+          if (!mapRef.current) return;
+          const items = results.flat();
+          const markers: L.Marker[] = [];
+
+          items.forEach((item: any) => {
+            if (item.latitude == null || item.longitude == null) return;
+            const lat = parseFloat(item.latitude);
+            const lng = parseFloat(item.longitude);
+            if (isNaN(lat) || isNaN(lng)) return;
+
+            // Purple Diamond Symbol (#8B5CF6)
+            const icon = L.divIcon({
+              className: '',
+              html: '<div style="background:#8B5CF6; width:14px; height:14px; transform:rotate(45deg); border:2px solid #FFFFFF; box-shadow:0 2px 5px rgba(0,0,0,0.4); border-radius:3px;"></div>',
+              iconSize: [14, 14],
+              iconAnchor: [7, 7],
+            });
+
+            const jkText = Number(item.jenis_kelamin) === 1 ? 'Laki-Laki' : Number(item.jenis_kelamin) === 2 ? 'Perempuan' : '-';
+            const desilText = item.desil_kab != null ? 'Desil ' + item.desil_kab : '-';
+            const desilDesc = item.desil_kab === 1 ? 'Sangat Miskin / Destitute (Desil 1)' : item.desil_kab === 2 ? 'Miskin (Desil 2)' : item.desil_kab === 3 ? 'Hampir Miskin (Desil 3)' : 'Desil ' + item.desil_kab;
+
+            const marker = L.marker([lat, lng], { icon });
+            marker.bindPopup(`
+              <div style="font-family:sans-serif; min-width:240px; font-size:11px; color:#333; line-height:1.5;">
+                <div style="font-weight:bold; color:#8B5CF6; font-size:12px; border-bottom:1px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px; display:flex; align-items:center; gap:4px;">
+                  <span>🟣 Data KJS Individu (SEPAKAT PK)</span>
+                </div>
+                <div style="font-size:10.5px; margin-bottom:4px;">
+                  <b>No. Baris:</b> ${item.RowNum || '-'}
+                </div>
+                <table style="width:100%; border-collapse:collapse; font-size:10.5px;">
+                  <tr><td style="color:#64748b; padding:2px 0;">Jenis Kelamin:</td><td style="font-weight:600;">${jkText}</td></tr>
+                  <tr><td style="color:#64748b; padding:2px 0;">Tingkat Desil Kab:</td><td style="font-weight:700; color:#8B5CF6;">${desilText} (${desilDesc})</td></tr>
+                  <tr><td style="color:#64748b; padding:2px 0;">Lansia:</td><td style="font-weight:600;">${item.lansia === 1 ? 'Ya (1)' : 'Tidak (0)'}</td></tr>
+                  <tr><td style="color:#64748b; padding:2px 0;">Balita:</td><td style="font-weight:600;">${item.balita === 1 ? 'Ya (1)' : 'Tidak (0)'}</td></tr>
+                  <tr><td style="color:#64748b; padding:2px 0;">Disabilitas:</td><td style="font-weight:600;">${item.disabilitas_sedang_berat === 1 ? 'Ya (Sedang/Berat)' : 'Tidak'}</td></tr>
+                  <tr><td style="color:#64748b; padding:2px 0;">Ibu Hamil:</td><td style="font-weight:600;">${item.ibu_hamil === 1 ? 'Ya' : 'Tidak / N/A'}</td></tr>
+                </table>
+                <div style="margin-top:6px; padding:4px 6px; background:#F1F5F9; border-radius:6px; font-size:10px; color:#475569;">
+                  📊 <b>Analisis Desil Kab:</b> Rumah tangga ini tergolong ke dalam <b>${desilDesc}</b> berdasarkan pendataan sasaran percepatan penghapusan kemiskinan ekstrem SEPAKAT BAPPENAS.
+                </div>
+              </div>
+            `);
+
+            markers.push(marker);
+          });
+
+          const group = L.layerGroup(markers);
+          overlayLayersRef.current[id] = group;
+          group.addTo(mapRef.current);
+        });
+      } else if (def.type === 'VectorTileServer') {
         const tryAddVector = () => {
           if (!mapRef.current || overlayLayersRef.current[id]) return;
           const vl = createVectorTileLayer(L, def.url, def.color);
