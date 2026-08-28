@@ -161,7 +161,7 @@ const DUKCAPIL_KEL_URL = 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/serv
 const BIG_DESAKEL_URL = 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/BATAS_DESAKEL_AR/MapServer/0';
 
 const BNPB_LAYERS: BnpbLayer[] = [
-  { id: 'kjs_individu', label: 'Data KJS Individu (SEPAKAT PK 276 Pages)', color: '#8B5CF6', emoji: '🟣', url: '/datakjs/page_1.json', type: 'Dapodik', group: 'BAPPENAS' },
+  { id: 'kjs_individu', label: 'Data KJS Individu (SEPAKAT PK Page 1-5)', color: '#8B5CF6', emoji: '🟣', url: '/datakjs/page_1.json', type: 'Dapodik', group: 'BAPPENAS' },
   { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
   { id: 'bappenas_batas_desakel', label: 'Batas Kelurahan/Desa (BAPPENAS)', color: '#0284C7', emoji: '🏛️', url: 'https://mandata.bappenas.go.id/geoserver/ows', type: 'WMS', group: 'BAPPENAS', layersParam: 'BATAS_WILAYAH:ADMINISTRASI_AR_KELDESA_10K_2023' },
   { id: 'dapodik_sd', label: 'Sekolah Dasar (Dapodik)', color: '#EF4444', emoji: '🏠', url: '/data/dapodik/sd', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
@@ -1014,7 +1014,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       try {
         if (kerentananCode === 'kjs_individu') {
           // Fetch page_1.json through page_276.json in parallel batches
-          const pagePromises = Array.from({ length: 276 }, (_, i) =>
+          const pagePromises = Array.from({ length: 5 }, (_, i) =>
             fetch(`/datakjs/page_${i + 1}.json`, { cache: 'no-store' })
               .then((r) => r.json())
               .then((json) => (Array.isArray(json) ? json : json?.data || []))
@@ -1222,7 +1222,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
         marker.bindPopup(`
           <div style="font-family:sans-serif; min-width:240px; font-size:11px; color:#333; line-height:1.5;">
             <div style="font-weight:bold; color:#8B5CF6; font-size:12px; border-bottom:1px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px; display:flex; align-items:center; gap:4px;">
-              <span>🟣 Data KJS Individu (Page 1 - 276)</span>
+              <span>🟣 Data KJS Individu (Page 1 - 5)</span>
             </div>
             <div style="font-size:10.5px; margin-bottom:4px;">
               <b>No. Baris:</b> ${item.RowNum || '-'}
@@ -1495,7 +1495,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
         if (!mapRef.current || overlayLayersRef.current[id]) return;
         
         // Fetch page_1.json through page_276.json in parallel
-        const pagePromises = Array.from({ length: 276 }, (_, i) =>
+        const pagePromises = Array.from({ length: 5 }, (_, i) =>
           fetch(`/datakjs/page_${i + 1}.json`, { cache: 'no-store' })
             .then((r) => r.json())
             .then((json) => (Array.isArray(json) ? json : json?.data || []))
