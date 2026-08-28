@@ -161,7 +161,7 @@ const DUKCAPIL_KEL_URL = 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/serv
 const BIG_DESAKEL_URL = 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/BATAS_DESAKEL_AR/MapServer/0';
 
 const BNPB_LAYERS: BnpbLayer[] = [
-  { id: 'kjs_individu', label: 'Data KJS Individu (SEPAKAT PK 276 Pages)', color: '#8B5CF6', emoji: '🟣', url: '/datakjs/page_1.json', type: 'MapServer', group: 'BAPPENAS' },
+  { id: 'kjs_individu', label: 'Data KJS Individu (SEPAKAT PK 276 Pages)', color: '#8B5CF6', emoji: '🟣', url: '/datakjs/page_1.json', type: 'Dapodik', group: 'BAPPENAS' },
   { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
   { id: 'bappenas_batas_desakel', label: 'Batas Kelurahan/Desa (BAPPENAS)', color: '#0284C7', emoji: '🏛️', url: 'https://mandata.bappenas.go.id/geoserver/ows', type: 'WMS', group: 'BAPPENAS', layersParam: 'BATAS_WILAYAH:ADMINISTRASI_AR_KELDESA_10K_2023' },
   { id: 'dapodik_sd', label: 'Sekolah Dasar (Dapodik)', color: '#EF4444', emoji: '🏠', url: '/data/dapodik/sd', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
@@ -1574,6 +1574,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
         overlayLayersRef.current[id].addTo(map);
       } else {
         const addMapServerLayer = (tok?: string) => {
+          if (!mapRef.current || overlayLayersRef.current[id] || def.url.endsWith('.json')) return;
           if (!mapRef.current || overlayLayersRef.current[id]) return;
           const currentOpacity = layerOpacities[id] ?? 1.0;
           overlayLayersRef.current[id] = createArcGISExportLayer(
