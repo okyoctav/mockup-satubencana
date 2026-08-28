@@ -6,13 +6,17 @@ interface Props {
   estimationData?: EstimationData | null;
 }
 
-// Rich Markdown Table & Content Formatter
+// Rich Markdown Table, Live SVG Visual Canvas, & Content Formatter
 function renderFormattedMarkdown(content: string) {
   const lines = content.split('\n');
   const elements: React.ReactNode[] = [];
   let inTable = false;
   let tableHeader: string[] = [];
   let tableRows: string[][] = [];
+
+  let inCodeBlock = false;
+  let codeBlockLang = '';
+  let codeBlockContent: string[] = [];
 
   const flushTable = (keyIndex: number) => {
     if (tableRows.length > 0 || tableHeader.length > 0) {
@@ -61,6 +65,76 @@ function renderFormattedMarkdown(content: string) {
 
   lines.forEach((line, i) => {
     const trimmed = line.trim();
+
+    // Codeblock start / end detection (```xml / ```svg / ```)
+    if (trimmed.startsWith('```')) {
+      if (!inCodeBlock) {
+        inCodeBlock = true;
+        codeBlockLang = trimmed.replace('```', '').trim().toLowerCase();
+        codeBlockContent = [];
+      } else {
+        inCodeBlock = false;
+        const codeText = codeBlockContent.join('\n');
+
+        if (codeBlockLang === 'xml' || codeBlockLang === 'svg' || codeText.includes('<svg')) {
+          const svgStartIdx = codeText.indexOf('<svg');
+          const svgEndIdx = codeText.lastIndexOf('</svg>');
+          
+          if (svgStartIdx !== -1 && svgEndIdx !== -1) {
+            const cleanSvgText = codeText.substring(svgStartIdx, svgEndIdx + 6);
+            const svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(cleanSvgText);
+
+            elements.push(
+              <div key={`svg-card-${i}`} className="my-4 p-4 bg-slate-900 border border-slate-800 rounded-2xl space-y-3 shadow-xl text-white">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2.5 flex-wrap gap-2">
+                  <div className="flex items-center gap-2 text-amber-400 font-bold text-xs">
+                    <span>🖼️ Live Canvas Infografis Visual SVG</span>
+                  </div>
+                  <a
+                    href={svgDataUrl}
+                    download={`Infografis_Visual_Bencana_${new Date().toISOString().slice(0, 10)}.svg`}
+                    className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-[11px] flex items-center gap-1.5 transition-all shadow-md"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    <span>Unduh Gambar Visual (.svg)</span>
+                  </a>
+                </div>
+
+                {/* Rendered Live SVG Image Canvas */}
+                <div className="p-3 bg-slate-950/90 rounded-xl flex items-center justify-center overflow-x-auto border border-slate-800/80 min-h-[300px]">
+                  <div dangerouslySetInnerHTML={{ __html: cleanSvgText }} className="max-w-full" />
+                </div>
+
+                <details className="text-[10px] text-slate-400">
+                  <summary className="cursor-pointer font-mono hover:text-slate-200 py-1">Lihat / Salin Kode Source SVG XML</summary>
+                  <pre className="p-3 bg-slate-950 font-mono text-slate-300 rounded-xl overflow-x-auto text-[10.5px] max-h-48 border border-slate-800">
+                    {codeText}
+                  </pre>
+                </details>
+              </div>
+            );
+          } else {
+            elements.push(
+              <pre key={`code-${i}`} className="my-2 p-3 bg-slate-900 text-emerald-400 font-mono text-xs rounded-xl overflow-x-auto border border-slate-800">
+                {codeText}
+              </pre>
+            );
+          }
+        } else {
+          elements.push(
+            <pre key={`code-${i}`} className="my-2 p-3 bg-slate-900 text-emerald-400 font-mono text-xs rounded-xl overflow-x-auto border border-slate-800">
+              {codeText}
+            </pre>
+          );
+        }
+      }
+      return;
+    }
+
+    if (inCodeBlock) {
+      codeBlockContent.push(line);
+      return;
+    }
 
     if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
       const cells = trimmed.split('|').slice(1, -1);
@@ -229,7 +303,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
           messages: [
             {
               role: 'system',
-              content: 'Anda adalah Asisten AI Antigravity untuk Penanggulangan Bencana Indonesia. WAJIB sajikan data kuantitatif populasi, gender, dan kelompok rentan dalam TABEL MARKDOWN STANDAR (| Kategori | Jumlah | Persentase |) yang rapi, indah, dan terstruktur. Berikan analisis profesional, terstruktur, berbasis data riil spasial bencana, dan solutif.',
+              content: 'Anda adalah Asisten AI Antigravity untuk Penanggulangan Bencana Indonesia. Apabila user meminta infografis/gambar/visualisasi, WAJIB sertakan blok kode SVG lengkap (```xml <svg width="800" height="500" ...></svg> ```). Sajikan data kuantitatif dalam TABEL MARKDOWN STANDAR (| Kategori | Jumlah | Persentase |). Berikan analisis profesional, terstruktur, berbasis data riil spasial bencana, dan solutif.',
             },
             {
               role: 'user',
@@ -285,7 +359,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
   };
 
   const handleGenerateInfographic = () => {
-    const promptText = "Buatkan infografis visual terstruktur lengkap dengan tabel profil populasi terdampak, rincian gender, dan diagram persentase kelompok rentan.";
+    const promptText = "Buatkan infografis visual gambar poster bencana lengkap dengan elemen kode SVG <svg width='800' height='500' ...> untuk dashboard spasial, tabel profil populasi terdampak, dan rincian kelompok rentan.";
     handleGenerateAI(promptText);
   };
 
@@ -452,7 +526,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
               className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 text-[11px] font-bold transition-all flex items-center gap-1.5 shadow-2xs"
             >
               <PieChart className="w-3.5 h-3.5 text-purple-600" />
-              <span>📊 Buat Infografis</span>
+              <span>📊 Buat Infografis Visual</span>
             </button>
 
             <button
@@ -485,7 +559,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
               </div>
               <h4 className="font-bold text-slate-800 text-sm">Tes Pengujian AI 9Router Tunnel</h4>
               <p className="text-xs text-slate-500 max-w-md mx-auto">
-                Ketik pertanyaan atau instruksi analisis bencana di bawah ini. AI akan merespons menggunakan model <strong>{selectedModel}</strong> dengan format tabel dan ringkasan yang rapi.
+                Ketik pertanyaan atau instruksi analisis bencana di bawah ini. AI akan merespons menggunakan model <strong>{selectedModel}</strong> dengan format tabel dan kanvas infografis visual SVG yang dapat diunduh.
               </p>
             </div>
           ) : (
