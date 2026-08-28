@@ -968,9 +968,9 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
   const [bmkgData, setBmkgData] = useState<BmkgGempa[]>([]);
   const [showBencanaData, setShowBencanaData] = useState(true);
   const [showKerentanan, setShowKerentanan] = useState(true);
-  const [kerentananCode, setKerentananCode] = useState<'7171' | '7172'>('7172');
+  const [kerentananCode, setKerentananCode] = useState<'7171' | '7172' | 'bitung_kolut'>('7172');
   const [kerentananData, setKerentananData] = useState<KerentananData[]>([]);
-  const kerentananMarkersRef = useRef<L.CircleMarker[]>([]);
+  const kerentananMarkersRef = useRef<any[]>([]);
   const [showLegend, setShowLegend] = useState(false);
   const [showDrawTools, setShowDrawTools] = useState(false);
   const [activeDraw, setActiveDraw] = useState<string | null>(null);
@@ -1019,15 +1019,17 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
     document.head.appendChild(style);
   }, []);
 
-    // Fetch InARISK Kerentanan Data (Supports 7171 & 7172 selector)
+    // Fetch InARISK Kerentanan Data (Supports 7171, 7172 & bitung_kolut SEPAKAT PK selector)
   useEffect(() => {
     const fetchKerentanan = async () => {
       try {
-        const res = await fetch(`/api/kerentanan?code=${kerentananCode}`, { cache: "no-store" });
+        const fetchUrl = kerentananCode === 'bitung_kolut' 
+          ? '/data/kjs_bitung_kolut.json' 
+          : `/api/kerentanan?code=${kerentananCode}`;
+        const res = await fetch(fetchUrl, { cache: "no-store" });
         const json = await res.json();
-        if (Array.isArray(json)) {
-          setKerentananData(json);
-        }
+        const items = Array.isArray(json) ? json : json?.data || [];
+        setKerentananData(items);
       } catch {
         setKerentananData([]);
       }
@@ -1186,7 +1188,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
     });
   }, [data, showBencanaData]);
 
-    // Render InARISK Kerentanan Markers
+    // Render InARISK Kerentanan / SEPAKAT PK Markers
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -1196,52 +1198,94 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
     if (!showKerentanan) return;
 
-    kerentananData.forEach((item) => {
-      if (!item.latitude || !item.longitude) return;
+    kerentananData.forEach((item: any) => {
+      if (item.latitude == null || item.longitude == null) return;
       const lat = parseFloat(item.latitude);
       const lng = parseFloat(item.longitude);
       if (isNaN(lat) || isNaN(lng)) return;
 
-      const riskColor = item.nilai_index_kerentanan === "Tinggi" ? "#DC2626" : item.nilai_index_kerentanan === "Sedang" ? "#F59E0B" : "#10B981";
-      const circle = L.circleMarker([lat, lng], {
-        radius: 7,
-        color: "#FFFFFF",
-        fillColor: riskColor,
-        fillOpacity: 0.9,
-        weight: 2,
-      });
+      let marker: L.Marker;
 
-      const fotoHtml = item.foto && item.foto.length > 0
-        ? `<div style="margin-top:6px; text-align:center;"><img src="${item.foto[0]}" alt="Foto Bangunan" style="width:100%; max-height:140px; object-fit:cover; border-radius:8px; border:1px solid #ddd;" /></div>`
-        : "";
+      if (kerentananCode === 'bitung_kolut') {
+        // Purple Diamond Symbol for SEPAKAT PK
+        const icon = L.divIcon({
+          className: '',
+          html: '<div style="background:#8B5CF6; width:14px; height:14px; transform:rotate(45deg); border:2px solid #FFFFFF; box-shadow:0 2px 5px rgba(0,0,0,0.4); border-radius:3px;"></div>',
+          iconSize: [14, 14],
+          iconAnchor: [7, 7],
+        });
 
-      circle.bindPopup(`
-        <div style="font-family:sans-serif; min-width:240px; max-width:280px; font-size:11px; color:#333; line-height:1.4;">
-          <div style="font-weight:bold; color:#0EA5E9; font-size:12px; border-bottom:1px solid #eee; padding-bottom:3px; margin-bottom:4px;">
-            🏚️ Survey Kerentanan InARISK
+        const jkText = item.jenis_kelamin === 1 ? 'Laki-Laki' : item.jenis_kelamin === 2 ? 'Perempuan' : '-';
+        const desilText = item.desil_kab != null ? 'Desil ' + item.desil_kab : '-';
+        const desilDesc = item.desil_kab === 1 ? 'Sangat Miskin / Destitute (Desil 1)' : item.desil_kab === 2 ? 'Miskin (Desil 2)' : item.desil_kab === 3 ? 'Hampir Miskin (Desil 3)' : 'Desil ' + item.desil_kab;
+
+        marker = L.marker([lat, lng], { icon });
+        marker.bindPopup(`
+          <div style="font-family:sans-serif; min-width:240px; font-size:11px; color:#333; line-height:1.5;">
+            <div style="font-weight:bold; color:#8B5CF6; font-size:12px; border-bottom:1px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px; display:flex; align-items:center; gap:4px;">
+              <span>🟣 Data SEPAKAT PK (Bitung Kolut)</span>
+            </div>
+            <div style="font-size:10.5px; margin-bottom:4px;">
+              <b>No. Baris:</b> ${item.RowNum || '-'}
+            </div>
+            <table style="width:100%; border-collapse:collapse; font-size:10.5px;">
+              <tr><td style="color:#64748b; padding:2px 0;">Jenis Kelamin:</td><td style="font-weight:600;">${jkText}</td></tr>
+              <tr><td style="color:#64748b; padding:2px 0;">Tingkat Desil Kab:</td><td style="font-weight:700; color:#8B5CF6;">${desilText} (${desilDesc})</td></tr>
+              <tr><td style="color:#64748b; padding:2px 0;">Lansia:</td><td style="font-weight:600;">${item.lansia === 1 ? 'Ya (1)' : 'Tidak (0)'}</td></tr>
+              <tr><td style="color:#64748b; padding:2px 0;">Balita:</td><td style="font-weight:600;">${item.balita === 1 ? 'Ya (1)' : 'Tidak (0)'}</td></tr>
+              <tr><td style="color:#64748b; padding:2px 0;">Disabilitas:</td><td style="font-weight:600;">${item.disabilitas_sedang_berat === 1 ? 'Ya (Sedang/Berat)' : 'Tidak'}</td></tr>
+              <tr><td style="color:#64748b; padding:2px 0;">Ibu Hamil:</td><td style="font-weight:600;">${item.ibu_hamil === 1 ? 'Ya' : 'Tidak / N/A'}</td></tr>
+            </table>
+            <div style="margin-top:6px; padding:4px 6px; background:#F1F5F9; border-radius:6px; font-size:10px; color:#475569;">
+              📊 <b>Analisis Desil Kab:</b> Rumah tangga ini tergolong ke dalam <b>${desilDesc}</b> berdasarkan pendataan sasaran percepatan penghapusan kemiskinan ekstrem SEPAKAT BAPPENAS.
+            </div>
           </div>
-          <div style="font-weight:bold; font-size:11px; color:#1e293b;">${item.no_kuesioner || "-"}</div>
-          ${fotoHtml}
-          <table style="width:100%; margin-top:6px; border-collapse:collapse; font-size:10.5px;">
-            <tr><td style="color:#64748b;">Responden:</td><td style="font-weight:600;">${item.nama_responden || "-"} (${item.hubungan_dengan_penghuni || "-"})</td></tr>
-            <tr><td style="color:#64748b;">Gender/Usia:</td><td style="font-weight:600;">${item.jenis_kelamin?.toUpperCase() || "-"} / ${item.usia || "-"} thn</td></tr>
-            <tr><td style="color:#64748b;">Pendidikan:</td><td style="font-weight:600;">${item.pendidikan_terakhir || "-"}</td></tr>
-            <tr><td style="color:#64748b;">Wilayah:</td><td style="font-weight:600;">Desa ${item.nama_desa || "-"} (RT ${item.rt || "-"}/RW ${item.rw || "-"})</td></tr>
-            <tr><td style="color:#64748b;">Kecamatan:</td><td style="font-weight:600;">${item.kecamatan || "-"}</td></tr>
-            <tr><td style="color:#64748b;">Fungsi Bangunan:</td><td style="font-weight:600;">${item.fungsi_bangunan || "-"}</td></tr>
-            <tr><td style="color:#64748b;">Jumlah Penghuni:</td><td style="font-weight:600;">${item.hasil_jumlah_penghuni ?? 0} (Siang: ${item.hasil_penghuni_siang || 0}, Malam: ${item.hasil_penghuni_malam || 0})</td></tr>
-            <tr><td style="color:#64748b;">Kelompok Rentan:</td><td style="font-weight:600;">Perempuan:${item.hasil_perempuan ?? 0}, Balita:${item.hasil_balita ?? 0}, Manula:${item.hasil_manula ?? 0}, Difabel:${item.hasil_difabel ?? 0}</td></tr>
-            <tr><td style="color:#64748b;">Penyakit/PKH:</td><td style="font-weight:600;">${item.hasil_penderita_penyakit ?? 0} / PKH: ${item.terima_pkh || "-"}</td></tr>
-            <tr><td style="color:#64748b;">Penghasilan:</td><td style="font-weight:600;">${item.penghasilan || "-"}</td></tr>
-            <tr><td style="color:#64748b;">Indeks Risiko:</td><td style="font-weight:700; color:${riskColor};">${item.nilai_index_kerentanan || "Rendah"} (${item.risk?.toFixed(3) || "0.000"})</td></tr>
-            <tr><td style="color:#64748b;">Waktu Survey:</td><td style="color:#64748b;">${item.answer_date ? new Date(item.answer_date).toLocaleString("id-ID") : "-"}</td></tr>
-          </table>
-        </div>
-      `);
-      circle.addTo(map);
-      kerentananMarkersRef.current.push(circle);
+        `);
+      } else {
+        // Standard Circle Marker for InARISK Kerentanan
+        const riskColor = item.nilai_index_kerentanan === "Tinggi" ? "#DC2626" : item.nilai_index_kerentanan === "Sedang" ? "#F59E0B" : "#10B981";
+        const circle = L.circleMarker([lat, lng], {
+          radius: 7,
+          color: "#FFFFFF",
+          fillColor: riskColor,
+          fillOpacity: 0.9,
+          weight: 2,
+        });
+
+        const fotoHtml = item.foto && item.foto.length > 0
+          ? `<div style="margin-top:6px; text-align:center;"><img src="${item.foto[0]}" alt="Foto Bangunan" style="width:100%; max-height:140px; object-fit:cover; border-radius:8px; border:1px solid #ddd;" /></div>`
+          : "";
+
+        circle.bindPopup(`
+          <div style="font-family:sans-serif; min-width:240px; max-width:280px; font-size:11px; color:#333; line-height:1.4;">
+            <div style="font-weight:bold; color:#0EA5E9; font-size:12px; border-bottom:1px solid #eee; padding-bottom:3px; margin-bottom:4px;">
+              🏚️ Survey Kerentanan InARISK
+            </div>
+            <div style="font-weight:bold; font-size:11px; color:#1e293b;">${item.no_kuesioner || "-"}</div>
+            ${fotoHtml}
+            <table style="width:100%; margin-top:6px; border-collapse:collapse; font-size:10.5px;">
+              <tr><td style="color:#64748b;">Responden:</td><td style="font-weight:600;">${item.nama_responden || "-"} (${item.hubungan_dengan_penghuni || "-"})</td></tr>
+              <tr><td style="color:#64748b;">Gender/Usia:</td><td style="font-weight:600;">${item.jenis_kelamin?.toString()?.toUpperCase() || "-"} / ${item.usia || "-"} thn</td></tr>
+              <tr><td style="color:#64748b;">Pendidikan:</td><td style="font-weight:600;">${item.pendidikan_terakhir || "-"}</td></tr>
+              <tr><td style="color:#64748b;">Wilayah:</td><td style="font-weight:600;">Desa ${item.nama_desa || "-"} (RT ${item.rt || "-"}/RW ${item.rw || "-"})</td></tr>
+              <tr><td style="color:#64748b;">Kecamatan:</td><td style="font-weight:600;">${item.kecamatan || "-"}</td></tr>
+              <tr><td style="color:#64748b;">Fungsi Bangunan:</td><td style="font-weight:600;">${item.fungsi_bangunan || "-"}</td></tr>
+              <tr><td style="color:#64748b;">Jumlah Penghuni:</td><td style="font-weight:600;">${item.hasil_jumlah_penghuni ?? 0} (Siang: ${item.hasil_penghuni_siang || 0}, Malam: ${item.hasil_penghuni_malam || 0})</td></tr>
+              <tr><td style="color:#64748b;">Kelompok Rentan:</td><td style="font-weight:600;">Perempuan:${item.hasil_perempuan ?? 0}, Balita:${item.hasil_balita ?? 0}, Manula:${item.hasil_manula ?? 0}, Difabel:${item.hasil_difabel ?? 0}</td></tr>
+              <tr><td style="color:#64748b;">Penyakit/PKH:</td><td style="font-weight:600;">${item.hasil_penderita_penyakit ?? 0} / PKH: ${item.terima_pkh || "-"}</td></tr>
+              <tr><td style="color:#64748b;">Penghasilan:</td><td style="font-weight:600;">${item.penghasilan || "-"}</td></tr>
+              <tr><td style="color:#64748b;">Indeks Risiko:</td><td style="font-weight:700; color:${riskColor};">${item.nilai_index_kerentanan || "Rendah"} (${item.risk?.toFixed(3) || "0.000"})</td></tr>
+              <tr><td style="color:#64748b;">Waktu Survey:</td><td style="color:#64748b;">${item.answer_date ? new Date(item.answer_date).toLocaleString("id-ID") : "-"}</td></tr>
+            </table>
+          </div>
+        `);
+        marker = circle as any;
+      }
+
+      marker.addTo(map);
+      kerentananMarkersRef.current.push(marker);
     });
-  }, [kerentananData, showKerentanan]);
+  }, [kerentananData, showKerentanan, kerentananCode]);
 
   // Render BMKG Earthquakes (Supports 1-Click Modes: Gempa Terkini M>=5, Gempa Dirasakan, Gempa Terbaru Autogempa)
   useEffect(() => {
