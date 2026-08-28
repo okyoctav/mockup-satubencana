@@ -54,6 +54,7 @@ interface KjsBitungKolutItem {
 }
 
 interface KerentananData {
+  [key: string]: unknown;
   no_kuesioner?: string;
   nama_responden?: string;
   hubungan_dengan_penghuni?: string;
@@ -970,7 +971,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
   const [showKerentanan, setShowKerentanan] = useState(true);
   const [kerentananCode, setKerentananCode] = useState<'7171' | '7172' | 'bitung_kolut'>('7172');
   const [kerentananData, setKerentananData] = useState<KerentananData[]>([]);
-  const kerentananMarkersRef = useRef<any[]>([]);
+  const kerentananMarkersRef = useRef<L.Layer[]>([]);
   const [showLegend, setShowLegend] = useState(false);
   const [showDrawTools, setShowDrawTools] = useState(false);
   const [activeDraw, setActiveDraw] = useState<string | null>(null);
@@ -1198,10 +1199,10 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
     if (!showKerentanan) return;
 
-    kerentananData.forEach((item: any) => {
+    kerentananData.forEach((item: KerentananData) => {
       if (item.latitude == null || item.longitude == null) return;
-      const lat = parseFloat(item.latitude);
-      const lng = parseFloat(item.longitude);
+      const lat = parseFloat(String(item.latitude));
+      const lng = parseFloat(String(item.longitude));
       if (isNaN(lat) || isNaN(lng)) return;
 
       let marker: L.Marker;
@@ -1215,7 +1216,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
           iconAnchor: [7, 7],
         });
 
-        const jkText = item.jenis_kelamin === 1 ? 'Laki-Laki' : item.jenis_kelamin === 2 ? 'Perempuan' : '-';
+        const jkText = Number(item.jenis_kelamin) === 1 ? 'Laki-Laki' : Number(item.jenis_kelamin) === 2 ? 'Perempuan' : '-';
         const desilText = item.desil_kab != null ? 'Desil ' + item.desil_kab : '-';
         const desilDesc = item.desil_kab === 1 ? 'Sangat Miskin / Destitute (Desil 1)' : item.desil_kab === 2 ? 'Miskin (Desil 2)' : item.desil_kab === 3 ? 'Hampir Miskin (Desil 3)' : 'Desil ' + item.desil_kab;
 
@@ -1265,7 +1266,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
             ${fotoHtml}
             <table style="width:100%; margin-top:6px; border-collapse:collapse; font-size:10.5px;">
               <tr><td style="color:#64748b;">Responden:</td><td style="font-weight:600;">${item.nama_responden || "-"} (${item.hubungan_dengan_penghuni || "-"})</td></tr>
-              <tr><td style="color:#64748b;">Gender/Usia:</td><td style="font-weight:600;">${item.jenis_kelamin?.toString()?.toUpperCase() || "-"} / ${item.usia || "-"} thn</td></tr>
+              <tr><td style="color:#64748b;">Gender/Usia:</td><td style="font-weight:600;">${String(item.jenis_kelamin || '-').toUpperCase()} / ${item.usia || "-"} thn</td></tr>
               <tr><td style="color:#64748b;">Pendidikan:</td><td style="font-weight:600;">${item.pendidikan_terakhir || "-"}</td></tr>
               <tr><td style="color:#64748b;">Wilayah:</td><td style="font-weight:600;">Desa ${item.nama_desa || "-"} (RT ${item.rt || "-"}/RW ${item.rw || "-"})</td></tr>
               <tr><td style="color:#64748b;">Kecamatan:</td><td style="font-weight:600;">${item.kecamatan || "-"}</td></tr>
@@ -1279,7 +1280,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
             </table>
           </div>
         `);
-        marker = circle as any;
+        marker = circle as unknown as L.Marker;
       }
 
       marker.addTo(map);
@@ -1514,7 +1515,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                 iconAnchor: [7, 7],
               });
 
-              const jkText = item.jenis_kelamin === 1 ? 'Laki-Laki' : item.jenis_kelamin === 2 ? 'Perempuan' : '-';
+              const jkText = Number(item.jenis_kelamin) === 1 ? 'Laki-Laki' : Number(item.jenis_kelamin) === 2 ? 'Perempuan' : '-';
               const desilText = item.desil_kab != null ? 'Desil ' + item.desil_kab : '-';
               const desilDesc = item.desil_kab === 1 ? 'Sangat Miskin / Destitute (Desil 1)' : item.desil_kab === 2 ? 'Miskin (Desil 2)' : item.desil_kab === 3 ? 'Hampir Miskin (Desil 3)' : 'Desil ' + item.desil_kab;
 
