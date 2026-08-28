@@ -956,7 +956,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
   const [bmkgData, setBmkgData] = useState<BmkgGempa[]>([]);
   const [showBencanaData, setShowBencanaData] = useState(true);
   const [showKerentanan, setShowKerentanan] = useState(true);
-  const [kerentananCode, setKerentananCode] = useState<'7171' | '7172' | 'bitung_kolut'>('7172');
+  const [kerentananCode, setKerentananCode] = useState<'7171' | '7172' | 'kjs_individu'>('7172');
   const [kerentananData, setKerentananData] = useState<KerentananData[]>([]);
   const kerentananMarkersRef = useRef<L.Layer[]>([]);
   const [showLegend, setShowLegend] = useState(false);
@@ -1007,17 +1007,27 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
     document.head.appendChild(style);
   }, []);
 
-    // Fetch InARISK Kerentanan Data (Supports 7171, 7172 & bitung_kolut SEPAKAT PK selector)
+    // Fetch InARISK Kerentanan Data (Supports 7171, 7172 & kjs_individu 276 pages selector)
   useEffect(() => {
     const fetchKerentanan = async () => {
       try {
-        const fetchUrl = kerentananCode === 'bitung_kolut' 
-          ? '/data/kjs_bitung_kolut.json' 
-          : `/api/kerentanan?code=${kerentananCode}`;
-        const res = await fetch(fetchUrl, { cache: "no-store" });
-        const json = await res.json();
-        const items = Array.isArray(json) ? json : json?.data || [];
-        setKerentananData(items);
+        if (kerentananCode === 'kjs_individu') {
+          // Fetch page_1.json through page_276.json in parallel batches
+          const pagePromises = Array.from({ length: 276 }, (_, i) =>
+            fetch(`/datakjs/page_${i + 1}.json`, { cache: 'no-store' })
+              .then((r) => r.json())
+              .then((json) => (Array.isArray(json) ? json : json?.data || []))
+              .catch(() => [])
+          );
+          const results = await Promise.all(pagePromises);
+          const allItems = results.flat();
+          setKerentananData(allItems);
+        } else {
+          const res = await fetch(`/api/kerentanan?code=${kerentananCode}`, { cache: "no-store" });
+          const json = await res.json();
+          const items = Array.isArray(json) ? json : json?.data || [];
+          setKerentananData(items);
+        }
       } catch {
         setKerentananData([]);
       }
@@ -1194,7 +1204,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
       let marker: L.Marker;
 
-      if (kerentananCode === 'bitung_kolut') {
+      if (kerentananCode === 'kjs_individu') {
         // Purple Diamond Symbol for SEPAKAT PK
         const icon = L.divIcon({
           className: '',
@@ -1211,7 +1221,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
         marker.bindPopup(`
           <div style="font-family:sans-serif; min-width:240px; font-size:11px; color:#333; line-height:1.5;">
             <div style="font-weight:bold; color:#8B5CF6; font-size:12px; border-bottom:1px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px; display:flex; align-items:center; gap:4px;">
-              <span>🟣 Data SEPAKAT PK (Bitung Kolut)</span>
+              <span>🟣 Data KJS Individu (Page 1 - 276)</span>
             </div>
             <div style="font-size:10.5px; margin-bottom:4px;">
               <b>No. Baris:</b> ${item.RowNum || '-'}
