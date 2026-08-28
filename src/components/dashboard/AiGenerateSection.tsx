@@ -1,27 +1,97 @@
 import { useState } from 'react';
-import { Bot, Send, Sparkles, RefreshCw, CheckCircle2, AlertCircle, Cpu, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bot, Send, Sparkles, RefreshCw, CheckCircle2, AlertCircle, Cpu, ChevronDown, ChevronUp, Save, Trash2, PieChart } from 'lucide-react';
 import { EstimationData } from './LogisticAnalysisSection';
 
 interface Props {
   estimationData?: EstimationData | null;
 }
 
-// Simple & clean markdown formatter for bolding, headers, and list bullets
+// Rich Markdown Table & Content Formatter
 function renderFormattedMarkdown(content: string) {
   const lines = content.split('\n');
-  return lines.map((line, i) => {
-    // Check header lines (#, ##, ###)
-    if (line.startsWith('### ')) {
-      return <h4 key={i} className="font-bold text-slate-800 text-xs mt-2 mb-1">{line.replace('### ', '')}</h4>;
+  const elements: React.ReactNode[] = [];
+  let inTable = false;
+  let tableHeader: string[] = [];
+  let tableRows: string[][] = [];
+
+  const flushTable = (keyIndex: number) => {
+    if (tableRows.length > 0 || tableHeader.length > 0) {
+      elements.push(
+        <div key={`table-wrapper-${keyIndex}`} className="my-3 overflow-x-auto rounded-2xl border border-slate-200/80 shadow-xs bg-white">
+          <table className="w-full text-xs text-left border-collapse">
+            {tableHeader.length > 0 && (
+              <thead className="bg-[#19506e] text-white font-bold">
+                <tr>
+                  {tableHeader.map((h, hIdx) => (
+                    <th key={hIdx} className="px-3.5 py-2.5 border-b border-slate-200 text-[11px] uppercase tracking-wider">
+                      {h.trim()}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+            )}
+            <tbody className="divide-y divide-slate-100">
+              {tableRows.map((row, rIdx) => (
+                <tr key={rIdx} className={rIdx % 2 === 0 ? 'bg-white hover:bg-slate-50/80' : 'bg-slate-50/50 hover:bg-slate-100/50'}>
+                  {row.map((cell, cIdx) => {
+                    const isTotal = row[0]?.toLowerCase().includes('total');
+                    const isHighlight = cIdx === 1 || cIdx === 2;
+                    return (
+                      <td
+                        key={cIdx}
+                        className={`px-3.5 py-2 text-xs ${
+                          isTotal ? 'font-bold text-[#19506e] bg-slate-100/60' : 'text-slate-700'
+                        } ${isHighlight && !isTotal ? 'font-semibold text-slate-900' : ''}`}
+                      >
+                        {cell.trim()}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
     }
-    if (line.startsWith('## ')) {
-      return <h3 key={i} className="font-bold text-slate-900 text-xs mt-2.5 mb-1 text-[#19506e]">{line.replace('## ', '')}</h3>;
-    }
-    if (line.startsWith('# ')) {
-      return <h2 key={i} className="font-bold text-slate-900 text-sm mt-3 mb-1 text-[#19506e]">{line.replace('# ', '')}</h2>;
+    tableHeader = [];
+    tableRows = [];
+    inTable = false;
+  };
+
+  lines.forEach((line, i) => {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+      const cells = trimmed.split('|').slice(1, -1);
+      if (cells.every((c) => c.trim().replace(/-/g, '') === '')) {
+        return;
+      }
+
+      if (!inTable) {
+        inTable = true;
+        tableHeader = cells;
+      } else {
+        tableRows.push(cells);
+      }
+      return;
+    } else if (inTable) {
+      flushTable(i);
     }
 
-    // Process bold text **text**
+    if (line.startsWith('### ')) {
+      elements.push(<h4 key={i} className="font-bold text-slate-800 text-xs mt-3 mb-1.5 flex items-center gap-1.5">{line.replace('### ', '')}</h4>);
+      return;
+    }
+    if (line.startsWith('## ')) {
+      elements.push(<h3 key={i} className="font-bold text-slate-900 text-xs mt-3.5 mb-1.5 text-[#19506e] border-b border-slate-200 pb-1 flex items-center gap-1.5">{line.replace('## ', '')}</h3>);
+      return;
+    }
+    if (line.startsWith('# ')) {
+      elements.push(<h2 key={i} className="font-bold text-slate-900 text-sm mt-4 mb-2 text-[#19506e] flex items-center gap-2">{line.replace('# ', '')}</h2>);
+      return;
+    }
+
     const parts = line.split(/(\*\*.*?\*\*)/g);
     const formattedLine = parts.map((part, pIdx) => {
       if (part.startsWith('**') && part.endsWith('**')) {
@@ -30,21 +100,28 @@ function renderFormattedMarkdown(content: string) {
       return part;
     });
 
-    // Check list bullets (*, -, 1.)
-    if (line.trim().startsWith('* ') || line.trim().startsWith('- ')) {
-      return (
-        <li key={i} className="ml-4 list-disc text-xs my-0.5">
+    if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+      elements.push(
+        <li key={i} className="ml-4 list-disc text-xs my-1 text-slate-700">
           {formattedLine}
         </li>
       );
+      return;
     }
 
-    if (!line.trim()) {
-      return <div key={i} className="h-1.5" />;
+    if (!trimmed) {
+      elements.push(<div key={i} className="h-1.5" />);
+      return;
     }
 
-    return <p key={i} className="my-0.5">{formattedLine}</p>;
+    elements.push(<p key={i} className="my-1 leading-relaxed">{formattedLine}</p>);
   });
+
+  if (inTable) {
+    flushTable(lines.length);
+  }
+
+  return elements;
 }
 
 export default function AiGenerateSection({ estimationData }: Props) {
@@ -57,9 +134,46 @@ export default function AiGenerateSection({ estimationData }: Props) {
   const [isConfigOpen, setIsConfigOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [testResult, setTestResult] = useState<{ success?: boolean; message?: string; responseText?: string } | null>(null);
-  const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
 
-  // Complete list of 24 models available on your 9Router tunnel
+  // LocalStorage Persistence for Chat History
+  const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('antigravity_ai_chat_history');
+      if (saved) {
+        try { return JSON.parse(saved); } catch { /* ignore */ }
+      }
+    }
+    return [];
+  });
+
+  const saveChatHistory = (history: { role: 'user' | 'assistant'; content: string }[]) => {
+    setChatHistory(history);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('antigravity_ai_chat_history', JSON.stringify(history));
+    }
+  };
+
+  const handleClearHistory = () => {
+    if (confirm('Apakah Anda yakin ingin menghapus seluruh riwayat percakapan AI?')) {
+      setChatHistory([]);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('antigravity_ai_chat_history');
+      }
+    }
+  };
+
+  const handleExportText = () => {
+    if (chatHistory.length === 0) return;
+    const textContent = chatHistory.map((m) => `[${m.role.toUpperCase()}]\n${m.content}\n`).join('\n----------------------------------------\n\n');
+    const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Riwayat_Chat_AI_Antigravity_${new Date().toISOString().slice(0, 10)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const availableModels = [
     { id: 'ag/gemini-3-flash', name: '⚡ Gemini 3 Flash (Fast)' },
     { id: 'ag/gemini-3-flash-agent', name: '🤖 Gemini 3 Flash Agent' },
@@ -72,18 +186,17 @@ export default function AiGenerateSection({ estimationData }: Props) {
     { id: 'ag/gpt-oss-120b-medium', name: '🟩 GPT-OSS 120B Medium' }
   ];
 
-  // Test tunnel connection & send completion request
-  const handleGenerateAI = async () => {
-    if (!prompt.trim()) return;
+  const handleGenerateAI = async (customPromptText?: string) => {
+    const userMsg = customPromptText || prompt;
+    if (!userMsg.trim()) return;
     setLoading(true);
     setTestResult(null);
 
-    const userMsg = prompt;
-    setChatHistory((prev) => [...prev, { role: 'user', content: userMsg }]);
+    const updatedUserList = [...chatHistory, { role: 'user' as const, content: userMsg }];
+    saveChatHistory(updatedUserList);
     setPrompt('');
 
     try {
-      // Build rich contextual prompt automatically from active spatial simulation data
       let contextPrefix = '';
       if (estimationData && estimationData.totalPopulasi > 0) {
         const kelListStr = (estimationData.kelurahanDampak ?? [])
@@ -116,7 +229,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
           messages: [
             {
               role: 'system',
-              content: 'Anda adalah Asisten AI Antigravity untuk Penanggulangan Bencana Indonesia. Berikan analisis profesional, terstruktur, berbasis data riil spasial bencana, komprehensif tanpa terpotong, dan solutif.',
+              content: 'Anda adalah Asisten AI Antigravity untuk Penanggulangan Bencana Indonesia. WAJIB sajikan data kuantitatif populasi, gender, dan kelompok rentan dalam TABEL MARKDOWN STANDAR (| Kategori | Jumlah | Persentase |) yang rapi, indah, dan terstruktur. Berikan analisis profesional, terstruktur, berbasis data riil spasial bencana, dan solutif.',
             },
             {
               role: 'user',
@@ -135,12 +248,10 @@ export default function AiGenerateSection({ estimationData }: Props) {
       const rawText = await response.text();
       let aiContent = '';
 
-      // Handle standard JSON response or SSE stream lines
       if (rawText.trim().startsWith('{')) {
         const json = JSON.parse(rawText);
         aiContent = json.choices?.[0]?.message?.content || json.choices?.[0]?.delta?.content || 'Respons kosong dari AI';
       } else {
-        // SSE format stream lines parsing
         const lines = rawText.split('\n');
         for (const line of lines) {
           if (line.startsWith('data: ') && line !== 'data: [DONE]') {
@@ -149,14 +260,14 @@ export default function AiGenerateSection({ estimationData }: Props) {
               const content = chunk.choices?.[0]?.delta?.content || chunk.choices?.[0]?.message?.content || '';
               if (content) aiContent += content;
             } catch {
-              // ignore parse errors
+              /* ignore */
             }
           }
         }
         if (!aiContent) aiContent = rawText;
       }
 
-      setChatHistory((prev) => [...prev, { role: 'assistant', content: aiContent }]);
+      saveChatHistory([...updatedUserList, { role: 'assistant' as const, content: aiContent }]);
       setTestResult({
         success: true,
         message: `Koneksi Tunnel 9Router Berhasil! (${selectedModel})`,
@@ -171,6 +282,11 @@ export default function AiGenerateSection({ estimationData }: Props) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGenerateInfographic = () => {
+    const promptText = "Buatkan infografis visual terstruktur lengkap dengan tabel profil populasi terdampak, rincian gender, dan diagram persentase kelompok rentan.";
+    handleGenerateAI(promptText);
   };
 
   return (
@@ -220,9 +336,8 @@ export default function AiGenerateSection({ estimationData }: Props) {
         </div>
       )}
 
-      {/* CONFIG & TEST PANEL (ACCORDION CONTROL) */}
+      {/* CONFIG & TEST PANEL */}
       <div className="bg-[#19506e]/5 border border-[#19506e]/20 rounded-2xl overflow-hidden transition-all shadow-xs">
-        {/* Accordion Header Toggle */}
         <button
           onClick={() => setIsConfigOpen(!isConfigOpen)}
           className="w-full px-5 py-3.5 bg-slate-50 hover:bg-slate-100/80 flex items-center justify-between transition-colors border-b border-slate-200/60"
@@ -242,7 +357,6 @@ export default function AiGenerateSection({ estimationData }: Props) {
           </div>
         </button>
 
-        {/* Accordion Body Form */}
         {isConfigOpen && (
           <div className="p-5 space-y-4 bg-white border-t border-slate-100">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -297,7 +411,6 @@ export default function AiGenerateSection({ estimationData }: Props) {
               </div>
             </div>
 
-            {/* STATUS TEST RESULT BADGE */}
             {testResult && (
               <div
                 className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-between gap-3 ${
@@ -321,8 +434,48 @@ export default function AiGenerateSection({ estimationData }: Props) {
         )}
       </div>
 
-      {/* CHAT & PROMPT GENERATOR INTERFACE (GEMINI STYLE) */}
+      {/* CHAT & PROMPT INTERFACE */}
       <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4 min-h-[400px] flex flex-col justify-between">
+        {/* CHAT HEADER TOOLBAR */}
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <Bot className="w-4 h-4 text-[#19506e]" />
+            <h3 className="font-bold text-xs text-slate-800 tracking-tight">Sesi Dialog & Analisis Kebencanaan</h3>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold">
+              {chatHistory.length} Pesan
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={handleGenerateInfographic}
+              className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 text-[11px] font-bold transition-all flex items-center gap-1.5 shadow-2xs"
+            >
+              <PieChart className="w-3.5 h-3.5 text-purple-600" />
+              <span>📊 Buat Infografis</span>
+            </button>
+
+            <button
+              onClick={handleExportText}
+              disabled={chatHistory.length === 0}
+              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition-all flex items-center gap-1.5 disabled:opacity-40"
+              title="Simpan Riwayat Chat ke Laptop (.txt)"
+            >
+              <Save className="w-3.5 h-3.5 text-slate-600" />
+              <span>Simpan Chat</span>
+            </button>
+
+            <button
+              onClick={handleClearHistory}
+              disabled={chatHistory.length === 0}
+              className="p-1 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-all disabled:opacity-40"
+              title="Hapus Riwayat Chat"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
         {/* CHAT MESSAGES DISPLAY */}
         <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
           {chatHistory.length === 0 ? (
@@ -332,7 +485,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
               </div>
               <h4 className="font-bold text-slate-800 text-sm">Tes Pengujian AI 9Router Tunnel</h4>
               <p className="text-xs text-slate-500 max-w-md mx-auto">
-                Ketik pertanyaan atau instruksi analisis bencana di bawah ini. AI akan merespons menggunakan model <strong>{selectedModel}</strong> melalui tunnel 9Router.
+                Ketik pertanyaan atau instruksi analisis bencana di bawah ini. AI akan merespons menggunakan model <strong>{selectedModel}</strong> dengan format tabel dan ringkasan yang rapi.
               </p>
             </div>
           ) : (
@@ -376,7 +529,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
           )}
         </div>
 
-        {/* INPUT PROMPT BOX & SEND BUTTON */}
+        {/* INPUT PROMPT BOX */}
         <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
           <textarea
             rows={2}
@@ -393,7 +546,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
           />
 
           <button
-            onClick={handleGenerateAI}
+            onClick={() => handleGenerateAI()}
             disabled={loading || !prompt.trim()}
             className="px-5 py-3 rounded-xl bg-[#19506e] hover:bg-[#19506e]/90 disabled:opacity-50 text-white font-bold text-xs transition-all flex items-center gap-2 shadow-sm shrink-0"
           >
