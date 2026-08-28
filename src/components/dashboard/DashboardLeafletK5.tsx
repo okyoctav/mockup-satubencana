@@ -1507,10 +1507,10 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
           const items = results.flat();
           const markers: L.Marker[] = [];
 
-          items.forEach((item: any) => {
+          items.forEach((item: Record<string, unknown>) => {
             if (item.latitude == null || item.longitude == null) return;
-            const lat = parseFloat(item.latitude);
-            const lng = parseFloat(item.longitude);
+            const lat = parseFloat(String(item.latitude));
+            const lng = parseFloat(String(item.longitude));
             if (isNaN(lat) || isNaN(lng)) return;
 
             // Purple Diamond Symbol (#8B5CF6)
