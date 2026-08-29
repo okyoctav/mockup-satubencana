@@ -1533,6 +1533,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
               const fileName = attrs.name || 'Foto Geotag';
 
               const objId = attrs.objectid || 1;
+              // Initial attachment URL default (will be dynamically updated with ?s={data_size})
               const attachmentUrl = `https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/Foto_Geotag_Terdampak/MapServer/0/${objId}/attachments/1`;
 
               const marker = L.marker([lat, lng], { icon });
@@ -1559,10 +1560,14 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                               .then(res => {
                                 const info = res?.attachmentGroups?.[0]?.attachmentInfos?.[0];
                                 const attId = info?.id || info?.attachmentid || 1;
-                                const attSize = info?.size || info?.data_size || '';
-                                const imgUrl = 'https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/Foto_Geotag_Terdampak/MapServer/0/${objId}/attachments/' + attId + (attSize ? '?s=' + attSize : '');
+                                const dataSize = info?.data_size || info?.size || '';
+                                const imgUrl = 'https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/Foto_Geotag_Terdampak/MapServer/0/${objId}/attachments/' + attId + (dataSize ? '?s=' + dataSize : '');
                                 const dlBtn = container.parentElement.querySelector('.att-download-link');
-                                if (dlBtn) dlBtn.href = imgUrl;
+                                if (dlBtn) {
+                                  dlBtn.href = imgUrl;
+                                  dlBtn.target = '_blank';
+                                  dlBtn.rel = 'noopener noreferrer';
+                                }
                                 container.innerHTML = '<img src="' + imgUrl + '" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; border:1px solid #E2E8F0; display:block; margin:0 auto;" alt="Foto Geotag" />';
                               })
                               .catch(() => {
@@ -1581,7 +1586,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                   </table>
                   <div style="margin-top:6px; padding:6px; background:#FEF3C7; border-radius:8px; border:1px solid #FCD34D; font-size:10px; color:#92400E; display:flex; items-center; justify-between; gap:4px;">
                     <span>📍 <b>Attachment URL:</b></span>
-                    <a class="att-download-link" href="${attachmentUrl}" target="_blank" download="${fileName}" style="color:#D97706; font-weight:bold; text-decoration:underline;">
+                    <a class="att-download-link" href="${attachmentUrl}" target="_blank" rel="noopener noreferrer" style="color:#D97706; font-weight:bold; text-decoration:underline;">
                       ⬇️ Unduh Gambar (.JPG)
                     </a>
                   </div>
