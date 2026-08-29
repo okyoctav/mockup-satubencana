@@ -1574,7 +1574,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                                 container.innerHTML = '<img src="${attachmentUrl}" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; border:1px solid #E2E8F0; display:block; margin:0 auto;" alt="Foto Geotag" />';
                               });
                           " style="background:#D97706; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; shadow:0 1px 3px rgba(0,0,0,0.2);">
-                            🖼️ Muat & Tampilkan Gambar Foto Attachment
+                            📷 Tampilkan Gambar
                           </button>
                          </div>`
                   }
