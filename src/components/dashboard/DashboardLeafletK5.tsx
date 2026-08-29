@@ -1532,26 +1532,49 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
               const jenisDesc = attrs.jenis || 'Foto Lapangan';
               const fileName = attrs.name || 'Foto Geotag';
 
+              const objId = attrs.objectid || 1;
+              const attachmentUrl = `https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/Foto_Geotag_Terdampak/MapServer/0/${objId}/attachments/1`;
+
               const marker = L.marker([lat, lng], { icon });
-              marker.bindPopup(`
-                <div style="font-family:sans-serif; min-width:240px; font-size:11px; color:#333; line-height:1.5;">
+              
+              const buildPopupContent = (imgLoaded: boolean) => `
+                <div style="font-family:sans-serif; min-width:250px; max-width:280px; font-size:11px; color:#333; line-height:1.5;">
                   <div style="font-weight:bold; color:#D97706; font-size:12px; border-bottom:1px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px; display:flex; align-items:center; gap:5px;">
                     <span>📸 Foto Geotag Terdampak (Gempa NTT)</span>
                   </div>
                   <div style="font-weight:bold; font-size:11.5px; color:#1e293b; margin-bottom:4px;">
                     📄 ${fileName}
                   </div>
+                  ${
+                    imgLoaded
+                      ? `<div style="margin:6px 0; text-align:center;">
+                          <img src="${attachmentUrl}" alt="${fileName}" style="width:100%; max-height:160px; object-fit:cover; border-radius:8px; border:1px solid #E2E8F0; shadow:0 2px 4px rgba(0,0,0,0.1);" />
+                         </div>`
+                      : `<div style="margin:8px 0; text-align:center; padding:10px; background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:8px;">
+                          <button onclick="
+                            const container = this.parentElement;
+                            container.innerHTML = '<div style=\'font-size:10px; color:#64748b; padding:6px;\'>⏳ Memuat Gambar Attachment...</div><img src=\'${attachmentUrl}\' style=\'width:100%; max-height:160px; object-fit:cover; border-radius:8px; display:none;\' onload=\'this.style.display="block"; this.previousElementSibling.remove();\' onerror=\'this.previousElementSibling.innerHTML="❌ Gambar tidak ditemukan";\' />';
+                          " style="background:#D97706; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; shadow:0 1px 3px rgba(0,0,0,0.2);">
+                            🖼️ Muat & Tampilkan Gambar Foto Attachment
+                          </button>
+                         </div>`
+                  }
                   <table style="width:100%; border-collapse:collapse; font-size:10.5px; margin-bottom:6px;">
                     <tr><td style="color:#64748b; padding:2px 0;">Jenis Kejadian:</td><td style="font-weight:700; color:#D97706;">${jenisDesc}</td></tr>
                     <tr><td style="color:#64748b; padding:2px 0;">Waktu Pengambilan:</td><td style="font-weight:600;">${dateStr}</td></tr>
                     <tr><td style="color:#64748b; padding:2px 0;">Koordinat Lat/Lng:</td><td style="font-weight:600; font-family:monospace;">${lat.toFixed(6)}, ${lng.toFixed(6)}</td></tr>
                     <tr><td style="color:#64748b; padding:2px 0;">Ketinggian (Z):</td><td style="font-weight:600;">${attrs.z != null ? attrs.z + ' m' : '-'}</td></tr>
                   </table>
-                  <div style="padding:6px; background:#FEF3C7; border-radius:8px; border:1px solid #FCD34D; font-size:10px; color:#92400E;">
-                    📍 <b>Keterangan Geotag:</b> Data hasil survei geotag drone/lapangan penanganan bencana Gempa NTT.
+                  <div style="margin-top:6px; padding:6px; background:#FEF3C7; border-radius:8px; border:1px solid #FCD34D; font-size:10px; color:#92400E; display:flex; items-center; justify-between; gap:4px;">
+                    <span>📍 <b>Attachment URL:</b></span>
+                    <a href="${attachmentUrl}" target="_blank" download="${fileName}" style="color:#D97706; font-weight:bold; text-decoration:underline;">
+                      ⬇️ Unduh Gambar (.JPG)
+                    </a>
                   </div>
                 </div>
-              `);
+              `;
+
+              marker.bindPopup(buildPopupContent(false));
 
               markers.push(marker);
             });
