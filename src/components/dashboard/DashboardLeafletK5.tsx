@@ -1564,7 +1564,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                 </div>
               `;
 
-              marker.bindPopup(popupHtml);
+              marker.bindPopup(popupHtml, { autoClose: false, closeOnClick: false, autoPan: true });
 
               marker.on('popupopen', (e) => {
                 const px = e.popup.getElement();
@@ -1575,7 +1575,8 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                 const dlLink = px.querySelector('.att-download-link') as HTMLAnchorElement;
 
                 if (btn && container) {
-                  btn.onclick = () => {
+                  btn.onclick = (event) => {
+                    event.stopPropagation();
                     container.innerHTML = '<div style="font-size:10px; color:#64748b; padding:8px;">⏳ Memuat Gambar Foto...</div>';
                     fetch(`https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/Foto_Geotag_Terdampak/MapServer/0/queryAttachments?objectIds=${objId}&f=json`)
                       .then((r) => r.json())
