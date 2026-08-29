@@ -41,6 +41,17 @@ interface Props {
   theme: string;
 }
 
+interface FotoGeotagItem {
+  objectid?: number;
+  name?: string;
+  datetime?: number;
+  x?: number;
+  y?: number;
+  z?: number;
+  jenis?: string;
+  path?: string;
+}
+
 interface KerentananData {
   [key: string]: unknown;
   no_kuesioner?: string;
@@ -161,6 +172,7 @@ const DUKCAPIL_KEL_URL = 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/serv
 const BIG_DESAKEL_URL = 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/BATAS_DESAKEL_AR/MapServer/0';
 
 const BNPB_LAYERS: BnpbLayer[] = [
+  { id: 'foto_geotag_ntt', label: 'Foto Geotag Terdampak (Gempa NTT 2026)', color: '#F59E0B', emoji: '📸', url: 'https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/Foto_Geotag_Terdampak/MapServer/0', type: 'MapServer', group: 'BNPB', useLngLat: true, layersParam: 'show:0' },
   { id: 'kjs_individu', label: 'Data KJS Individu (SEPAKAT PK Page 1-5)', color: '#8B5CF6', emoji: '🟣', url: '/datakjs/page_1.json', type: 'Dapodik', group: 'BAPPENAS' },
   { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
   { id: 'bappenas_batas_desakel', label: 'Batas Kelurahan/Desa (BAPPENAS)', color: '#0284C7', emoji: '🏛️', url: 'https://mandata.bappenas.go.id/geoserver/ows', type: 'WMS', group: 'BAPPENAS', layersParam: 'BATAS_WILAYAH:ADMINISTRASI_AR_KELDESA_10K_2023' },
@@ -1491,7 +1503,65 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       const def = BNPB_LAYERS.find((l) => l.id === id);
       if (!def) return;
 
-      if (id === 'kjs_individu') {
+      if (id === 'foto_geotag_ntt') {
+        if (!mapRef.current || overlayLayersRef.current[id]) return;
+        const queryUrl = 'https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/Foto_Geotag_Terdampak/MapServer/0/query?where=1%3D1&outFields=*&f=json';
+        fetch(queryUrl)
+          .then((r) => r.json())
+          .then((res) => {
+            if (!mapRef.current) return;
+            const features = res?.features || [];
+            const markers: L.Marker[] = [];
+
+            features.forEach((feat: Record<string, unknown>) => {
+              const attrs: FotoGeotagItem = (feat.attributes as FotoGeotagItem) || {};
+              const geom = (feat.geometry as { x?: number; y?: number }) || {};
+              const lat = attrs.y ?? geom.y;
+              const lng = attrs.x ?? geom.x;
+              if (lat == null || lng == null) return;
+
+              // Camera/Photo Custom Marker Symbol
+              const icon = L.divIcon({
+                className: '',
+                html: '<div style="background:#F59E0B; color:#FFFFFF; width:26px; height:26px; border-radius:50%; border:2px solid #FFFFFF; box-shadow:0 2px 6px rgba(0,0,0,0.4); display:flex; align-items:center; justify-center:center; font-size:13px; font-weight:bold;">📸</div>',
+                iconSize: [26, 26],
+                iconAnchor: [13, 13],
+              });
+
+              const dateStr = attrs.datetime ? new Date(attrs.datetime).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '-';
+              const jenisDesc = attrs.jenis || 'Foto Lapangan';
+              const fileName = attrs.name || 'Foto Geotag';
+
+              const marker = L.marker([lat, lng], { icon });
+              marker.bindPopup(`
+                <div style="font-family:sans-serif; min-width:240px; font-size:11px; color:#333; line-height:1.5;">
+                  <div style="font-weight:bold; color:#D97706; font-size:12px; border-bottom:1px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px; display:flex; align-items:center; gap:5px;">
+                    <span>📸 Foto Geotag Terdampak (Gempa NTT)</span>
+                  </div>
+                  <div style="font-weight:bold; font-size:11.5px; color:#1e293b; margin-bottom:4px;">
+                    📄 ${fileName}
+                  </div>
+                  <table style="width:100%; border-collapse:collapse; font-size:10.5px; margin-bottom:6px;">
+                    <tr><td style="color:#64748b; padding:2px 0;">Jenis Kejadian:</td><td style="font-weight:700; color:#D97706;">${jenisDesc}</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Waktu Pengambilan:</td><td style="font-weight:600;">${dateStr}</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Koordinat Lat/Lng:</td><td style="font-weight:600; font-family:monospace;">${lat.toFixed(6)}, ${lng.toFixed(6)}</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Ketinggian (Z):</td><td style="font-weight:600;">${attrs.z != null ? attrs.z + ' m' : '-'}</td></tr>
+                  </table>
+                  <div style="padding:6px; background:#FEF3C7; border-radius:8px; border:1px solid #FCD34D; font-size:10px; color:#92400E;">
+                    📍 <b>Keterangan Geotag:</b> Data hasil survei geotag drone/lapangan penanganan bencana Gempa NTT.
+                  </div>
+                </div>
+              `);
+
+              markers.push(marker);
+            });
+
+            const group = L.layerGroup(markers);
+            overlayLayersRef.current[id] = group;
+            group.addTo(mapRef.current);
+          })
+          .catch(() => null);
+      } else if (id === 'kjs_individu') {
         if (!mapRef.current || overlayLayersRef.current[id]) return;
         
         // Fetch page_1.json through page_276.json in parallel
