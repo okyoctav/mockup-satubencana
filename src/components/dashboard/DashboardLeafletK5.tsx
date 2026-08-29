@@ -1553,7 +1553,21 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                       : `<div style="margin:8px 0; text-align:center; padding:10px; background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:8px;">
                           <button onclick="
                             const container = this.parentElement;
-                            container.innerHTML = '<div style=\'font-size:10px; color:#64748b; padding:6px;\'>⏳ Memuat Gambar Attachment...</div><img src=\'${attachmentUrl}\' style=\'width:100%; max-height:160px; object-fit:cover; border-radius:8px; display:none;\' onload=\'this.style.display="block"; this.previousElementSibling.remove();\' onerror=\'this.previousElementSibling.innerHTML="❌ Gambar tidak ditemukan";\' />';
+                            container.innerHTML = '<div style=\'font-size:10px; color:#64748b; padding:6px;\'>⏳ Mengambil Info Attachment ArcGIS...</div>';
+                            fetch('https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/Foto_Geotag_Terdampak/MapServer/0/queryAttachments?objectIds=${objId}&f=json')
+                              .then(r => r.json())
+                              .then(res => {
+                                const info = res?.attachmentGroups?.[0]?.attachmentInfos?.[0];
+                                const attId = info?.id || info?.attachmentid || 1;
+                                const attSize = info?.size || info?.data_size || '';
+                                const imgUrl = 'https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/Foto_Geotag_Terdampak/MapServer/0/${objId}/attachments/' + attId + (attSize ? '?s=' + attSize : '');
+                                const dlBtn = container.parentElement.querySelector('.att-download-link');
+                                if (dlBtn) dlBtn.href = imgUrl;
+                                container.innerHTML = '<img src="' + imgUrl + '" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; border:1px solid #E2E8F0; display:block; margin:0 auto;" alt="Foto Geotag" />';
+                              })
+                              .catch(() => {
+                                container.innerHTML = '<img src="${attachmentUrl}" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; border:1px solid #E2E8F0; display:block; margin:0 auto;" alt="Foto Geotag" />';
+                              });
                           " style="background:#D97706; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; shadow:0 1px 3px rgba(0,0,0,0.2);">
                             🖼️ Muat & Tampilkan Gambar Foto Attachment
                           </button>
@@ -1567,7 +1581,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                   </table>
                   <div style="margin-top:6px; padding:6px; background:#FEF3C7; border-radius:8px; border:1px solid #FCD34D; font-size:10px; color:#92400E; display:flex; items-center; justify-between; gap:4px;">
                     <span>📍 <b>Attachment URL:</b></span>
-                    <a href="${attachmentUrl}" target="_blank" download="${fileName}" style="color:#D97706; font-weight:bold; text-decoration:underline;">
+                    <a class="att-download-link" href="${attachmentUrl}" target="_blank" download="${fileName}" style="color:#D97706; font-weight:bold; text-decoration:underline;">
                       ⬇️ Unduh Gambar (.JPG)
                     </a>
                   </div>
