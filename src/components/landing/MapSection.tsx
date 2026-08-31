@@ -1,6 +1,18 @@
 "use client";
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
+
+const LandingInteractiveMap = dynamic(() => import('./LandingInteractiveMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[460px] rounded-3xl bg-slate-900 border border-slate-800 flex items-center justify-center text-white text-xs font-bold gap-2">
+      <div className="w-4 h-4 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin" />
+      <span>Memuat Peta Spasial Interaktif Bencana...</span>
+    </div>
+  ),
+});
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, ArrowRight, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -50,14 +62,8 @@ export default function MapSection() {
           </p>
         </div>
 
-        {/* 1. BANNER POSTER UTAMA (FULL WIDTH, HEIGHT AUTOMATIC) */}
-        <div className="group relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 transition-all duration-300">
-          <img
-            src="/image/poster.jpeg"
-            alt="Poster Informasi Kebencanaan"
-            className="w-full h-auto block rounded-3xl transition-transform duration-500 group-hover:scale-[1.005]"
-          />
-        </div>
+        {/* 1. INTERACTIVE MAP BANNER (REPLACING IMAGE POSTER WITH REAL SPATIAL DISASTER LOCATIONS) */}
+        <LandingInteractiveMap />
 
         {/* 2. PORTRAIT BOOK-POSTER CARDS (4 CARDS PER SLIDE, FULL COVER IMAGE, TEXT OVERLAY & HOVER READ BUTTON) */}
         <div className="space-y-8">
