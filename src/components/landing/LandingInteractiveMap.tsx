@@ -35,7 +35,6 @@ export default function LandingInteractiveMap() {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>('Semua');
-  const [dataCount, setDataCount] = useState<number>(0);
 
   const disasterTypes = [
     'Semua',
@@ -59,10 +58,10 @@ export default function LandingInteractiveMap() {
         scrollWheelZoom: false,
       });
 
-      // Dark Mode Tile Layer for stunning modern look
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
+      // OpenStreetMap Base Tile Layer (Fully Open & Free, No API Key Required)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        subdomains: 'abc',
         maxZoom: 19,
       }).addTo(map);
 
@@ -84,7 +83,6 @@ export default function LandingInteractiveMap() {
       ? items 
       : items.filter(d => d.Jenis_Bencana?.toLowerCase().includes(selectedFilter.toLowerCase()) || d.Nama_Bencana?.toLowerCase().includes(selectedFilter.toLowerCase()));
 
-    setDataCount(filtered.length);
 
     filtered.forEach((d) => {
       if (d.Latitude == null || d.Longitude == null) return;
@@ -156,14 +154,8 @@ export default function LandingInteractiveMap() {
   return (
     <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 bg-slate-900 min-h-[460px] md:min-h-[520px] flex flex-col">
       {/* Map Header Toolbar Overlay */}
-      <div className="absolute top-4 left-4 right-4 z-[400] flex items-center justify-between flex-wrap gap-2 pointer-events-none">
-        <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl px-4 py-2 text-white shadow-lg pointer-events-auto flex items-center gap-3">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-          <div>
-            <h4 className="font-bold text-xs text-white">🗺️ Peta Historis & Spasial Bencana Indonesia</h4>
-            <p className="text-[10px] text-slate-300">Menampilkan {dataCount} Lokasi Kejadian Terverifikasi</p>
-          </div>
-        </div>
+      <div className="absolute top-4 left-4 right-4 z-[400] flex items-center justify-end flex-wrap gap-2 pointer-events-none">
+
 
         {/* Filter Pills */}
         <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl p-1.5 pointer-events-auto flex items-center gap-1 overflow-x-auto max-w-full shadow-lg">
