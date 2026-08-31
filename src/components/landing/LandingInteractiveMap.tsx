@@ -32,12 +32,12 @@ interface DisasterItem {
 }
 
 export default function LandingInteractiveMap() {
-  const [activeHighlightIndex, setActiveHighlightIndex] = useState<number>(0);
-  const markersRef = useRef<{ marker: L.Marker; item: DisasterItem }[]>([]);
-
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>('Semua');
+  const [activeHighlightIndex, setActiveHighlightIndex] = useState<number>(0);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
+  const markersRef = useRef<{ marker: L.Marker; item: DisasterItem }[]>([]);
 
   const disasterTypes = [
     'Semua',
@@ -87,8 +87,7 @@ export default function LandingInteractiveMap() {
       ? items 
       : items.filter(d => d.Jenis_Bencana?.toLowerCase().includes(selectedFilter.toLowerCase()) || d.Nama_Bencana?.toLowerCase().includes(selectedFilter.toLowerCase()));
 
-
-    filtered.forEach((d) => {
+    filtered.forEach((d, index) => {
       if (d.Latitude == null || d.Longitude == null) return;
 
       // Color coding based on disaster type
@@ -155,43 +154,66 @@ export default function LandingInteractiveMap() {
 
       const marker = L.marker([d.Latitude, d.Longitude], { icon: customIcon });
       marker.bindPopup(popupContent, { autoPan: true });
+
+      // Pause auto-rotation when user clicks any marker manually
+      marker.on('click', () => {
+        setIsPaused(true);
+        setActiveHighlightIndex(index);
+      });
+
       marker.addTo(map);
       markersRef.current.push({ marker, item: d });
     });
 
+    setActiveHighlightIndex(0);
   }, [selectedFilter]);
 
   // Auto-play Ticker effect to focus & highlight disaster points sequentially
   useEffect(() => {
-    if (markersRef.current.length === 0) return;
+    if (markersRef.current.length === 0 || isPaused) return;
     const interval = setInterval(() => {
       setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length);
-    }, 4500);
+    }, 5500);
     return () => clearInterval(interval);
-  }, [selectedFilter]);
+  }, [selectedFilter, isPaused]);
 
-  // Pan to active disaster location and open popup preview
+  // Smooth FlyTo Zoom & Pan to active disaster location and open popup preview
   useEffect(() => {
     const target = markersRef.current[activeHighlightIndex];
-    if (target && mapRef.current) {
-      mapRef.current.panTo([target.item.Latitude || -2.5, target.item.Longitude || 118.0], { animate: true, duration: 1 });
-      target.marker.openPopup();
+    if (target && mapRef.current && target.item.Latitude != null && target.item.Longitude != null) {
+      // Smooth flyTo with zoom level 7 to clearly show location
+      mapRef.current.flyTo([target.item.Latitude, target.item.Longitude], 7, {
+        animate: true,
+        duration: 1.8,
+      });
+
+      setTimeout(() => {
+        target.marker.openPopup();
+      }, 900);
     }
   }, [activeHighlightIndex]);
-
 
   return (
     <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 bg-slate-900 min-h-[460px] md:min-h-[520px] flex flex-col">
       {/* Map Header Toolbar Overlay */}
-      <div className="absolute top-4 left-4 right-4 z-[400] flex items-center justify-end flex-wrap gap-2 pointer-events-none">
-
+      <div className="absolute top-4 left-4 right-4 z-[400] flex items-center justify-between flex-wrap gap-2 pointer-events-none">
+        {/* Play / Pause Tour Control Button */}
+        <button
+          onClick={() => setIsPaused(!isPaused)}
+          className="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl px-3.5 py-1.5 text-white shadow-lg pointer-events-auto flex items-center gap-2 text-xs font-bold hover:bg-slate-800 transition-all"
+        >
+          <span>{isPaused ? '▶️ Lanjutkan Tur Animasi' : '⏸️ Jeda Tur Animasi'}</span>
+        </button>
 
         {/* Filter Pills */}
         <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl p-1.5 pointer-events-auto flex items-center gap-1 overflow-x-auto max-w-full shadow-lg">
           {disasterTypes.map((type) => (
             <button
               key={type}
-              onClick={() => setSelectedFilter(type)}
+              onClick={() => {
+                setSelectedFilter(type);
+                setIsPaused(false);
+              }}
               className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all whitespace-nowrap ${
                 selectedFilter === type
                   ? 'bg-[#0EA5E9] text-white shadow-md'
@@ -204,14 +226,13 @@ export default function LandingInteractiveMap() {
         </div>
       </div>
 
-
-      {/* Live Auto-Play News Ticker Banner (Displays Info Without Clicking) */}
+      {/* Auto-Play News Ticker Banner (Displays Info Without Clicking) */}
       {markersRef.current[activeHighlightIndex] && (
         <div className="absolute bottom-4 left-4 right-4 z-[400] bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl p-3.5 text-white shadow-2xl flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <span className="px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 animate-pulse">
-              <span className="w-2 h-2 rounded-full bg-rose-500" />
-              <span>LIVE BROADCAST HISTORIS</span>
+            <span className="px-2.5 py-1 rounded-lg bg-[#0EA5E9]/20 border border-[#0EA5E9]/40 text-[#0EA5E9] text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${isPaused ? 'bg-amber-400' : 'bg-[#0EA5E9] animate-ping'}`} />
+              <span>{isPaused ? 'JEDA PETA' : 'TUR SPASIAL HISTORIS'}</span>
             </span>
 
             <div>
@@ -227,7 +248,10 @@ export default function LandingInteractiveMap() {
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setActiveHighlightIndex((prev) => (prev - 1 + markersRef.current.length) % markersRef.current.length)}
+              onClick={() => {
+                setIsPaused(true);
+                setActiveHighlightIndex((prev) => (prev - 1 + markersRef.current.length) % markersRef.current.length);
+              }}
               className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-all text-slate-200"
             >
               ◀ Prev
@@ -236,7 +260,10 @@ export default function LandingInteractiveMap() {
               {activeHighlightIndex + 1}/{markersRef.current.length}
             </span>
             <button
-              onClick={() => setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length)}
+              onClick={() => {
+                setIsPaused(true);
+                setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length);
+              }}
               className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-all text-slate-200"
             >
               Next ▶
