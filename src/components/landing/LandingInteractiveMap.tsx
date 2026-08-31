@@ -32,6 +32,9 @@ interface DisasterItem {
 }
 
 export default function LandingInteractiveMap() {
+  const [activeHighlightIndex, setActiveHighlightIndex] = useState<number>(0);
+  const markersRef = useRef<{ marker: L.Marker; item: DisasterItem }[]>([]);
+
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>('Semua');
@@ -77,6 +80,7 @@ export default function LandingInteractiveMap() {
         map.removeLayer(layer);
       }
     });
+    markersRef.current = [];
 
     const items = disasterData as unknown as DisasterItem[];
     const filtered = selectedFilter === 'Semua' 
@@ -95,7 +99,7 @@ export default function LandingInteractiveMap() {
       if (jenis.includes('erupsi') || jenis.includes('gunung')) {
         color = '#EF4444'; iconEmoji = '🌋';
       } else if (jenis.includes('gempa')) {
-        color = '#F59E0B'; iconEmoji = '🫨';
+        color = '#F59E0B'; iconEmoji = '🏚️';
       } else if (jenis.includes('tsunami')) {
         color = '#06B6D4'; iconEmoji = '🌊';
       } else if (jenis.includes('banjir')) {
@@ -106,12 +110,17 @@ export default function LandingInteractiveMap() {
         color = '#10B981'; iconEmoji = '🌪️';
       }
 
-      // Marker Icon
+      // Animated Pulsing Marker Icon
       const customIcon = L.divIcon({
         className: '',
-        html: `<div style="background:${color}; color:#fff; width:28px; height:28px; border-radius:50%; border:2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:bold; cursor:pointer;">${iconEmoji}</div>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14],
+        html: `
+          <div style="position:relative; width:30px; height:30px;">
+            <div style="position:absolute; inset:-4px; background:${color}; opacity:0.4; border-radius:50%; animation:ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+            <div style="position:relative; background:${color}; color:#fff; width:30px; height:30px; border-radius:50%; border:2px solid #fff; box-shadow:0 3px 10px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:bold; cursor:pointer;">${iconEmoji}</div>
+          </div>
+        `,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
       });
 
       const popupContent = `
@@ -147,9 +156,29 @@ export default function LandingInteractiveMap() {
       const marker = L.marker([d.Latitude, d.Longitude], { icon: customIcon });
       marker.bindPopup(popupContent, { autoPan: true });
       marker.addTo(map);
+      markersRef.current.push({ marker, item: d });
     });
 
   }, [selectedFilter]);
+
+  // Auto-play Ticker effect to focus & highlight disaster points sequentially
+  useEffect(() => {
+    if (markersRef.current.length === 0) return;
+    const interval = setInterval(() => {
+      setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [selectedFilter]);
+
+  // Pan to active disaster location and open popup preview
+  useEffect(() => {
+    const target = markersRef.current[activeHighlightIndex];
+    if (target && mapRef.current) {
+      mapRef.current.panTo([target.item.Latitude || -2.5, target.item.Longitude || 118.0], { animate: true, duration: 1 });
+      target.marker.openPopup();
+    }
+  }, [activeHighlightIndex]);
+
 
   return (
     <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 bg-slate-900 min-h-[460px] md:min-h-[520px] flex flex-col">
@@ -174,6 +203,47 @@ export default function LandingInteractiveMap() {
           ))}
         </div>
       </div>
+
+
+      {/* Live Auto-Play News Ticker Banner (Displays Info Without Clicking) */}
+      {markersRef.current[activeHighlightIndex] && (
+        <div className="absolute bottom-4 left-4 right-4 z-[400] bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl p-3.5 text-white shadow-2xl flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <span className="px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 animate-pulse">
+              <span className="w-2 h-2 rounded-full bg-rose-500" />
+              <span>LIVE BROADCAST HISTORIS</span>
+            </span>
+
+            <div>
+              <h5 className="font-bold text-xs text-white flex items-center gap-2">
+                <span>{markersRef.current[activeHighlightIndex].item.Nama_Bencana} ({markersRef.current[activeHighlightIndex].item.Tahun})</span>
+                <span className="text-[10px] text-slate-400 font-normal">• {markersRef.current[activeHighlightIndex].item.Lokasi_Utama}, {markersRef.current[activeHighlightIndex].item.Provinsi}</span>
+              </h5>
+              <p className="text-[11px] text-slate-300 line-clamp-1 mt-0.5">
+                {markersRef.current[activeHighlightIndex].item.Deskripsi || `Kejadian bencana ${markersRef.current[activeHighlightIndex].item.Jenis_Bencana} pada tanggal ${markersRef.current[activeHighlightIndex].item.Tanggal}`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setActiveHighlightIndex((prev) => (prev - 1 + markersRef.current.length) % markersRef.current.length)}
+              className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-all text-slate-200"
+            >
+              ◀ Prev
+            </button>
+            <span className="text-[10px] font-mono text-slate-400">
+              {activeHighlightIndex + 1}/{markersRef.current.length}
+            </span>
+            <button
+              onClick={() => setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length)}
+              className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-all text-slate-200"
+            >
+              Next ▶
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Leaflet Map Canvas */}
       <div ref={containerRef} className="w-full flex-1 min-h-[440px] z-0" />
