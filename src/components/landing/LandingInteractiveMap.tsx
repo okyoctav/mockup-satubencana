@@ -181,7 +181,6 @@ export default function LandingInteractiveMap() {
   useEffect(() => {
     const target = markersRef.current[activeHighlightIndex];
     if (target && mapRef.current && target.item.Latitude != null && target.item.Longitude != null) {
-      // Smooth flyTo with zoom level 7 to clearly show location
       mapRef.current.flyTo([target.item.Latitude, target.item.Longitude], 7, {
         animate: true,
         duration: 1.8,
@@ -195,44 +194,35 @@ export default function LandingInteractiveMap() {
 
   return (
     <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 bg-slate-900 min-h-[460px] md:min-h-[520px] flex flex-col">
-      {/* Map Header Toolbar Overlay */}
-      <div className="absolute top-4 left-4 right-4 z-[400] flex items-center justify-between flex-wrap gap-2 pointer-events-none">
-        {/* Play / Pause Tour Control Button */}
-        <button
-          onClick={() => setIsPaused(!isPaused)}
-          className="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl px-3.5 py-1.5 text-white shadow-lg pointer-events-auto flex items-center gap-2 text-xs font-bold hover:bg-slate-800 transition-all"
-        >
-          <span>{isPaused ? '▶️ Lanjutkan Tur Animasi' : '⏸️ Jeda Tur Animasi'}</span>
-        </button>
-
-        {/* Filter Pills */}
-        <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl p-1.5 pointer-events-auto flex items-center gap-1 overflow-x-auto max-w-full shadow-lg">
-          {disasterTypes.map((type) => (
-            <button
-              key={type}
-              onClick={() => {
-                setSelectedFilter(type);
-                setIsPaused(false);
-              }}
-              className={`px-3 py-1 rounded-xl text-[11px] font-bold transition-all whitespace-nowrap ${
-                selectedFilter === type
-                  ? 'bg-[#0EA5E9] text-white shadow-md'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
-              }`}
-            >
-              {type}
-            </button>
-          ))}
+      {/* Map Header Toolbar Overlay: Dropdown Jenis Bencana (Top Right) */}
+      <div className="absolute top-4 right-4 z-[400] pointer-events-none">
+        <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl p-1.5 pointer-events-auto flex items-center gap-2 shadow-lg">
+          <label className="text-[11px] font-bold text-slate-300 pl-2">Jenis Bencana:</label>
+          <select
+            value={selectedFilter}
+            onChange={(e) => {
+              setSelectedFilter(e.target.value);
+              setIsPaused(false);
+            }}
+            className="bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-700 outline-none cursor-pointer hover:bg-slate-700 transition-colors"
+          >
+            {disasterTypes.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* Auto-Play News Ticker Banner (Displays Info Without Clicking) */}
+      {/* Bottom News Ticker & Integrated Control Bar */}
       {markersRef.current[activeHighlightIndex] && (
         <div className="absolute bottom-4 left-4 right-4 z-[400] bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl p-3.5 text-white shadow-2xl flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
+            {/* Tag Badge: "HISTORY" */}
             <span className="px-2.5 py-1 rounded-lg bg-[#0EA5E9]/20 border border-[#0EA5E9]/40 text-[#0EA5E9] text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5">
               <span className={`w-2 h-2 rounded-full ${isPaused ? 'bg-amber-400' : 'bg-[#0EA5E9] animate-ping'}`} />
-              <span>{isPaused ? 'JEDA PETA' : 'TUR SPASIAL HISTORIS'}</span>
+              <span>HISTORY</span>
             </span>
 
             <div>
@@ -246,28 +236,42 @@ export default function LandingInteractiveMap() {
             </div>
           </div>
 
+          {/* Controls: Prev, Play/Pause Icon Button, Next */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 setIsPaused(true);
                 setActiveHighlightIndex((prev) => (prev - 1 + markersRef.current.length) % markersRef.current.length);
               }}
-              className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-all text-slate-200"
+              className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-all text-slate-200"
+              title="Ke Bencana Sebelumnya"
             >
-              ◀ Prev
+              ◀
             </button>
-            <span className="text-[10px] font-mono text-slate-400">
-              {activeHighlightIndex + 1}/{markersRef.current.length}
-            </span>
+
+            {/* Integrated Play/Pause Icon Button */}
+            <button
+              onClick={() => setIsPaused(!isPaused)}
+              className="p-1.5 px-3 rounded-xl bg-[#0EA5E9] hover:bg-[#0EA5E9]/90 text-white text-xs font-bold shadow-md transition-all flex items-center gap-1"
+              title={isPaused ? 'Lanjutkan Tur Animasi' : 'Jeda Tur Animasi'}
+            >
+              <span>{isPaused ? '▶️' : '⏸️'}</span>
+            </button>
+
             <button
               onClick={() => {
                 setIsPaused(true);
                 setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length);
               }}
-              className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-all text-slate-200"
+              className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-all text-slate-200"
+              title="Ke Bencana Berikutnya"
             >
-              Next ▶
+              ▶
             </button>
+
+            <span className="text-[10px] font-mono text-slate-400 pl-1">
+              {activeHighlightIndex + 1}/{markersRef.current.length}
+            </span>
           </div>
         </div>
       )}
