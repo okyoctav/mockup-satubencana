@@ -37,6 +37,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Sparkles,
+  LogOut,
 } from 'lucide-react';
 
 type Kejadian = {
@@ -104,6 +105,21 @@ export default function DashboardK5Page() {
     };
     checkAuth();
   }, []);
+
+  const handleLogout = async () => {
+    localStorage.removeItem('is_logged_in');
+    try {
+      const { getSupabaseBrowserClient } = await import('@/lib/supabase/client');
+      const client = getSupabaseBrowserClient();
+      if (client) {
+        await client.auth.signOut();
+      }
+    } catch {
+      // ignore
+    }
+    window.location.href = '/login';
+  };
+
   const { theme, toggle } = useTheme();
   const [showBumper, setShowBumper] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -324,6 +340,14 @@ export default function DashboardK5Page() {
                 <Lock className="w-4 h-4 text-[#1f8080] shrink-0" />
                 {isSidebarOpen && <span>Login Submisi</span>}
               </a>
+              <button
+                onClick={handleLogout}
+                className={`w-full flex items-center ${isSidebarOpen ? 'gap-2.5 px-3' : 'justify-center px-0'} py-2 rounded-xl text-rose-200 hover:bg-rose-500/20 hover:text-white transition-colors cursor-pointer text-left`}
+                title={!isSidebarOpen ? 'Logout / Keluar' : undefined}
+              >
+                <LogOut className="w-4 h-4 text-rose-300 shrink-0" />
+                {isSidebarOpen && <span>Logout / Keluar</span>}
+              </button>
               <a
                 href="https://inarisk.bnpb.go.id/databencana/webgis/"
                 target="_blank"
@@ -413,6 +437,14 @@ export default function DashboardK5Page() {
                   )}
                 </button>
               )}
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 transition-all text-xs font-semibold cursor-pointer"
+                title="Keluar dari akun"
+              >
+                <LogOut className="w-3.5 h-3.5 text-rose-600" />
+                <span>Logout</span>
+              </button>
             </div>
           </div>
         </header>
