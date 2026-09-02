@@ -64,6 +64,7 @@ import EconomicAgricultureLossSection from '@/components/dashboard/EconomicAgric
 import UtilitiesEnergySection from '@/components/dashboard/UtilitiesEnergySection';
 import AccessibilityRouteSection from '@/components/dashboard/AccessibilityRouteSection';
 import AiGenerateSection from '@/components/dashboard/AiGenerateSection';
+import GempaNttSection from '@/components/dashboard/GempaNttSection';
 
 import { EstimationData } from '@/components/dashboard/LogisticAnalysisSection';
 
@@ -126,7 +127,7 @@ export default function DashboardK5Page() {
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [filters, setFilters] = useState({ jenis: 'Semua', status: 'Semua', level: 'Semua' });
   const [activeFilter, setActiveFilter] = useState<FilterWilayah | null>(null);
-  const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical' | 'infrastructure' | 'economic' | 'utilities' | 'routes' | 'ai'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical' | 'infrastructure' | 'economic' | 'utilities' | 'routes' | 'ai' | 'gempa_ntt'>('map');
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [drawEstimation, setDrawEstimation] = useState<EstimationData | null>(null);
 
@@ -482,6 +483,7 @@ export default function DashboardK5Page() {
                   className="w-full sm:w-64 appearance-none bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 pr-8 text-xs font-bold text-[#19506e] outline-none cursor-pointer focus:border-[#1f8080]"
                 >
                   <option value="map">🗺️ Peta Utama K5</option>
+                  <option value="gempa_ntt">🌋 Analisis Dampak Gempa NTT 2026</option>
                   <option value="analytics">📊 Analisis Statistik Kebencanaan</option>
                   <option value="models">🛡️ Model Kerentanan & Respon</option>
                   <option value="logistics">📦 Analisis Kebutuhan Logistik</option>
@@ -508,6 +510,18 @@ export default function DashboardK5Page() {
               >
                 <Layers className="w-4 h-4 shrink-0 text-[#1f8080]" />
                 <span className="truncate">Peta Utama</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('gempa_ntt')}
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                  activeTab === 'gempa_ntt'
+                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    : 'bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100'
+                }`}
+              >
+                <ShieldAlert className="w-4 h-4 shrink-0 text-rose-600 animate-pulse" />
+                <span className="truncate">Gempa NTT 2026</span>
               </button>
 
               <button
@@ -662,6 +676,12 @@ export default function DashboardK5Page() {
               )}
             </section>
           </div>
+
+          {activeTab === 'gempa_ntt' && (
+            <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+              <GempaNttSection />
+            </section>
+          )}
 
           {activeTab === 'analytics' && (
             <section className="space-y-4">

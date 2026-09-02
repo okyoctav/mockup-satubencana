@@ -172,6 +172,7 @@ const DUKCAPIL_KEL_URL = 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/serv
 const BIG_DESAKEL_URL = 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/BATAS_DESAKEL_AR/MapServer/0';
 
 const BNPB_LAYERS: BnpbLayer[] = [
+  { id: 'gempa_ntt_2026_v2', label: 'Layer Dampak Gempa NTT 2026 (Layer 29)', color: '#EF4444', emoji: '📳', url: 'https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/mv_gempa_ntt_2026_v2/MapServer/29', type: 'MapServer', group: 'BNPB', useLngLat: true, layersParam: 'show:29' },
   { id: 'foto_geotag_ntt', label: 'Foto Geotag Terdampak (Gempa NTT 2026)', color: '#F59E0B', emoji: '📸', url: 'https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/Foto_Geotag_Terdampak/MapServer/0', type: 'MapServer', group: 'BNPB', useLngLat: true, layersParam: 'show:0' },
   { id: 'kjs_individu', label: 'Data KJS Individu (SEPAKAT PK Page 1-5)', color: '#8B5CF6', emoji: '🟣', url: '/datakjs/page_1.json', type: 'Dapodik', group: 'BAPPENAS' },
   { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
