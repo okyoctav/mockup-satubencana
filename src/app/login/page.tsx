@@ -120,7 +120,7 @@ export default function LoginPage() {
         <div className="flex w-full flex-1 items-center justify-center bg-white px-6 py-10 lg:w-[42%] lg:px-8 xl:px-10">
           <div className="w-full max-w-md">
             {/* Mobile Logo (Shown only on mobile / small screens without effects) */}
-            <div className="mb-6 block lg:hidden">
+            <div className="mb-6 flex justify-center lg:hidden">
               <img
                 src="/logo/logo_mdb_alone.png"
                 alt="Logo MDB"
