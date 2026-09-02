@@ -107,34 +107,21 @@ export default function LoginPage() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.25),_transparent_45%)]" />
           <LoginBackground />
           <div className="relative z-10 flex h-full flex-col justify-between p-10 text-white">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/10 backdrop-blur">
-                <img src="/LogoSDB.png" alt="Logo SDB" className="h-10 w-10 object-contain" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-200">Satu Bencana</p>
-                <p className="text-lg font-semibold">Admin Console</p>
-              </div>
+            <div>
+              <img
+                src="/LogoSDB.png"
+                alt="Logo SDB"
+                className="w-[300px] h-auto object-contain brightness-0 invert"
+              />
             </div>
-
           </div>
         </div>
 
         <div className="flex w-full flex-1 items-center justify-center bg-white px-6 py-10 lg:w-[42%] lg:px-8 xl:px-10">
           <div className="w-full max-w-md">
-            <div className="mb-8 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--brand-1)] text-lg font-semibold text-white">
-                <img src="/LogoSDB.png" alt="Logo SDB" className="h-8 w-8 object-contain" />
-              </div>
-              <div>
-                <p className="text-xl font-semibold text-[var(--brand-1)]">Manajemen Satu Bencana</p>
-                <p className="text-sm text-slate-500">Portal admin terintegrasi</p>
-              </div>
-            </div>
-
-            <h1 className="text-2xl font-semibold text-slate-900">Masuk ke akun admin</h1>
+            <h1 className="text-2xl font-semibold text-slate-900">Sign In</h1>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Kelola dashboard, data bencana, dan pemetaan dengan antarmuka yang sederhana dan cepat.
+              with your MDB Account. This account will be available to other MDB apps in the browser
             </p>
 
             <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
@@ -172,7 +159,7 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <Button type="submit" className="h-11 w-full rounded-xl bg-[var(--brand-1)] text-white hover:bg-[var(--brand-2)]" disabled={loading}>
+              <Button type="submit" className="h-11 w-full rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-semibold shadow-sm" disabled={loading}>
                 {loading ? 'Memverifikasi...' : isConfigured ? 'Masuk' : 'Masuk ke mode demo'}
               </Button>
             </form>
@@ -184,7 +171,7 @@ export default function LoginPage() {
             </div>
 
             <div className="mt-8 border-t border-slate-200 pt-4 text-center text-xs leading-6 text-slate-400">
-              By Direktorat Tata Ruang, Perkotaan, Pertanahan, dan Penanggulangan Bencana
+              Direktorat Tata Ruang, Perkotaan, Pertanahan, dan Penanggulangan Bencana
             </div>
           </div>
         </div>
