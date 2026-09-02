@@ -109,7 +109,7 @@ export default function LoginPage() {
           <div className="relative z-10 flex h-full flex-col justify-between p-10 text-white">
             <div>
               <img
-                src="/LogoSDB.png"
+                src="/logo/logo_mdb_alone.png"
                 alt="Logo SDB"
                 className="w-[300px] h-auto object-contain brightness-0 invert"
               />
