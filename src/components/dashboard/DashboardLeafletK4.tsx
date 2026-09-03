@@ -921,7 +921,7 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
           opacity: 0.72,
         });
         bnpbLayersRef.current[id].addTo(map);
-      } else {
+      } else if (def.type !== 'Dapodik' && !def.url.startsWith('/')) {
         bnpbLayersRef.current[id] = createArcGISExportLayer(
           L, def.url, 0.72,
           def.type === 'ImageServer',

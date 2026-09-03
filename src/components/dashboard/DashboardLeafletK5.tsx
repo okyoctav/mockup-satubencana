@@ -1427,7 +1427,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
         return;
       }
       const def = BNPB_LAYERS.find((l) => l.id === id);
-      if (!def) return;
+      if (!def || def.type === 'Dapodik' || def.url.startsWith('/')) return;
       if (def.type === 'WMS') {
         previewOverlayLayersRef.current[id] = L.tileLayer.wms(def.url, {
           layers: def.layersParam ?? '',
@@ -1849,8 +1849,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
         overlayLayersRef.current[id].addTo(map);
       } else {
         const addMapServerLayer = (tok?: string) => {
-          if (!mapRef.current || overlayLayersRef.current[id] || def.url.endsWith('.json')) return;
-          if (!mapRef.current || overlayLayersRef.current[id]) return;
+          if (!mapRef.current || overlayLayersRef.current[id] || def.type === 'Dapodik' || def.url.startsWith('/') || def.url.endsWith('.json')) return;
           const currentOpacity = layerOpacities[id] ?? 1.0;
           overlayLayersRef.current[id] = createArcGISExportLayer(
             L, def.url, currentOpacity,
