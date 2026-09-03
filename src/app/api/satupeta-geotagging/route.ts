@@ -1,8 +1,30 @@
 import { NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 
 export async function GET() {
-  const targetUrl = "https://simrenas-webgis.bappenas.go.id/satupeta/api/survey_dtsen_kk";
+  // 1. First serve local grabbed JSON file if available
+  try {
+    const filePath = path.join(process.cwd(), "public", "data", "satupeta_geotagging.json");
+    if (fs.existsSync(filePath)) {
+      const fileContent = fs.readFileSync(filePath, "utf-8");
+      const jsonData = JSON.parse(fileContent);
+      return NextResponse.json(jsonData, {
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          "Cache-Control": "no-store",
+        },
+      });
+    }
+  } catch (err) {
+    console.error("Gagal membaca file lokal satupeta_geotagging.json:", err);
+  }
 
+  // 2. Fallback to live API request if local JSON file is missing
+  const targetUrl = "https://simrenas-webgis.bappenas.go.id/satupeta/api/survey_dtsen_kk";
   try {
     const res = await fetch(targetUrl, {
       cache: "no-store",
@@ -27,7 +49,6 @@ export async function GET() {
     }
 
     const data = await res.json();
-
     return NextResponse.json(data, {
       status: 200,
       headers: {

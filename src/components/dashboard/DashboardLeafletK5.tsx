@@ -1700,7 +1700,11 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       } else if (id === 'satupeta_geotagging') {
         if (!mapRef.current || overlayLayersRef.current[id]) return;
 
-        fetch('/api/satupeta-geotagging', { cache: 'no-store' })
+        fetch('/data/satupeta_geotagging.json', { cache: 'no-store' })
+          .then((r) => {
+            if (!r.ok) return fetch('/api/satupeta-geotagging', { cache: 'no-store' });
+            return r;
+          })
           .then((r) => r.json())
           .then((json) => {
             if (!mapRef.current) return;

@@ -851,7 +851,11 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
       if (!def) return;
       if (id === 'satupeta_geotagging') {
         if (!mapRef.current || bnpbLayersRef.current[id]) return;
-        fetch('/api/satupeta-geotagging', { cache: 'no-store' })
+        fetch('/data/satupeta_geotagging.json', { cache: 'no-store' })
+          .then((r) => {
+            if (!r.ok) return fetch('/api/satupeta-geotagging', { cache: 'no-store' });
+            return r;
+          })
           .then((r) => r.json())
           .then((json) => {
             if (!mapRef.current) return;

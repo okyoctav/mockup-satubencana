@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "grab-kjs": "python3 scripts/grab_sepakat_kjs.py 1 276",
+    "grab-satupeta": "python3 scripts/grab_satupeta_geotagging.py",
     "update-kerentanan": "python3 scripts/update_kerentanan.py 7172",
     "update-kerentanan:7171": "python3 scripts/update_kerentanan.py 7171",
     "dev": "next dev",
