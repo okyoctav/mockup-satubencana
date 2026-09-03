@@ -175,6 +175,7 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'gempa_ntt_2026_v2', label: 'Layer Dampak Gempa NTT 2026 (Layer 29)', color: '#EF4444', emoji: '📳', url: 'https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/mv_gempa_ntt_2026_v2/MapServer/29', type: 'MapServer', group: 'BNPB', useLngLat: true, layersParam: 'show:29' },
   { id: 'foto_geotag_ntt', label: 'Foto Geotag Terdampak (Gempa NTT 2026)', color: '#F59E0B', emoji: '📸', url: 'https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/Foto_Geotag_Terdampak/MapServer/0', type: 'MapServer', group: 'BNPB', useLngLat: true, layersParam: 'show:0' },
   { id: 'kjs_individu', label: 'Data KJS Individu (SEPAKAT PK Page 1-5)', color: '#8B5CF6', emoji: '🟣', url: '/datakjs/page_1.json', type: 'Dapodik', group: 'BAPPENAS' },
+  { id: 'satupeta_geotagging', label: 'Satupeta Geotagging (BAPPENAS DTSEN)', color: '#059669', emoji: '📍', url: '/api/satupeta-geotagging', type: 'Dapodik', group: 'BAPPENAS' },
   { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
   { id: 'bappenas_batas_desakel', label: 'Batas Kelurahan/Desa (BAPPENAS)', color: '#0284C7', emoji: '🏛️', url: 'https://mandata.bappenas.go.id/geoserver/ows', type: 'WMS', group: 'BAPPENAS', layersParam: 'BATAS_WILAYAH:ADMINISTRASI_AR_KELDESA_10K_2023' },
   { id: 'dapodik_sd', label: 'Sekolah Dasar (Dapodik)', color: '#EF4444', emoji: '🏠', url: '/data/dapodik/sd', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
@@ -1696,6 +1697,75 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
           overlayLayersRef.current[id] = group;
           group.addTo(mapRef.current);
         });
+      } else if (id === 'satupeta_geotagging') {
+        if (!mapRef.current || overlayLayersRef.current[id]) return;
+
+        fetch('/api/satupeta-geotagging', { cache: 'no-store' })
+          .then((r) => r.json())
+          .then((json) => {
+            if (!mapRef.current) return;
+            const items = Array.isArray(json) ? json : json?.data || [];
+            const markers: L.Marker[] = [];
+
+            items.forEach((item: Record<string, unknown>) => {
+              const kk = (item.kepala_keluarga as Record<string, unknown>) || {};
+              const latVal = item.lat || item.latitude || kk.lat;
+              const lngVal = item.long || item.longitude || kk.long;
+              if (latVal == null || lngVal == null) return;
+
+              const lat = parseFloat(String(latVal));
+              const lng = parseFloat(String(lngVal));
+              if (isNaN(lat) || isNaN(lng)) return;
+
+              // Emerald Geotag Icon (#059669)
+              const icon = L.divIcon({
+                className: '',
+                html: '<div style="background:#059669; width:22px; height:22px; border-radius:50%; border:2px solid #FFFFFF; box-shadow:0 2px 6px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; color:#FFF; font-size:12px; font-weight:bold;">📍</div>',
+                iconSize: [22, 22],
+                iconAnchor: [11, 11],
+              });
+
+              const anggotaList = (item.anggota_keluarga as Array<Record<string, unknown>>) || [];
+
+              const marker = L.marker([lat, lng], { icon });
+              marker.bindPopup(`
+                <div style="font-family:sans-serif; min-width:270px; max-width:320px; font-size:11px; color:#333; line-height:1.5;">
+                  <div style="font-weight:bold; color:#059669; font-size:12px; border-bottom:1px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px; display:flex; align-items:center; gap:4px;">
+                    <span>📍 Satupeta Geotagging (BAPPENAS DTSEN)</span>
+                  </div>
+                  <div style="font-size:10.5px; margin-bottom:4px; background:#ECFDF5; padding:4px 6px; border-radius:4px; border:1px solid #A7F3D0; color:#065F46;">
+                    <b>No. KK:</b> ${item.no_kk || '-'} &nbsp;|&nbsp; <b>Geotag:</b> ${item.geotag_status ? '✅ Terverifikasi' : '❌ Belum'}
+                  </div>
+                  <table style="width:100%; border-collapse:collapse; font-size:10.5px; margin-bottom:6px;">
+                    <tr><td style="color:#64748b; padding:2px 0;">Kepala Keluarga:</td><td style="font-weight:600;">${kk.nama_lengkap || '-'} (${kk.nik || '-'})</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Jumlah Anggota:</td><td style="font-weight:600;">${item.jumlah_anggota || anggotaList.length || '-'} Jiwa</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Desil Kesejahteraan:</td><td style="font-weight:700; color:#059669;">Desil ${kk.desil_kesejahteraan || '-'} (Skor: ${kk.skor_kesejahteraan || '-'})</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Status Bangunan:</td><td style="font-weight:600;">${kk.status_bangunan || '-'}</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Dinding / Atap / Lantai:</td><td style="font-weight:600;">${kk.jenis_dinding || '-'} / ${kk.jenis_atap || '-'} / ${kk.jenis_lantai || '-'}</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Air Minum / Sanitasi:</td><td style="font-weight:600;">${kk.sumber_air_minum || '-'} / ${kk.fasilitas_bab || '-'}</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Listrik / Bahan Bakar:</td><td style="font-weight:600;">${kk.daya_listrik || '-'} / ${kk.bahan_bakar_memasak || '-'}</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Pekerjaan Utama:</td><td style="font-weight:600;">${kk.status_pekerjaan_utama || '-'} (${kk.lapangan_usaha || '-'})</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Kesehatan / Disabilitas:</td><td style="font-weight:600;">${kk.status_kesehatan_umum || '-'} / ${kk.disabilitas_kerentanan || '-'}</td></tr>
+                  </table>
+                  ${anggotaList.length > 0 ? `
+                    <div style="font-weight:bold; color:#1e293b; font-size:11px; margin-top:6px; margin-bottom:2px; border-top:1px solid #E2E8F0; padding-top:4px;">Anggota Keluarga (${anggotaList.length}):</div>
+                    <ul style="padding-left:14px; margin:0; font-size:10px; color:#475569;">
+                      ${anggotaList.map((a: Record<string, unknown>) => `<li><b>${a.nama_lengkap}</b> (${a.hubungan_keluarga || 'Anggota'}) - ${a.jenis_kelamin === 'L' ? 'Laki-Laki' : 'Perempuan'}, Pekerjaan: ${a.status_pekerjaan_utama || '-'}</li>`).join('')}
+                    </ul>
+                  ` : ''}
+                </div>
+              `);
+
+              markers.push(marker);
+            });
+
+            const group = L.layerGroup(markers);
+            overlayLayersRef.current[id] = group;
+            group.addTo(mapRef.current);
+          })
+          .catch((err) => {
+            console.error('Gagal memuat layer Satupeta Geotagging:', err);
+          });
       } else if (def.type === 'VectorTileServer') {
         const tryAddVector = () => {
           if (!mapRef.current || overlayLayersRef.current[id]) return;

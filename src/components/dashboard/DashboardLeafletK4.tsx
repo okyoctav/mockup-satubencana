@@ -38,7 +38,7 @@ interface BnpbLayer {
   color: string;
   emoji: string;
   url: string;
-  type?: 'MapServer' | 'ImageServer' | 'VectorTileServer' | 'WMS';
+  type?: 'MapServer' | 'ImageServer' | 'VectorTileServer' | 'WMS' | 'Dapodik';
   group?: string;
   useLngLat?: boolean;               // use WGS84 (4326) bbox instead of Web Mercator
   layersParam?: string;              // override default 'show:0' layers param or WMS layers
@@ -122,6 +122,7 @@ const HEXBIN_RES9_URL = 'https://geospasial.bappenas.go.id/server/rest/services/
 const BNPB_LAYERS: BnpbLayer[] = [
   // BIG — Badan Informasi Geospasial
   { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
+  { id: 'satupeta_geotagging', label: 'Satupeta Geotagging (BAPPENAS DTSEN)', color: '#059669', emoji: '📍', url: '/api/satupeta-geotagging', type: 'Dapodik', group: 'BAPPENAS' },
   { id: 'big_rbi_sulawesi_lot1',       label: 'RBI Sulawesi 2024 Lot 1',      color: '#A855F7', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI_5K_Sulawesi_2024_Lot_1_Jul/VectorTileServer',         type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_bangunan_fasum_sulawesi', label: 'Bangunan Fasum Sulawesi 2024', color: '#F59E0B', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_BANGUNAN_FASUM_SULAWESI_2024/VectorTileServer', type: 'VectorTileServer', group: 'BIG' },
@@ -848,7 +849,54 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
       if (bnpbLayersRef.current[id]) return;
       const def = BNPB_LAYERS.find((l) => l.id === id);
       if (!def) return;
-      if (def.type === 'VectorTileServer') {
+      if (id === 'satupeta_geotagging') {
+        if (!mapRef.current || bnpbLayersRef.current[id]) return;
+        fetch('/api/satupeta-geotagging', { cache: 'no-store' })
+          .then((r) => r.json())
+          .then((json) => {
+            if (!mapRef.current) return;
+            const items = Array.isArray(json) ? json : json?.data || [];
+            const markers: L.Marker[] = [];
+            items.forEach((item: Record<string, unknown>) => {
+              const kk = (item.kepala_keluarga as Record<string, unknown>) || {};
+              const latVal = item.lat || item.latitude || kk.lat;
+              const lngVal = item.long || item.longitude || kk.long;
+              if (latVal == null || lngVal == null) return;
+              const lat = parseFloat(String(latVal));
+              const lng = parseFloat(String(lngVal));
+              if (isNaN(lat) || isNaN(lng)) return;
+              const icon = L.divIcon({
+                className: '',
+                html: '<div style="background:#059669; width:22px; height:22px; border-radius:50%; border:2px solid #FFFFFF; box-shadow:0 2px 6px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; color:#FFF; font-size:12px; font-weight:bold;">📍</div>',
+                iconSize: [22, 22],
+                iconAnchor: [11, 11],
+              });
+              const anggotaList = (item.anggota_keluarga as Array<Record<string, unknown>>) || [];
+              const marker = L.marker([lat, lng], { icon });
+              marker.bindPopup(`
+                <div style="font-family:sans-serif; min-width:270px; max-width:320px; font-size:11px; color:#333; line-height:1.5;">
+                  <div style="font-weight:bold; color:#059669; font-size:12px; border-bottom:1px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px; display:flex; align-items:center; gap:4px;">
+                    <span>📍 Satupeta Geotagging (BAPPENAS DTSEN)</span>
+                  </div>
+                  <div style="font-size:10.5px; margin-bottom:4px; background:#ECFDF5; padding:4px 6px; border-radius:4px; border:1px solid #A7F3D0; color:#065F46;">
+                    <b>No. KK:</b> ${item.no_kk || '-'} &nbsp;|&nbsp; <b>Geotag:</b> ${item.geotag_status ? '✅ Terverifikasi' : '❌ Belum'}
+                  </div>
+                  <table style="width:100%; border-collapse:collapse; font-size:10.5px; margin-bottom:6px;">
+                    <tr><td style="color:#64748b; padding:2px 0;">Kepala Keluarga:</td><td style="font-weight:600;">${kk.nama_lengkap || '-'} (${kk.nik || '-'})</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Jumlah Anggota:</td><td style="font-weight:600;">${item.jumlah_anggota || anggotaList.length || '-'} Jiwa</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Desil Kesejahteraan:</td><td style="font-weight:700; color:#059669;">Desil ${kk.desil_kesejahteraan || '-'} (Skor: ${kk.skor_kesejahteraan || '-'})</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Status Bangunan:</td><td style="font-weight:600;">${kk.status_bangunan || '-'}</td></tr>
+                  </table>
+                </div>
+              `);
+              markers.push(marker);
+            });
+            const group = L.layerGroup(markers);
+            bnpbLayersRef.current[id] = group;
+            group.addTo(mapRef.current);
+          })
+          .catch(() => null);
+      } else if (def.type === 'VectorTileServer') {
         const tryAddVector = () => {
           if (!mapRef.current || bnpbLayersRef.current[id]) return;
           const vl = createVectorTileLayer(L, def.url, def.color);
