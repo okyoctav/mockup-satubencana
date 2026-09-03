@@ -1,11 +1,36 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { exec } from "child_process";
+
+let lastGrabTime = 0;
+
+function triggerBackgroundGrab() {
+  const now = Date.now();
+  // Throttle background grab script to run at most once every 60 seconds
+  if (now - lastGrabTime < 60000) return;
+  lastGrabTime = now;
+
+  const scriptPath = path.join(process.cwd(), "scripts", "grab_satupeta_geotagging.py");
+  exec(`python3 "${scriptPath}"`, (error, stdout) => {
+    if (error) {
+      console.error("Background grab-satupeta error:", error.message);
+      return;
+    }
+    if (stdout) {
+      console.log("Background grab-satupeta output:", stdout.trim());
+    }
+  });
+}
 
 export async function GET() {
-  // 1. First serve local grabbed JSON file if available
+  // Trigger background grab script automatically when application / service loads
+  triggerBackgroundGrab();
+
+  const filePath = path.join(process.cwd(), "public", "data", "satupeta_geotagging.json");
+
+  // 1. Serve local grabbed JSON file if available
   try {
-    const filePath = path.join(process.cwd(), "public", "data", "satupeta_geotagging.json");
     if (fs.existsSync(filePath)) {
       const fileContent = fs.readFileSync(filePath, "utf-8");
       const jsonData = JSON.parse(fileContent);
@@ -23,7 +48,7 @@ export async function GET() {
     console.error("Gagal membaca file lokal satupeta_geotagging.json:", err);
   }
 
-  // 2. Fallback to live API request if local JSON file is missing
+  // 2. Fallback to live API request if local JSON file is not yet created
   const targetUrl = "https://simrenas-webgis.bappenas.go.id/satupeta/api/survey_dtsen_kk";
   try {
     const res = await fetch(targetUrl, {

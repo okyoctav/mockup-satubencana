@@ -45,6 +45,28 @@ interface BnpbLayer {
   extent?: [number, number, number, number]; // [minLng, minLat, maxLng, maxLat] for auto-fly
 }
 
+function maskNikOrKk(str: string | number | undefined | null): string {
+  if (!str) return '-';
+  const s = String(str).trim();
+  if (s.length <= 6) return s.slice(0, 2) + '****';
+  if (s.length === 16) {
+    return s.slice(0, 6) + '******' + s.slice(12);
+  }
+  return s.slice(0, 4) + '*****' + s.slice(-3);
+}
+
+function maskName(name: string | undefined | null): string {
+  if (!name) return '-';
+  const words = String(name).trim().split(/\s+/);
+  return words
+    .map((w) => {
+      if (w.length <= 2) return w[0] + '*';
+      if (w.length <= 4) return w.slice(0, 1) + '*'.repeat(w.length - 1);
+      return w.slice(0, 2) + '*'.repeat(w.length - 2);
+    })
+    .join(' ');
+}
+
 interface MapServerLegendItem {
   label: string;
   imageData: string; // base64 PNG from MapServer legend endpoint
@@ -883,10 +905,10 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
                     <span>📍 Satupeta Geotagging (BAPPENAS DTSEN)</span>
                   </div>
                   <div style="font-size:10.5px; margin-bottom:4px; background:#ECFDF5; padding:4px 6px; border-radius:4px; border:1px solid #A7F3D0; color:#065F46;">
-                    <b>No. KK:</b> ${item.no_kk || '-'} &nbsp;|&nbsp; <b>Geotag:</b> ${item.geotag_status ? '✅ Terverifikasi' : '❌ Belum'}
+                    <b>No. KK:</b> ${maskNikOrKk(item.no_kk as string)} &nbsp;|&nbsp; <b>Geotag:</b> ${item.geotag_status ? '✅ Terverifikasi' : '❌ Belum'}
                   </div>
                   <table style="width:100%; border-collapse:collapse; font-size:10.5px; margin-bottom:6px;">
-                    <tr><td style="color:#64748b; padding:2px 0;">Kepala Keluarga:</td><td style="font-weight:600;">${kk.nama_lengkap || '-'} (${kk.nik || '-'})</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Kepala Keluarga:</td><td style="font-weight:600;">${maskName(kk.nama_lengkap as string)} (${maskNikOrKk(kk.nik as string)})</td></tr>
                     <tr><td style="color:#64748b; padding:2px 0;">Jumlah Anggota:</td><td style="font-weight:600;">${item.jumlah_anggota || anggotaList.length || '-'} Jiwa</td></tr>
                     <tr><td style="color:#64748b; padding:2px 0;">Desil Kesejahteraan:</td><td style="font-weight:700; color:#059669;">Desil ${kk.desil_kesejahteraan || '-'} (Skor: ${kk.skor_kesejahteraan || '-'})</td></tr>
                     <tr><td style="color:#64748b; padding:2px 0;">Status Bangunan:</td><td style="font-weight:600;">${kk.status_bangunan || '-'}</td></tr>
