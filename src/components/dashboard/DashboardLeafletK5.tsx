@@ -253,8 +253,8 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'nasa_gibs_fire_modis', label: 'Anomali Termal Kebakaran (NASA GIBS MODIS)', color: '#F97316', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA', layersParam: 'MODIS_Terra_Thermal_Anomalies_All' },
   { id: 'nasa_firms_active_fires', label: 'Kebakaran Hutan & Lahan Realtime (NASA FIRMS / GIBS NOAA-20)', color: '#DC2626', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA', layersParam: 'VIIRS_NOAA20_Thermal_Anomalies_375m_All' },
   // PVMBG MAGMA Indonesia Volcanoes
-  { id: 'magma_volcanoes', label: 'Status Gunung Api Aktif Siaga (PVMBG MAGMA Indonesia)', color: '#DC2626', emoji: '🌋', url: '/api/volcanoes', type: 'Dapodik', group: 'BMKG' },
-  { id: 'magma_volcanoes_v2', label: 'Status Gunung Api 2 (PVMBG MAGMA 69 Gunung)', color: '#F59E0B', emoji: '🌋', url: '/api/volcanoes-v2', type: 'Dapodik', group: 'BMKG' },
+  { id: 'magma_volcanoes', label: 'Status Gunung Api Aktif Siaga (PVMBG MAGMA Indonesia)', color: '#DC2626', emoji: '🌋', url: '/api/volcanoes', type: 'Dapodik', group: 'ESDM' },
+  { id: 'magma_volcanoes_v2', label: 'Status Gunung Api 2 (PVMBG MAGMA 69 Gunung)', color: '#F59E0B', emoji: '🌋', url: '/api/volcanoes-v2', type: 'Dapodik', group: 'ESDM' },
   { id: 'bmkg_curah_hujan_bulanan', label: 'Prakiraan Curah Hujan Bulanan (BMKG)', color: '#0284C7', emoji: '☔', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakiraan_hujan_bulanan/Prakiraan_Curah_Hujan_Bulanan/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:all' },
   { id: 'bmkg_curah_hujan_10hari', label: 'Prakiraan Curah Hujan 10 Hari Kedepan (BMKG)', color: '#0369A1', emoji: '🌦️', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakicu10days/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:all' },
   { id: 'bmkg_seismisitas_dangkal', label: 'Peta Seismisitas Indonesia - Dangkal (BMKG)', color: '#EF4444', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/30', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:30' },
@@ -2615,7 +2615,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
               {/* Group Filter Buttons */}
               <div className="flex items-center gap-1.5 flex-wrap">
-                {['ALL', 'BNPB', 'BIG', 'BAPPENAS', 'ATR/BPN', 'KEMENDAGRI','BMKG','NASA'].map((grp) => (
+                {['ALL', 'BNPB', 'BIG', 'BAPPENAS', 'ATR/BPN', 'KEMENDAGRI','BMKG','NASA','ESDM'].map((grp) => (
                   <button
                     key={grp}
                     onClick={() => setLayerGroupFilter(grp)}
