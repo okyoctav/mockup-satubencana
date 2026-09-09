@@ -249,11 +249,12 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'Peta_Curah_Hujan_dan_Hari_Hujan_sebaran', label: 'Curah Hujan Sebaran', color: '#3B82F6', emoji: '👥', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Peta_Curah_Hujan_dan_Hari_Hujan/MapServer/1570', type: 'MapServer', group: 'BMKG' },
   { id: 'bmkg_sifat_hujan_bulanan', label: 'Prakiraan Sifat Hujan Bulanan (BMKG)', color: '#0EA5E9', emoji: '🌧️', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakiraan_hujan_bulanan/Prakiraan_Sifat_Hujan_Bulanan/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:all' },
   // NASA GIBS & FIRMS Wildfire / Hotspots
-  { id: 'nasa_gibs_fire_viirs', label: 'Titik Panas Kebakaran Hutan (NASA GIBS VIIRS 375m)', color: '#EF4444', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA GIBS', layersParam: 'VIIRS_SNPP_Thermal_Anomalies_375m_All' },
-  { id: 'nasa_gibs_fire_modis', label: 'Anomali Termal Kebakaran (NASA GIBS MODIS)', color: '#F97316', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA GIBS', layersParam: 'MODIS_Terra_Thermal_Anomalies_All' },
-  { id: 'nasa_firms_active_fires', label: 'Kebakaran Hutan & Lahan Realtime (NASA FIRMS / GIBS NOAA-20)', color: '#DC2626', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA GIBS', layersParam: 'VIIRS_NOAA20_Thermal_Anomalies_375m_All' },
+  { id: 'nasa_gibs_fire_viirs', label: 'Titik Panas Kebakaran Hutan (NASA GIBS VIIRS 375m)', color: '#EF4444', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA', layersParam: 'VIIRS_SNPP_Thermal_Anomalies_375m_All' },
+  { id: 'nasa_gibs_fire_modis', label: 'Anomali Termal Kebakaran (NASA GIBS MODIS)', color: '#F97316', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA', layersParam: 'MODIS_Terra_Thermal_Anomalies_All' },
+  { id: 'nasa_firms_active_fires', label: 'Kebakaran Hutan & Lahan Realtime (NASA FIRMS / GIBS NOAA-20)', color: '#DC2626', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA', layersParam: 'VIIRS_NOAA20_Thermal_Anomalies_375m_All' },
   // PVMBG MAGMA Indonesia Volcanoes
   { id: 'magma_volcanoes', label: 'Status Gunung Api Aktif Siaga (PVMBG MAGMA Indonesia)', color: '#DC2626', emoji: '🌋', url: '/api/volcanoes', type: 'Dapodik', group: 'PVMBG / MAGMA' },
+  { id: 'magma_volcanoes_v2', label: 'Status Gunung Api 2 (PVMBG MAGMA 69 Gunung)', color: '#F59E0B', emoji: '🌋', url: '/api/volcanoes-v2', type: 'Dapodik', group: 'PVMBG / MAGMA' },
   { id: 'bmkg_curah_hujan_bulanan', label: 'Prakiraan Curah Hujan Bulanan (BMKG)', color: '#0284C7', emoji: '☔', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakiraan_hujan_bulanan/Prakiraan_Curah_Hujan_Bulanan/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:all' },
   { id: 'bmkg_curah_hujan_10hari', label: 'Prakiraan Curah Hujan 10 Hari Kedepan (BMKG)', color: '#0369A1', emoji: '🌦️', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakicu10days/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:all' },
   { id: 'bmkg_seismisitas_dangkal', label: 'Peta Seismisitas Indonesia - Dangkal (BMKG)', color: '#EF4444', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/30', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:30' },
@@ -1854,6 +1855,92 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
           .catch((err) => {
             console.error('Gagal memuat layer Status Gunung Api (MAGMA):', err);
           });
+      } else if (id === 'magma_volcanoes_v2') {
+        fetch('/api/volcanoes-v2', { cache: 'no-store' })
+          .then((r) => r.json())
+          .then((json) => {
+            if (!mapRef.current) return;
+            const volcanoes = json.volcanoes || [];
+            const markers: L.Marker[] = [];
+
+            volcanoes.forEach((vol: {
+              ga_code: string;
+              ga_nama_gapi: string;
+              ga_kab_gapi: string;
+              ga_prov_gapi: string;
+              ga_koter_gapi: string | null;
+              ga_elev_gapi: number;
+              ga_lon_gapi: number;
+              ga_lat_gapi: number;
+              ga_status: number;
+              has_vona: boolean;
+              erupt_icon: boolean;
+              noticenumber?: string;
+            }) => {
+              if (vol.ga_lat_gapi == null || vol.ga_lon_gapi == null) return;
+
+              let statusText = 'Level I · Normal';
+              let badgeBg = '#ECFDF5';
+              let badgeBorder = '#A7F3D0';
+              let badgeColor = '#065F46';
+              let bgColor = '#10B981';
+              let pulseClass = '';
+
+              if (vol.ga_status === 4) {
+                statusText = 'Level IV · Awas';
+                badgeBg = '#FEF2F2'; badgeBorder = '#FCA5A5'; badgeColor = '#991B1B';
+                bgColor = '#991B1B'; pulseClass = 'animate-pulse';
+              } else if (vol.ga_status === 3) {
+                statusText = 'Level III · Siaga';
+                badgeBg = '#FEF2F2'; badgeBorder = '#FCA5A5'; badgeColor = '#991B1B';
+                bgColor = '#DC2626'; pulseClass = 'animate-pulse';
+              } else if (vol.ga_status === 2) {
+                statusText = 'Level II · Waspada';
+                badgeBg = '#FFFBEB'; badgeBorder = '#FDE68A'; badgeColor = '#92400E';
+                bgColor = '#F59E0B';
+              }
+
+              const icon = L.divIcon({
+                className: '',
+                html: `<div style="background:${bgColor}; width:26px; height:26px; border-radius:50%; border:2px solid #FFFFFF; box-shadow:0 0 8px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; color:#FFF; font-size:13px;" class="${pulseClass}">🌋</div>`,
+                iconSize: [26, 26],
+                iconAnchor: [13, 13],
+              });
+
+              const marker = L.marker([vol.ga_lat_gapi, vol.ga_lon_gapi], { icon });
+              marker.bindPopup(`
+                <div style="font-family:sans-serif; min-width:250px; max-width:300px; font-size:11px; color:#333; line-height:1.5;">
+                  <div style="font-weight:bold; color:#1E293B; font-size:13px; border-bottom:1px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+                    <span>🌋 Gunung ${vol.ga_nama_gapi}</span>
+                    <span style="font-size:10px; color:#64748B;">${vol.ga_elev_gapi} mdpl</span>
+                  </div>
+                  <div style="font-size:11px; margin-bottom:6px; background:${badgeBg}; padding:5px 8px; border-radius:6px; border:1px solid ${badgeBorder}; color:${badgeColor}; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
+                    <span>Status: ${statusText}</span>
+                    ${vol.erupt_icon ? '<span style="background:#EF4444; color:#FFF; font-size:9px; padding:1px 5px; border-radius:4px;">ERUPSI</span>' : ''}
+                  </div>
+                  <table style="width:100%; border-collapse:collapse; font-size:10.5px; margin-bottom:8px;">
+                    <tr><td style="color:#64748b; padding:2px 0;">Kabupaten:</td><td style="font-weight:600;">${vol.ga_kab_gapi || '-'}</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Provinsi:</td><td style="font-weight:600;">${vol.ga_prov_gapi || '-'}</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Kota Terdekat:</td><td style="font-weight:600;">${vol.ga_koter_gapi || '-'}</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Koordinat:</td><td style="font-weight:600;">${vol.ga_lat_gapi}, ${vol.ga_lon_gapi}</td></tr>
+                    ${vol.has_vona ? `<tr><td style="color:#64748b; padding:2px 0;">VONA Notice:</td><td style="font-weight:bold; color:#DC2626;">✈️ ${vol.noticenumber || 'Ya'}</td></tr>` : ''}
+                  </table>
+                  <a href="https://magma.esdm.go.id" target="_blank" rel="noopener noreferrer" style="display:inline-block; width:100%; text-align:center; background:#19506e; color:#FFF; font-weight:bold; font-size:11px; padding:6px 0; border-radius:6px; text-decoration:none; box-shadow:0 2px 4px rgba(0,0,0,0.2);">
+                    🌐 Portal Resmi MAGMA ESDM →
+                  </a>
+                </div>
+              `);
+
+              markers.push(marker);
+            });
+
+            const group = L.layerGroup(markers);
+            overlayLayersRef.current[id] = group;
+            group.addTo(mapRef.current);
+          })
+          .catch((err) => {
+            console.error('Gagal memuat layer Status Gunung Api 2 (MAGMA V2):', err);
+          });
       } else if (def.type === 'VectorTileServer') {
         const tryAddVector = () => {
           if (!mapRef.current || overlayLayersRef.current[id]) return;
@@ -2529,7 +2616,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
               {/* Group Filter Buttons */}
               <div className="flex items-center gap-1.5 flex-wrap">
-                {['ALL', 'BNPB', 'BIG', 'BAPPENAS', 'ATR/BPN', 'KEMENDAGRI','BMKG'].map((grp) => (
+                {['ALL', 'BNPB', 'BIG', 'BAPPENAS', 'ATR/BPN', 'KEMENDAGRI','BMKG','NASA'].map((grp) => (
                   <button
                     key={grp}
                     onClick={() => setLayerGroupFilter(grp)}
