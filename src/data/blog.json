@@ -150,42 +150,189 @@
     }
   ]
 },
-  {
-    "id": "5",
-    "category": "Manajemen Bencana",
-    "tagColor": "#EC4899",
-    "title": "Ketahanan Infrastruktur Kritis & Jalur Logistik Medis Darurat",
-    "excerpt": "Analisis jangkauan fasilitas kesehatan darurat dan pasokan listrik dalam meminimalisir korban jiwa.",
-    "author": "Pusat Krisis Kesehatan",
-    "authorRole": "Subdit Faskes Darurat",
-    "date": "08 Agustus 2026",
-    "readTime": "4 menit baca",
-    "image": "/images/blog/logistics.jpg",
-    "sections": [
-      {
-        "id": "ketahanan-faskes",
-        "title": "1. Ketahanan Fasilitas Kesehatan Darurat",
-        "content": "Kesiapan rumah sakit lapangan dan pasokan daya listrik cadangan menentukan angka keselamatan pasien kritis pada jam-jam pertama pasca bencana."
-      }
-    ]
-  },
-  {
-    "id": "6",
-    "category": "Model Dampak Ekonomi",
-    "tagColor": "#10B981",
-    "title": "Kalkulasi Estimasi Kerugian Ekonomi & Lahan Pertanian Terdampak",
-    "excerpt": "Sistem agregasi kerugian lahan sawah dan penutup lahan berbasis data spasial BIG 2024.",
-    "author": "Badan Pengelola Kerugian",
-    "authorRole": "Subdit Agregasi Spasial",
-    "date": "05 Agustus 2026",
-    "readTime": "5 menit baca",
-    "image": "/images/blog/gis_mapping.jpg",
-    "sections": [
-      {
-        "id": "agregasi-kerugian",
-        "title": "1. Agregasi Kerugian Lahan Pertanian",
-        "content": "Penggunaan layer penutup lahan RBI 5K BIG memungkinkan kalkulasi estimasi luasan hektar sawah dan perkebunan warga yang mengalami gagal panen akibat genangan air."
-      }
-    ]
-  }
+{
+  "id": "5",
+  "category": "Sejarah Kebencanaan",
+  "tagColor": "#0EA5E9",
+  "title": "Penerbitan Naskah Sumber: Katalog Gempabumi Merusak di Indonesia Tahun 1612 - 2014",
+  "excerpt": "Pusat Vulkanologi dan Mitigasi Bencana Geologi merangkum sejarah gempabumi merusak dan tsunami di Indonesia, lengkap dengan analisis tatanan tektonik, zona sumber gempa, serta rincian data korban jiwa akibat bencana dahsyat[cite: 1].",
+  "author": "Kementerian Energi dan Sumber Daya Mineral, Badan Geologi, Pusat Vulkanologi dan Mitigasi Bencana Geologi",
+  "authorRole": "Penerbit Naskah Sumber",
+  "date": "24 Agustus 2026",
+  "readTime": "10 menit baca",
+  "image": "/images/blog/berita5.png",
+  "sections": [
+    {
+      "id": "latar-belakang-tektonik",
+      "title": "1. Kondisi Geotektonik dan Sumber Gempabumi Indonesia",
+      "content": "Indonesia berada pada pertemuan empat lempeng aktif dunia (Eurasia, Indo-Australia, Pasifik, dan Laut Filipina) yang memicu kerawanan tinggi terhadap gempabumi dan tsunami[cite: 1]. Sumber gempabumi di Indonesia terbagi menjadi zona subduksi di laut (berpotensi tsunami) serta aktivitas sesar aktif di darat maupun di laut yang dangkal dan dekat dengan permukiman[cite: 1]."
+    },
+    {
+      "id": "ringkasan-korban-jiwa",
+      "title": "2. Rincian dan Dampak Korban Jiwa Peristiwa Bersejarah",
+      "content": "Buku katalog ini mencatat berbagai dampak korban jiwa yang luar biasa dari peristiwa gempabumi dan tsunami besar di Indonesia, di antaranya:\n- Gempabumi dan Tsunami Aceh 2004: Lebih dari 310.000 orang meninggal dunia di Aceh dan pantai barat Sumatera Utara[cite: 1].\n- Gempabumi Pulau Nias 2005: Lebih dari 1.000 orang meninggal dunia[cite: 1].\n- Gempabumi Yogyakarta 2006: Lebih dari 5.700 orang meninggal dunia[cite: 1].\n- Gempabumi dan Tsunami Flores 1992: Sebanyak 2.080 orang meninggal dan hilang[cite: 1]."
+    },
+    {
+      "id": "tujuan-mitigasi",
+      "title": "3. Urgensi Mitigasi dan Penataan Ruang",
+      "content": "Meskipun waktu kejadian gempabumi belum dapat diprediksi secara pasti, katalog sejarah ini disusun sebagai data dasar untuk mengenali wilayah rawan bencana guna mendukung program mitigasi serta penataan ruang berbasis mitigasi sesuai amanat undang-undang[cite: 1]."
+    },
+    {
+      "id": "download-files",
+      "title": "Download File Naskah",
+      "content": "- [Katalog Gempabumi Merusak di Indonesia Tahun 1612 - 2014 (PDF)](https://drive.google.com/file/d/1-p2FU76avhTYjHHH-1P0EFXk65NwSk8s/view?usp=sharing)"
+    }
+  ]
+},
+{
+  "id": "6",
+  "category": "Sejarah Kebencanaan",
+  "tagColor": "#0EA5E9",
+  "title": "Reflections on Tsunami - An Oral History (Arsip Nasional Republik Indonesia)",
+  "excerpt": "Kumpulan kisah nyata, trauma, keberanian, dan keteguhan iman para penyintas gempabumi dan tsunami di Nanggroe Aceh Darussalam pada 26 Desember 2004 yang diterbitkan oleh Arsip Nasional Republik Indonesia (ANRI)[cite: 2].",
+  "author": "Tjandra Mualim (Penyunting & Penerjemah) berdasarkan naskah asli oleh Damanhuri bin Abbas, dkk.",
+  "authorRole": "Editor & Penerjemah (ANRI)",
+  "date": "24 Agustus 2026",
+  "readTime": "15 menit baca",
+  "image": "/images/blog/berita6.png",
+  "sections": [
+    {
+      "id": "latar-belakang-dan-dampak-korban",
+      "title": "1. Skala Bencana dan Rincian Korban Jiwa",
+      "content": "Pagi hari Minggu, 26 Desember 2004, gempa tektonik berkekuatan 8,9 pada skala Richter dengan episentrum di kedalaman sekitar 4 kilometer di bawah dasar laut (149 km sebelah selatan Meulaboh) mengguncang Aceh[cite: 2]. Gempa dahsyat ini disusul oleh gelombang pasang tsunami setinggi 10 hingga 20 meter yang menyapu bersih permukiman, gedung, dan infrastruktur dalam hitungan detik[cite: 2]. Berdasarkan catatan dalam dokumen ini, bencana maha dahsyat tersebut merenggut nyawa sekitar 133.000 jiwa, sementara 38.000 orang lainnya dinyatakan hilang di wilayah Provinsi Nanggroe Aceh Darussalam (NAD) dan Pulau Nias[cite: 2]."
+    },
+    {
+      "id": "menit-menit-sebelum-bencana",
+      "title": "2. Situasi Sebelum Bencana dan Fenomena Alam",
+      "content": "Sebelum bencana terjadi, aktivitas warga berlangsung normal dan damai: para nelayan melaut, pedagang bertransaksi di pasar ikan Lampulo, anak-anak menanam pohon mangrove di Alue Naga, serta warga yang berolahraga di luar ruangan[cite: 2]. Setelah gempa hebat mereda, tanda-tanda alam berupa air laut yang surut secara drastis hingga satu atau dua mil sempat membuat sebagian warga penasaran dan mendekati pantai untuk memungut ikan yang menggelepar, sebelum akhirnya gelombang hitam raksasa datang menerjang tanpa ampun[cite: 2]."
+    },
+    {
+      "id": "refleksi-spiritual-dan-keajaiban",
+      "title": "3. Refleksi Spiritual, Keteguhan Iman, dan Kisah Penyintas",
+      "content": "Para penyintas dari berbagai kalangan—mulai dari anak-anak, lansia berusia 102 tahun seperti Nenek Aisyah, penyandang disabilitas, hingga personel keamanan—merefleksikan musibah ini sebagai ujian sekaligus teguran dari Yang Maha Kuasa[cite: 2]. Di tengah gulungan air keruh dan himpitan puing-puing, kepasrahan total dan zikir menyelamatkan banyak nyawa, diiringi kisah-kisah unik seperti ditemukannya buku doa yang utuh di tengah puing oleh bocah bernama Taha Yasin serta perjumpaan-perjumpaan tak terduga dengan sesama makhluk hidup[cite: 2]."
+    },
+    {
+      "id": "solidaritas-dan-pemulihan",
+      "title": "4. Solidaritas Kemanusiaan, Reuni Keluarga, dan Rekonstruksi",
+      "content": "Di tengah keputusasaan, rasa solidaritas yang tinggi muncul di antara para korban yang saling tolong-menolong menyelamatkan nyawa[cite: 2]. Dokumen ini juga merekam kisah mengharukan tentang reuni keluarga yang tak disangka-sangka setelah sebelumnya terpisah, pembukaan akses luas bagi komunitas internasional dan lembaga asing untuk misi kemanusiaan, hingga babak baru kehidupan para penyintas dalam merajut kembali masa depan di tengah damainya kesepakatan damai antara Pemerintah Indonesia dan GAM[cite: 2]."
+    },
+    {
+      "id": "download-files",
+      "title": "Download File Naskah",
+      "content": "- [Reflections on Tsunami - An Oral History (PDF)](https://drive.google.com/file/d/1p2UdeCUhF_WgmFa-Wgg_aRwd7p2DYNXh/view?usp=drive_link)"
+    }
+  ]
+},
+{
+  "id": "7",
+  "category": "Sejarah Kebencanaan",
+  "tagColor": "#0EA5E9",
+  "title": "Masalah Banjir di Batavia Abad XIX (Arsip Nasional Republik Indonesia)",
+  "excerpt": "Dokumen naskah sumber arsip dari Arsip Nasional Republik Indonesia (ANRI) yang mengkaji sejarah permasalahan banjir, faktor penyebab, serta upaya penanggulangan tata air di Batavia sejak abad XIX hingga masa kolonial[cite: 3].",
+  "author": "Arsip Nasional Republik Indonesia (ANRI)",
+  "authorRole": "Penerbit Naskah Sumber",
+  "date": "24 Agustus 2026",
+  "readTime": "12 menit baca",
+  "image": "/images/blog/berita7.png",
+  "sections": [
+    {
+      "id": "latar-belakang-batavia",
+      "title": "1. Sejarah Singkat dan Kerentanan Wilayah Batavia",
+      "content": "Batavia didirikan oleh Jan Pieterszoon Coen pada tahun 1619 di atas reruntuhan Jayakarta dengan meniru model kota-kota di Nederland yang dilengkapi kanal dan jembatan[cite: 3]. Letak geografis Batavia yang diapit oleh aktivitas perdagangan kota bawah dan perkebunan di wilayah selatan, ditambah kontur tanah yang rendah serta pesatnya urbanisasi pada awal abad XX, membuat wilayah ini sangat rawan terhadap bencana banjir[cite: 3]."
+    },
+    {
+      "id": "faktor-penyebab-banjir",
+      "title": "2. Faktor-Faktor Penyebab Banjir di Batavia",
+      "content": "Berdasarkan kajian arsip sejarah, banjir di Batavia disebabkan oleh beberapa faktor utama berikut:\n- Tingkat curah hujan yang tinggi serta kiriman air dari daerah pegunungan di selatan (Bogor) akibat pembukaan hutan untuk perkebunan teh[cite: 3].\n- Penebangan hutan di hulu sungai yang mengubah daya resapan tanah terhadap air[cite: 3].\n- Pertumbuhan pemukiman padat dan kumuh di bantaran sungai yang menyebabkan penyempitan alur pembuangan air[cite: 3].\n- Faktor teknis lain seperti tingginya sedimentasi muara sungai, penumpukan sampah, serta penurunan permukaan tanah[cite: 3]."
+    },
+    {
+      "id": "upaya-penanggulangan-kolonial",
+      "title": "3. Kebijakan dan Upaya Penanggulangan oleh Pemerintah Kolonial",
+      "content": "Pemerintah kolonial Hindia Belanda mulai meninjau masalah banjir secara sistematis pada pertengahan tahun 1920-an melalui penerapan **Rencana van Breen** (Perbaikan Tata-air Ibukota) yang berfokus pada pembuatan terusan melintang (transversal channel) untuk mengalirkan banjir dari wilayah selatan[cite: 3]. Selain itu, dikeluarkan berbagai keputusan resmi seperti *Algemeene Secretarie no. 904*, *Besluit no. 30* (tahun 1919) mengenai perbaikan saluran air Kali Krokot dan Sunter, serta *Besluit no. 45* (tahun 1920) tentang pengerjaan drainase dan penanggulangan risiko malaria di wilayah barat laut Batavia[cite: 3]."
+    },
+    {
+      "id": "download-files",
+      "title": "Download File Naskah",
+      "content": "- [Masalah Banjir di Batavia Abad XIX (PDF)](https://drive.google.com/file/d/1wjXYCoihA5V9o0VErubBnMYpqNeu0N0t/view?usp=sharing)"
+    }
+  ]
+},
+{
+  "id": "8",
+  "category": "Sejarah Kebencanaan",
+  "tagColor": "#0EA5E9",
+  "title": "Laporan Bencana Alam Gunung Merapi (Jawa Tengah & D.I. Yogyakarta) 1969",
+  "excerpt": "Laporan resmi dari Direktorat Penggunaan Tanah, Direktorat Jenderal Kehutanan (Departemen Pertanian) mengenai letusan Gunung Merapi pada Januari hingga Februari 1969 serta dampaknya yang luas di bidang pertanian, peternakan, perikanan, dan kehutanan.",
+  "author": "M. Hatin Soodarma (Kepala Direktorat Penggunaan Tanah) dkk.",
+  "authorRole": "Penyusun & Tim Peninjau (Departemen Pertanian)",
+  "date": "24 Agustus 2026",
+  "readTime": "15 menit baca",
+  "image": "/images/blog/berita8.png",
+  "sections": [
+    {
+      "id": "latar-belakang-letusan",
+      "title": "1. Kronologi dan Aktivitas Vulkanik Gunung Merapi (1969)",
+      "content": "Berdasarkan laporan, Gunung Merapi menunjukkan peningkatan aktivitas sejak tahun 1961 dan memuntahkan lava serta material lepas yang mencapai sekitar 5,7 juta meter kubik pada 1967. Puncak aktivitas yang mengejutkan terjadi pada 7 hingga 8 Januari 1969, yang menambah volume material vulkanik di bagian hulu (seperti Kali Krasak, Batang, dan Blongkeng) menjadi sekitar 15 juta meter kubik. Letusan ini memicu awan panas (ladu), guguran lava, hujan abu, serta banjir lahar dingin yang melanda wilayah Magelang, Sleman, Yogyakarta, Klaten, dan Boyolali akibat tingginya curah hujan."
+    },
+    {
+      "id": "dampak-dan-kerugian-pertanian",
+      "title": "2. Dampak Kerusakan di Bidang Pertanian dan Perkebunan",
+      "content": "Bencana letusan dan banjir lahar merusak ribuan hektar lahan produktif di berbagai kabupaten:\n- **Kabupaten Magelang:** 282 ha sawah rusak total, 11 ha tegalan, 116,5 ha pekarangan, serta 2.221,25 ha sawah mengalami kekeringan akibat rusaknya 20 bendungan permanen dan 158 bendungan brondjongan.\n- **Kabupaten Sleman:** Ribuan hektar sawah, tegalan, dan pekarangan tertimbun pasir serta batu dari lahar dingin (terutama di DAS Krasak, Boyolali, Kuning, dan Gendol).\n- **Kabupaten Klaten & Boyolali:** Kerusakan tanggul sungai (seperti Kali Simping dan Ngagrong) serta ratusan hektar tanaman jagung dan sawah tertimbun material vulkanik.\n- **Sektor Kehutanan & Perkebunan:** Kerugian besar pada tegakan pohon pinus, rimba, getah pinus, serta lahan yang semula disiapkan untuk tanaman rosella dan tembakau di Tangkringan/Sorogedug akibat endapan belerang."
+    },
+    {
+      "id": "dampak-peternakan-perikanan",
+      "title": "3. Dampak pada Sektor Peternakan dan Perikanan Darat",
+      "content": "- **Peternakan:** Tercatat kematian langsung hewan ternak meliputi 3 ekor sapi, 8 ekor kerbau, 15 ekor kambing (di Magelang), serta sekitar 4.000 ekor unggas/ayam. Selain itu, suplai pakan ternak berkurang drastis akibat abu vulkanik, dan sumber air tercemar belerang.\n- **Perikanan Darat:** Ribuan kilogram ikan mati secara langsung akibat air sungai yang terpapar lahar panas dan belerang (seperti di DAS Krasak, Gondol, Kuning, Opak, dll.). Ratusan hektar kolam dan sawah surut/rusak di wilayah Magelang dan Sleman, mengakibatkan kematian jutaan benih ikan (lele, gurami, tawes, mujair)."
+    },
+    {
+      "id": "rencana-rehabilitasi",
+      "title": "4. Kebijakan Pemulihan dan Rencana Rehabilitasi",
+      "content": "Pemerintah menetapkan bahwa rehabilitasi fisik (seperti perbaikan bendungan dan pembersihan lahan) baru dapat dijalankan secara efektif setelah musim hujan berakhir (setelah bulan April 1969) guna menghindari risiko kerusakan susulan akibat sisa lahar di hulu. Langkah-langkah pemulihan meliputi:\n- Perbaikan darurat bendungan secara gotong royong dan penyaluran alat kerja (linggis, sekop, cangkul, kawat brondjong).\n- Distribusi bibit tanaman pangan darurat, pupuk hijau (orok-orok), serta bibit kelapa dan palawija.\n- Program pengadaan ternak (sapi dan domba) dengan sistem gaduhan bagi petani terdampak.\n- Restocking (penebaran kembali) jutaan bibit ikan setelah sistem pengairan normal."
+    },
+    {
+      "id": "download-files",
+      "title": "Download File Naskah",
+      "content": "- [Laporan Bencana Alam Gunung Merapi 1969 (PDF)](https://drive.google.com/file/d/1vwBT07U2EzP14eRepQS99bS4862mOcxE/view?usp=sharing)"
+    }
+  ]
+},
+{
+  "id": "9",
+  "category": "Pariwisata & Sejarah",
+  "tagColor": "#3B82F6",
+  "title": "Mengenang 100 Tahun Meletusnya Krakatau (27 Agustus 1883 - 27 Agustus 1983)",
+  "excerpt": "Buku panduan wisata resmi dan catatan sejarah peringatan satu abad letusan dahsyat Gunung Krakatau yang diterbitkan oleh Dinas Pariwisata Propinsi Daerah Tingkat I Jawa Barat tahun 1983.",
+  "author": "Drs. Anang Sumarna dkk.",
+  "authorRole": "Kepala Dinas Pariwisata Propinsi Daerah Tingkat I Jawa Barat",
+  "date": "24 Agustus 2026",
+  "readTime": "20 menit baca",
+  "image": "/images/blog/berita9.png",
+  "sections": [
+    {
+      "id": "sambutan-dan-geografi",
+      "title": "1. Sambutan Resmi & Kondisi Geografis Jawa Barat",
+      "content": "Buku ini diterbitkan untuk memperingati 100 tahun letusan dahsyat Gunung Krakatau pada 27 Agustus 1883[cite: 1]. Wilayah Propinsi Daerah Tingkat I Jawa Barat memiliki luas 46.300 Km² (35% dari luas Pulau Jawa dan Madura) dengan jumlah penduduk berdasarkan sensus 1980 sebanyak 27.453.525 jiwa[cite: 2]. Secara administratif pariwisata, Jawa Barat dibagi menjadi 5 wilayah, yaitu Wilayah Parawisata I Banten, Wilayah Parawisata II Bogor, Wilayah Parawisata III Bandung Raya, Wilayah Parawisata IV Cirebon, dan Wilayah Parawisata V Priangan Timur[cite: 2]."
+    },
+    {
+      "id": "potensi-wisata-banten",
+      "title": "2. Objek Wisata dan Peninggalan Sejarah di Wilayah Banten",
+      "content": "Wilayah Banten memiliki berbagai destinasi wisata menarik dan bersejarah, di antaranya:\n- **Mesjid Agung Banten:** Didirikan pada tahun 1566 oleh Sultan Maulana Yusuf dengan arsitektur atap limas bersusun dan menara setinggi 30 meter[cite: 4]. Di sekitarnya terdapat kompleks makam Sultan Banten.\n- **Benteng Speelwijck & Meriam Ki Amuk:** Benteng pertahanan peninggalan masa kolonial serta meriam kuno berukuran besar dari perunggu yang terletak di alun-alun mesjid agung[cite: 4].\n- **Mercusuar Anyer Kidul:** Dibangun tahun 1883 (dalam sumber lain disebut 1885) dengan ketinggian 75,5 meter yang masih berfungsi hingga kini untuk memandu kapal di Selat Sunda[cite: 5].\n- **Pulau Dua (Pulau Burung):** Cagar alam seluas 20 hektar di Teluk Banten yang menjadi tempat migrasi dan perkembangbiakan 40.000 hingga 50.000 burung dari Asia, Afrika, dan Australia pada bulan April hingga Agustus[cite: 4, 5].\n- **Pantai Karang Bolong & Pantai Suralaya (Florida):** Tempat rekreasi dengan pemandangan laut yang indah serta fasilitas akomodasi dan bungalow[cite: 5].\n- **Kawasan Ujung Kulon & Anak Krakatau:** Cagar alam dan taman nasional tempat perlindungan badak bercula satu (*Rhinoceros Sondaicus*) serta lokasi wisata alam gunung api Anak Krakatau.\n- **Masyarakat Baduy:** Kelompok masyarakat adat di Kecamatan Leuwi Damar (Kabupaten Lebak) yang terbagi menjadi Baduy Dalam dan Baduy Luar dengan tradisi leluhur yang sangat kuat."
+    },
+    {
+      "id": "sejarah-letusan-1883",
+      "title": "3. Peristiwa Dahsyat Letusan Krakatau 1883",
+      "content": "Letusan Krakatau pada 26–27 Agustus 1883 tercatat sebagai letusan gunung berapi terbesar dalam sejarah. Dampak dan fenomena letusan tersebut meliputi:\n- **Korban Jiwa & Kerusakan:** Lebih dari 36.000 orang tewas akibat terjangan gelombang tsunami dahsyat setinggi lebih dari 100 kaki (30 meter) yang menyapu bersih kota Anyer, Teluk Betung, dan desa-desa pesisir[cite: 5].\n- **Jangkauan Global:** Suara ledakan terdengar hingga jarak ribuan kilometer di Ceylon (Sri Lanka), Filipina, dan Australia. Gelombang tekanan atmosfer tercatat mengitari bumi sebanyak tujuh kali, sementara abunya melayang di atmosfer selama berbulan-bulan.\n- **Kelahiran Anak Krakatau:** Pada tahun 1927, aktivitas vulkanik bawah laut kembali terpantau nelayan, hingga akhirnya membentuk kerucut baru yang dinamakan Anak Krakatau dan terus tumbuh hingga kini."
+    },
+    {
+      "id": "informasi-transportasi-akomodasi",
+      "title": "4. Panduan Transportasi dan Akomodasi Wisata",
+      "content": "Buku panduan ini menyediakan daftar lengkap sarana pendukung bagi wisatawan:\n- **Transportasi Umum:** Bus umum dari Terminal Grogol (Jakarta) menuju Merak, Anyer, atau Labuan dengan waktu tempuh sekitar 3 hingga 5 jam. Alternatif lain menggunakan kereta api dari Stasiun Tanah Abang menuju Rangkasbitung dan menyambung ke Labuan.\n- **Akomodasi & Restoran:** Berbagai pilihan hotel, bungalow, losmen, dan restoran tersedia di kawasan Serang, Cilegon, Anyer, Carita, dan Labuan (seperti Anyer Beach Hotel, Carita Krakatau Beach Hotel, dll.)."
+    },
+    {
+      "id": "download-files",
+      "title": "Download File Naskah",
+      "content": "- [Laporan Mengenang 100 Tahun Meletusnya Krakatau 1883-1983 (PDF)](https://drive.google.com/file/d/1TM5Q4qdNPigUM8FuVj-tjEv_498OASHL/view?usp=sharing)"
+    }
+  ]
+}
 ]

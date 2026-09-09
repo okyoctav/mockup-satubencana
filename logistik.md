@@ -115,4 +115,4 @@ Sumber Rumus: Standar kebutuhan layanan kesehatan dari segi SDM, pengendalian p
 * Ruang Ramah Pasutri minimal 1 per pos pengungsi.
 * Tenda layanan ibadah minimal 1 per pos pengungsi.
 * Tenda ramah perempuan dan anak minimal 1 per pos pengungsi.
-* Pekerja sosial 1 pekerja per 7 pasien / anak / disabilitas
+* Pekerja sosial 1 pekerja per 7 pasien / anak / disabilita

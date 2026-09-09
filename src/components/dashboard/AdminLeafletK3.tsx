@@ -291,7 +291,7 @@ function isPointInsideLayer(layer: L.Layer | { getBounds?: () => L.LatLngBounds 
 function isLeafletDrawReady(): boolean {
   if (typeof window === 'undefined') return false;
   const leafletWindow = window as WindowWithLeafletDraw & { L?: typeof L & { Draw?: unknown } };
-  return Boolean(leafletWindow.L?.Draw);
+  return Boolean(leafletWindow.L?.Draw); 
 }
 
 function buildImpactHtmlK3(d: ImpactDataK3): string {
