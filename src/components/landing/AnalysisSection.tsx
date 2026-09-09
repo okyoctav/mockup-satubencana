@@ -311,11 +311,21 @@ export default function AnalysisSection() {
   }, []);
 
   return (
-    <section
-      id="dashboard-info"
-      className="relative py-24 px-6"
-      style={{ background: 'var(--section-gradient)' }}
-    >
+    <>
+      {/* Gambar Sejarah Bencana di atas Section 03 */}
+      <div className="w-full">
+        <img
+          src="/images/blog/sejarahbencana.png"
+          alt="Sejarah Bencana"
+          className="w-full h-auto block"
+        />
+      </div>
+
+      <section
+        id="dashboard-info"
+        className="relative py-24 px-6"
+        style={{ background: 'var(--section-gradient)' }}
+      >
       {/* Section header */}
       <div className="text-center max-w-3xl mx-auto mb-16">
         <p className="text-xs font-semibold tracking-widest mb-4" style={{ color: '#0EA5E9' }}>
@@ -376,7 +386,7 @@ export default function AnalysisSection() {
           Siap menganalisis data bencana secara mendalam?
         </p>
         <a
-          href="/dashboard"
+          href="/dashboard_k5"
           className="inline-flex items-center gap-3 px-10 py-5 rounded-full font-bold text-white text-lg transition-all duration-300 hover:scale-105"
           style={{
             background: 'linear-gradient(135deg, #0EA5E9 0%, #0284C7 50%, #22C55E 100%)',
@@ -386,10 +396,7 @@ export default function AnalysisSection() {
           <span>Buka Dashboard</span>
           <span className="text-xl">→</span>
         </a>
-        <p className="text-xs mt-4" style={{ color: '#475569' }}>
-          Akses gratis · Tidak perlu registrasi
-        </p>
       </div>
     </section>
-  );
+  </>);
 }

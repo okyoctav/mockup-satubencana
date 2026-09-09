@@ -12,7 +12,7 @@ const MITRA = [
 const LINKS = {
   Platform: [
     { label: 'Landing Page', href: '/' },
-    { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Dashboard', href: '/dashboard_k5' },
     { label: 'Peta Bencana', href: '#peta' },
     { label: 'Analisis Data', href: '#dashboard-info' },
   ],

@@ -24,12 +24,13 @@ interface Props {
   theme: string;
   kodeKemendagri?: string;
   onDrawEstimation?: (stats: DrawEstimationStats) => void;
+  onActiveOverlaysChange?: (overlays: string[]) => void;
 }
 
-export default function DashboardMapK5({ data, flyTo, theme, kodeKemendagri, onDrawEstimation }: Props) {
+export default function DashboardMapK5({ data, flyTo, theme, kodeKemendagri, onDrawEstimation, onActiveOverlaysChange }: Props) {
   return (
     <div style={{ width: '100%', height: '100%' }}>
-      <DashboardLeafletK5 data={data} flyTo={flyTo} theme={theme} kodeKemendagri={kodeKemendagri} onDrawEstimation={onDrawEstimation} />
+      <DashboardLeafletK5 data={data} flyTo={flyTo} theme={theme} kodeKemendagri={kodeKemendagri} onDrawEstimation={onDrawEstimation} onActiveOverlaysChange={onActiveOverlaysChange} />
     </div>
   );
 }

@@ -130,6 +130,14 @@ export default function DashboardK5Page() {
   const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical' | 'infrastructure' | 'economic' | 'utilities' | 'routes' | 'ai' | 'gempa_ntt'>('map');
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [drawEstimation, setDrawEstimation] = useState<EstimationData | null>(null);
+  const [activeOverlays, setActiveOverlays] = useState<string[]>([]);
+  const isFotoGeotagNttActive = activeOverlays.includes('foto_geotag_ntt') || activeOverlays.includes('gempa_ntt_2026_v2');
+
+  useEffect(() => {
+    if (!isFotoGeotagNttActive && activeTab === 'gempa_ntt') {
+      setActiveTab('map');
+    }
+  }, [isFotoGeotagNttActive, activeTab]);
 
   // First-time visit Bumper Video check
   useEffect(() => {
@@ -483,7 +491,9 @@ export default function DashboardK5Page() {
                   className="w-full sm:w-64 appearance-none bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 pr-8 text-xs font-bold text-[#19506e] outline-none cursor-pointer focus:border-[#1f8080]"
                 >
                   <option value="map">🗺️ Peta Utama K5</option>
-                  <option value="gempa_ntt">🌋 Analisis Dampak Gempa NTT 2026</option>
+                  {isFotoGeotagNttActive && (
+                    <option value="gempa_ntt">🌋 Analisis Dampak Gempa NTT 2026</option>
+                  )}
                   <option value="analytics">📊 Analisis Statistik Kebencanaan</option>
                   <option value="models">🛡️ Model Kerentanan & Respon</option>
                   <option value="logistics">📦 Analisis Kebutuhan Logistik</option>
@@ -512,17 +522,19 @@ export default function DashboardK5Page() {
                 <span className="truncate">Peta Utama</span>
               </button>
 
-              <button
-                onClick={() => setActiveTab('gempa_ntt')}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                  activeTab === 'gempa_ntt'
-                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
-                    : 'bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100'
-                }`}
-              >
-                <ShieldAlert className="w-4 h-4 shrink-0 text-rose-600 animate-pulse" />
-                <span className="truncate">Gempa NTT 2026</span>
-              </button>
+              {isFotoGeotagNttActive && (
+                <button
+                  onClick={() => setActiveTab('gempa_ntt')}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                    activeTab === 'gempa_ntt'
+                      ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                      : 'bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100'
+                  }`}
+                >
+                  <ShieldAlert className="w-4 h-4 shrink-0 text-rose-600 animate-pulse" />
+                  <span className="truncate">Gempa NTT 2026</span>
+                </button>
+              )}
 
               <button
                 onClick={() => setActiveTab('analytics')}
@@ -653,6 +665,7 @@ export default function DashboardK5Page() {
                     theme={theme}
                     kodeKemendagri={activeFilter?.kodeKemendagri}
                     onDrawEstimation={(stats) => setDrawEstimation(stats)}
+                    onActiveOverlaysChange={(overlays) => setActiveOverlays(overlays)}
                   />
                 </div>
               </div>

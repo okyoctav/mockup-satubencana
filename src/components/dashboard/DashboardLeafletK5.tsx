@@ -39,6 +39,7 @@ interface Props {
     sekolahDampak?: SekolahDampakItem[];
   }) => void;
   theme: string;
+  onActiveOverlaysChange?: (activeOverlays: string[]) => void;
 }
 
 interface FotoGeotagItem {
@@ -952,7 +953,7 @@ async function queryAtrBpnHakAtasTanah(drawLayer: L.Layer): Promise<HakAtasTanah
   }
 }
 
-export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDrawEstimation }: Props) {
+export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDrawEstimation, onActiveOverlaysChange }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -979,6 +980,10 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
   const [activeBasemap, setActiveBasemap] = useState('esri_imagery');
   const [draftBasemap, setDraftBasemap] = useState('esri_imagery');
   const [activeOverlays, setActiveOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
+
+  useEffect(() => {
+    onActiveOverlaysChange?.(activeOverlays);
+  }, [activeOverlays, onActiveOverlaysChange]);
   const [draftOverlays, setDraftOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
   const [layerOpacities, setLayerOpacities] = useState<Record<string, number>>({});
   const [draftOpacities, setDraftOpacities] = useState<Record<string, number>>({});
