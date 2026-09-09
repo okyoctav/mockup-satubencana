@@ -252,6 +252,8 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'nasa_gibs_fire_viirs', label: 'Titik Panas Kebakaran Hutan (NASA GIBS VIIRS 375m)', color: '#EF4444', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA GIBS', layersParam: 'VIIRS_SNPP_Thermal_Anomalies_375m_All' },
   { id: 'nasa_gibs_fire_modis', label: 'Anomali Termal Kebakaran (NASA GIBS MODIS)', color: '#F97316', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA GIBS', layersParam: 'MODIS_Terra_Thermal_Anomalies_All' },
   { id: 'nasa_firms_active_fires', label: 'Kebakaran Hutan & Lahan Realtime (NASA FIRMS / GIBS NOAA-20)', color: '#DC2626', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA GIBS', layersParam: 'VIIRS_NOAA20_Thermal_Anomalies_375m_All' },
+  // PVMBG MAGMA Indonesia Volcanoes
+  { id: 'magma_volcanoes', label: 'Status Gunung Api Aktif Siaga (PVMBG MAGMA Indonesia)', color: '#DC2626', emoji: '🌋', url: '/api/volcanoes', type: 'Dapodik', group: 'PVMBG / MAGMA' },
   { id: 'bmkg_curah_hujan_bulanan', label: 'Prakiraan Curah Hujan Bulanan (BMKG)', color: '#0284C7', emoji: '☔', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakiraan_hujan_bulanan/Prakiraan_Curah_Hujan_Bulanan/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:all' },
   { id: 'bmkg_curah_hujan_10hari', label: 'Prakiraan Curah Hujan 10 Hari Kedepan (BMKG)', color: '#0369A1', emoji: '🌦️', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakicu10days/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:all' },
   { id: 'bmkg_seismisitas_dangkal', label: 'Peta Seismisitas Indonesia - Dangkal (BMKG)', color: '#EF4444', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/30', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:30' },
@@ -1800,6 +1802,57 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
           })
           .catch((err) => {
             console.error('Gagal memuat layer Satupeta Geotagging:', err);
+          });
+      } else if (id === 'magma_volcanoes') {
+        fetch('/api/volcanoes', { cache: 'no-store' })
+          .then((r) => r.json())
+          .then((json) => {
+            if (!mapRef.current) return;
+            const volcanoes = json.volcanoes || [];
+            const markers: L.Marker[] = [];
+
+            volcanoes.forEach((vol: { label: string; lat: number; lon: number; level: string; status: string; region: string; laporan_url: string; key: string }) => {
+              if (vol.lat == null || vol.lon == null) return;
+
+              // Pulsing Volcano DivIcon
+              const icon = L.divIcon({
+                className: '',
+                html: `<div style="background:#DC2626; width:28px; height:28px; border-radius:50%; border:2px solid #FFFFFF; box-shadow:0 0 12px rgba(220,38,38,0.8); display:flex; align-items:center; justify-content:center; color:#FFF; font-size:14px;" class="animate-pulse">🌋</div>`,
+                iconSize: [28, 28],
+                iconAnchor: [14, 14],
+              });
+
+              const marker = L.marker([vol.lat, vol.lon], { icon });
+              marker.bindPopup(`
+                <div style="font-family:sans-serif; min-width:245px; max-width:295px; font-size:11px; color:#333; line-height:1.5;">
+                  <div style="font-weight:bold; color:#DC2626; font-size:13px; border-bottom:1px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                    <span>🌋 Gunung ${vol.label}</span>
+                  </div>
+                  <div style="font-size:11px; margin-bottom:6px; background:#FEF2F2; padding:5px 8px; border-radius:6px; border:1px solid #FCA5A5; color:#991B1B; font-weight:bold;">
+                    Status: ${vol.status || vol.level}
+                  </div>
+                  <table style="width:100%; border-collapse:collapse; font-size:10.5px; margin-bottom:8px;">
+                    <tr><td style="color:#64748b; padding:2px 0;">Wilayah / Region:</td><td style="font-weight:600;">${vol.region || '-'}</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Koordinat:</td><td style="font-weight:600;">${vol.lat}, ${vol.lon}</td></tr>
+                    <tr><td style="color:#64748b; padding:2px 0;">Kode Gunung (PVMBG):</td><td style="font-weight:600;">${vol.key || '-'}</td></tr>
+                  </table>
+                  ${vol.laporan_url ? `
+                    <a href="${vol.laporan_url}" target="_blank" rel="noopener noreferrer" style="display:inline-block; width:100%; text-align:center; background:#DC2626; color:#FFF; font-weight:bold; font-size:11px; padding:6px 0; border-radius:6px; text-decoration:none; box-shadow:0 2px 4px rgba(220,38,38,0.3);">
+                      📄 Lihat Laporan Resmi MAGMA ESDM →
+                    </a>
+                  ` : ''}
+                </div>
+              `);
+
+              markers.push(marker);
+            });
+
+            const group = L.layerGroup(markers);
+            overlayLayersRef.current[id] = group;
+            group.addTo(mapRef.current);
+          })
+          .catch((err) => {
+            console.error('Gagal memuat layer Status Gunung Api (MAGMA):', err);
           });
       } else if (def.type === 'VectorTileServer') {
         const tryAddVector = () => {

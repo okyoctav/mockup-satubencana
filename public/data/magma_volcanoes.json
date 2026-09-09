@@ -1,0 +1,57 @@
+{
+  "updated_at": "2026-09-09T13:11:00+07:00",
+  "source": "MAGMA Indonesia (PVMBG Badan Geologi ESDM)",
+  "unmatched": [],
+  "volcanoes": [
+    {
+      "key": "262000",
+      "label": "Krakatau",
+      "laporan_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/325420?signature=f90f6dcfc5494c75ca5b41f171db16c7daba2be0e8e377b532d21af21a5d5066",
+      "lat": -6.102,
+      "level": "Siaga",
+      "lon": 105.423,
+      "region": "Krakatau",
+      "status": "Siaga · Level III (resmi PVMBG)"
+    },
+    {
+      "key": "264180",
+      "label": "Lewotobi",
+      "laporan_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/325416?signature=bbed763b7e854a42840cdc547712c96d3ba24bd28e9cd7fb92cf257692d370c4",
+      "lat": -8.542,
+      "level": "Siaga",
+      "lon": 122.775,
+      "region": "Lesser Sunda Islands",
+      "status": "Siaga · Level III (resmi PVMBG)"
+    },
+    {
+      "key": "263250",
+      "label": "Merapi",
+      "laporan_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/325417?signature=f90bf29179b64f1249696b9bcfb00fda30b4efb9095643e9f02f3e7e08659cf3",
+      "lat": -7.542,
+      "level": "Siaga",
+      "lon": 110.442,
+      "region": "Java",
+      "status": "Siaga · Level III (resmi PVMBG)"
+    },
+    {
+      "key": "263300",
+      "label": "Semeru",
+      "laporan_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/325418?signature=32316aa050e7dd537bd23600f63f23098f2c6b5740bda83bc9014c246d3d56c2",
+      "lat": -8.108,
+      "level": "Siaga",
+      "lon": 112.922,
+      "region": "Java",
+      "status": "Siaga · Level III (resmi PVMBG)"
+    },
+    {
+      "key": "261080",
+      "label": "Sinabung",
+      "laporan_url": "https://magma.esdm.go.id/v1/gunung-api/laporan/325419?signature=bad8b0bbbad5c99be02e4fb98311223322bdcf3e36f98f8aebd992b3b00bfdac",
+      "lat": 3.17,
+      "level": "Siaga",
+      "lon": 98.392,
+      "region": "Sumatra",
+      "status": "Siaga · Level III (resmi PVMBG)"
+    }
+  ]
+}
