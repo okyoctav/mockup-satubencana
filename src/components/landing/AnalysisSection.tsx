@@ -311,21 +311,11 @@ export default function AnalysisSection() {
   }, []);
 
   return (
-    <>
-      {/* Gambar Sejarah Bencana di atas Section 03 */}
-      <div className="w-full">
-        <img
-          src="/images/blog/sejarahbencana.png"
-          alt="Sejarah Bencana"
-          className="w-full h-auto block"
-        />
-      </div>
-
-      <section
-        id="dashboard-info"
-        className="relative py-24 px-6"
-        style={{ background: 'var(--section-gradient)' }}
-      >
+    <section
+      id="dashboard-info"
+      className="relative py-24 px-6"
+      style={{ background: 'var(--section-gradient)' }}
+    >
       {/* Section header */}
       <div className="text-center max-w-3xl mx-auto mb-16">
         <p className="text-xs font-semibold tracking-widest mb-4" style={{ color: '#0EA5E9' }}>
@@ -398,5 +388,5 @@ export default function AnalysisSection() {
         </a>
       </div>
     </section>
-  </>);
+  );
 }
