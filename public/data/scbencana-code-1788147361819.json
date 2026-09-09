@@ -557,8 +557,8 @@
         "Jenis_Bencana": "Gempa Bumi & Tsunami",
         "Provinsi": "Aceh\u2013Sumatera Utara",
         "Lokasi_Utama": "Aceh",
-        "Latitude": 3.3,
-        "Longitude": 95.98,
+        "Latitude": 3.3791519922980062,
+        "Longitude": 95.85106203144763,
         "Tipe_Koordinat": "Episenter",
         "Parameter_Utama": "Mw 9.1\u20139.3; tsunami hingga puluhan meter",
         "VEI": null,
@@ -572,7 +572,7 @@
         "Deskripsi": "Bencana nasional; titik balik sistem penanggulangan bencana Indonesia.",
         "Confidence": "Tinggi",
         "Sumber": "BNPB Sejarah DIBI",
-        "URL_Sumber": "https://sejarah.dibi.bnpb.go.id/artikel/menelaah-sejarah-bencana-dua-dekade-mengenang-tsunami-aceh/81"
+        "URL_Sumber": "https://drive.google.com/file/d/1fXZr8HI6XoSm4hAto5dDPJI5ppmyjPIz/view?usp=sharing"
     },
     {
         "ID": 24,
@@ -622,7 +622,7 @@
         "Deskripsi": "Kerusakan permukiman sangat luas di DIY dan Jawa Tengah.",
         "Confidence": "Tinggi",
         "Sumber": "BNPB",
-        "URL_Sumber": "https://www.bnpb.go.id/berita/sekali-lagi-sinabung-bukan-bencana-nasional"
+        "URL_Sumber": "https://drive.google.com/file/d/10gV3fv7dQk7WZHbKyVSahwynplBXQ996/view?usp=sharing"
     },
     {
         "ID": 26,
