@@ -167,6 +167,10 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'dukcapil_kel_fix', label: 'Kependudukan Kelurahan', color: '#3B82F6', emoji: '👥', url: 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/services/AGR_VISUAL_KEL_FIX/MapServer/0', type: 'MapServer', group: 'KEMENDAGRI' },
   { id: 'Peta_Curah_Hujan_dan_Hari_Hujan', label: 'Curah Hujan', color: '#3B82F6', emoji: '👥', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Peta_Curah_Hujan_dan_Hari_Hujan/MapServer/0', type: 'MapServer', group: 'BMKG' },
   { id: 'Peta_Curah_Hujan_dan_Hari_Hujan_sebaran', label: 'Curah Hujan Sebaran', color: '#3B82F6', emoji: '👥', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Peta_Curah_Hujan_dan_Hari_Hujan/MapServer/1570', type: 'MapServer', group: 'BMKG' },
+  // NASA GIBS & FIRMS Wildfire / Hotspots
+  { id: 'nasa_gibs_fire_viirs', label: 'Titik Panas Kebakaran Hutan (NASA GIBS VIIRS 375m)', color: '#EF4444', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA GIBS', layersParam: 'VIIRS_SNPP_Thermal_Anomalies_375m_All' },
+  { id: 'nasa_gibs_fire_modis', label: 'Anomali Termal Kebakaran (NASA GIBS MODIS)', color: '#F97316', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA GIBS', layersParam: 'MODIS_Terra_Thermal_Anomalies_All' },
+  { id: 'nasa_firms_active_fires', label: 'Kebakaran Hutan & Lahan Realtime (NASA FIRMS / GIBS NOAA-20)', color: '#DC2626', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA GIBS', layersParam: 'VIIRS_NOAA20_Thermal_Anomalies_375m_All' },
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
