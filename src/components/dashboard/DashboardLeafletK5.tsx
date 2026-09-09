@@ -1879,32 +1879,31 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
             }) => {
               if (vol.ga_lat_gapi == null || vol.ga_lon_gapi == null) return;
 
+              let gifIcon = '/images/erupt1.gif';
               let statusText = 'Level I · Normal';
               let badgeBg = '#ECFDF5';
               let badgeBorder = '#A7F3D0';
               let badgeColor = '#065F46';
-              let bgColor = '#10B981';
-              let pulseClass = '';
 
               if (vol.ga_status === 4) {
+                gifIcon = '/images/erupt3.gif';
                 statusText = 'Level IV · Awas';
                 badgeBg = '#FEF2F2'; badgeBorder = '#FCA5A5'; badgeColor = '#991B1B';
-                bgColor = '#991B1B'; pulseClass = 'animate-pulse';
               } else if (vol.ga_status === 3) {
+                gifIcon = '/images/erupt3.gif';
                 statusText = 'Level III · Siaga';
                 badgeBg = '#FEF2F2'; badgeBorder = '#FCA5A5'; badgeColor = '#991B1B';
-                bgColor = '#DC2626'; pulseClass = 'animate-pulse';
               } else if (vol.ga_status === 2) {
+                gifIcon = '/images/erupt2.gif';
                 statusText = 'Level II · Waspada';
                 badgeBg = '#FFFBEB'; badgeBorder = '#FDE68A'; badgeColor = '#92400E';
-                bgColor = '#F59E0B';
               }
 
-              const icon = L.divIcon({
-                className: '',
-                html: `<div style="background:${bgColor}; width:26px; height:26px; border-radius:50%; border:2px solid #FFFFFF; box-shadow:0 0 8px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; color:#FFF; font-size:13px;" class="${pulseClass}">🌋</div>`,
-                iconSize: [26, 26],
-                iconAnchor: [13, 13],
+              const icon = L.icon({
+                iconUrl: gifIcon,
+                iconSize: [36, 36],
+                iconAnchor: [18, 18],
+                popupAnchor: [0, -18],
               });
 
               const marker = L.marker([vol.ga_lat_gapi, vol.ga_lon_gapi], { icon });
