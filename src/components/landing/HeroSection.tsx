@@ -7,7 +7,13 @@ const HeroCanvas = dynamic(() => import('@/components/three/HeroCanvas'), {
   ssr: false,
 });
 
-export default function HeroSection() {
+import { LandingTab } from '@/components/ui/Navbar';
+
+interface HeroSectionProps {
+  onNavigate?: (tab: LandingTab) => void;
+}
+
+export default function HeroSection({ onNavigate }: HeroSectionProps) {
   const [mounted, setMounted] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -15,14 +21,10 @@ export default function HeroSection() {
     setMounted(true);
   }, []);
 
-  const scrollToDashboard = () => {
-    document.getElementById('dashboard-info')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+      className="relative min-h-[calc(100vh-80px)] flex flex-col items-center justify-center overflow-hidden py-12"
       style={{ background: 'var(--hero-bg)' }}
     >
       {/* Three.js background */}
@@ -97,15 +99,25 @@ export default function HeroSection() {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            onClick={scrollToDashboard}
+          <a
+            href="/dashboard_k5"
             className="px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 hover:scale-105"
             style={{
               background: 'linear-gradient(135deg, #0EA5E9, #0284C7)',
               boxShadow: '0 0 30px rgba(14,165,233,0.4)',
             }}
           >
-            Lihat Dashboard →
+            Buka Dashboard K5 →
+          </a>
+          <button
+            onClick={() => onNavigate?.('peta')}
+            className="px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 hover:scale-105"
+            style={{
+              background: 'linear-gradient(135deg, #10B981, #059669)',
+              boxShadow: '0 0 30px rgba(16,185,129,0.4)',
+            }}
+          >
+            🗺️ Lihat Peta Bencana
           </button>
           <a
             href="https://inarisk.bnpb.go.id/databencana/webgis/"
@@ -119,16 +131,6 @@ export default function HeroSection() {
           >
             WebGIS
           </a>
-        </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10">
-        <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Scroll untuk jelajahi</span>
-        <div className="w-6 h-10 rounded-full border flex items-start justify-center p-1"
-          style={{ borderColor: 'rgba(14,165,233,0.3)' }}>
-          <div className="w-1.5 h-3 rounded-full animate-bounce"
-            style={{ backgroundColor: '#0EA5E9' }} />
         </div>
       </div>
     </section>

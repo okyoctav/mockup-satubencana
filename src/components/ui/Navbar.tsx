@@ -3,10 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 
-const NAV_LINKS = [
-  { label: 'Beranda', href: '#' },
-  { label: 'Analisis', href: '#dashboard-info' },
-  { label: 'Tentang', href: '#footer' },
+export type LandingTab = 'beranda' | 'peta' | 'analisis' | 'informasi';
+
+const NAV_LINKS: { label: string; id: LandingTab }[] = [
+  { label: 'Beranda', id: 'beranda' },
+  { label: 'Peta Bencana', id: 'peta' },
+  { label: 'Analisis Data', id: 'analisis' },
+  { label: 'Informasi & Mitra', id: 'informasi' },
 ];
 
 function ThemeToggle() {
@@ -33,7 +36,12 @@ function ThemeToggle() {
   );
 }
 
-export default function Navbar() {
+interface NavbarProps {
+  activeTab?: LandingTab;
+  onSelectTab?: (tab: LandingTab) => void;
+}
+
+export default function Navbar({ activeTab = 'beranda', onSelectTab }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -47,33 +55,39 @@ export default function Navbar() {
     <header
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{
-        backgroundColor: scrolled ? 'var(--bg-navbar)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(16px)' : 'none',
-        borderBottom: scrolled ? '1px solid var(--border-faint)' : 'none',
+        backgroundColor: scrolled ? 'var(--bg-navbar)' : 'var(--bg-navbar-solid)',
+        backdropFilter: 'blur(16px)',
+        borderBottom: '1px solid var(--border-faint)',
       }}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-3">
+        <button onClick={() => onSelectTab?.('beranda')} className="flex items-center gap-3 text-left">
           <img
             src="/logo/logo_mdb.png"
             alt="Logo MDB"
             style={{ height: 36, width: 'auto', objectFit: 'contain' }}
           />
-        </a>
+        </button>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6">
-          {NAV_LINKS.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              className="text-sm transition-colors duration-200 hover:text-sky-400"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              {l.label}
-            </a>
-          ))}
+        <nav className="hidden md:flex items-center gap-2 bg-slate-800/10 p-1.5 rounded-full border border-slate-200/20">
+          {NAV_LINKS.map((l) => {
+            const isActive = activeTab === l.id;
+            return (
+              <button
+                key={l.id}
+                onClick={() => onSelectTab?.(l.id)}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                  isActive
+                    ? 'bg-[#0EA5E9] text-white shadow-md'
+                    : 'text-slate-400 hover:text-slate-100 hover:bg-white/10'
+                }`}
+              >
+                {l.label}
+              </button>
+            );
+          })}
         </nav>
 
         {/* CTA + Toggle + Button Group */}
@@ -209,15 +223,18 @@ export default function Navbar() {
         >
           <nav className="flex flex-col gap-4 pt-2">
             {NAV_LINKS.map((l) => (
-              <a
-                key={l.label}
-                href={l.href}
-                className="text-sm py-2"
-                style={{ color: 'var(--text-secondary)' }}
-                onClick={() => setMenuOpen(false)}
+              <button
+                key={l.id}
+                onClick={() => {
+                  onSelectTab?.(l.id);
+                  setMenuOpen(false);
+                }}
+                className={`text-sm py-2 text-left font-semibold ${
+                  activeTab === l.id ? 'text-[#0EA5E9]' : 'text-slate-300 hover:text-white'
+                }`}
               >
                 {l.label}
-              </a>
+              </button>
             ))}
             <div className="flex flex-col gap-2 pt-2">
               <a
