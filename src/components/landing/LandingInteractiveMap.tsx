@@ -52,7 +52,7 @@ export default function LandingInteractiveMap() {
     'Cuaca Ekstrem / Puting Beliung'
   ];
 
-  // Dynamically update CartoDB TileLayer based on Light / Dark theme
+  // Dynamically update TileLayer based on Light / Dark theme
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -60,11 +60,9 @@ export default function LandingInteractiveMap() {
       mapRef.current.removeLayer(tileLayerRef.current);
     }
 
-    const apiKey = 'cb1_34fp_1_2415a4a204c646fe5bc5bb46';
-
     const tileUrl = theme === 'dark'
-      ? `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?api_key=${apiKey}`
-      : `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?api_key=${apiKey}`;
+      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 
     const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
@@ -82,7 +80,7 @@ export default function LandingInteractiveMap() {
     if (typeof window === 'undefined' || !containerRef.current) return;
 
     if (!mapRef.current) {
-      // Initialize map centered at Indonesia with Zoom control at bottomright (so top-left title is not blocked)
+      // Initialize map centered at Indonesia with Zoom control at bottomright
       const map = L.map(containerRef.current, {
         center: [-2.5, 118.0],
         zoom: 5,
@@ -92,8 +90,25 @@ export default function LandingInteractiveMap() {
 
       // Position Zoom Control at bottomright
       L.control.zoom({ position: 'bottomright' }).addTo(map);
-
       mapRef.current = map;
+
+      // Add default tile layer immediately on map creation according to current theme
+      const initialTileUrl = theme === 'dark'
+        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+      const initialLayer = L.tileLayer(initialTileUrl, {
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }).addTo(map);
+
+      tileLayerRef.current = initialLayer;
+
+      // Fix tile loading glitches when container mounts dynamically
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 200);
     }
 
     const map = mapRef.current;
