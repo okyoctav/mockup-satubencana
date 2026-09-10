@@ -168,10 +168,10 @@ export default function LandingInteractiveMap() {
       });
 
       const popupContent = `
-        <div style="font-family:sans-serif; min-width:260px; max-width:300px; font-size:11px; color:#1e293b; line-height:1.5;">
-          <div style="background:linear-gradient(135deg, ${color}, #1e293b); color:#ffffff; padding:8px 10px; border-radius:8px 8px 0 0; margin:-10px -10px 8px -10px;">
+        <div style="font-family:sans-serif; min-width:260px; max-width:300px; font-size:11px; color:#1e293b; line-height:1.5; padding:10px; background:#ffffff; border-radius:12px;">
+          <div style="background:linear-gradient(135deg, ${color}, #1e293b); color:#ffffff; padding:8px 12px; border-radius:8px; margin:-10px -10px 8px -10px; position:relative;">
             <div style="font-size:9px; font-weight:bold; text-transform:uppercase; letter-spacing:0.5px; opacity:0.9;">${d.Jenis_Bencana || 'Bencana Spasial'}</div>
-            <div style="font-size:13px; font-weight:bold; margin-top:2px;">${d.Nama_Bencana || 'Peristiwa Spasial'} (${d.Tahun || '-'})</div>
+            <div style="font-size:13px; font-weight:bold; margin-top:2px; padding-right:15px;">${d.Nama_Bencana || 'Peristiwa Spasial'} (${d.Tahun || '-'})</div>
           </div>
 
           <table style="width:100%; border-collapse:collapse; font-size:10.5px; margin-bottom:6px;">

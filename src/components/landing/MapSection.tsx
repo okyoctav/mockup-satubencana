@@ -55,16 +55,18 @@ export default function MapSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 flex-1 min-h-0 overflow-hidden">
           {/* Left Column: Interactive Map (Full Height 100% Edge-to-Edge) */}
           <div className="lg:col-span-7 h-full flex flex-col min-h-0 relative">
-            {/* Map Title Floating Overlay Tag */}
-            <div className="absolute top-4 left-4 z-20 bg-slate-900/90 dark:bg-slate-900/90 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-xl pointer-events-none">
-              <h2 className="text-sm md:text-base font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#0EA5E9] animate-pulse" />
-                Sejarah Kebencanaan
-              </h2>
-              <p className="text-[10px] text-slate-600 dark:text-slate-300">
-                Peta lokasi spasial kejadian bencana di Indonesia
-              </p>
-            </div>
+      {/* Map Title Floating Overlay Tag - Glassmorphism Style */}
+      <div className="absolute top-4 left-4 z-20 pointer-events-none">
+        <div className="bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl px-4 py-2.5 shadow-2xl ring-1 ring-black/5">
+          <h2 className="text-sm md:text-base font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2 drop-shadow-xs">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#0EA5E9] animate-pulse" />
+            Sejarah Kebencanaan
+          </h2>
+          <p className="text-[10px] text-slate-700 dark:text-slate-300 font-medium">
+            Peta lokasi spasial kejadian bencana di Indonesia
+          </p>
+        </div>
+      </div>
             
             <div className="w-full h-full">
               <LandingInteractiveMap />
