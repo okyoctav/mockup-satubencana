@@ -15,7 +15,7 @@ const LandingInteractiveMap = dynamic(() => import('./LandingInteractiveMap'), {
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Calendar, ArrowRight, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import blogData from '@/data/blog.json';
 
 
@@ -33,19 +33,14 @@ export default function MapSection() {
   );
 
   return (
-    <section id="peta" className="relative py-24 px-6 overflow-hidden transition-colors duration-300" style={{ background: 'var(--bg-section)' }}>
+    <section id="peta" className="relative h-full w-full py-6 px-6 overflow-hidden flex flex-col transition-colors duration-300" style={{ background: 'var(--bg-section)' }}>
       {/* Background Subtle Gradient Glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#0EA5E9]/10 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto relative z-10 space-y-20">
+      <div className="max-w-7xl mx-auto relative z-10 w-full h-full flex flex-col justify-between space-y-4">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0EA5E9]/10 border border-[#0EA5E9]/30 text-[#0EA5E9] text-xs font-bold tracking-widest uppercase">
-            <Tag className="w-3.5 h-3.5" />
-            <span>SECTION 02 · Wawasan & Berita Kebencanaan</span>
-          </div>
-          <h2 className="text-3.5xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Wawasan Kritis{' '}
+        <div className="text-center max-w-3xl mx-auto space-y-1 shrink-0">
+          <h2 className="text-2xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             <span
               style={{
                 background: 'linear-gradient(135deg, #0EA5E9, #22C55E)',
@@ -54,11 +49,11 @@ export default function MapSection() {
                 backgroundClip: 'text',
               }}
             >
-              Kebencanaan & Geospasial
+              Sejarah Kebencanaan
             </span>
           </h2>
-          <p className="text-sm md:text-base text-slate-600 dark:text-slate-400">
-            Publikasi majalah digital terbaru mengenai teknologi AI 9Router, analisis spasial K5, dan manajemen darurat pra-saat-pasca bencana.
+          <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400">
+            Publikasi dan peta interaktif sejarah lokasi kejadian bencana geospasial di seluruh Indonesia.
           </p>
         </div>
 

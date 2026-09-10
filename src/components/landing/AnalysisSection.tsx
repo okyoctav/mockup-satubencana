@@ -317,10 +317,7 @@ export default function AnalysisSection() {
       style={{ background: 'var(--section-gradient)' }}
     >
       {/* Section header */}
-      <div className="text-center max-w-3xl mx-auto mb-16">
-        <p className="text-xs font-semibold tracking-widest mb-4" style={{ color: '#0EA5E9' }}>
-          SECTION 03 · ANALISIS KEBENCANAAN
-        </p>
+      <div className="text-center max-w-3xl mx-auto mb-12">
         <h2 className="text-3xl md:text-5xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
           Satu Platform,{' '}
           <span style={{
