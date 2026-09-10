@@ -1,15 +1,15 @@
 'use client';
 
 import Navbar from '@/components/ui/Navbar';
-import HeroSection from '@/components/landing/HeroSection';
+import MapSection from '@/components/landing/MapSection';
 
-export default function Home() {
+export default function SejarahKebencanaanPage() {
   return (
     <main className="relative h-screen w-screen overflow-hidden flex flex-col font-sans" style={{ background: 'var(--bg-page)' }}>
-      <Navbar activePath="/" />
+      <Navbar activePath="/sejarah-kebencanaan" />
 
       <div className="flex-1 relative pt-20 h-[calc(100vh-80px)] w-full overflow-hidden">
-        <HeroSection />
+        <MapSection />
       </div>
     </main>
   );

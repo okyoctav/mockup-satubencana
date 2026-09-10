@@ -50,7 +50,7 @@ export default function BlogDetailPage() {
       <header className="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-2xs">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link
-            href="/?tab=peta"
+            href="/sejarah-kebencanaan"
             className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-[#0EA5E9] dark:hover:text-[#0EA5E9] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -169,7 +169,7 @@ export default function BlogDetailPage() {
             {/* Back Button Footer */}
             <div className="pt-6 flex justify-between items-center border-t border-slate-200 dark:border-slate-800">
               <Link
-                href="/?tab=peta"
+                href="/sejarah-kebencanaan"
                 className="px-5 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-[#0EA5E9] hover:text-white dark:hover:bg-[#0EA5E9] text-xs font-bold text-slate-700 dark:text-slate-300 transition-all inline-flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />

@@ -1,15 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext';
 
-export type LandingTab = 'beranda' | 'peta' | 'analisis' | 'informasi';
-
-const NAV_LINKS: { label: string; id: LandingTab }[] = [
-  { label: 'Beranda', id: 'beranda' },
-  { label: 'Sejarah Kebencanaan', id: 'peta' },
-  { label: 'Analisis Data', id: 'analisis' },
-  { label: 'Informasi & Mitra', id: 'informasi' },
+const NAV_LINKS: { label: string; href: string }[] = [
+  { label: 'Beranda', href: '/' },
+  { label: 'Sejarah Kebencanaan', href: '/sejarah-kebencanaan' },
+  { label: 'Analisis Data', href: '/analisis-data' },
+  { label: 'Informasi & Mitra', href: '/informasi-mitra' },
 ];
 
 function ThemeToggle() {
@@ -37,13 +37,14 @@ function ThemeToggle() {
 }
 
 interface NavbarProps {
-  activeTab?: LandingTab;
-  onSelectTab?: (tab: LandingTab) => void;
+  activePath?: string;
 }
 
-export default function Navbar({ activeTab = 'beranda', onSelectTab }: NavbarProps) {
+export default function Navbar({ activePath }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const currentPath = activePath || pathname || '/';
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 50);
@@ -62,22 +63,22 @@ export default function Navbar({ activeTab = 'beranda', onSelectTab }: NavbarPro
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <button onClick={() => onSelectTab?.('beranda')} className="flex items-center gap-3 text-left">
+        <Link href="/" className="flex items-center gap-3 text-left">
           <img
             src="/logo/logo_mdb.png"
             alt="Logo MDB"
             style={{ height: 36, width: 'auto', objectFit: 'contain' }}
           />
-        </button>
+        </Link>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-2 bg-slate-800/10 p-1.5 rounded-full border border-slate-200/20">
           {NAV_LINKS.map((l) => {
-            const isActive = activeTab === l.id;
+            const isActive = currentPath === l.href;
             return (
-              <button
-                key={l.id}
-                onClick={() => onSelectTab?.(l.id)}
+              <Link
+                key={l.href}
+                href={l.href}
                 className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
                   isActive
                     ? 'bg-[#0EA5E9] text-white shadow-md'
@@ -85,7 +86,7 @@ export default function Navbar({ activeTab = 'beranda', onSelectTab }: NavbarPro
                 }`}
               >
                 {l.label}
-              </button>
+              </Link>
             );
           })}
         </nav>
@@ -223,18 +224,16 @@ export default function Navbar({ activeTab = 'beranda', onSelectTab }: NavbarPro
         >
           <nav className="flex flex-col gap-4 pt-2">
             {NAV_LINKS.map((l) => (
-              <button
-                key={l.id}
-                onClick={() => {
-                  onSelectTab?.(l.id);
-                  setMenuOpen(false);
-                }}
+              <Link
+                key={l.href}
+                href={l.href}
+                onClick={() => setMenuOpen(false)}
                 className={`text-sm py-2 text-left font-semibold ${
-                  activeTab === l.id ? 'text-[#0EA5E9]' : 'text-slate-300 hover:text-white'
+                  currentPath === l.href ? 'text-[#0EA5E9]' : 'text-slate-300 hover:text-white'
                 }`}
               >
                 {l.label}
-              </button>
+              </Link>
             ))}
             <div className="flex flex-col gap-2 pt-2">
               <a

@@ -2,18 +2,13 @@
 
 import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 
 const HeroCanvas = dynamic(() => import('@/components/three/HeroCanvas'), {
   ssr: false,
 });
 
-import { LandingTab } from '@/components/ui/Navbar';
-
-interface HeroSectionProps {
-  onNavigate?: (tab: LandingTab) => void;
-}
-
-export default function HeroSection({ onNavigate }: HeroSectionProps) {
+export default function HeroSection() {
   const [mounted, setMounted] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -109,16 +104,16 @@ export default function HeroSection({ onNavigate }: HeroSectionProps) {
           >
             Buka Dashboard K5 →
           </a>
-          <button
-            onClick={() => onNavigate?.('peta')}
-            className="px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 hover:scale-105"
+          <Link
+            href="/sejarah-kebencanaan"
+            className="px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 hover:scale-105 inline-block"
             style={{
               background: 'linear-gradient(135deg, #10B981, #059669)',
               boxShadow: '0 0 30px rgba(16,185,129,0.4)',
             }}
           >
             🗺️ Lihat Peta Bencana
-          </button>
+          </Link>
           <a
             href="https://inarisk.bnpb.go.id/databencana/webgis/"
             target="_blank"
