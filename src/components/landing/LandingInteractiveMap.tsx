@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import disasterData from '../../../public/data/scbencana-code-1788147361819.json';
 
@@ -287,19 +288,19 @@ export default function LandingInteractiveMap() {
                 setIsPaused(true);
                 setActiveHighlightIndex((prev) => (prev - 1 + markersRef.current.length) % markersRef.current.length);
               }}
-              className="px-2.5 py-1.5 rounded-xl bg-slate-900/50 dark:bg-slate-900/60 hover:bg-slate-900/80 text-xs font-bold transition-all text-white backdrop-blur-md border border-white/10"
+              className="p-1.5 rounded-xl bg-slate-900/50 dark:bg-slate-900/60 hover:bg-slate-900/80 text-white transition-all backdrop-blur-md border border-white/10 flex items-center justify-center"
               title="Ke Bencana Sebelumnya"
             >
-              ◀
+              <ChevronLeft className="w-4 h-4 text-white" />
             </button>
 
             {/* Integrated Play/Pause Icon Button */}
             <button
               onClick={() => setIsPaused(!isPaused)}
-              className="p-1.5 px-3 rounded-xl bg-[#0EA5E9]/90 hover:bg-[#0EA5E9] text-white text-xs font-bold shadow-lg transition-all flex items-center gap-1 backdrop-blur-md border border-white/20"
+              className="p-2 rounded-xl bg-[#0EA5E9]/90 hover:bg-[#0EA5E9] text-white text-xs font-bold shadow-lg transition-all flex items-center justify-center gap-1 backdrop-blur-md border border-white/20"
               title={isPaused ? 'Lanjutkan Tur Animasi' : 'Jeda Tur Animasi'}
             >
-              <span>{isPaused ? '▶️' : '⏸️'}</span>
+              {isPaused ? <Play className="w-3.5 h-3.5 text-white fill-current" /> : <Pause className="w-3.5 h-3.5 text-white fill-current" />}
             </button>
 
             <button
@@ -307,10 +308,10 @@ export default function LandingInteractiveMap() {
                 setIsPaused(true);
                 setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length);
               }}
-              className="px-2.5 py-1.5 rounded-xl bg-slate-900/50 dark:bg-slate-900/60 hover:bg-slate-900/80 text-xs font-bold transition-all text-white backdrop-blur-md border border-white/10"
+              className="p-1.5 rounded-xl bg-slate-900/50 dark:bg-slate-900/60 hover:bg-slate-900/80 text-white transition-all backdrop-blur-md border border-white/10 flex items-center justify-center"
               title="Ke Bencana Berikutnya"
             >
-              ▶
+              <ChevronRight className="w-4 h-4 text-white" />
             </button>
 
             <span className="text-[10px] font-mono text-slate-800 dark:text-slate-200 font-bold pl-1">
