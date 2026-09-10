@@ -52,7 +52,7 @@ export default function LandingInteractiveMap() {
     'Cuaca Ekstrem / Puting Beliung'
   ];
 
-  // Dynamically update TileLayer based on Light / Dark theme
+  // Dynamically update TileLayer based on Light / Dark theme (Using 100% Free OpenStreetMap & Esri Dark Basemaps)
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -61,14 +61,16 @@ export default function LandingInteractiveMap() {
     }
 
     const tileUrl = theme === 'dark'
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+      ? 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+      : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
-    const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+    const attribution = theme === 'dark'
+      ? '&copy; Esri, HERE, Garmin, FAO, NOAA, USGS'
+      : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
     const newTileLayer = L.tileLayer(tileUrl, {
       attribution,
-      subdomains: 'abcd',
+      subdomains: 'abc',
       maxZoom: 19,
     });
 
@@ -94,12 +96,12 @@ export default function LandingInteractiveMap() {
 
       // Add default tile layer immediately on map creation according to current theme
       const initialTileUrl = theme === 'dark'
-        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+        ? 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+        : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
       const initialLayer = L.tileLayer(initialTileUrl, {
-        attribution: '&copy; OpenStreetMap &copy; CARTO',
-        subdomains: 'abcd',
+        attribution: '&copy; OpenStreetMap',
+        subdomains: 'abc',
         maxZoom: 19,
       }).addTo(map);
 
