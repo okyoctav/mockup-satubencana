@@ -4,7 +4,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Calendar, ArrowRight, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Calendar, ArrowRight, ChevronLeft, ChevronRight, Search, FileText } from 'lucide-react';
 import blogData from '@/data/blog.json';
 
 const LandingInteractiveMap = dynamic(() => import('./LandingInteractiveMap'), {
@@ -32,7 +32,7 @@ export default function MapSection() {
       (post.excerpt && post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const postsPerPage = 4;
+  const postsPerPage = 6;
   const totalPages = Math.max(1, Math.ceil(filteredPosts.length / postsPerPage));
 
   const currentGridPosts = filteredPosts.slice(
@@ -53,15 +53,15 @@ export default function MapSection() {
       <div className="relative z-10 w-full h-full flex flex-col overflow-hidden">
         {/* 2-Column Fullscreen Layout Edge-to-Edge */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 flex-1 min-h-0 overflow-hidden">
-          {/* Left Column: Interactive Map (Full Height & Width) */}
+          {/* Left Column: Interactive Map (Full Height 100% Edge-to-Edge) */}
           <div className="lg:col-span-7 h-full flex flex-col min-h-0 relative">
             {/* Map Title Floating Overlay Tag */}
-            <div className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-700/60 shadow-xl pointer-events-none">
-              <h2 className="text-sm md:text-base font-extrabold tracking-tight text-white flex items-center gap-2">
+            <div className="absolute top-4 left-4 z-20 bg-slate-900/90 dark:bg-slate-900/90 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-xl pointer-events-none">
+              <h2 className="text-sm md:text-base font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#0EA5E9] animate-pulse" />
                 Sejarah Kebencanaan
               </h2>
-              <p className="text-[10px] text-slate-300">
+              <p className="text-[10px] text-slate-600 dark:text-slate-300">
                 Peta lokasi spasial kejadian bencana di Indonesia
               </p>
             </div>
@@ -72,15 +72,28 @@ export default function MapSection() {
           </div>
 
           {/* Right Column: Article Cards & History List */}
-          <div className="lg:col-span-5 h-full flex flex-col justify-between min-h-0 overflow-hidden bg-slate-950/90 p-4 border-l border-slate-800/80 backdrop-blur-xl">
+          <div
+            className="lg:col-span-5 h-full flex flex-col justify-between min-h-0 overflow-hidden p-4 border-l transition-colors duration-300"
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              borderColor: 'var(--border-faint)',
+            }}
+          >
             {/* Top Bar: Title & Search Input */}
-            <div className="space-y-3 pb-3 border-b border-slate-800/80 shrink-0">
+            <div className="space-y-3 pb-3 border-b shrink-0" style={{ borderColor: 'var(--border-faint)' }}>
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#0EA5E9]" />
+                <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                  <FileText className="w-4 h-4 text-[#0EA5E9]" />
                   Arsip & Artikel Bencana
                 </h3>
-                <span className="text-[10px] text-slate-400 font-medium bg-slate-900 px-2 py-0.5 rounded-md border border-slate-800">
+                <span
+                  className="text-[10px] font-semibold px-2.5 py-0.5 rounded-md border"
+                  style={{
+                    backgroundColor: 'var(--bg-section)',
+                    color: 'var(--text-secondary)',
+                    borderColor: 'var(--border-faint)'
+                  }}
+                >
                   Hal {currentPage} / {totalPages}
                 </span>
               </div>
@@ -90,69 +103,83 @@ export default function MapSection() {
                 <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Cari artikel / lokasi bencana..."
+                  placeholder="Cari judul artikel, tanggal, atau jenis..."
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#0EA5E9] transition-colors"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl text-xs transition-colors outline-none"
+                  style={{
+                    backgroundColor: 'var(--bg-section)',
+                    color: 'var(--text-primary)',
+                    border: '1px solid var(--border-faint)'
+                  }}
                 />
               </div>
             </div>
 
-            {/* Articles Grid (Full Cover Image with Overlay Title & Dark Gradient) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 min-h-0 py-3 overflow-y-auto">
+            {/* Articles Stacked List View */}
+            <div className="flex-1 min-h-0 py-3 overflow-y-auto space-y-2.5 pr-1">
               {currentGridPosts.length > 0 ? (
                 currentGridPosts.map((post) => (
                   <article
                     key={post.id}
-                    className="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 group border border-slate-800 flex flex-col h-full bg-slate-900"
+                    className="group rounded-2xl p-3 border transition-all duration-200 hover:shadow-md flex items-center gap-3"
+                    style={{
+                      backgroundColor: 'var(--bg-section)',
+                      borderColor: 'var(--border-faint)'
+                    }}
                   >
-                    {/* Full Card Background Image */}
-                    <Image
-                      src={post.image}
-                      alt={post.title}
-                      fill
-                      className="object-cover object-center group-hover:scale-110 transition-transform duration-700"
-                    />
-
-                    {/* Gradient Overlay for Text Readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/20 group-hover:from-slate-950/95 transition-colors duration-300" />
-
-                    {/* Category Tag (Top Left) */}
-                    <div className="absolute top-2.5 left-2.5 z-10">
-                      <span
-                        className="px-2 py-0.5 rounded-md text-[9px] font-extrabold text-white shadow-md backdrop-blur-md"
-                        style={{ backgroundColor: post.tagColor }}
-                      >
-                        {post.category}
-                      </span>
+                    {/* Thumbnail Image */}
+                    <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-slate-200/20">
+                      <Image
+                        src={post.image}
+                        alt={post.title}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
                     </div>
 
-                    {/* Content Area Over Image */}
-                    <div className="relative z-10 p-3 flex flex-col justify-end flex-1 text-white space-y-1 mt-12">
-                      <div className="flex items-center gap-1.5 text-[9px] text-slate-300 font-medium">
-                        <Calendar className="w-2.5 h-2.5 text-[#0EA5E9]" />
-                        <span>{post.date}</span>
+                    {/* Article Info */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span
+                          className="px-2 py-0.5 rounded text-[9px] font-extrabold text-white shadow-xs"
+                          style={{ backgroundColor: post.tagColor }}
+                        >
+                          {post.category}
+                        </span>
+                        <div className="flex items-center gap-1 text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                          <Calendar className="w-3 h-3 text-[#0EA5E9]" />
+                          <span>{post.date}</span>
+                        </div>
                       </div>
 
                       <Link href={`/blog/${post.id}`}>
-                        <h4 className="text-xs font-bold leading-snug line-clamp-2 text-white group-hover:text-[#0EA5E9] transition-colors cursor-pointer drop-shadow-md">
+                        <h4
+                          className="text-xs font-bold leading-snug line-clamp-1 transition-colors cursor-pointer group-hover:text-[#0EA5E9]"
+                          style={{ color: 'var(--text-primary)' }}
+                        >
                           {post.title}
                         </h4>
                       </Link>
 
-                      <Link
-                        href={`/blog/${post.id}`}
-                        className="pt-1 text-[10px] font-bold text-[#0EA5E9] hover:text-[#0EA5E9]/80 flex items-center gap-1 transition-colors"
-                      >
-                        <span>Baca Artikel</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </Link>
+                      <p className="text-[10.5px] line-clamp-1" style={{ color: 'var(--text-secondary)' }}>
+                        {post.excerpt}
+                      </p>
                     </div>
+
+                    {/* Arrow Action Button */}
+                    <Link
+                      href={`/blog/${post.id}`}
+                      className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#0EA5E9] transition-all shrink-0"
+                      title="Baca Artikel"
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
                   </article>
                 ))
               ) : (
-                <div className="col-span-2 flex flex-col items-center justify-center h-full text-slate-500 text-xs py-8 space-y-1">
-                  <Search className="w-6 h-6 text-slate-600 mb-1" />
+                <div className="flex flex-col items-center justify-center h-full text-xs py-8 space-y-1" style={{ color: 'var(--text-muted)' }}>
+                  <Search className="w-6 h-6 mb-1 opacity-50" />
                   <span>Artikel tidak ditemukan</span>
                   <span className="text-[10px]">Coba kata kunci pencarian lain</span>
                 </div>
@@ -161,14 +188,19 @@ export default function MapSection() {
 
             {/* Compact Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 shrink-0">
+              <div className="flex items-center justify-between pt-2 border-t shrink-0" style={{ borderColor: 'var(--border-faint)' }}>
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="px-2.5 py-1 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 text-[11px] font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-800 transition-colors flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-xl border text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                  style={{
+                    backgroundColor: 'var(--bg-section)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-faint)'
+                  }}
                 >
-                  <ChevronLeft className="w-3 h-3" />
-                  <span>Prev</span>
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                  <span>Sebelumnya</span>
                 </button>
 
                 <div className="flex items-center gap-1">
@@ -176,10 +208,10 @@ export default function MapSection() {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`w-5 h-5 rounded text-[10px] font-bold transition-all ${
+                      className={`w-6 h-6 rounded-lg text-xs font-bold transition-all ${
                         currentPage === page
                           ? 'bg-[#0EA5E9] text-white shadow-sm'
-                          : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                          : 'text-slate-400 hover:text-slate-100'
                       }`}
                     >
                       {page}
@@ -190,10 +222,15 @@ export default function MapSection() {
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="px-2.5 py-1 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 text-[11px] font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-800 transition-colors flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-xl border text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                  style={{
+                    backgroundColor: 'var(--bg-section)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-faint)'
+                  }}
                 >
-                  <span>Next</span>
-                  <ChevronRight className="w-3 h-3" />
+                  <span>Selanjutnya</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             )}

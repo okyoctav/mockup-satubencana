@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useTheme } from '@/contexts/ThemeContext';
 import disasterData from '../../../public/data/scbencana-code-1788147361819.json';
 
 interface DisasterItem {
@@ -32,7 +33,9 @@ interface DisasterItem {
 }
 
 export default function LandingInteractiveMap() {
+  const { theme } = useTheme();
   const mapRef = useRef<L.Map | null>(null);
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>('Semua');
   const [activeHighlightIndex, setActiveHighlightIndex] = useState<number>(0);
@@ -49,24 +52,44 @@ export default function LandingInteractiveMap() {
     'Cuaca Ekstrem / Puting Beliung'
   ];
 
+  // Dynamically update CartoDB TileLayer based on Light / Dark theme
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    if (tileLayerRef.current) {
+      mapRef.current.removeLayer(tileLayerRef.current);
+    }
+
+    const tileUrl = theme === 'dark'
+      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+    const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+
+    const newTileLayer = L.tileLayer(tileUrl, {
+      attribution,
+      subdomains: 'abcd',
+      maxZoom: 19,
+    });
+
+    newTileLayer.addTo(mapRef.current);
+    tileLayerRef.current = newTileLayer;
+  }, [theme]);
+
   useEffect(() => {
     if (typeof window === 'undefined' || !containerRef.current) return;
 
     if (!mapRef.current) {
-      // Initialize map centered at Indonesia
+      // Initialize map centered at Indonesia with Zoom control at bottomright (so top-left title is not blocked)
       const map = L.map(containerRef.current, {
         center: [-2.5, 118.0],
         zoom: 5,
-        zoomControl: true,
+        zoomControl: false,
         scrollWheelZoom: false,
       });
 
-      // OpenStreetMap Base Tile Layer (Fully Open & Free, No API Key Required)
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        subdomains: 'abc',
-        maxZoom: 19,
-      }).addTo(map);
+      // Position Zoom Control at bottomright
+      L.control.zoom({ position: 'bottomright' }).addTo(map);
 
       mapRef.current = map;
     }
@@ -155,7 +178,6 @@ export default function LandingInteractiveMap() {
       const marker = L.marker([d.Latitude, d.Longitude], { icon: customIcon });
       marker.bindPopup(popupContent, { autoPan: true });
 
-      // Pause auto-rotation when user clicks any marker manually
       marker.on('click', () => {
         setIsPaused(true);
         setActiveHighlightIndex(index);
@@ -193,18 +215,18 @@ export default function LandingInteractiveMap() {
   }, [activeHighlightIndex]);
 
   return (
-    <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 bg-slate-900 min-h-[460px] md:min-h-[520px] flex flex-col">
+    <div className="relative w-full h-full flex flex-col bg-slate-900 overflow-hidden">
       {/* Map Header Toolbar Overlay: Dropdown Jenis Bencana (Top Right) */}
       <div className="absolute top-4 right-4 z-[400] pointer-events-none">
-        <div className="bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl p-1.5 pointer-events-auto flex items-center gap-2 shadow-lg">
-          <label className="text-[11px] font-bold text-slate-300 pl-2">Jenis Bencana:</label>
+        <div className="bg-slate-900/90 dark:bg-slate-900/90 bg-white/90 backdrop-blur-md border border-slate-200 dark:border-slate-700/80 rounded-2xl p-1.5 pointer-events-auto flex items-center gap-2 shadow-lg">
+          <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 pl-2">Filter Bencana:</label>
           <select
             value={selectedFilter}
             onChange={(e) => {
               setSelectedFilter(e.target.value);
               setIsPaused(false);
             }}
-            className="bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-700 outline-none cursor-pointer hover:bg-slate-700 transition-colors"
+            className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 outline-none cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
           >
             {disasterTypes.map((type) => (
               <option key={type} value={type}>
@@ -217,7 +239,7 @@ export default function LandingInteractiveMap() {
 
       {/* Bottom News Ticker & Integrated Control Bar */}
       {markersRef.current[activeHighlightIndex] && (
-        <div className="absolute bottom-4 left-4 right-4 z-[400] bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl p-3.5 text-white shadow-2xl flex items-center justify-between flex-wrap gap-3">
+        <div className="absolute bottom-4 left-4 right-16 z-[400] bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 text-slate-800 dark:text-white shadow-xl flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-3">
             {/* Tag Badge: "HISTORY" */}
             <span className="px-2.5 py-1 rounded-lg bg-[#0EA5E9]/20 border border-[#0EA5E9]/40 text-[#0EA5E9] text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5">
@@ -226,11 +248,11 @@ export default function LandingInteractiveMap() {
             </span>
 
             <div>
-              <h5 className="font-bold text-xs text-white flex items-center gap-2">
+              <h5 className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-2">
                 <span>{markersRef.current[activeHighlightIndex].item.Nama_Bencana} ({markersRef.current[activeHighlightIndex].item.Tahun})</span>
-                <span className="text-[10px] text-slate-400 font-normal">• {markersRef.current[activeHighlightIndex].item.Lokasi_Utama}, {markersRef.current[activeHighlightIndex].item.Provinsi}</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">• {markersRef.current[activeHighlightIndex].item.Lokasi_Utama}, {markersRef.current[activeHighlightIndex].item.Provinsi}</span>
               </h5>
-              <p className="text-[11px] text-slate-300 line-clamp-1 mt-0.5">
+              <p className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-1 mt-0.5">
                 {markersRef.current[activeHighlightIndex].item.Deskripsi || `Kejadian bencana ${markersRef.current[activeHighlightIndex].item.Jenis_Bencana} pada tanggal ${markersRef.current[activeHighlightIndex].item.Tanggal}`}
               </p>
             </div>
@@ -243,7 +265,7 @@ export default function LandingInteractiveMap() {
                 setIsPaused(true);
                 setActiveHighlightIndex((prev) => (prev - 1 + markersRef.current.length) % markersRef.current.length);
               }}
-              className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-all text-slate-200"
+              className="px-2.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-bold transition-all text-slate-700 dark:text-slate-200"
               title="Ke Bencana Sebelumnya"
             >
               ◀
@@ -263,13 +285,13 @@ export default function LandingInteractiveMap() {
                 setIsPaused(true);
                 setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length);
               }}
-              className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-all text-slate-200"
+              className="px-2.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-bold transition-all text-slate-700 dark:text-slate-200"
               title="Ke Bencana Berikutnya"
             >
               ▶
             </button>
 
-            <span className="text-[10px] font-mono text-slate-400 pl-1">
+            <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 pl-1">
               {activeHighlightIndex + 1}/{markersRef.current.length}
             </span>
           </div>
@@ -277,7 +299,8 @@ export default function LandingInteractiveMap() {
       )}
 
       {/* Leaflet Map Canvas */}
-      <div ref={containerRef} className="w-full flex-1 min-h-[440px] z-0" />
+      <div ref={containerRef} className="w-full h-full flex-1 z-0" />
     </div>
   );
 }
+
