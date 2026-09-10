@@ -7,7 +7,7 @@ export type LandingTab = 'beranda' | 'peta' | 'analisis' | 'informasi';
 
 const NAV_LINKS: { label: string; id: LandingTab }[] = [
   { label: 'Beranda', id: 'beranda' },
-  { label: 'Peta Bencana', id: 'peta' },
+  { label: 'Sejarah Kebencanaan', id: 'peta' },
   { label: 'Analisis Data', id: 'analisis' },
   { label: 'Informasi & Mitra', id: 'informasi' },
 ];
