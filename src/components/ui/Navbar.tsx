@@ -4,16 +4,13 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext';
-import { ExternalLink, Lock, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Menu, X } from 'lucide-react';
 
 const NAV_ITEMS = [
   { label: 'Beranda', href: '/' },
   { label: 'Sejarah Kebencanaan', href: '/sejarah-kebencanaan' },
   { label: 'Analisis Data', href: '/analisis-data' },
   { label: 'Informasi & Mitra', href: '/informasi-mitra' },
-  { label: 'Management Data', href: '/management' },
-  { label: 'Dashboard K5', href: '/dashboard_k5' },
-  { label: 'WebGIS', href: 'https://inarisk.bnpb.go.id/databencana/webgis/', external: true },
 ];
 
 function ThemeToggle() {
@@ -78,21 +75,6 @@ export default function Navbar({ activePath }: NavbarProps) {
         <nav className="hidden lg:flex items-center gap-6">
           {NAV_ITEMS.map((item) => {
             const isActive = currentPath === item.href;
-            if (item.external) {
-              return (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs font-extrabold transition-colors flex items-center gap-1 py-1"
-                  style={{ color: 'rgb(89, 89, 89)' }}
-                >
-                  <span>{item.label}</span>
-                  <ExternalLink className="w-3 h-3 opacity-90" style={{ color: 'rgb(25, 79, 112)' }} />
-                </a>
-              );
-            }
             return (
               <Link
                 key={item.href}
@@ -118,14 +100,14 @@ export default function Navbar({ activePath }: NavbarProps) {
         <div className="hidden lg:flex items-center gap-3 shrink-0">
           <ThemeToggle />
           <Link
-            href="/login"
+            href="/dashboard_k5"
             className="px-5 py-2 rounded-xl text-xs font-extrabold text-white transition-all duration-200 hover:scale-105 shadow-md flex items-center gap-1.5"
             style={{
               background: 'linear-gradient(135deg, rgb(25, 79, 112), rgb(15, 55, 80))',
             }}
           >
-            <Lock className="w-3.5 h-3.5" />
-            <span>Login Portal</span>
+            <LayoutDashboard className="w-3.5 h-3.5" />
+            <span>Dashboard</span>
           </Link>
         </div>
 
@@ -153,21 +135,6 @@ export default function Navbar({ activePath }: NavbarProps) {
         >
           {NAV_ITEMS.map((item) => {
             const isActive = currentPath === item.href;
-            if (item.external) {
-              return (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center justify-between p-3 rounded-xl text-xs font-bold text-slate-900 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50"
-                >
-                  <span>{item.label}</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-[rgb(25,79,112)] dark:text-sky-400" />
-                </a>
-              );
-            }
             return (
               <Link
                 key={item.href}
@@ -186,15 +153,15 @@ export default function Navbar({ activePath }: NavbarProps) {
 
           <div className="pt-2 border-t border-slate-700/40">
             <Link
-              href="/login"
+              href="/dashboard_k5"
               onClick={() => setMenuOpen(false)}
               className="flex items-center justify-center gap-2 w-full p-3 rounded-xl text-xs font-bold text-white shadow-md"
               style={{
                 background: 'linear-gradient(135deg, rgb(25, 79, 112), rgb(15, 55, 80))',
               }}
             >
-              <Lock className="w-4 h-4" />
-              <span>Login Portal</span>
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Dashboard</span>
             </Link>
           </div>
         </div>
