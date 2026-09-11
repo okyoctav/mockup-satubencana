@@ -286,79 +286,22 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
 
   return (
     <div className="relative w-full h-full flex flex-col bg-slate-900 overflow-hidden">
-      {/* Top Right Controls Overlay: Arsip & Artikel Button */}
-      {rightExtraControls && (
-        <div className="absolute top-4 right-4 z-[400] pointer-events-auto">
-          {rightExtraControls}
+      {/* Top Left Overlay: Kotak Sejarah Kebencanaan Title & Filter Bencana Buttons */}
+      <div className="absolute top-4 left-4 z-[400] max-w-3xl pointer-events-none flex flex-col gap-2">
+        {/* 1. Kotak Sejarah Kebencanaan Title Card */}
+        <div className="bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl px-4 py-2.5 shadow-2xl ring-1 ring-black/5 pointer-events-auto self-start">
+          <h2 className="text-sm md:text-base font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2 drop-shadow-xs">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#0EA5E9] animate-pulse" />
+            Sejarah Kebencanaan
+          </h2>
+          <p className="text-[10px] text-slate-700 dark:text-slate-300 font-medium">
+            Peta lokasi spasial kejadian bencana di Indonesia
+          </p>
         </div>
-      )}
 
-      {/* Bottom News Ticker (Kotak Sejarah) & Multiselect Legend Filter Buttons */}
-      <div className="absolute bottom-4 left-4 right-16 z-[400] flex flex-col gap-2.5 pointer-events-none">
-        {/* Kotak Sejarah Kebencanaan */}
-        {markersRef.current[activeHighlightIndex] && (
-          <div className="bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl p-3 text-slate-900 dark:text-white shadow-2xl flex items-center justify-between flex-wrap gap-2 ring-1 ring-black/5 pointer-events-auto">
-            <div className="flex items-center gap-3">
-              {/* Tag Badge: "HISTORY" */}
-              <span className="px-2.5 py-1 rounded-lg bg-[#0EA5E9]/20 border border-[#0EA5E9]/40 text-[#0EA5E9] text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-md">
-                <span className={`w-2 h-2 rounded-full ${isPaused ? 'bg-amber-400' : 'bg-[#0EA5E9] animate-ping'}`} />
-                <span>HISTORY</span>
-              </span>
-
-              <div>
-                <h5 className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-2 drop-shadow-xs">
-                  <span>{markersRef.current[activeHighlightIndex].item.Nama_Bencana} ({markersRef.current[activeHighlightIndex].item.Tahun})</span>
-                  <span className="text-[10px] text-slate-700 dark:text-slate-300 font-normal">• {markersRef.current[activeHighlightIndex].item.Lokasi_Utama}, {markersRef.current[activeHighlightIndex].item.Provinsi}</span>
-                </h5>
-                <p className="text-[11px] text-slate-800 dark:text-slate-200 line-clamp-1 mt-0.5 font-medium">
-                  {markersRef.current[activeHighlightIndex].item.Deskripsi || `Kejadian bencana ${markersRef.current[activeHighlightIndex].item.Jenis_Bencana} pada tanggal ${markersRef.current[activeHighlightIndex].item.Tanggal}`}
-                </p>
-              </div>
-            </div>
-
-            {/* Controls: Prev, Play/Pause Icon Button, Next */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  setIsPaused(true);
-                  setActiveHighlightIndex((prev) => (prev - 1 + markersRef.current.length) % markersRef.current.length);
-                }}
-                className="p-1.5 rounded-xl bg-slate-900/50 dark:bg-slate-900/60 hover:bg-slate-900/80 text-white transition-all backdrop-blur-md border border-white/10 flex items-center justify-center"
-                title="Ke Bencana Sebelumnya"
-              >
-                <ChevronLeft className="w-4 h-4 text-white" />
-              </button>
-
-              {/* Integrated Play/Pause Icon Button */}
-              <button
-                onClick={() => setIsPaused(!isPaused)}
-                className="p-2 rounded-xl bg-[#0EA5E9]/90 hover:bg-[#0EA5E9] text-white text-xs font-bold shadow-lg transition-all flex items-center justify-center gap-1 backdrop-blur-md border border-white/20"
-                title={isPaused ? 'Lanjutkan Tur Animasi' : 'Jeda Tur Animasi'}
-              >
-                {isPaused ? <Play className="w-3.5 h-3.5 text-white fill-current" /> : <Pause className="w-3.5 h-3.5 text-white fill-current" />}
-              </button>
-
-              <button
-                onClick={() => {
-                  setIsPaused(true);
-                  setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length);
-                }}
-                className="p-1.5 rounded-xl bg-slate-900/50 dark:bg-slate-900/60 hover:bg-slate-900/80 text-white transition-all backdrop-blur-md border border-white/10 flex items-center justify-center"
-                title="Ke Bencana Berikutnya"
-              >
-                <ChevronRight className="w-4 h-4 text-white" />
-              </button>
-
-              <span className="text-[10px] font-mono text-slate-800 dark:text-slate-200 font-bold pl-1">
-                {activeHighlightIndex + 1}/{markersRef.current.length}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Multiselect Legend Filter Buttons Container (Dibawah Kotak Sejarah) */}
+        {/* 2. Filter Bencana Buttons Container (Dibawah Kotak Sejarah Kebencanaan) */}
         <div className="bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl p-2 text-slate-900 dark:text-white shadow-2xl flex items-center gap-2 overflow-x-auto no-scrollbar ring-1 ring-black/5 pointer-events-auto">
-          <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 pl-2 shrink-0">Filter:</span>
+          <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 pl-2 shrink-0">Filter Bencana:</span>
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
             {filterCategories.map((cat) => {
               const isSelected = selectedFilters.includes(cat.id);
@@ -380,6 +323,74 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
           </div>
         </div>
       </div>
+
+      {/* Top Right Controls Overlay: Arsip & Artikel Button */}
+      {rightExtraControls && (
+        <div className="absolute top-4 right-4 z-[400] pointer-events-auto">
+          {rightExtraControls}
+        </div>
+      )}
+
+      {/* Bottom News Ticker (Kotak Detail Disaster History) */}
+      {markersRef.current[activeHighlightIndex] && (
+        <div className="absolute bottom-4 left-4 right-16 z-[400] bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl p-3 text-slate-900 dark:text-white shadow-2xl flex items-center justify-between flex-wrap gap-2 ring-1 ring-black/5 pointer-events-auto">
+          <div className="flex items-center gap-3">
+            {/* Tag Badge: "HISTORY" */}
+            <span className="px-2.5 py-1 rounded-lg bg-[#0EA5E9]/20 border border-[#0EA5E9]/40 text-[#0EA5E9] text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-md">
+              <span className={`w-2 h-2 rounded-full ${isPaused ? 'bg-amber-400' : 'bg-[#0EA5E9] animate-ping'}`} />
+              <span>HISTORY</span>
+            </span>
+
+            <div>
+              <h5 className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-2 drop-shadow-xs">
+                <span>{markersRef.current[activeHighlightIndex].item.Nama_Bencana} ({markersRef.current[activeHighlightIndex].item.Tahun})</span>
+                <span className="text-[10px] text-slate-700 dark:text-slate-300 font-normal">• {markersRef.current[activeHighlightIndex].item.Lokasi_Utama}, {markersRef.current[activeHighlightIndex].item.Provinsi}</span>
+              </h5>
+              <p className="text-[11px] text-slate-800 dark:text-slate-200 line-clamp-1 mt-0.5 font-medium">
+                {markersRef.current[activeHighlightIndex].item.Deskripsi || `Kejadian bencana ${markersRef.current[activeHighlightIndex].item.Jenis_Bencana} pada tanggal ${markersRef.current[activeHighlightIndex].item.Tanggal}`}
+              </p>
+            </div>
+          </div>
+
+          {/* Controls: Prev, Play/Pause Icon Button, Next */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                setIsPaused(true);
+                setActiveHighlightIndex((prev) => (prev - 1 + markersRef.current.length) % markersRef.current.length);
+              }}
+              className="p-1.5 rounded-xl bg-slate-900/50 dark:bg-slate-900/60 hover:bg-slate-900/80 text-white transition-all backdrop-blur-md border border-white/10 flex items-center justify-center"
+              title="Ke Bencana Sebelumnya"
+            >
+              <ChevronLeft className="w-4 h-4 text-white" />
+            </button>
+
+            {/* Integrated Play/Pause Icon Button */}
+            <button
+              onClick={() => setIsPaused(!isPaused)}
+              className="p-2 rounded-xl bg-[#0EA5E9]/90 hover:bg-[#0EA5E9] text-white text-xs font-bold shadow-lg transition-all flex items-center justify-center gap-1 backdrop-blur-md border border-white/20"
+              title={isPaused ? 'Lanjutkan Tur Animasi' : 'Jeda Tur Animasi'}
+            >
+              {isPaused ? <Play className="w-3.5 h-3.5 text-white fill-current" /> : <Pause className="w-3.5 h-3.5 text-white fill-current" />}
+            </button>
+
+            <button
+              onClick={() => {
+                setIsPaused(true);
+                setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length);
+              }}
+              className="p-1.5 rounded-xl bg-slate-900/50 dark:bg-slate-900/60 hover:bg-slate-900/80 text-white transition-all backdrop-blur-md border border-white/10 flex items-center justify-center"
+              title="Ke Bencana Berikutnya"
+            >
+              <ChevronRight className="w-4 h-4 text-white" />
+            </button>
+
+            <span className="text-[10px] font-mono text-slate-800 dark:text-slate-200 font-bold pl-1">
+              {activeHighlightIndex + 1}/{markersRef.current.length}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Leaflet Map Canvas */}
       <div ref={containerRef} className="w-full h-full flex-1 z-0" />

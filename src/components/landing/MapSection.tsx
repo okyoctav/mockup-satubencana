@@ -93,19 +93,6 @@ export default function MapSection() {
         <div className="relative flex-1 min-h-0 w-full h-full flex overflow-hidden">
           {/* Left / Full Canvas: Interactive Map */}
           <div className="h-full flex-1 flex flex-col min-h-0 relative w-full">
-            {/* Map Title Floating Overlay Tag - Glassmorphism Style */}
-            <div className="absolute top-4 left-4 z-20 pointer-events-none">
-              <div className="bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl px-4 py-2.5 shadow-2xl ring-1 ring-black/5">
-                <h2 className="text-sm md:text-base font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2 drop-shadow-xs">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#0EA5E9] animate-pulse" />
-                  Sejarah Kebencanaan
-                </h2>
-                <p className="text-[10px] text-slate-700 dark:text-slate-300 font-medium">
-                  Peta lokasi spasial kejadian bencana di Indonesia
-                </p>
-              </div>
-            </div>
-
             <div className="w-full h-full">
               <LandingInteractiveMap
                 onSelectDisaster={handleSelectDisasterFromMap}
