@@ -85,10 +85,11 @@ export default function Navbar({ activePath }: NavbarProps) {
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs font-extrabold text-slate-900 dark:text-slate-200 hover:text-[rgb(25,79,112)] dark:hover:text-sky-400 transition-colors flex items-center gap-1 py-1"
+                  className="text-xs font-extrabold transition-colors flex items-center gap-1 py-1"
+                  style={{ color: 'rgb(89, 89, 89)' }}
                 >
                   <span>{item.label}</span>
-                  <ExternalLink className="w-3 h-3 text-[rgb(25,79,112)] dark:text-sky-400 opacity-90" />
+                  <ExternalLink className="w-3 h-3 opacity-90" style={{ color: 'rgb(25, 79, 112)' }} />
                 </a>
               );
             }
@@ -96,15 +97,17 @@ export default function Navbar({ activePath }: NavbarProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`text-xs font-extrabold transition-colors whitespace-nowrap py-1 relative ${
-                  isActive
-                    ? 'text-[rgb(25,79,112)] dark:text-sky-400'
-                    : 'text-slate-900 dark:text-slate-200 hover:text-[rgb(25,79,112)] dark:hover:text-sky-400'
-                }`}
+                className="text-xs font-extrabold transition-colors whitespace-nowrap py-1 relative"
+                style={{
+                  color: isActive ? 'rgb(25, 79, 112)' : 'rgb(89, 89, 89)',
+                }}
               >
                 <span>{item.label}</span>
                 {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[rgb(25,79,112)] dark:bg-sky-400 rounded-full" />
+                  <span
+                    className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                    style={{ backgroundColor: 'rgb(25, 79, 112)' }}
+                  />
                 )}
               </Link>
             );

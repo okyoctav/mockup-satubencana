@@ -299,12 +299,12 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
           </p>
         </div>
 
-        {/* 2. Filter Bencana Buttons (Vertical List ke bawah, tanpa glass background & tanpa progress bar) */}
+        {/* 2. Filter Bencana Buttons (Vertical List ke bawah, tanpa scroll) */}
         <div className="flex flex-col gap-1.5 self-start pointer-events-auto mt-1">
           <span className="text-[11px] font-extrabold text-slate-900 dark:text-white drop-shadow-md px-1">
             Filter Bencana:
           </span>
-          <div className="flex flex-col gap-1.5 max-h-[55vh] overflow-y-auto no-scrollbar">
+          <div className="flex flex-col gap-1.5">
             {filterCategories.map((cat) => {
               const isSelected = selectedFilters.includes(cat.id);
               return (
@@ -313,9 +313,10 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
                   onClick={() => toggleFilter(cat.id)}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2.5 shrink-0 border text-left shadow-sm ${
                     isSelected
-                      ? 'bg-[#0EA5E9] text-white border-[#0EA5E9] shadow-md ring-2 ring-[#0EA5E9]/30 scale-[1.02]'
+                      ? 'text-white shadow-md scale-[1.02]'
                       : 'bg-slate-900/80 dark:bg-slate-900/90 text-slate-200 border-slate-700/80 hover:bg-slate-800'
                   }`}
+                  style={isSelected ? { backgroundColor: 'rgb(25, 79, 112)', borderColor: 'rgb(25, 79, 112)' } : {}}
                 >
                   <span className="text-sm">{cat.icon}</span>
                   <span>{cat.label}</span>
