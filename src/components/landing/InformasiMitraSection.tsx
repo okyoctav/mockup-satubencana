@@ -118,25 +118,25 @@ export default function InformasiMitraSection() {
   return (
     <div className="w-full min-h-screen pb-16 pt-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
       {/* 1. HERO BANNER HEADER */}
-      <div className="relative rounded-3xl p-8 sm:p-12 overflow-hidden border border-white/20 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl bg-gradient-to-br from-slate-900 via-slate-900/90 to-sky-950 text-white">
-        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-[#194F70]/30 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative rounded-3xl p-8 sm:p-12 overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-[rgb(25,79,112)]/10 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#194F70]/40 border border-[#194F70]/60 text-sky-300 backdrop-blur-md">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-[rgb(25,79,112)]/10 dark:bg-sky-500/20 border border-[rgb(25,79,112)]/20 dark:border-sky-500/40 text-[rgb(25,79,112)] dark:text-sky-300">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             <span>Pusat Informasi Publik & Jejaring Kemitraan Strategis</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
             Kemitraan Terpadu Penanggulangan Bencana Indonesia
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-300 font-medium leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
             Menghubungkan data geospasial presisi, sistem peringatan dini, dan kebijakan mitigasi bencana lintas Kementerian/Lembaga nasional untuk keselamatan masyarakat.
           </p>
 
           <div className="pt-2 flex items-center gap-4 flex-wrap">
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-extrabold">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400 text-xs font-extrabold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
               API Feed Live: BNPB · BMKG · BIG · PVMBG · BRIN
             </span>
           </div>
@@ -148,14 +148,14 @@ export default function InformasiMitraSection() {
         {STATS_DATA.map((st) => (
           <div
             key={st.label}
-            className="p-5 rounded-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/30 dark:border-slate-800/80 shadow-md flex items-center gap-4"
+            className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4"
           >
             <div className={`p-3 rounded-xl bg-slate-100 dark:bg-slate-800 ${st.color}`}>
               <st.icon className="w-6 h-6" />
             </div>
             <div>
               <div className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">{st.value}</div>
-              <div className="text-xs font-semibold text-slate-600 dark:text-slate-400">{st.label}</div>
+              <div className="text-xs font-bold text-slate-600 dark:text-slate-400">{st.label}</div>
             </div>
           </div>
         ))}
@@ -179,7 +179,7 @@ export default function InformasiMitraSection() {
           {MITRA_LIST.map((m) => (
             <div
               key={m.nama}
-              className="group rounded-3xl p-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/40 dark:border-slate-800/80 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between"
+              className="group rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-3">
@@ -193,7 +193,7 @@ export default function InformasiMitraSection() {
                       <h3 className="font-extrabold text-base text-slate-900 dark:text-white group-hover:text-[rgb(25,79,112)] dark:group-hover:text-sky-400 transition-colors">
                         {m.nama}
                       </h3>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                         {m.tag}
                       </span>
                     </div>
@@ -232,7 +232,7 @@ export default function InformasiMitraSection() {
       </div>
 
       {/* 4. INFORMASI PUBLIK & STANDAR PANDUAN */}
-      <div className="rounded-3xl p-6 sm:p-8 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/30 dark:border-slate-800/80 shadow-xl space-y-6">
+      <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
         <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-[rgb(25,79,112)] dark:text-sky-400" />
@@ -255,8 +255,8 @@ export default function InformasiMitraSection() {
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full text-left p-4 rounded-2xl transition-all font-bold text-xs flex items-center justify-between ${
                     isActive
-                      ? 'bg-[rgb(25,79,112)] text-white shadow-lg scale-[1.01]'
-                      : 'bg-slate-100/80 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-800'
+                      ? 'bg-[rgb(25,79,112)] text-white shadow-md scale-[1.01]'
+                      : 'bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800'
                   }`}
                 >
                   <div className="flex items-center gap-3">
