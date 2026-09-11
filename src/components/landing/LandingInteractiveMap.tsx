@@ -299,20 +299,22 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
           </p>
         </div>
 
-        {/* 2. Filter Bencana Buttons Container (Dibawah Kotak Sejarah Kebencanaan) */}
-        <div className="bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl p-2 text-slate-900 dark:text-white shadow-2xl flex items-center gap-2 overflow-x-auto no-scrollbar ring-1 ring-black/5 pointer-events-auto">
-          <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 pl-2 shrink-0">Filter Bencana:</span>
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+        {/* 2. Filter Bencana Buttons (Vertical List ke bawah, tanpa glass background & tanpa progress bar) */}
+        <div className="flex flex-col gap-1.5 self-start pointer-events-auto mt-1">
+          <span className="text-[11px] font-extrabold text-slate-900 dark:text-white drop-shadow-md px-1">
+            Filter Bencana:
+          </span>
+          <div className="flex flex-col gap-1.5 max-h-[55vh] overflow-y-auto no-scrollbar">
             {filterCategories.map((cat) => {
               const isSelected = selectedFilters.includes(cat.id);
               return (
                 <button
                   key={cat.id}
                   onClick={() => toggleFilter(cat.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 border shadow-xs ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2.5 shrink-0 border text-left shadow-sm ${
                     isSelected
                       ? 'bg-[#0EA5E9] text-white border-[#0EA5E9] shadow-md ring-2 ring-[#0EA5E9]/30 scale-[1.02]'
-                      : 'bg-slate-900/50 dark:bg-slate-900/60 bg-white/60 hover:bg-slate-800/60 dark:hover:bg-slate-800/80 text-slate-800 dark:text-slate-200 border-white/20 dark:border-slate-700/60'
+                      : 'bg-slate-900/80 dark:bg-slate-900/90 text-slate-200 border-slate-700/80 hover:bg-slate-800'
                   }`}
                 >
                   <span className="text-sm">{cat.icon}</span>
