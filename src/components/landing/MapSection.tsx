@@ -106,24 +106,24 @@ export default function MapSection() {
               </div>
             </div>
 
-            {/* Toggle Floating Drawer Button (Top Right next to filter) */}
-            <button
-              onClick={() => setIsPanelOpen(!isPanelOpen)}
-              className="absolute top-4 right-52 z-[410] bg-slate-900/80 hover:bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-2xl border border-slate-700/80 shadow-xl backdrop-blur-md transition-all flex items-center gap-2"
-              title={isPanelOpen ? "Tutup Panel Artikel" : "Buka Arsip & Artikel Bencana"}
-            >
-              <FileText className="w-4 h-4 text-[#0EA5E9]" />
-              <span>{isPanelOpen ? "Sembunyikan Artikel" : "Arsip & Artikel"}</span>
-              {filteredPosts.length > 0 && (
-                <span className="bg-[#0EA5E9] text-white text-[10px] px-1.5 py-0.5 rounded-full">
-                  {filteredPosts.length}
-                </span>
-              )}
-            </button>
-            
             <div className="w-full h-full">
               <LandingInteractiveMap
                 onSelectDisaster={handleSelectDisasterFromMap}
+                rightExtraControls={
+                  <button
+                    onClick={() => setIsPanelOpen(!isPanelOpen)}
+                    className="bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl px-3.5 py-2 shadow-2xl ring-1 ring-black/5 hover:bg-slate-900/60 dark:hover:bg-slate-900/60 transition-all flex items-center gap-2 text-slate-800 dark:text-white text-xs font-bold"
+                    title={isPanelOpen ? "Tutup Panel Artikel" : "Buka Arsip & Artikel Bencana"}
+                  >
+                    <FileText className="w-4 h-4 text-[#0EA5E9]" />
+                    <span>{isPanelOpen ? "Sembunyikan Artikel" : "Arsip & Artikel"}</span>
+                    {filteredPosts.length > 0 && (
+                      <span className="bg-[#0EA5E9] text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                        {filteredPosts.length}
+                      </span>
+                    )}
+                  </button>
+                }
               />
             </div>
           </div>

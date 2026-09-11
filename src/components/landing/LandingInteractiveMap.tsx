@@ -35,9 +35,10 @@ interface DisasterItem {
 
 interface LandingInteractiveMapProps {
   onSelectDisaster?: (disaster: DisasterItem | null) => void;
+  rightExtraControls?: React.ReactNode;
 }
 
-export default function LandingInteractiveMap({ onSelectDisaster }: LandingInteractiveMapProps) {
+export default function LandingInteractiveMap({ onSelectDisaster, rightExtraControls }: LandingInteractiveMapProps) {
   const { theme } = useTheme();
   const mapRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
@@ -246,8 +247,13 @@ export default function LandingInteractiveMap({ onSelectDisaster }: LandingInter
 
   return (
     <div className="relative w-full h-full flex flex-col bg-slate-900 overflow-hidden">
-      {/* Map Header Toolbar Overlay: Dropdown Jenis Bencana (Top Right) - Glassmorphism Style */}
-      <div className="absolute top-4 right-4 z-[400] pointer-events-none">
+      {/* Map Header Toolbar Overlay: Glassmorphism Style Flex Row (Top Right) */}
+      <div className="absolute top-4 right-4 z-[400] pointer-events-none flex items-center gap-2">
+        {rightExtraControls && (
+          <div className="pointer-events-auto">
+            {rightExtraControls}
+          </div>
+        )}
         <div className="bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl p-1.5 pointer-events-auto flex items-center gap-2 shadow-2xl ring-1 ring-black/5">
           <label className="text-[11px] font-bold text-slate-800 dark:text-slate-200 pl-2 drop-shadow-xs">Filter Bencana:</label>
           <select
