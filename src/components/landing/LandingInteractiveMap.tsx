@@ -33,7 +33,11 @@ interface DisasterItem {
   URL_Sumber?: string | null;
 }
 
-export default function LandingInteractiveMap() {
+interface LandingInteractiveMapProps {
+  onSelectDisaster?: (disaster: DisasterItem | null) => void;
+}
+
+export default function LandingInteractiveMap({ onSelectDisaster }: LandingInteractiveMapProps) {
   const { theme } = useTheme();
   const mapRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
@@ -204,6 +208,9 @@ export default function LandingInteractiveMap() {
       marker.on('click', () => {
         setIsPaused(true);
         setActiveHighlightIndex(index);
+        if (onSelectDisaster) {
+          onSelectDisaster(d);
+        }
       });
 
       marker.addTo(map);

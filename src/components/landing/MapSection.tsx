@@ -18,19 +18,50 @@ const LandingInteractiveMap = dynamic(() => import('./LandingInteractiveMap'), {
 });
 
 export default function MapSection() {
-  const allGridPosts = blogData;
+  const allGridPosts = blogData as Array<{
+    id: string;
+    disasterId?: number[];
+    disasterNames?: string[];
+    category: string;
+    tagColor: string;
+    title: string;
+    excerpt: string;
+    author: string;
+    authorRole: string;
+    date: string;
+    readTime: string;
+    image: string;
+    sections: Array<{ id: string; title: string; content: string }>;
+  }>;
 
-  // Search & Pagination state
+  // Search, Disaster Filter & Pagination state
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDisaster, setSelectedDisaster] = useState<{ ID?: number; Nama_Bencana?: string; Jenis_Bencana?: string } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Filter posts based on search query
-  const filteredPosts = allGridPosts.filter(
-    (post) =>
+  // Filter posts based on search query AND selected disaster from map marker
+  const filteredPosts = allGridPosts.filter((post) => {
+    // Search query filter
+    const matchesSearch =
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (post.excerpt && post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+      (post.excerpt && post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    // Map marker disaster filter
+    let matchesDisaster = true;
+    if (selectedDisaster) {
+      const matchById = selectedDisaster.ID != null && post.disasterId?.includes(selectedDisaster.ID);
+      const matchByName = selectedDisaster.Nama_Bencana && post.disasterNames?.some(name =>
+        selectedDisaster.Nama_Bencana?.toLowerCase().includes(name.toLowerCase()) ||
+        name.toLowerCase().includes(selectedDisaster.Nama_Bencana?.toLowerCase() || '')
+      );
+      const matchByJenis = selectedDisaster.Jenis_Bencana && post.excerpt.toLowerCase().includes(selectedDisaster.Jenis_Bencana.toLowerCase());
+
+      matchesDisaster = Boolean(matchById || matchByName || matchByJenis);
+    }
+
+    return matchesSearch && matchesDisaster;
+  });
 
   const postsPerPage = 6;
   const totalPages = Math.max(1, Math.ceil(filteredPosts.length / postsPerPage));
@@ -45,6 +76,11 @@ export default function MapSection() {
     setCurrentPage(1);
   };
 
+  const handleSelectDisasterFromMap = (disaster: { ID?: number; Nama_Bencana?: string; Jenis_Bencana?: string } | null) => {
+    setSelectedDisaster(disaster);
+    setCurrentPage(1);
+  };
+
   return (
     <section id="peta" className="relative h-full w-full overflow-hidden flex flex-col transition-colors duration-300" style={{ background: 'var(--bg-section)' }}>
       {/* Background Subtle Gradient Glow */}
@@ -55,21 +91,23 @@ export default function MapSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 flex-1 min-h-0 overflow-hidden">
           {/* Left Column: Interactive Map (Full Height 100% Edge-to-Edge) */}
           <div className="lg:col-span-7 h-full flex flex-col min-h-0 relative">
-      {/* Map Title Floating Overlay Tag - Glassmorphism Style */}
-      <div className="absolute top-4 left-4 z-20 pointer-events-none">
-        <div className="bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl px-4 py-2.5 shadow-2xl ring-1 ring-black/5">
-          <h2 className="text-sm md:text-base font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2 drop-shadow-xs">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#0EA5E9] animate-pulse" />
-            Sejarah Kebencanaan
-          </h2>
-          <p className="text-[10px] text-slate-700 dark:text-slate-300 font-medium">
-            Peta lokasi spasial kejadian bencana di Indonesia
-          </p>
-        </div>
-      </div>
+            {/* Map Title Floating Overlay Tag - Glassmorphism Style */}
+            <div className="absolute top-4 left-4 z-20 pointer-events-none">
+              <div className="bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl px-4 py-2.5 shadow-2xl ring-1 ring-black/5">
+                <h2 className="text-sm md:text-base font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2 drop-shadow-xs">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#0EA5E9] animate-pulse" />
+                  Sejarah Kebencanaan
+                </h2>
+                <p className="text-[10px] text-slate-700 dark:text-slate-300 font-medium">
+                  Peta lokasi spasial kejadian bencana di Indonesia
+                </p>
+              </div>
+            </div>
             
             <div className="w-full h-full">
-              <LandingInteractiveMap />
+              <LandingInteractiveMap
+                onSelectDisaster={handleSelectDisasterFromMap}
+              />
             </div>
           </div>
 
@@ -81,7 +119,7 @@ export default function MapSection() {
               borderColor: 'var(--border-faint)',
             }}
           >
-            {/* Top Bar: Title & Search Input */}
+            {/* Top Bar: Title, Active Filter Badge & Search Input */}
             <div className="space-y-3 pb-3 border-b shrink-0" style={{ borderColor: 'var(--border-faint)' }}>
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
@@ -99,6 +137,22 @@ export default function MapSection() {
                   Hal {currentPage} / {totalPages}
                 </span>
               </div>
+
+              {/* Active Selected Disaster Tag Badge */}
+              {selectedDisaster && (
+                <div className="flex items-center justify-between bg-[#0EA5E9]/10 border border-[#0EA5E9]/30 rounded-xl px-3 py-1.5 text-xs text-[#0EA5E9]">
+                  <span className="truncate font-semibold text-[11px]">
+                    📍 Terfilter Peta: <b>{selectedDisaster.Nama_Bencana}</b>
+                  </span>
+                  <button
+                    onClick={() => setSelectedDisaster(null)}
+                    className="ml-2 font-bold text-slate-400 hover:text-rose-500 text-xs shrink-0"
+                    title="Reset Filter Peta"
+                  >
+                    ✕ Reset
+                  </button>
+                </div>
+              )}
 
               {/* Search Bar */}
               <div className="relative w-full">
