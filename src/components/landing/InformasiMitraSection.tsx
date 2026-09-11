@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import {
   Building2,
-  Globe,
   ExternalLink,
   ShieldAlert,
   FileText,
@@ -12,7 +11,6 @@ import {
   Layers,
   Sparkles,
   BookOpen,
-  HelpCircle,
   Database,
   ArrowRight
 } from 'lucide-react';
