@@ -43,21 +43,40 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
   const mapRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState<string>('Semua');
+  const [selectedFilters, setSelectedFilters] = useState<string[]>(['Semua']);
   const [activeHighlightIndex, setActiveHighlightIndex] = useState<number>(0);
-  const [isPaused, setIsPaused] = useState<boolean>(false);
+  const [isPaused, setIsPaused] = useState<boolean>(true);
   const markersRef = useRef<{ marker: L.Marker; item: DisasterItem }[]>([]);
+  const isInitialMount = useRef(true);
 
-  const disasterTypes = [
-    'Semua',
-    'Erupsi Gunung Api',
-    'Gempa Bumi',
-    'Tsunami',
-    'Banjir / Bandang',
-    'Tanah Longsor',
-    'Kebakaran / Karhutla',
-    'Cuaca Ekstrem / Puting Beliung'
+  const filterCategories = [
+    { id: 'Semua', label: 'Semua', icon: '🌐' },
+    { id: 'Erupsi Gunung Api', label: 'Erupsi', icon: '🌋' },
+    { id: 'Gempa Bumi', label: 'Gempa', icon: '🏚️' },
+    { id: 'Tsunami', label: 'Tsunami', icon: '🌊' },
+    { id: 'Banjir / Bandang', label: 'Banjir', icon: '🌊' },
+    { id: 'Tanah Longsor', label: 'Longsor', icon: '⛰️' },
+    { id: 'Kebakaran / Karhutla', label: 'Kebakaran', icon: '🔥' },
+    { id: 'Cuaca Ekstrem / Puting Beliung', label: 'Cuaca Ekstrem', icon: '🌪️' },
   ];
+
+  const toggleFilter = (id: string) => {
+    if (id === 'Semua') {
+      setSelectedFilters(['Semua']);
+      return;
+    }
+    let updated = selectedFilters.filter(f => f !== 'Semua');
+    if (updated.includes(id)) {
+      updated = updated.filter(f => f !== id);
+    } else {
+      updated.push(id);
+    }
+    if (updated.length === 0) {
+      setSelectedFilters(['Semua']);
+    } else {
+      setSelectedFilters(updated);
+    }
+  };
 
   // Dynamically update TileLayer based on Light / Dark theme (Using 100% Free OpenStreetMap & Esri Dark Basemaps)
   useEffect(() => {
@@ -132,9 +151,24 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
     markersRef.current = [];
 
     const items = disasterData as unknown as DisasterItem[];
-    const filtered = selectedFilter === 'Semua' 
-      ? items 
-      : items.filter(d => d.Jenis_Bencana?.toLowerCase().includes(selectedFilter.toLowerCase()) || d.Nama_Bencana?.toLowerCase().includes(selectedFilter.toLowerCase()));
+    const isAllSelected = selectedFilters.includes('Semua');
+
+    const filtered = isAllSelected
+      ? items
+      : items.filter(d => {
+          const jenis = d.Jenis_Bencana?.toLowerCase() || '';
+          const nama = d.Nama_Bencana?.toLowerCase() || '';
+          return selectedFilters.some(filterId => {
+            if (filterId === 'Erupsi Gunung Api') return jenis.includes('erupsi') || jenis.includes('gunung');
+            if (filterId === 'Gempa Bumi') return jenis.includes('gempa');
+            if (filterId === 'Tsunami') return jenis.includes('tsunami');
+            if (filterId === 'Banjir / Bandang') return jenis.includes('banjir');
+            if (filterId === 'Tanah Longsor') return jenis.includes('longsor');
+            if (filterId === 'Kebakaran / Karhutla') return jenis.includes('kebakaran') || jenis.includes('karhutla') || jenis.includes('api');
+            if (filterId === 'Cuaca Ekstrem / Puting Beliung') return jenis.includes('cuaca') || jenis.includes('puting');
+            return jenis.includes(filterId.toLowerCase()) || nama.includes(filterId.toLowerCase());
+          });
+        });
 
     filtered.forEach((d, index) => {
       if (d.Latitude == null || d.Longitude == null) return;
@@ -219,7 +253,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
     });
 
     setActiveHighlightIndex(0);
-  }, [selectedFilter]);
+  }, [selectedFilters]);
 
   // Auto-play Ticker effect to focus & highlight disaster points sequentially
   useEffect(() => {
@@ -228,10 +262,15 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
       setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length);
     }, 5500);
     return () => clearInterval(interval);
-  }, [selectedFilter, isPaused]);
+  }, [selectedFilters, isPaused]);
 
   // Smooth FlyTo Zoom & Pan to active disaster location and open popup preview
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return; // Keep map centered on Indonesia on initial load!
+    }
+
     const target = markersRef.current[activeHighlightIndex];
     if (target && mapRef.current && target.item.Latitude != null && target.item.Longitude != null) {
       mapRef.current.flyTo([target.item.Latitude, target.item.Longitude], 7, {
@@ -247,92 +286,100 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
 
   return (
     <div className="relative w-full h-full flex flex-col bg-slate-900 overflow-hidden">
-      {/* Map Header Toolbar Overlay: Glassmorphism Style Flex Row (Top Right) */}
-      <div className="absolute top-4 right-4 z-[400] pointer-events-none flex items-center gap-2">
-        {rightExtraControls && (
-          <div className="pointer-events-auto">
-            {rightExtraControls}
-          </div>
-        )}
-        <div className="bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl p-1.5 pointer-events-auto flex items-center gap-2 shadow-2xl ring-1 ring-black/5">
-          <label className="text-[11px] font-bold text-slate-800 dark:text-slate-200 pl-2 drop-shadow-xs">Filter Bencana:</label>
-          <select
-            value={selectedFilter}
-            onChange={(e) => {
-              setSelectedFilter(e.target.value);
-              setIsPaused(false);
-            }}
-            className="bg-slate-900/60 dark:bg-slate-900/60 bg-white/70 backdrop-blur-md text-slate-800 dark:text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-white/20 dark:border-slate-700/60 outline-none cursor-pointer hover:bg-slate-900/80 dark:hover:bg-slate-900/80 transition-colors shadow-inner"
-          >
-            {disasterTypes.map((type) => (
-              <option key={type} value={type} className="bg-slate-900 text-white">
-                {type}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Bottom News Ticker & Integrated Control Bar - Glassmorphism Style */}
-      {markersRef.current[activeHighlightIndex] && (
-        <div className="absolute bottom-4 left-4 right-16 z-[400] bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl p-3 text-slate-900 dark:text-white shadow-2xl flex items-center justify-between flex-wrap gap-2 ring-1 ring-black/5">
-          <div className="flex items-center gap-3">
-            {/* Tag Badge: "HISTORY" */}
-            <span className="px-2.5 py-1 rounded-lg bg-[#0EA5E9]/20 border border-[#0EA5E9]/40 text-[#0EA5E9] text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-md">
-              <span className={`w-2 h-2 rounded-full ${isPaused ? 'bg-amber-400' : 'bg-[#0EA5E9] animate-ping'}`} />
-              <span>HISTORY</span>
-            </span>
-
-            <div>
-              <h5 className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-2 drop-shadow-xs">
-                <span>{markersRef.current[activeHighlightIndex].item.Nama_Bencana} ({markersRef.current[activeHighlightIndex].item.Tahun})</span>
-                <span className="text-[10px] text-slate-700 dark:text-slate-300 font-normal">• {markersRef.current[activeHighlightIndex].item.Lokasi_Utama}, {markersRef.current[activeHighlightIndex].item.Provinsi}</span>
-              </h5>
-              <p className="text-[11px] text-slate-800 dark:text-slate-200 line-clamp-1 mt-0.5 font-medium">
-                {markersRef.current[activeHighlightIndex].item.Deskripsi || `Kejadian bencana ${markersRef.current[activeHighlightIndex].item.Jenis_Bencana} pada tanggal ${markersRef.current[activeHighlightIndex].item.Tanggal}`}
-              </p>
-            </div>
-          </div>
-
-          {/* Controls: Prev, Play/Pause Icon Button, Next */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                setIsPaused(true);
-                setActiveHighlightIndex((prev) => (prev - 1 + markersRef.current.length) % markersRef.current.length);
-              }}
-              className="p-1.5 rounded-xl bg-slate-900/50 dark:bg-slate-900/60 hover:bg-slate-900/80 text-white transition-all backdrop-blur-md border border-white/10 flex items-center justify-center"
-              title="Ke Bencana Sebelumnya"
-            >
-              <ChevronLeft className="w-4 h-4 text-white" />
-            </button>
-
-            {/* Integrated Play/Pause Icon Button */}
-            <button
-              onClick={() => setIsPaused(!isPaused)}
-              className="p-2 rounded-xl bg-[#0EA5E9]/90 hover:bg-[#0EA5E9] text-white text-xs font-bold shadow-lg transition-all flex items-center justify-center gap-1 backdrop-blur-md border border-white/20"
-              title={isPaused ? 'Lanjutkan Tur Animasi' : 'Jeda Tur Animasi'}
-            >
-              {isPaused ? <Play className="w-3.5 h-3.5 text-white fill-current" /> : <Pause className="w-3.5 h-3.5 text-white fill-current" />}
-            </button>
-
-            <button
-              onClick={() => {
-                setIsPaused(true);
-                setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length);
-              }}
-              className="p-1.5 rounded-xl bg-slate-900/50 dark:bg-slate-900/60 hover:bg-slate-900/80 text-white transition-all backdrop-blur-md border border-white/10 flex items-center justify-center"
-              title="Ke Bencana Berikutnya"
-            >
-              <ChevronRight className="w-4 h-4 text-white" />
-            </button>
-
-            <span className="text-[10px] font-mono text-slate-800 dark:text-slate-200 font-bold pl-1">
-              {activeHighlightIndex + 1}/{markersRef.current.length}
-            </span>
-          </div>
+      {/* Top Right Controls Overlay: Arsip & Artikel Button */}
+      {rightExtraControls && (
+        <div className="absolute top-4 right-4 z-[400] pointer-events-auto">
+          {rightExtraControls}
         </div>
       )}
+
+      {/* Bottom News Ticker (Kotak Sejarah) & Multiselect Legend Filter Buttons */}
+      <div className="absolute bottom-4 left-4 right-16 z-[400] flex flex-col gap-2.5 pointer-events-none">
+        {/* Kotak Sejarah Kebencanaan */}
+        {markersRef.current[activeHighlightIndex] && (
+          <div className="bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl p-3 text-slate-900 dark:text-white shadow-2xl flex items-center justify-between flex-wrap gap-2 ring-1 ring-black/5 pointer-events-auto">
+            <div className="flex items-center gap-3">
+              {/* Tag Badge: "HISTORY" */}
+              <span className="px-2.5 py-1 rounded-lg bg-[#0EA5E9]/20 border border-[#0EA5E9]/40 text-[#0EA5E9] text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-md">
+                <span className={`w-2 h-2 rounded-full ${isPaused ? 'bg-amber-400' : 'bg-[#0EA5E9] animate-ping'}`} />
+                <span>HISTORY</span>
+              </span>
+
+              <div>
+                <h5 className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-2 drop-shadow-xs">
+                  <span>{markersRef.current[activeHighlightIndex].item.Nama_Bencana} ({markersRef.current[activeHighlightIndex].item.Tahun})</span>
+                  <span className="text-[10px] text-slate-700 dark:text-slate-300 font-normal">• {markersRef.current[activeHighlightIndex].item.Lokasi_Utama}, {markersRef.current[activeHighlightIndex].item.Provinsi}</span>
+                </h5>
+                <p className="text-[11px] text-slate-800 dark:text-slate-200 line-clamp-1 mt-0.5 font-medium">
+                  {markersRef.current[activeHighlightIndex].item.Deskripsi || `Kejadian bencana ${markersRef.current[activeHighlightIndex].item.Jenis_Bencana} pada tanggal ${markersRef.current[activeHighlightIndex].item.Tanggal}`}
+                </p>
+              </div>
+            </div>
+
+            {/* Controls: Prev, Play/Pause Icon Button, Next */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setIsPaused(true);
+                  setActiveHighlightIndex((prev) => (prev - 1 + markersRef.current.length) % markersRef.current.length);
+                }}
+                className="p-1.5 rounded-xl bg-slate-900/50 dark:bg-slate-900/60 hover:bg-slate-900/80 text-white transition-all backdrop-blur-md border border-white/10 flex items-center justify-center"
+                title="Ke Bencana Sebelumnya"
+              >
+                <ChevronLeft className="w-4 h-4 text-white" />
+              </button>
+
+              {/* Integrated Play/Pause Icon Button */}
+              <button
+                onClick={() => setIsPaused(!isPaused)}
+                className="p-2 rounded-xl bg-[#0EA5E9]/90 hover:bg-[#0EA5E9] text-white text-xs font-bold shadow-lg transition-all flex items-center justify-center gap-1 backdrop-blur-md border border-white/20"
+                title={isPaused ? 'Lanjutkan Tur Animasi' : 'Jeda Tur Animasi'}
+              >
+                {isPaused ? <Play className="w-3.5 h-3.5 text-white fill-current" /> : <Pause className="w-3.5 h-3.5 text-white fill-current" />}
+              </button>
+
+              <button
+                onClick={() => {
+                  setIsPaused(true);
+                  setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length);
+                }}
+                className="p-1.5 rounded-xl bg-slate-900/50 dark:bg-slate-900/60 hover:bg-slate-900/80 text-white transition-all backdrop-blur-md border border-white/10 flex items-center justify-center"
+                title="Ke Bencana Berikutnya"
+              >
+                <ChevronRight className="w-4 h-4 text-white" />
+              </button>
+
+              <span className="text-[10px] font-mono text-slate-800 dark:text-slate-200 font-bold pl-1">
+                {activeHighlightIndex + 1}/{markersRef.current.length}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Multiselect Legend Filter Buttons Container (Dibawah Kotak Sejarah) */}
+        <div className="bg-slate-900/40 dark:bg-slate-900/40 bg-white/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl p-2 text-slate-900 dark:text-white shadow-2xl flex items-center gap-2 overflow-x-auto no-scrollbar ring-1 ring-black/5 pointer-events-auto">
+          <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 pl-2 shrink-0">Filter:</span>
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+            {filterCategories.map((cat) => {
+              const isSelected = selectedFilters.includes(cat.id);
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => toggleFilter(cat.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 border shadow-xs ${
+                    isSelected
+                      ? 'bg-[#0EA5E9] text-white border-[#0EA5E9] shadow-md ring-2 ring-[#0EA5E9]/30 scale-[1.02]'
+                      : 'bg-slate-900/50 dark:bg-slate-900/60 bg-white/60 hover:bg-slate-800/60 dark:hover:bg-slate-800/80 text-slate-800 dark:text-slate-200 border-white/20 dark:border-slate-700/60'
+                  }`}
+                >
+                  <span className="text-sm">{cat.icon}</span>
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
 
       {/* Leaflet Map Canvas */}
       <div ref={containerRef} className="w-full h-full flex-1 z-0" />
