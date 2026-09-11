@@ -25,7 +25,7 @@ function ThemeToggle() {
       onClick={toggle}
       aria-label="Toggle dark/light mode"
       title={isDark ? 'Ganti ke Light Mode' : 'Ganti ke Dark Mode'}
-      className="flex items-center justify-center rounded-full transition-all duration-300 hover:scale-105 active:scale-95 shrink-0"
+      className="flex items-center justify-center rounded-full transition-all duration-300 hover:scale-105 active:scale-95 shrink-0 shadow-xs"
       style={{
         width: '36px',
         height: '36px',
@@ -64,7 +64,7 @@ export default function Navbar({ activePath }: NavbarProps) {
         borderBottom: '1px solid var(--border-faint)',
       }}
     >
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-8">
+      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-8">
         {/* Brand Logo (Left) */}
         <Link href="/" className="flex items-center gap-3 text-left shrink-0">
           <img
@@ -85,10 +85,10 @@ export default function Navbar({ activePath }: NavbarProps) {
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-[#0EA5E9] dark:hover:text-[#0EA5E9] transition-colors flex items-center gap-1 py-1"
+                  className="text-xs font-extrabold text-slate-900 dark:text-slate-200 hover:text-[rgb(25,79,112)] dark:hover:text-sky-400 transition-colors flex items-center gap-1 py-1"
                 >
                   <span>{item.label}</span>
-                  <ExternalLink className="w-3 h-3 text-[#0EA5E9] opacity-80" />
+                  <ExternalLink className="w-3 h-3 text-[rgb(25,79,112)] dark:text-sky-400 opacity-90" />
                 </a>
               );
             }
@@ -96,15 +96,15 @@ export default function Navbar({ activePath }: NavbarProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`text-xs font-bold transition-colors whitespace-nowrap py-1 relative ${
+                className={`text-xs font-extrabold transition-colors whitespace-nowrap py-1 relative ${
                   isActive
-                    ? 'text-[#0EA5E9] dark:text-[#0EA5E9]'
-                    : 'text-slate-700 dark:text-slate-300 hover:text-[#0EA5E9] dark:hover:text-[#0EA5E9]'
+                    ? 'text-[rgb(25,79,112)] dark:text-sky-400'
+                    : 'text-slate-900 dark:text-slate-200 hover:text-[rgb(25,79,112)] dark:hover:text-sky-400'
                 }`}
               >
                 <span>{item.label}</span>
                 {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0EA5E9] rounded-full" />
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[rgb(25,79,112)] dark:bg-sky-400 rounded-full" />
                 )}
               </Link>
             );
@@ -118,7 +118,7 @@ export default function Navbar({ activePath }: NavbarProps) {
             href="/login"
             className="px-5 py-2 rounded-xl text-xs font-extrabold text-white transition-all duration-200 hover:scale-105 shadow-md flex items-center gap-1.5"
             style={{
-              background: 'linear-gradient(135deg, #0EA5E9, #0284C7)',
+              background: 'linear-gradient(135deg, rgb(25, 79, 112), rgb(15, 55, 80))',
             }}
           >
             <Lock className="w-3.5 h-3.5" />
@@ -130,11 +130,11 @@ export default function Navbar({ activePath }: NavbarProps) {
         <div className="lg:hidden flex items-center gap-2">
           <ThemeToggle />
           <button
-            className="p-2 rounded-xl bg-slate-800/20 border border-slate-700/40 text-slate-200"
+            className="p-2 rounded-xl bg-slate-800/20 border border-slate-700/40 text-slate-900 dark:text-slate-200"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
-            {menuOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
+            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
@@ -158,10 +158,10 @@ export default function Navbar({ activePath }: NavbarProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center justify-between p-3 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/50"
+                  className="flex items-center justify-between p-3 rounded-xl text-xs font-bold text-slate-900 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50"
                 >
                   <span>{item.label}</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-[#0EA5E9]" />
+                  <ExternalLink className="w-3.5 h-3.5 text-[rgb(25,79,112)] dark:text-sky-400" />
                 </a>
               );
             }
@@ -172,8 +172,8 @@ export default function Navbar({ activePath }: NavbarProps) {
                 onClick={() => setMenuOpen(false)}
                 className={`block p-3 rounded-xl text-xs font-bold transition-colors ${
                   isActive
-                    ? 'bg-[#0EA5E9]/15 text-[#0EA5E9]'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                    ? 'bg-[rgb(25,79,112)]/15 text-[rgb(25,79,112)] dark:text-sky-400'
+                    : 'text-slate-900 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50'
                 }`}
               >
                 {item.label}
@@ -185,7 +185,10 @@ export default function Navbar({ activePath }: NavbarProps) {
             <Link
               href="/login"
               onClick={() => setMenuOpen(false)}
-              className="flex items-center justify-center gap-2 w-full p-3 rounded-xl text-xs font-bold text-white bg-[#0EA5E9] hover:bg-[#0EA5E9]/90 shadow-md"
+              className="flex items-center justify-center gap-2 w-full p-3 rounded-xl text-xs font-bold text-white shadow-md"
+              style={{
+                background: 'linear-gradient(135deg, rgb(25, 79, 112), rgb(15, 55, 80))',
+              }}
             >
               <Lock className="w-4 h-4" />
               <span>Login Portal</span>
