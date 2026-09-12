@@ -118,10 +118,7 @@ export default function InformasiMitraSection() {
   return (
     <div className="w-full min-h-screen pb-16 pt-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
       {/* 1. HERO BANNER HEADER */}
-      <div
-        className="relative rounded-3xl p-8 sm:p-12 overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl"
-        style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}
-      >
+      <div className="relative rounded-3xl p-8 sm:p-12 overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors">
         <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-[rgb(25,79,112)]/10 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-[rgb(25,79,112)]/10 dark:bg-sky-500/20 border border-[rgb(25,79,112)]/20 dark:border-sky-500/40 text-[rgb(25,79,112)] dark:text-sky-300">
@@ -129,11 +126,11 @@ export default function InformasiMitraSection() {
             <span>Pusat Informasi Publik & Jejaring Kemitraan Strategis</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight" style={{ color: 'var(--text-primary)' }}>
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
             Kemitraan Terpadu Penanggulangan Bencana Indonesia
           </h1>
 
-          <p className="text-sm sm:text-base font-medium leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
             Menghubungkan data geospasial presisi, sistem peringatan dini, dan kebijakan mitigasi bencana lintas Kementerian/Lembaga nasional untuk keselamatan masyarakat.
           </p>
 
@@ -151,17 +148,16 @@ export default function InformasiMitraSection() {
         {STATS_DATA.map((st) => (
           <div
             key={st.label}
-            className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4"
-            style={{ backgroundColor: 'var(--bg-card)' }}
+            className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4 transition-colors"
           >
             <div className={`p-3 rounded-xl bg-slate-100 dark:bg-slate-800 ${st.color}`}>
               <st.icon className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-lg sm:text-xl font-extrabold" style={{ color: 'var(--text-primary)' }}>
+              <div className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
                 {st.value}
               </div>
-              <div className="text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>
+              <div className="text-xs font-bold text-slate-600 dark:text-slate-400">
                 {st.label}
               </div>
             </div>
@@ -173,11 +169,11 @@ export default function InformasiMitraSection() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
           <div>
-            <h2 className="text-xl font-extrabold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
               <Building2 className="w-5 h-5 text-[rgb(25,79,112)] dark:text-sky-400" />
               <span>Mitra Instansi & Organisasi Terkait</span>
             </h2>
-            <p className="text-xs mt-1 font-medium" style={{ color: 'var(--text-secondary)' }}>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
               Integrasi walidata geospasial dan sumber informasi kebumian nasional resmi
             </p>
           </div>
@@ -187,8 +183,7 @@ export default function InformasiMitraSection() {
           {MITRA_LIST.map((m) => (
             <div
               key={m.nama}
-              className="group rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between"
-              style={{ backgroundColor: 'var(--bg-card)' }}
+              className="group rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-3">
@@ -199,7 +194,7 @@ export default function InformasiMitraSection() {
                       className="h-10 w-auto object-contain shrink-0"
                     />
                     <div>
-                      <h3 className="font-extrabold text-base transition-colors group-hover:text-[rgb(25,79,112)] dark:group-hover:text-sky-400" style={{ color: 'var(--text-primary)' }}>
+                      <h3 className="font-extrabold text-base text-slate-900 dark:text-white transition-colors group-hover:text-[rgb(25,79,112)] dark:group-hover:text-sky-400">
                         {m.nama}
                       </h3>
                       <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
@@ -210,10 +205,10 @@ export default function InformasiMitraSection() {
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-bold line-clamp-1 mb-1" style={{ color: 'var(--text-primary)' }}>
+                  <h4 className="text-xs font-bold text-slate-900 dark:text-slate-200 line-clamp-1 mb-1">
                     {m.kepanjangan}
                   </h4>
-                  <p className="text-xs line-clamp-3 font-normal leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-3 font-normal leading-relaxed">
                     {m.deskripsi}
                   </p>
                 </div>
@@ -241,16 +236,13 @@ export default function InformasiMitraSection() {
       </div>
 
       {/* 4. INFORMASI PUBLIK & STANDAR PANDUAN */}
-      <div
-        className="rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6"
-        style={{ backgroundColor: 'var(--bg-card)' }}
-      >
+      <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6 transition-colors">
         <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-          <h2 className="text-xl font-extrabold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-[rgb(25,79,112)] dark:text-sky-400" />
             <span>Informasi Publik & Pedoman Data Kebencanaan</span>
           </h2>
-          <p className="text-xs mt-1 font-medium" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
             Panduan teknis, tata kelola data terbuka, dan saluran pengaduan resmi
           </p>
         </div>
@@ -268,7 +260,7 @@ export default function InformasiMitraSection() {
                   className={`w-full text-left p-4 rounded-2xl transition-all font-bold text-xs flex items-center justify-between ${
                     isActive
                       ? 'bg-[rgb(25,79,112)] text-white shadow-md scale-[1.01]'
-                      : 'bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -282,21 +274,21 @@ export default function InformasiMitraSection() {
           </div>
 
           {/* Active Tab Content Card */}
-          <div className="lg:col-span-8 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 flex flex-col justify-between space-y-4">
+          <div className="lg:col-span-8 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-4 transition-colors">
             {INFORMASI_PANDUAN.filter(i => i.id === activeTab).map((curr) => {
               const IconComp = curr.icon;
               return (
                 <div key={curr.id} className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-xl bg-[rgb(25,79,112)]/10 text-[rgb(25,79,112)] dark:text-sky-400">
+                    <div className="p-3 rounded-xl bg-[rgb(25,79,112)]/10 dark:bg-sky-500/20 text-[rgb(25,79,112)] dark:text-sky-400">
                       <IconComp className="w-6 h-6" />
                     </div>
-                    <h3 className="text-lg font-extrabold" style={{ color: 'var(--text-primary)' }}>
+                    <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
                       {curr.title}
                     </h3>
                   </div>
 
-                  <p className="text-xs sm:text-sm leading-relaxed font-normal" style={{ color: 'var(--text-secondary)' }}>
+                  <p className="text-xs sm:text-sm leading-relaxed font-normal text-slate-700 dark:text-slate-300">
                     {curr.content}
                   </p>
                 </div>
@@ -304,7 +296,7 @@ export default function InformasiMitraSection() {
             })}
 
             <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs">
-              <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>Dokumen Publikasi Resmi 2026</span>
+              <span className="font-medium text-slate-500 dark:text-slate-400">Dokumen Publikasi Resmi 2026</span>
               <a
                 href="https://bnpb.go.id"
                 target="_blank"
@@ -321,10 +313,10 @@ export default function InformasiMitraSection() {
 
       {/* 5. FOOTER COPY */}
       <div className="pt-8 border-t border-slate-200 dark:border-slate-800 text-center space-y-2">
-        <p className="text-xs font-semibold" style={{ color: 'var(--text-secondary)' }}>
+        <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
           © 2026 SatuBencana — Sistem Informasi Geospasial & Kemitraan Kebencanaan Nasional.
         </p>
-        <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+        <p className="text-[11px] text-slate-500 dark:text-slate-500">
           Diperbarui secara berkala melalui pengintegrasian API Badan Nasional Penanggulangan Bencana (BNPB).
         </p>
       </div>
