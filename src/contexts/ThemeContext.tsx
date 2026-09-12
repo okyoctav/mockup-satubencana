@@ -17,12 +17,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const initial = saved ?? 'dark';
     setTheme(initial);
     document.documentElement.setAttribute('data-theme', initial);
+    if (initial === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, []);
 
   const toggle = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
     setTheme(next);
     document.documentElement.setAttribute('data-theme', next);
+    if (next === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
     localStorage.setItem('theme', next);
   };
 
