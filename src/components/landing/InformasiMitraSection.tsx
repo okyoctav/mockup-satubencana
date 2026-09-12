@@ -118,7 +118,7 @@ export default function InformasiMitraSection() {
   return (
     <div className="w-full min-h-screen pb-16 pt-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
       {/* 1. HERO BANNER HEADER */}
-      <div className="relative rounded-3xl p-8 sm:p-12 overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors">
+      <div className="relative rounded-3xl p-8 sm:p-12 overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors">
         <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-[rgb(25,79,112)]/10 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-[rgb(25,79,112)]/10 dark:bg-sky-500/20 border border-[rgb(25,79,112)]/20 dark:border-sky-500/40 text-[rgb(25,79,112)] dark:text-sky-300">
@@ -135,7 +135,7 @@ export default function InformasiMitraSection() {
           </p>
 
           <div className="pt-2 flex items-center gap-4 flex-wrap">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400 text-xs font-extrabold">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-400 text-xs font-extrabold">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
               API Feed Live: BNPB · BMKG · BIG · PVMBG · BRIN
             </span>
@@ -150,14 +150,14 @@ export default function InformasiMitraSection() {
             key={st.label}
             className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4 transition-colors"
           >
-            <div className={`p-3 rounded-xl bg-slate-100 dark:bg-slate-800 ${st.color}`}>
+            <div className={`p-3 rounded-xl bg-slate-50 dark:bg-slate-800 ${st.color}`}>
               <st.icon className="w-6 h-6" />
             </div>
             <div>
               <div className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
                 {st.value}
               </div>
-              <div className="text-xs font-bold text-slate-600 dark:text-slate-400">
+              <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
                 {st.label}
               </div>
             </div>
@@ -173,7 +173,7 @@ export default function InformasiMitraSection() {
               <Building2 className="w-5 h-5 text-[rgb(25,79,112)] dark:text-sky-400" />
               <span>Mitra Instansi & Organisasi Terkait</span>
             </h2>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
               Integrasi walidata geospasial dan sumber informasi kebumian nasional resmi
             </p>
           </div>
@@ -236,13 +236,13 @@ export default function InformasiMitraSection() {
       </div>
 
       {/* 4. INFORMASI PUBLIK & STANDAR PANDUAN */}
-      <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6 transition-colors">
+      <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 transition-colors">
         <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-[rgb(25,79,112)] dark:text-sky-400" />
             <span>Informasi Publik & Pedoman Data Kebencanaan</span>
           </h2>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
             Panduan teknis, tata kelola data terbuka, dan saluran pengaduan resmi
           </p>
         </div>
@@ -257,30 +257,30 @@ export default function InformasiMitraSection() {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full text-left p-4 rounded-2xl transition-all font-bold text-xs flex items-center justify-between ${
+                  className={`w-full text-left p-4 rounded-2xl transition-all font-bold text-xs flex items-center justify-between border ${
                     isActive
-                      ? 'bg-[rgb(25,79,112)] text-white shadow-md scale-[1.01]'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      ? 'bg-sky-50 dark:bg-sky-950/40 text-[rgb(25,79,112)] dark:text-sky-300 border-[rgb(25,79,112)]/30 dark:border-sky-500/40 shadow-sm'
+                      : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700/60 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <IconComp className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[rgb(25,79,112)] dark:text-sky-400'}`} />
+                    <IconComp className={`w-4 h-4 ${isActive ? 'text-[rgb(25,79,112)] dark:text-sky-400' : 'text-slate-400 dark:text-slate-400'}`} />
                     <span>{item.title}</span>
                   </div>
-                  <ArrowRight className={`w-4 h-4 ${isActive ? 'opacity-100' : 'opacity-0'}`} />
+                  <ArrowRight className={`w-4 h-4 ${isActive ? 'opacity-100 text-[rgb(25,79,112)] dark:text-sky-400' : 'opacity-0'}`} />
                 </button>
               );
             })}
           </div>
 
           {/* Active Tab Content Card */}
-          <div className="lg:col-span-8 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-4 transition-colors">
+          <div className="lg:col-span-8 p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-4 transition-colors">
             {INFORMASI_PANDUAN.filter(i => i.id === activeTab).map((curr) => {
               const IconComp = curr.icon;
               return (
                 <div key={curr.id} className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-xl bg-[rgb(25,79,112)]/10 dark:bg-sky-500/20 text-[rgb(25,79,112)] dark:text-sky-400">
+                    <div className="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[rgb(25,79,112)] dark:text-sky-400 shadow-sm">
                       <IconComp className="w-6 h-6" />
                     </div>
                     <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
@@ -288,7 +288,7 @@ export default function InformasiMitraSection() {
                     </h3>
                   </div>
 
-                  <p className="text-xs sm:text-sm leading-relaxed font-normal text-slate-700 dark:text-slate-300">
+                  <p className="text-xs sm:text-sm leading-relaxed font-normal text-slate-600 dark:text-slate-300">
                     {curr.content}
                   </p>
                 </div>
