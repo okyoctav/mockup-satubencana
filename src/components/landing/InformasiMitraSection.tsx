@@ -259,15 +259,15 @@ export default function InformasiMitraSection() {
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full text-left p-4 rounded-2xl transition-all font-bold text-xs flex items-center justify-between border ${
                     isActive
-                      ? 'bg-sky-50 dark:bg-sky-950/40 text-[rgb(25,79,112)] dark:text-sky-300 border-[rgb(25,79,112)]/30 dark:border-sky-500/40 shadow-sm'
+                      ? 'bg-[rgb(25,79,112)] text-white border-[rgb(25,79,112)] shadow-md scale-[1.01]'
                       : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700/60 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <IconComp className={`w-4 h-4 ${isActive ? 'text-[rgb(25,79,112)] dark:text-sky-400' : 'text-slate-400 dark:text-slate-400'}`} />
+                    <IconComp className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
                     <span>{item.title}</span>
                   </div>
-                  <ArrowRight className={`w-4 h-4 ${isActive ? 'opacity-100 text-[rgb(25,79,112)] dark:text-sky-400' : 'opacity-0'}`} />
+                  <ArrowRight className={`w-4 h-4 ${isActive ? 'opacity-100 text-white' : 'opacity-0'}`} />
                 </button>
               );
             })}
