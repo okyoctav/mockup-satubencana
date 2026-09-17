@@ -889,101 +889,104 @@ export default function ProvinceDetailModal({
               <div className="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
                 <div className="overflow-x-auto max-h-[520px]">
                   <table className="w-full text-left text-xs border-collapse font-sans">
-                    <thead className="bg-[#004d40] text-white uppercase text-[10px] tracking-wider sticky top-0 z-10">
+                    <thead 
+                      className="text-white uppercase text-[10px] tracking-wider sticky top-0 z-10 shadow-xs"
+                      style={{ backgroundColor: 'rgb(18, 65, 93)', color: '#fff' }}
+                    >
                       <tr>
-                        <th className="py-3 px-3 w-12 text-center">No</th>
+                        <th className="py-2.5 px-3 w-12 text-center font-bold">No</th>
                         <th 
                           onClick={() => handleSort('nama')}
-                          className="py-3 px-3 cursor-pointer hover:bg-[#00695c] transition-colors"
+                          className="py-2.5 px-3 cursor-pointer hover:bg-white/10 transition-colors font-bold"
                         >
                           <span className="flex items-center gap-1">
                             Kabupaten / Kota
-                            <ArrowUpDown className="w-3 h-3 opacity-70" />
+                            <ArrowUpDown className="w-3 h-3 opacity-75" />
                           </span>
                         </th>
                         <th 
                           onClick={() => handleSort('kejadian')}
-                          className="py-3 px-3 text-right cursor-pointer hover:bg-[#00695c] transition-colors"
+                          className="py-2.5 px-3 text-right cursor-pointer hover:bg-white/10 transition-colors font-bold"
                         >
                           <span className="flex items-center justify-end gap-1">
                             Kejadian
-                            <ArrowUpDown className="w-3 h-3 opacity-70" />
+                            <ArrowUpDown className="w-3 h-3 opacity-75" />
                           </span>
                         </th>
                         <th 
                           onClick={() => handleSort('meninggal')}
-                          className="py-3 px-3 text-right cursor-pointer hover:bg-[#00695c] transition-colors text-rose-200"
+                          className="py-2.5 px-3 text-right cursor-pointer hover:bg-white/10 transition-colors font-bold"
                         >
                           <span className="flex items-center justify-end gap-1">
                             Meninggal
-                            <ArrowUpDown className="w-3 h-3 opacity-70" />
+                            <ArrowUpDown className="w-3 h-3 opacity-75" />
                           </span>
                         </th>
                         <th 
                           onClick={() => handleSort('hilang')}
-                          className="py-3 px-3 text-right cursor-pointer hover:bg-[#00695c] transition-colors text-rose-200"
+                          className="py-2.5 px-3 text-right cursor-pointer hover:bg-white/10 transition-colors font-bold"
                         >
                           Hilang
                         </th>
                         <th 
                           onClick={() => handleSort('luka')}
-                          className="py-3 px-3 text-right cursor-pointer hover:bg-[#00695c] transition-colors"
+                          className="py-2.5 px-3 text-right cursor-pointer hover:bg-white/10 transition-colors font-bold"
                         >
                           Luka
                         </th>
                         <th 
                           onClick={() => handleSort('pengungsi')}
-                          className="py-3 px-3 text-right cursor-pointer hover:bg-[#00695c] transition-colors text-amber-200"
+                          className="py-2.5 px-3 text-right cursor-pointer hover:bg-white/10 transition-colors font-bold"
                         >
                           <span className="flex items-center justify-end gap-1">
                             Mengungsi
-                            <ArrowUpDown className="w-3 h-3 opacity-70" />
+                            <ArrowUpDown className="w-3 h-3 opacity-75" />
                           </span>
                         </th>
                         <th 
                           onClick={() => handleSort('rusakBerat')}
-                          className="py-3 px-3 text-right cursor-pointer hover:bg-[#00695c] transition-colors text-emerald-200"
+                          className="py-2.5 px-3 text-right cursor-pointer hover:bg-white/10 transition-colors font-bold"
                         >
                           Rusak Berat
                         </th>
                         <th 
                           onClick={() => handleSort('rusakSedang')}
-                          className="py-3 px-3 text-right cursor-pointer hover:bg-[#00695c] transition-colors text-emerald-200"
+                          className="py-2.5 px-3 text-right cursor-pointer hover:bg-white/10 transition-colors font-bold"
                         >
                           Rusak Sedang
                         </th>
                         <th 
                           onClick={() => handleSort('rusakRingan')}
-                          className="py-3 px-3 text-right cursor-pointer hover:bg-[#00695c] transition-colors text-emerald-200"
+                          className="py-2.5 px-3 text-right cursor-pointer hover:bg-white/10 transition-colors font-bold"
                         >
                           Rusak Ringan
                         </th>
                         <th 
                           onClick={() => handleSort('totalRumahRusak')}
-                          className="py-3 px-3 text-right cursor-pointer hover:bg-[#00695c] transition-colors text-emerald-300 font-bold"
+                          className="py-2.5 px-3 text-right cursor-pointer hover:bg-white/10 transition-colors font-bold"
                         >
                           <span className="flex items-center justify-end gap-1">
                             Total Rusak
-                            <ArrowUpDown className="w-3 h-3 opacity-70" />
+                            <ArrowUpDown className="w-3 h-3 opacity-75" />
                           </span>
                         </th>
                         <th 
                           onClick={() => handleSort('terendam')}
-                          className="py-3 px-3 text-right cursor-pointer hover:bg-[#00695c] transition-colors text-sky-200"
+                          className="py-2.5 px-3 text-right cursor-pointer hover:bg-white/10 transition-colors font-bold"
                         >
                           Terendam
                         </th>
                         <th 
                           onClick={() => handleSort('fasilitas')}
-                          className="py-3 px-3 text-right cursor-pointer hover:bg-[#00695c] transition-colors text-purple-200"
+                          className="py-2.5 px-3 text-right cursor-pointer hover:bg-white/10 transition-colors font-bold"
                         >
                           Fasilitas
                         </th>
-                        <th className="py-3 px-3 text-center">Aksi</th>
+                        <th className="py-2.5 px-3 text-center font-bold">Aksi</th>
                       </tr>
                     </thead>
 
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-900 dark:text-slate-100">
                       {filteredKabupatenList.length === 0 ? (
                         <tr>
                           <td colSpan={14} className="text-center py-8 text-slate-400 font-semibold">
@@ -994,55 +997,57 @@ export default function ProvinceDetailModal({
                         filteredKabupatenList.map((kab, idx) => (
                           <tr 
                             key={kab.nama}
-                            className="hover:bg-teal-50/50 dark:hover:bg-slate-800/60 transition-colors group"
+                            className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                           >
-                            <td className="py-2.5 px-3 text-center text-slate-400 font-bold">{idx + 1}</td>
-                            <td className="py-2.5 px-3 font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
-                              <span>{kab.nama}</span>
+                            <td className="py-2 px-3 text-center text-slate-400 font-medium">{idx + 1}</td>
+                            <td className="py-2 px-3 font-bold text-slate-900 dark:text-white">
+                              {kab.nama}
                             </td>
-                            <td className="py-2.5 px-3 text-right font-black text-[#00695c] dark:text-teal-400">
+                            <td className="py-2 px-3 text-right font-bold text-slate-900 dark:text-white">
                               {kab.kejadian.toLocaleString('id-ID')}
                             </td>
-                            <td className="py-2.5 px-3 text-right font-bold text-rose-600">
+                            <td className="py-2 px-3 text-right text-slate-900 dark:text-white">
                               {kab.meninggal.toLocaleString('id-ID')}
                             </td>
-                            <td className="py-2.5 px-3 text-right text-rose-600 font-semibold">
+                            <td className="py-2 px-3 text-right text-slate-900 dark:text-white">
                               {kab.hilang.toLocaleString('id-ID')}
                             </td>
-                            <td className="py-2.5 px-3 text-right text-slate-600 dark:text-slate-300 font-semibold">
+                            <td className="py-2 px-3 text-right text-slate-900 dark:text-white">
                               {kab.luka.toLocaleString('id-ID')}
                             </td>
-                            <td className="py-2.5 px-3 text-right font-bold text-amber-600">
+                            <td className="py-2 px-3 text-right text-slate-900 dark:text-white">
                               {kab.pengungsi.toLocaleString('id-ID')}
                             </td>
-                            <td className="py-2.5 px-3 text-right text-slate-600 dark:text-slate-300">
+                            <td className="py-2 px-3 text-right text-slate-900 dark:text-white">
                               {kab.rusakBerat.toLocaleString('id-ID')}
                             </td>
-                            <td className="py-2.5 px-3 text-right text-slate-600 dark:text-slate-300">
+                            <td className="py-2 px-3 text-right text-slate-900 dark:text-white">
                               {kab.rusakSedang.toLocaleString('id-ID')}
                             </td>
-                            <td className="py-2.5 px-3 text-right text-slate-600 dark:text-slate-300">
+                            <td className="py-2 px-3 text-right text-slate-900 dark:text-white">
                               {kab.rusakRingan.toLocaleString('id-ID')}
                             </td>
-                            <td className="py-2.5 px-3 text-right font-black text-emerald-700 dark:text-emerald-400">
+                            <td className="py-2 px-3 text-right font-bold text-slate-900 dark:text-white">
                               {kab.totalRumahRusak.toLocaleString('id-ID')}
                             </td>
-                            <td className="py-2.5 px-3 text-right text-blue-600 font-semibold">
+                            <td className="py-2 px-3 text-right text-slate-900 dark:text-white">
                               {kab.terendam.toLocaleString('id-ID')}
                             </td>
-                            <td className="py-2.5 px-3 text-right font-bold text-purple-600">
+                            <td className="py-2 px-3 text-right text-slate-900 dark:text-white">
                               {kab.fasilitas.toLocaleString('id-ID')}
                             </td>
-                            <td className="py-2.5 px-3 text-center">
+                            <td className="py-2 px-3 text-center">
                               <button
                                 onClick={() => {
                                   setSelectedKabupaten(kab.nama);
                                   setActiveTab('peta');
                                 }}
-                                className="px-2 py-1 rounded-lg bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 hover:bg-teal-600 hover:text-white border border-teal-200 dark:border-teal-800 text-[10.5px] font-bold transition-all"
+                                className="hover:underline font-bold text-xs inline-flex items-center gap-1 p-0 bg-transparent border-0 cursor-pointer"
+                                style={{ color: 'rgb(18, 65, 93)' }}
                                 title={`Fokus ke peta ${kab.nama}`}
                               >
-                                Peta ➔
+                                <span>Peta</span>
+                                <span aria-hidden="true">&rarr;</span>
                               </button>
                             </td>
                           </tr>
@@ -1051,45 +1056,45 @@ export default function ProvinceDetailModal({
                     </tbody>
 
                     {/* Footer Summary Row */}
-                    <tfoot className="bg-slate-100 dark:bg-slate-900 border-t-2 border-slate-300 dark:border-slate-700 font-black text-slate-900 dark:text-white">
+                    <tfoot className="bg-slate-100 dark:bg-slate-900 border-t-2 border-slate-300 dark:border-slate-700 font-bold text-slate-900 dark:text-white text-xs">
                       <tr>
-                        <td colSpan={2} className="py-3 px-3 text-center uppercase tracking-wider text-[11px]">
+                        <td colSpan={2} className="py-2.5 px-3 text-center uppercase tracking-wider text-[11px] font-black">
                           TOTAL PROVINSI {provinsi}
                         </td>
-                        <td className="py-3 px-3 text-right text-[#00695c] dark:text-teal-400">
+                        <td className="py-2.5 px-3 text-right font-black">
                           {provinceKpi.kejadian.toLocaleString('id-ID')}
                         </td>
-                        <td className="py-3 px-3 text-right text-rose-600">
+                        <td className="py-2.5 px-3 text-right">
                           {provinceKpi.meninggal.toLocaleString('id-ID')}
                         </td>
-                        <td className="py-3 px-3 text-right text-rose-600">
+                        <td className="py-2.5 px-3 text-right">
                           {provinceKpi.hilang.toLocaleString('id-ID')}
                         </td>
-                        <td className="py-3 px-3 text-right">
+                        <td className="py-2.5 px-3 text-right">
                           {provinceKpi.luka.toLocaleString('id-ID')}
                         </td>
-                        <td className="py-3 px-3 text-right text-amber-600">
+                        <td className="py-2.5 px-3 text-right">
                           {provinceKpi.pengungsi.toLocaleString('id-ID')}
                         </td>
-                        <td className="py-3 px-3 text-right">
+                        <td className="py-2.5 px-3 text-right">
                           {kabupatenStats.reduce((s, k) => s + k.rusakBerat, 0).toLocaleString('id-ID')}
                         </td>
-                        <td className="py-3 px-3 text-right">
+                        <td className="py-2.5 px-3 text-right">
                           {kabupatenStats.reduce((s, k) => s + k.rusakSedang, 0).toLocaleString('id-ID')}
                         </td>
-                        <td className="py-3 px-3 text-right">
+                        <td className="py-2.5 px-3 text-right">
                           {kabupatenStats.reduce((s, k) => s + k.rusakRingan, 0).toLocaleString('id-ID')}
                         </td>
-                        <td className="py-3 px-3 text-right text-emerald-700 dark:text-emerald-400">
+                        <td className="py-2.5 px-3 text-right font-black">
                           {provinceKpi.rumahRusak.toLocaleString('id-ID')}
                         </td>
-                        <td className="py-3 px-3 text-right text-blue-600">
+                        <td className="py-2.5 px-3 text-right">
                           {provinceKpi.terendam.toLocaleString('id-ID')}
                         </td>
-                        <td className="py-3 px-3 text-right text-purple-600">
+                        <td className="py-2.5 px-3 text-right">
                           {provinceKpi.fasilitas.toLocaleString('id-ID')}
                         </td>
-                        <td className="py-3 px-3 text-center">-</td>
+                        <td className="py-2.5 px-3 text-center">-</td>
                       </tr>
                     </tfoot>
                   </table>
