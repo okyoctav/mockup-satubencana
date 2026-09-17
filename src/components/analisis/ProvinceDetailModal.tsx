@@ -186,7 +186,20 @@ export default function ProvinceDetailModal({
       item.jenisBreakdown![jb] += (row['Jumlah Kejadian'] || 0);
     });
 
-    return Object.values(map).sort((a, b) => b.kejadian - a.kejadian);
+    return Object.values(map).map(k => ({
+      ...k,
+      kejadian: Math.round(k.kejadian),
+      meninggal: Math.round(k.meninggal),
+      hilang: Math.round(k.hilang),
+      luka: Math.round(k.luka),
+      pengungsi: Math.round(k.pengungsi),
+      rusakBerat: Math.round(k.rusakBerat),
+      rusakSedang: Math.round(k.rusakSedang),
+      rusakRingan: Math.round(k.rusakRingan),
+      totalRumahRusak: Math.round(k.totalRumahRusak),
+      terendam: Math.round(k.terendam),
+      fasilitas: Math.round(k.fasilitas)
+    })).sort((a, b) => b.kejadian - a.kejadian);
   }, [provinceRows]);
 
   // Overall Province KPIs
@@ -212,14 +225,14 @@ export default function ProvinceDetailModal({
     });
 
     return {
-      kejadian,
-      meninggal,
-      hilang,
-      luka,
-      pengungsi,
-      rumahRusak,
-      terendam,
-      fasilitas,
+      kejadian: Math.round(kejadian),
+      meninggal: Math.round(meninggal),
+      hilang: Math.round(hilang),
+      luka: Math.round(luka),
+      pengungsi: Math.round(pengungsi),
+      rumahRusak: Math.round(rumahRusak),
+      terendam: Math.round(terendam),
+      fasilitas: Math.round(fasilitas),
       totalKabupaten: kabupatenStats.length
     };
   }, [kabupatenStats]);
@@ -235,7 +248,7 @@ export default function ProvinceDetailModal({
     return Object.entries(map)
       .map(([name, value]) => ({
         name,
-        value,
+        value: Math.round(value),
         color: DISASTER_COLORS[name] || '#00897b'
       }))
       .sort((a, b) => b.value - a.value);
@@ -255,7 +268,14 @@ export default function ProvinceDetailModal({
       map[t].pengungsi += (r.menderita_mengungsi || 0);
     });
 
-    return Object.values(map).sort((a, b) => a.tahun - b.tahun);
+    return Object.values(map)
+      .map(y => ({
+        ...y,
+        kejadian: Math.round(y.kejadian),
+        meninggal: Math.round(y.meninggal),
+        pengungsi: Math.round(y.pengungsi)
+      }))
+      .sort((a, b) => a.tahun - b.tahun);
   }, [provinceRows]);
 
   // Sorted & Filtered Kabupaten List for Table
@@ -350,9 +370,14 @@ export default function ProvinceDetailModal({
         }}
       >
         {/* ============================================================
-            1. MATERIAL DEEP TEAL MODAL HEADER
+            1. MODAL HEADER (TEAL / BLUE GRADIENT)
             ============================================================ */}
-        <div className="bg-[#004d40] text-white px-5 py-4 border-b border-[#00695c] flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 shadow-md">
+        <div 
+          className="text-white px-5 py-4 border-b border-[#00695c] flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 shadow-md"
+          style={{
+            background: 'linear-gradient(135deg, rgb(25, 79, 112), rgb(15, 55, 80))'
+          }}
+        >
           {/* Title and Info */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white shrink-0 shadow-sm">
@@ -428,8 +453,8 @@ export default function ProvinceDetailModal({
         <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 shrink-0 text-xs">
           {/* Total Kejadian */}
           <div className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-900/40 flex items-center justify-center text-teal-700 dark:text-teal-400 font-bold">
-              <ShieldAlert className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-[#194f70] flex items-center justify-center text-white font-bold shadow-xs">
+              <ShieldAlert className="w-4 h-4" style={{ color: '#fff' }} />
             </div>
             <div>
               <div className="text-[10px] text-slate-500 font-medium">TOTAL KEJADIAN</div>
@@ -441,8 +466,8 @@ export default function ProvinceDetailModal({
 
           {/* Korban Meninggal */}
           <div className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-900/40 flex items-center justify-center text-rose-600 font-bold">
-              <Users className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-rose-600 flex items-center justify-center text-white font-bold shadow-xs">
+              <Users className="w-4 h-4" style={{ color: '#fff' }} />
             </div>
             <div>
               <div className="text-[10px] text-slate-500 font-medium">MENINGGAL DUNIA</div>
@@ -454,8 +479,8 @@ export default function ProvinceDetailModal({
 
           {/* Mengungsi */}
           <div className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/40 flex items-center justify-center text-amber-600 font-bold">
-              <Users className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-amber-600 flex items-center justify-center text-white font-bold shadow-xs">
+              <Users className="w-4 h-4" style={{ color: '#fff' }} />
             </div>
             <div>
               <div className="text-[10px] text-slate-500 font-medium">MENGUNGSI / TERDAMPAK</div>
@@ -467,8 +492,8 @@ export default function ProvinceDetailModal({
 
           {/* Rumah Rusak */}
           <div className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-600 font-bold">
-              <Home className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold shadow-xs">
+              <Home className="w-4 h-4" style={{ color: '#fff' }} />
             </div>
             <div>
               <div className="text-[10px] text-slate-500 font-medium">RUMAH RUSAK</div>
@@ -480,8 +505,8 @@ export default function ProvinceDetailModal({
 
           {/* Rumah Terendam */}
           <div className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-900/40 flex items-center justify-center text-blue-600 font-bold">
-              <Home className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold shadow-xs">
+              <Home className="w-4 h-4" style={{ color: '#fff' }} />
             </div>
             <div>
               <div className="text-[10px] text-slate-500 font-medium">RUMAH TERENDAM</div>
@@ -493,8 +518,8 @@ export default function ProvinceDetailModal({
 
           {/* Fasilitas Publik */}
           <div className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-purple-50 dark:bg-purple-900/40 flex items-center justify-center text-purple-600 font-bold">
-              <Building2 className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-purple-600 flex items-center justify-center text-white font-bold shadow-xs">
+              <Building2 className="w-4 h-4" style={{ color: '#fff' }} />
             </div>
             <div>
               <div className="text-[10px] text-slate-500 font-medium">FASILITAS PUBLIK</div>
@@ -523,10 +548,6 @@ export default function ProvinceDetailModal({
                       <span className="font-extrabold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
                         Peta Wilayah Administrasi Kab/Kota &middot; Provinsi {provinsi}
                       </span>
-                    </div>
-
-                    <div className="text-[11px] text-slate-500">
-                      Layer: <b className="text-teal-700 dark:text-teal-300">BATAS_WILAYAH:ADMINISTRASI_AR_KABKOTA_50K_2023</b>
                     </div>
                   </div>
 
