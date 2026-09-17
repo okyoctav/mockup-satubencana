@@ -322,6 +322,20 @@ export default function DashboardK5Page() {
                   <span className="text-[10px] font-bold text-[#1f8080]">K5</span>
                 )}
               </a>
+              <a
+                href="/dashboard_k6"
+                className={`flex items-center ${isSidebarOpen ? 'justify-between px-3' : 'justify-center px-0'} py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors`}
+                title={!isSidebarOpen ? 'Konsep Materialize (K6)' : undefined}
+              >
+                {isSidebarOpen ? (
+                  <>
+                    <span>Konsep Materialize</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-teal-600 text-white font-bold">K6</span>
+                  </>
+                ) : (
+                  <span className="text-[10px] font-bold text-teal-300">K6</span>
+                )}
+              </a>
             </div>
           </div>
 
