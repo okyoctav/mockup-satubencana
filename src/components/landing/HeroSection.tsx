@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
-import { ShieldCheck, RefreshCw, ArrowDown, Activity, Sparkles } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
 
 const HeroCanvas = dynamic(() => import('@/components/three/HeroCanvas'), {
   ssr: false,
@@ -46,28 +46,16 @@ export default function HeroSection() {
 
       {/* Main Container - Strict Fullscreen Fit Without Scroll */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center py-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center h-full max-h-[calc(100vh-80px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center h-full max-h-[calc(100vh-80px)]">
           
           {/* ============================================================
-              LEFT PANEL (Col 1-5): Executive Title, Philosophy & Core Stats
+              LEFT PANEL (Col 1-5): Executive Title & Overview
               ============================================================ */}
-          <div className="lg:col-span-5 flex flex-col justify-center space-y-4 lg:space-y-5">
+          <div className="lg:col-span-5 flex flex-col justify-center space-y-5 lg:space-y-6">
             
-            {/* Top Category Indicator */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide w-fit"
-              style={{
-                backgroundColor: 'rgba(25, 79, 112, 0.12)',
-                color: 'var(--accent-blue)',
-                border: '1px solid var(--border-faint)'
-              }}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
-              <span>Siklus Ketahanan Bencana Terpadu</span>
-            </div>
-
             {/* Main Headline */}
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-extrabold tracking-tight leading-[1.15]"
+            <div className="space-y-3">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.15]"
                 style={{ color: 'var(--text-primary)' }}
               >
                 Sistem Analisis{' '}
@@ -84,7 +72,7 @@ export default function HeroSection() {
                 Nasional
               </h1>
               <p
-                className="text-xs sm:text-sm font-medium leading-relaxed pt-1"
+                className="text-sm sm:text-base font-medium leading-relaxed"
                 style={{ color: 'var(--text-secondary)' }}
               >
                 Ekosistem geospasial satu pintu yang menghubungkan tata kelola data pra-bencana, 
@@ -92,101 +80,31 @@ export default function HeroSection() {
               </p>
             </div>
 
-            {/* Core Stats Overview Cards */}
-            <div className="grid grid-cols-3 gap-2.5 pt-1">
-              <div
-                className="p-2.5 sm:p-3 rounded-2xl border transition-all duration-300"
-                style={{
-                  backgroundColor: 'var(--bg-card)',
-                  borderColor: 'var(--border-faint)',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.03)'
-                }}
-              >
-                <div className="flex items-center gap-1.5 text-emerald-500 mb-1">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Mitigasi</span>
-                </div>
-                <div className="text-base sm:text-xl font-black" style={{ color: 'var(--text-primary)' }}>
-                  38 Prov
-                </div>
-                <div className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>
-                  Peta Risiko Terintegrasi
-                </div>
-              </div>
-
-              <div
-                className="p-2.5 sm:p-3 rounded-2xl border transition-all duration-300"
-                style={{
-                  backgroundColor: 'var(--bg-card)',
-                  borderColor: 'var(--border-faint)',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.03)'
-                }}
-              >
-                <div className="flex items-center gap-1.5 text-amber-500 mb-1">
-                  <Activity className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Respons</span>
-                </div>
-                <div className="text-base sm:text-xl font-black" style={{ color: 'var(--text-primary)' }}>
-                  24/7 Live
-                </div>
-                <div className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>
-                  Early Warning Active
-                </div>
-              </div>
-
-              <div
-                className="p-2.5 sm:p-3 rounded-2xl border transition-all duration-300"
-                style={{
-                  backgroundColor: 'var(--bg-card)',
-                  borderColor: 'var(--border-faint)',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.03)'
-                }}
-              >
-                <div className="flex items-center gap-1.5 text-sky-500 mb-1">
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Pemulihan</span>
-                </div>
-                <div className="text-base sm:text-xl font-black" style={{ color: 'var(--text-primary)' }}>
-                  50.000+
-                </div>
-                <div className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>
-                  Kejadian Tervalidasi
-                </div>
-              </div>
-            </div>
-
-            {/* Interactive Phase Flow Selector Footnote */}
-            <div
-              className="rounded-2xl p-3 border flex items-center justify-between gap-2"
-              style={{
-                backgroundColor: 'rgba(255,255,255,0.4)',
-                borderColor: 'var(--border-faint)',
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span className="text-[11px] font-bold" style={{ color: 'var(--text-primary)' }}>
-                  Siklus Manajemen Bencana Berkesinambungan
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                {(['pra', 'saat', 'pasca'] as const).map((p) => (
+            {/* Interactive Phase Controller / Indicator */}
+            <div className="flex items-center gap-2 pt-1 flex-wrap">
+              {(['pra', 'saat', 'pasca'] as const).map((p) => {
+                const colors = {
+                  pra: { bg: 'rgba(16,185,129,0.12)', text: '#059669', border: 'rgba(16,185,129,0.3)' },
+                  saat: { bg: 'rgba(245,158,11,0.12)', text: '#D97706', border: 'rgba(245,158,11,0.3)' },
+                  pasca: { bg: 'rgba(14,165,233,0.12)', text: '#0284C7', border: 'rgba(14,165,233,0.3)' }
+                };
+                const label = p === 'pra' ? '01. Pra-Bencana' : p === 'saat' ? '02. Saat Bencana' : '03. Pasca-Bencana';
+                const isActive = activePhase === p;
+                return (
                   <button
                     key={p}
                     onClick={() => setActivePhase(p)}
-                    className="px-2 py-0.5 rounded-lg text-[10px] font-extrabold capitalize transition-all"
+                    className="px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all border shadow-2xs"
                     style={{
-                      backgroundColor: activePhase === p ? 'rgb(25, 79, 112)' : 'transparent',
-                      color: activePhase === p ? '#ffffff' : 'var(--text-secondary)',
+                      backgroundColor: isActive ? 'rgb(25, 79, 112)' : colors[p].bg,
+                      color: isActive ? '#ffffff' : colors[p].text,
+                      borderColor: isActive ? 'rgb(25, 79, 112)' : colors[p].border,
                     }}
                   >
-                    {p}
+                    {label}
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
 
           </div>
@@ -194,14 +112,14 @@ export default function HeroSection() {
           {/* ============================================================
               RIGHT PANEL (Col 6-12): Interconnected 3-Phase Cycle Cards with Dynamic SVGs
               ============================================================ */}
-          <div className="lg:col-span-7 flex flex-col justify-center gap-2.5 relative">
+          <div className="lg:col-span-7 flex flex-col justify-center gap-3 relative">
 
             {/* ------------------------------------------------------------
                 FASE 1: PRA-BENCANA (Mitigasi & Kesiapsiagaan)
                 ------------------------------------------------------------ */}
             <div
               onClick={() => setActivePhase('pra')}
-              className={`group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-300 cursor-pointer overflow-hidden ${
+              className={`group relative rounded-2xl p-4 sm:p-5 border transition-all duration-300 cursor-pointer overflow-hidden ${
                 activePhase === 'pra' ? 'ring-2 ring-emerald-500/50 shadow-md scale-[1.01]' : 'opacity-85 hover:opacity-100'
               }`}
               style={{
@@ -223,22 +141,10 @@ export default function HeroSection() {
                     Pencegahan Risiko & Peringatan Dini
                   </h3>
                   
-                  <p className="text-[11px] leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
+                  <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                     Pemodelan bahaya multisektoral, peta kontur kerentanan wilayah, sensor gempa/tsunami otomatis,
                     serta simulasi evakuasi untuk meminimalkan dampak sebelum bencana terjadi.
                   </p>
-
-                  {/* Feature Chips */}
-                  <div className="flex flex-wrap gap-1.5 pt-0.5">
-                    {['Peta Bahaya Spasial', 'Early Warning Sensor', 'Kajian Kerentanan', 'Simulasi Tanggap'].map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[9px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/5 text-emerald-700 border border-emerald-500/15"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
                 </div>
 
                 {/* Right Interactive SVG Graphics: Radar & Shield Scan */}
@@ -299,7 +205,7 @@ export default function HeroSection() {
                 ------------------------------------------------------------ */}
             <div
               onClick={() => setActivePhase('saat')}
-              className={`group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-300 cursor-pointer overflow-hidden ${
+              className={`group relative rounded-2xl p-4 sm:p-5 border transition-all duration-300 cursor-pointer overflow-hidden ${
                 activePhase === 'saat' ? 'ring-2 ring-amber-500/50 shadow-md scale-[1.01]' : 'opacity-85 hover:opacity-100'
               }`}
               style={{
@@ -321,22 +227,10 @@ export default function HeroSection() {
                     Situasi Real-Time & Komando Terpadu
                   </h3>
 
-                  <p className="text-[11px] leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
+                  <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                     Komando lapangan terpusat, koordinasi multi-instansi (BPBD, Basarnas, TNI/Polri), 
                     jalur evakuasi presisi, serta penyaluran logistik darurat untuk keselamatan jiwa pengungsi.
                   </p>
-
-                  {/* Feature Chips */}
-                  <div className="flex flex-wrap gap-1.5 pt-0.5">
-                    {['Situation Room 24/7', 'Tracking Tim SAR', 'Logistik Posko', 'Manajemen Pengungsi'].map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[9px] font-semibold px-2 py-0.5 rounded-md bg-amber-500/5 text-amber-700 border border-amber-500/15"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
                 </div>
 
                 {/* Right Interactive SVG Graphics: Incident Hub & Telemetry Beacons */}
@@ -395,7 +289,7 @@ export default function HeroSection() {
                 ------------------------------------------------------------ */}
             <div
               onClick={() => setActivePhase('pasca')}
-              className={`group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-300 cursor-pointer overflow-hidden ${
+              className={`group relative rounded-2xl p-4 sm:p-5 border transition-all duration-300 cursor-pointer overflow-hidden ${
                 activePhase === 'pasca' ? 'ring-2 ring-sky-500/50 shadow-md scale-[1.01]' : 'opacity-85 hover:opacity-100'
               }`}
               style={{
@@ -417,22 +311,10 @@ export default function HeroSection() {
                     Rehabilitasi Infrastruktur & Resiliensi Kota
                   </h3>
 
-                  <p className="text-[11px] leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
+                  <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                     Asesmen cepat kerusakan bangunan (Jitupasna), digitalisasi pencairan bantuan stimulan, 
                     rekonstruksi hunian tetap aman bencana, serta penguatan ketahanan wilayah jangka panjang.
                   </p>
-
-                  {/* Feature Chips */}
-                  <div className="flex flex-wrap gap-1.5 pt-0.5">
-                    {['Hitung Kerugian Cepat', 'Rekonstruksi Fasilitas', 'Bantuan Stimulan', 'Evaluasi Ketahanan'].map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[9px] font-semibold px-2 py-0.5 rounded-md bg-sky-500/5 text-sky-700 border border-sky-500/15"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
                 </div>
 
                 {/* Right Interactive SVG Graphics: Growth & Renewal Loop */}
