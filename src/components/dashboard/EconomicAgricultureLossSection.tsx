@@ -57,7 +57,7 @@ export default function EconomicAgricultureLossSection({ estimationData }: Props
   return (
     <div className="space-y-6 font-sans">
       {/* SECTION HEADER */}
-      <div className="bg-gradient-to-r from-[#1f8080] to-[#19506e] rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-[#1f8080] to-[#0a1e36] rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Sprout className="w-6 h-6 text-emerald-300 animate-pulse" />
@@ -95,19 +95,19 @@ export default function EconomicAgricultureLossSection({ estimationData }: Props
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 pt-2 border-t border-emerald-200/80">
             <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
               <span className="text-[10px] text-slate-500 font-semibold block">👨 Laki-laki</span>
-              <span className="font-extrabold text-[#19506e] text-xs">{estimationData.totalLakiLaki.toLocaleString('id')}</span>
+              <span className="font-extrabold text-[#0a1e36] text-xs">{estimationData.totalLakiLaki.toLocaleString('id')}</span>
             </div>
             <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
               <span className="text-[10px] text-slate-500 font-semibold block">👩 Perempuan</span>
-              <span className="font-extrabold text-[#19506e] text-xs">{estimationData.totalPerempuan.toLocaleString('id')}</span>
+              <span className="font-extrabold text-[#0a1e36] text-xs">{estimationData.totalPerempuan.toLocaleString('id')}</span>
             </div>
             <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
               <span className="text-[10px] text-slate-500 font-semibold block">👴 Lansia</span>
-              <span className="font-extrabold text-[#19506e] text-xs">{estimationData.totalLansia.toLocaleString('id')}</span>
+              <span className="font-extrabold text-[#0a1e36] text-xs">{estimationData.totalLansia.toLocaleString('id')}</span>
             </div>
             <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
               <span className="text-[10px] text-slate-500 font-semibold block">🧒 Balita</span>
-              <span className="font-extrabold text-[#19506e] text-xs">{estimationData.totalBalita.toLocaleString('id')}</span>
+              <span className="font-extrabold text-[#0a1e36] text-xs">{estimationData.totalBalita.toLocaleString('id')}</span>
             </div>
             <div className="bg-white/80 border border-cyan-200 p-2 rounded-xl text-center">
               <span className="text-[10px] text-cyan-700 font-semibold block">🧾 Disabilitas (PD1)</span>
@@ -125,10 +125,10 @@ export default function EconomicAgricultureLossSection({ estimationData }: Props
 
           {estimationData.kelurahanDampak && estimationData.kelurahanDampak.length > 0 && (
             <div className="pt-2 border-t border-emerald-200/60">
-              <span className="font-bold text-[#19506e] block mb-1">🏛️ Wilayah Kelurahan / Desa Terdampak:</span>
+              <span className="font-bold text-[#0a1e36] block mb-1">🏛️ Wilayah Kelurahan / Desa Terdampak:</span>
               <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                 {estimationData.kelurahanDampak.map((k, idx) => (
-                  <span key={idx} className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-[11px] text-[#19506e] font-semibold flex items-center gap-1">
+                  <span key={idx} className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-[11px] text-[#0a1e36] font-semibold flex items-center gap-1">
                     <span>📍 {k.namaKelurahan}</span>
                     {k.kodeKemendagri && (
                       <span className="text-[9px] bg-slate-100 px-1 py-0.2 rounded font-mono font-bold text-slate-700">
@@ -152,14 +152,14 @@ export default function EconomicAgricultureLossSection({ estimationData }: Props
           className="w-full px-5 py-3.5 bg-slate-50 hover:bg-slate-100/80 flex items-center justify-between transition-colors border-b border-slate-200/60"
         >
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-bold text-xs text-[#19506e] tracking-wide uppercase">⚙️ Variable Estimasi & Parameter Kerugian Ekonomi</span>
+            <span className="font-bold text-xs text-[#0a1e36] tracking-wide uppercase">⚙️ Variable Estimasi & Parameter Kerugian Ekonomi</span>
             <span className="text-[10px] bg-[#1f8080]/10 text-[#1f8080] font-semibold px-2 py-0.5 rounded-md border border-[#1f8080]/20">
               Populasi {populasi.toLocaleString('id')} Jiwa • Area {estimasiLuasHa} Ha ({luasLahanPertanianHa} Ha Lahan) • Kerugian Rp {(totalKerugianEkonomiRp / 1000000000).toFixed(2)} Miliar
             </span>
           </div>
           <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
             <span>{isVariableOpen ? 'Sembunyikan' : 'Pengaturan Parameter Variable'}</span>
-            {isVariableOpen ? <ChevronUp className="w-4 h-4 text-[#19506e]" /> : <ChevronDown className="w-4 h-4 text-[#19506e]" />}
+            {isVariableOpen ? <ChevronUp className="w-4 h-4 text-[#0a1e36]" /> : <ChevronDown className="w-4 h-4 text-[#0a1e36]" />}
           </div>
         </button>
 
@@ -168,7 +168,7 @@ export default function EconomicAgricultureLossSection({ estimationData }: Props
           <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4 bg-white border-t border-slate-100">
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-[11px] font-bold text-[#19506e] uppercase tracking-wider">Luas Area Terdampak (Hektar)</label>
+                <label className="text-[11px] font-bold text-[#0a1e36] uppercase tracking-wider">Luas Area Terdampak (Hektar)</label>
                 <button
                   type="button"
                   onClick={() => setActiveInfoModal(PARAM_INFOS.luasHa)}
@@ -188,7 +188,7 @@ export default function EconomicAgricultureLossSection({ estimationData }: Props
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-[11px] font-bold text-[#19506e] uppercase tracking-wider">Proporsi Lahan Pertanian (%)</label>
+                <label className="text-[11px] font-bold text-[#0a1e36] uppercase tracking-wider">Proporsi Lahan Pertanian (%)</label>
                 <button
                   type="button"
                   onClick={() => setActiveInfoModal(PARAM_INFOS.lahanPct)}
@@ -214,7 +214,7 @@ export default function EconomicAgricultureLossSection({ estimationData }: Props
               </div>
             </div>
 
-            <div className="bg-[#19506e] text-white rounded-xl p-3 flex flex-col justify-center space-y-1 shadow-md">
+            <div className="bg-[#0a1e36] text-white rounded-xl p-3 flex flex-col justify-center space-y-1 shadow-md">
               <span className="text-[11px] font-bold text-emerald-300 uppercase tracking-wider">Total Kerugian Ekonomi:</span>
               <span className="text-base font-extrabold text-white">
                 Rp {(totalKerugianEkonomiRp / 1000000000).toFixed(2)} Miliar
@@ -246,7 +246,7 @@ export default function EconomicAgricultureLossSection({ estimationData }: Props
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setActiveInfoModal(null)}
-                className="px-4 py-2 bg-[#19506e] hover:bg-[#19506e]/90 text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
+                className="px-4 py-2 bg-[#0a1e36] hover:bg-[#0a1e36]/90 text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
               >
                 Mengerti
               </button>
@@ -264,7 +264,7 @@ export default function EconomicAgricultureLossSection({ estimationData }: Props
               <Tractor className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-[#19506e]">1. Kerusakan Sektor Pertanian</h3>
+              <h3 className="font-bold text-sm text-[#0a1e36]">1. Kerusakan Sektor Pertanian</h3>
               <p className="text-[11px] text-slate-500">Pangan, Perkebunan, & Peternakan</p>
             </div>
           </div>
@@ -296,7 +296,7 @@ export default function EconomicAgricultureLossSection({ estimationData }: Props
               <Home className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-[#19506e]">2. Aset Pemukiman & Rumah</h3>
+              <h3 className="font-bold text-sm text-[#0a1e36]">2. Aset Pemukiman & Rumah</h3>
               <p className="text-[11px] text-slate-500">Kategori kerusakan fisik bangunan BNPB</p>
             </div>
           </div>
@@ -328,7 +328,7 @@ export default function EconomicAgricultureLossSection({ estimationData }: Props
               <Factory className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-[#19506e]">3. UMKM & Mata Pencaharian</h3>
+              <h3 className="font-bold text-sm text-[#0a1e36]">3. UMKM & Mata Pencaharian</h3>
               <p className="text-[11px] text-slate-500">Dampak ekonomi mikro & usaha warga</p>
             </div>
           </div>

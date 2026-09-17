@@ -23,9 +23,6 @@ import {
   Zap,
   Truck,
   Database,
-  Lock,
-  ArrowLeft,
-  Map as MapIcon,
   Sun,
   Moon,
   Filter,
@@ -38,6 +35,13 @@ import {
   PanelLeftOpen,
   Sparkles,
   LogOut,
+  Activity,
+  Users,
+  KeyRound,
+  Home,
+  BookOpen,
+  RefreshCw,
+  Handshake,
 } from 'lucide-react';
 
 type Kejadian = {
@@ -235,7 +239,7 @@ export default function DashboardK5Page() {
       <aside
         className={`${
           isSidebarOpen ? 'w-64' : 'w-20'
-        } bg-[#19506e] text-white flex flex-col shrink-0 border-r border-[#19506e]/20 shadow-lg z-30 sticky top-0 h-screen transition-all duration-300 ease-in-out`}
+        } bg-[#0a1e36] text-white flex flex-col shrink-0 border-r border-[#0a1e36]/20 shadow-lg z-30 sticky top-0 h-screen transition-all duration-300 ease-in-out`}
       >
         {/* Brand Header */}
         <div className={`p-4 border-b border-white/10 flex items-center ${isSidebarOpen ? 'justify-between' : 'justify-center'}`}>
@@ -253,133 +257,154 @@ export default function DashboardK5Page() {
         </div>
 
         {/* Navigation Menu */}
-        <div className="px-3 py-4 flex-1 space-y-6 overflow-y-auto overflow-x-hidden">
+        <div className="px-3 py-4 flex-1 space-y-5 overflow-y-auto overflow-x-hidden">
+          {/* 1. MENU UTAMA */}
           <div>
             {isSidebarOpen && (
-              <div className="px-3 text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">
+              <div className="px-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
                 Menu Utama
               </div>
             )}
             <nav className="space-y-1">
-              <a
-                href="/dashboard_k5"
-                className={`w-full flex items-center ${isSidebarOpen ? 'gap-3 px-3.5' : 'justify-center px-0'} py-3 rounded-xl text-xs font-bold bg-[#1f8080] text-white shadow-md transition-all`}
-                title={!isSidebarOpen ? 'Dashboard K5' : undefined}
+              <button
+                onClick={() => setActiveTab('map')}
+                className={`w-full flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'} py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'map'
+                    ? 'bg-[#1f8080] text-white shadow-md'
+                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                }`}
+                title={!isSidebarOpen ? 'Dashboard' : undefined}
               >
-                <LayoutDashboard className="w-4 h-4 text-white shrink-0" />
-                {isSidebarOpen && <span>Dashboard K5</span>}
-              </a>
+                <LayoutDashboard className="w-4 h-4 shrink-0" />
+                {isSidebarOpen && <span>Dashboard</span>}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('models')}
+                className={`w-full flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'} py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'models'
+                    ? 'bg-[#1f8080] text-white shadow-md'
+                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                }`}
+                title={!isSidebarOpen ? 'Simulasi Modeling' : undefined}
+              >
+                <Activity className="w-4 h-4 shrink-0 text-emerald-400" />
+                {isSidebarOpen && <span>Simulasi Modeling</span>}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('ai')}
+                className={`w-full flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'} py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'ai'
+                    ? 'bg-[#1f8080] text-white shadow-md'
+                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                }`}
+                title={!isSidebarOpen ? 'CAKNA AI' : undefined}
+              >
+                <Sparkles className="w-4 h-4 shrink-0 text-purple-300" />
+                {isSidebarOpen && <span>CAKNA AI</span>}
+              </button>
             </nav>
           </div>
 
-          {/* Konsep Switcher Nav */}
+          {/* 2. AKSES SISTEM */}
           <div>
             {isSidebarOpen && (
-              <div className="px-3 text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">
-                Konsep Tampilan
+              <div className="px-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+                Akses Sistem
               </div>
             )}
             <div className="space-y-1 text-xs">
-              {/* <a
-                href="/dashboard"
-                className={`flex items-center ${isSidebarOpen ? 'justify-between px-3' : 'justify-center px-0'} py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors`}
-                title={!isSidebarOpen ? 'Konsep 1 (Leaflet)' : undefined}
+              <a
+                href="/management"
+                className={`flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'} py-2 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white transition-colors font-medium`}
+                title={!isSidebarOpen ? 'Manajemen Data' : undefined}
               >
-                {isSidebarOpen ? <span>Konsep 1 (Leaflet)</span> : <span className="text-[10px] font-bold">K1</span>}
+                <Database className="w-4 h-4 text-teal-400 shrink-0" />
+                {isSidebarOpen && <span>Manajemen Data</span>}
               </a>
+
               <a
-                href="/dashboard_k2"
-                className={`flex items-center ${isSidebarOpen ? 'justify-between px-3' : 'justify-center px-0'} py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors`}
-                title={!isSidebarOpen ? 'Konsep 2 (ArcGIS)' : undefined}
+                href="/admin/roles"
+                className={`flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'} py-2 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white transition-colors font-medium`}
+                title={!isSidebarOpen ? 'Manajemen Users' : undefined}
               >
-                {isSidebarOpen ? <span>Konsep 2 (ArcGIS)</span> : <span className="text-[10px] font-bold">K2</span>}
+                <Users className="w-4 h-4 text-teal-400 shrink-0" />
+                {isSidebarOpen && <span>Manajemen Users</span>}
               </a>
+
               <a
-                href="/dashboard_k3"
-                className={`flex items-center ${isSidebarOpen ? 'justify-between px-3' : 'justify-center px-0'} py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors`}
-                title={!isSidebarOpen ? 'Konsep 3' : undefined}
+                href="/api-testing"
+                className={`flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'} py-2 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white transition-colors font-medium`}
+                title={!isSidebarOpen ? 'API Token' : undefined}
               >
-                {isSidebarOpen ? <span>Konsep 3</span> : <span className="text-[10px] font-bold">K3</span>}
-              </a>
-              <a
-                href="/dashboard_k4"
-                className={`flex items-center ${isSidebarOpen ? 'justify-between px-3' : 'justify-center px-0'} py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors`}
-                title={!isSidebarOpen ? 'Konsep 4' : undefined}
-              >
-                {isSidebarOpen ? <span>Konsep 4</span> : <span className="text-[10px] font-bold">K4</span>}
-              </a> */}
-              <a
-                href="/dashboard_k5"
-                className={`flex items-center ${isSidebarOpen ? 'justify-between px-3 border-l-4' : 'justify-center px-0 border-l-0'} py-2 rounded-lg bg-white/15 text-white font-semibold border-[#1f8080]`}
-                title={!isSidebarOpen ? 'Konsep 5 (Aktif)' : undefined}
-              >
-                {isSidebarOpen ? (
-                  <>
-                    <span>Konsep MDB</span>
-                    <span className="w-2 h-2 rounded-full bg-[#1f8080]" />
-                  </>
-                ) : (
-                  <span className="text-[10px] font-bold text-[#1f8080]">K5</span>
-                )}
+                <KeyRound className="w-4 h-4 text-teal-400 shrink-0" />
+                {isSidebarOpen && <span>API Token</span>}
               </a>
             </div>
           </div>
 
-          {/* Action Navigation */}
+          {/* 3. KONTEN */}
           <div>
             {isSidebarOpen && (
-              <div className="px-3 text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">
-                Akses Sistem
+              <div className="px-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2">
+                Konten
               </div>
             )}
-            <div className="space-y-1.5 text-xs">
+            <div className="space-y-1 text-xs">
               <a
-                href="/management"
-                className={`flex items-center ${isSidebarOpen ? 'gap-2.5 px-3' : 'justify-center px-0'} py-2 rounded-xl text-slate-200 hover:bg-white/10 transition-colors`}
-                title={!isSidebarOpen ? 'Management Data' : undefined}
+                href="/"
+                className={`flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'} py-2 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white transition-colors font-medium`}
+                title={!isSidebarOpen ? 'Landing Page' : undefined}
               >
-                <Database className="w-4 h-4 text-[#1f8080] shrink-0" />
-                {isSidebarOpen && <span>Management Data</span>}
+                <Home className="w-4 h-4 text-sky-400 shrink-0" />
+                {isSidebarOpen && <span>Landing Page</span>}
               </a>
+
               <a
-                href="/login"
-                className={`flex items-center ${isSidebarOpen ? 'gap-2.5 px-3' : 'justify-center px-0'} py-2 rounded-xl text-slate-200 hover:bg-white/10 transition-colors`}
-                title={!isSidebarOpen ? 'Login Submisi' : undefined}
+                href="/sejarah-kebencanaan"
+                className={`flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'} py-2 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white transition-colors font-medium`}
+                title={!isSidebarOpen ? 'Arsip & Artikel' : undefined}
               >
-                <Lock className="w-4 h-4 text-[#1f8080] shrink-0" />
-                {isSidebarOpen && <span>Login Submisi</span>}
+                <BookOpen className="w-4 h-4 text-sky-400 shrink-0" />
+                {isSidebarOpen && <span>Arsip & Artikel</span>}
               </a>
-              <button
-                onClick={handleLogout}
-                className={`w-full flex items-center ${isSidebarOpen ? 'gap-2.5 px-3' : 'justify-center px-0'} py-2 rounded-xl text-rose-200 hover:bg-rose-500/20 hover:text-white transition-colors cursor-pointer text-left`}
-                title={!isSidebarOpen ? 'Logout / Keluar' : undefined}
-              >
-                <LogOut className="w-4 h-4 text-rose-300 shrink-0" />
-                {isSidebarOpen && <span>Logout / Keluar</span>}
-              </button>
+
               <a
-                href="https://inarisk.bnpb.go.id/databencana/webgis/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`flex items-center ${isSidebarOpen ? 'gap-2.5 px-3' : 'justify-center px-0'} py-2 rounded-xl text-white bg-[#1f8080] hover:bg-[#1f8080]/90 transition-colors font-medium shadow-sm`}
-                title={!isSidebarOpen ? 'WebGIS BNPB' : undefined}
+                href="/analisis-data"
+                className={`flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'} py-2 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white transition-colors font-medium`}
+                title={!isSidebarOpen ? 'DIBI Update' : undefined}
               >
-                <MapIcon className="w-4 h-4 shrink-0" />
-                {isSidebarOpen && <span>WebGIS BNPB</span>}
+                <RefreshCw className="w-4 h-4 text-sky-400 shrink-0" />
+                {isSidebarOpen && <span>DIBI Update</span>}
+              </a>
+
+              <a
+                href="/informasi-mitra"
+                className={`flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'} py-2 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white transition-colors font-medium`}
+                title={!isSidebarOpen ? 'Informasi & Mitra' : undefined}
+              >
+                <Handshake className="w-4 h-4 text-sky-400 shrink-0" />
+                {isSidebarOpen && <span>Informasi & Mitra</span>}
               </a>
             </div>
           </div>
         </div>
 
         {/* Sidebar Footer */}
-        <div className={`p-3 border-t border-white/10 bg-[#19506e]/80 flex items-center ${isSidebarOpen ? 'justify-between' : 'justify-center flex-col gap-2'} text-xs`}>
-          <a href="/" className="flex items-center gap-1.5 text-slate-200 hover:text-white transition-colors" title={!isSidebarOpen ? 'Kembali' : undefined}>
-            <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
-            {isSidebarOpen && <span>Kembali</span>}
-          </a>
+        <div className={`p-3 border-t border-white/10 bg-[#0a1e36]/90 flex items-center ${isSidebarOpen ? 'justify-between' : 'justify-center flex-col gap-2'} text-xs`}>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-rose-300 hover:text-rose-100 hover:bg-rose-500/20 px-2 py-1.5 rounded-lg transition-colors cursor-pointer"
+            title={!isSidebarOpen ? 'Logout / Keluar' : undefined}
+          >
+            <LogOut className="w-3.5 h-3.5 shrink-0" />
+            {isSidebarOpen && <span className="font-semibold text-[11px]">Logout</span>}
+          </button>
+
           <button
             onClick={toggle}
-            className="p-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
+            className="p-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
             title="Toggle Theme"
           >
             {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-slate-200" />}
@@ -402,22 +427,22 @@ export default function DashboardK5Page() {
               {/* Header Burger Trigger Button */}
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="flex items-center justify-center p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-[#19506e] transition-all shadow-2xs group"
+                className="flex items-center justify-center p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-[#0a1e36] transition-all shadow-2xs group"
                 title={isSidebarOpen ? 'Sembunyikan Sidebar' : 'Tampilkan Sidebar'}
               >
                 {isSidebarOpen ? (
-                  <PanelLeftClose className="w-4 h-4 text-slate-600 group-hover:text-[#19506e] transition-colors" />
+                  <PanelLeftClose className="w-4 h-4 text-slate-600 group-hover:text-[#0a1e36] transition-colors" />
                 ) : (
-                  <PanelLeftOpen className="w-4 h-4 text-[#1f8080] group-hover:text-[#19506e] transition-colors" />
+                  <PanelLeftOpen className="w-4 h-4 text-[#1f8080] group-hover:text-[#0a1e36] transition-colors" />
                 )}
               </button>
 
               <WilayahDropdown onSelect={handleDropdownFilter} theme={theme} />
               {activeFilter && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#1f8080]/10 border border-[#1f8080]/30 text-xs text-[#19506e] font-semibold">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#1f8080]/10 border border-[#1f8080]/30 text-xs text-[#0a1e36] font-semibold">
                   <MapPin className="w-3.5 h-3.5 text-[#1f8080]" />
                   <span>{activeFilter.tipe === 'provinsi' ? 'Provinsi' : 'Kab/Kota'}:</span>
-                  <strong className="text-[#19506e]">{activeFilter.nama}</strong>
+                  <strong className="text-[#0a1e36]">{activeFilter.nama}</strong>
                   <span className="text-slate-500 font-normal">— {regionFilteredData.length} kejadian</span>
                 </div>
               )}
@@ -478,7 +503,7 @@ export default function DashboardK5Page() {
                   <LayoutDashboard className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-[#19506e] tracking-tight block">Modul Analisis & Visualisasi Spasial K5</span>
+                  <span className="text-xs font-bold text-[#0a1e36] tracking-tight block">Modul Analisis & Visualisasi Spasial K5</span>
                   <span className="text-[10px] text-slate-400">Pilih modul analisis bencana di bawah ini</span>
                 </div>
               </div>
@@ -488,7 +513,7 @@ export default function DashboardK5Page() {
                 <select
                   value={activeTab}
                   onChange={(e) => setActiveTab(e.target.value as typeof activeTab)}
-                  className="w-full sm:w-64 appearance-none bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 pr-8 text-xs font-bold text-[#19506e] outline-none cursor-pointer focus:border-[#1f8080]"
+                  className="w-full sm:w-64 appearance-none bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 pr-8 text-xs font-bold text-[#0a1e36] outline-none cursor-pointer focus:border-[#1f8080]"
                 >
                   <option value="map">🗺️ Peta Utama K5</option>
                   {isFotoGeotagNttActive && (
@@ -514,7 +539,7 @@ export default function DashboardK5Page() {
                 onClick={() => setActiveTab('map')}
                 className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'map'
-                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    ? 'bg-[#0a1e36] text-white shadow-md ring-2 ring-[#0a1e36]/30 scale-[1.02]'
                     : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
@@ -527,7 +552,7 @@ export default function DashboardK5Page() {
                   onClick={() => setActiveTab('gempa_ntt')}
                   className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                     activeTab === 'gempa_ntt'
-                      ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                      ? 'bg-[#0a1e36] text-white shadow-md ring-2 ring-[#0a1e36]/30 scale-[1.02]'
                       : 'bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100'
                   }`}
                 >
@@ -540,7 +565,7 @@ export default function DashboardK5Page() {
                 onClick={() => setActiveTab('analytics')}
                 className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'analytics'
-                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    ? 'bg-[#0a1e36] text-white shadow-md ring-2 ring-[#0a1e36]/30 scale-[1.02]'
                     : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
@@ -552,7 +577,7 @@ export default function DashboardK5Page() {
                 onClick={() => setActiveTab('models')}
                 className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'models'
-                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    ? 'bg-[#0a1e36] text-white shadow-md ring-2 ring-[#0a1e36]/30 scale-[1.02]'
                     : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
@@ -564,7 +589,7 @@ export default function DashboardK5Page() {
                 onClick={() => setActiveTab('logistics')}
                 className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'logistics'
-                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    ? 'bg-[#0a1e36] text-white shadow-md ring-2 ring-[#0a1e36]/30 scale-[1.02]'
                     : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
@@ -576,7 +601,7 @@ export default function DashboardK5Page() {
                 onClick={() => setActiveTab('medical')}
                 className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'medical'
-                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    ? 'bg-[#0a1e36] text-white shadow-md ring-2 ring-[#0a1e36]/30 scale-[1.02]'
                     : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
@@ -588,7 +613,7 @@ export default function DashboardK5Page() {
                 onClick={() => setActiveTab('infrastructure')}
                 className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'infrastructure'
-                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    ? 'bg-[#0a1e36] text-white shadow-md ring-2 ring-[#0a1e36]/30 scale-[1.02]'
                     : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
@@ -600,7 +625,7 @@ export default function DashboardK5Page() {
                 onClick={() => setActiveTab('economic')}
                 className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'economic'
-                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    ? 'bg-[#0a1e36] text-white shadow-md ring-2 ring-[#0a1e36]/30 scale-[1.02]'
                     : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
@@ -612,7 +637,7 @@ export default function DashboardK5Page() {
                 onClick={() => setActiveTab('utilities')}
                 className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'utilities'
-                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    ? 'bg-[#0a1e36] text-white shadow-md ring-2 ring-[#0a1e36]/30 scale-[1.02]'
                     : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
@@ -624,7 +649,7 @@ export default function DashboardK5Page() {
                 onClick={() => setActiveTab('routes')}
                 className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'routes'
-                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    ? 'bg-[#0a1e36] text-white shadow-md ring-2 ring-[#0a1e36]/30 scale-[1.02]'
                     : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
                 }`}
               >
@@ -636,7 +661,7 @@ export default function DashboardK5Page() {
                 onClick={() => setActiveTab('ai')}
                 className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                   activeTab === 'ai'
-                    ? 'bg-[#19506e] text-white shadow-md ring-2 ring-[#19506e]/30 scale-[1.02]'
+                    ? 'bg-[#0a1e36] text-white shadow-md ring-2 ring-[#0a1e36]/30 scale-[1.02]'
                     : 'bg-gradient-to-r from-purple-50 to-emerald-50 text-purple-900 border border-purple-200 hover:bg-purple-100'
                 }`}
               >
@@ -653,7 +678,7 @@ export default function DashboardK5Page() {
               <div
                 className={`${
                   isMapExpanded ? 'lg:col-span-1 min-h-[700px]' : 'lg:col-span-3 min-h-[560px]'
-                } bg-white rounded-2xl border-2 border-[#19506e]/20 shadow-md overflow-hidden relative group transition-all duration-300`}
+                } bg-white rounded-2xl border-2 border-[#0a1e36]/20 shadow-md overflow-hidden relative group transition-all duration-300`}
               >
                 {/* Header overlay badge */}
                 
@@ -673,7 +698,7 @@ export default function DashboardK5Page() {
               {/* Side Filter Control Panel */}
               {!isMapExpanded && (
                 <div className="lg:col-span-1 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col h-[580px]">
-                  <div className="bg-[#19506e] text-white px-4 py-3 font-semibold text-xs flex items-center gap-2 shrink-0">
+                  <div className="bg-[#0a1e36] text-white px-4 py-3 font-semibold text-xs flex items-center gap-2 shrink-0">
                     <Filter className="w-4 h-4 text-[#1f8080]" />
                     <span>Filter & Daftar Kejadian</span>
                   </div>
@@ -703,7 +728,7 @@ export default function DashboardK5Page() {
                   <BarChart3 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-[#19506e]">Analisis Statistik Kebencanaan</h2>
+                  <h2 className="text-base font-bold text-[#0a1e36]">Analisis Statistik Kebencanaan</h2>
                   <p className="text-xs text-slate-500">Visualisasi tren kejadian, dampak korban, dan kerusakan infrastruktur</p>
                 </div>
               </div>
@@ -725,7 +750,7 @@ export default function DashboardK5Page() {
                   <ShieldAlert className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-[#19506e]">Model Kerentanan & Respon Bencana</h2>
+                  <h2 className="text-base font-bold text-[#0a1e36]">Model Kerentanan & Respon Bencana</h2>
                   <p className="text-xs text-slate-500">Simulasi risiko kerentanan wilayah dan matriks kalkulator respon bencana</p>
                 </div>
               </div>
@@ -782,9 +807,9 @@ export default function DashboardK5Page() {
         {/* Footer */}
         <footer className="border-t border-slate-200 bg-white px-6 py-4 text-center text-xs text-slate-500 flex items-center justify-between">
           <p>© 2026 Satu Bencana — Platform Estimasi & Data Bencana Indonesia</p>
-          <div className="flex items-center gap-2 text-[#19506e] font-medium">
+          <div className="flex items-center gap-2 text-[#0a1e36] font-medium">
             <span className="w-2 h-2 rounded-full bg-[#1f8080]" />
-            <span>Theme Tone: Clean White & #1f8080 / #19506e</span>
+            <span>Theme Tone: Clean White & #1f8080 / #0a1e36</span>
           </div>
         </footer>
       </div>

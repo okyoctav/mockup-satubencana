@@ -521,7 +521,7 @@ export default function GempaNttSection() {
   return (
     <div className="space-y-6 text-slate-800 font-sans">
       {/* Header Banner Modul Gempa NTT */}
-      <div className="bg-gradient-to-r from-[#19506e] via-[#165176] to-[#1f8080] rounded-2xl p-6 text-white shadow-md relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-[#0a1e36] via-[#165176] to-[#1f8080] rounded-2xl p-6 text-white shadow-md relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="space-y-1.5 z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-400/30 text-rose-200 text-xs font-semibold">
             <ShieldAlert className="w-4 h-4 text-rose-300 animate-pulse" />
@@ -555,7 +555,7 @@ export default function GempaNttSection() {
             <Filter className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-xs font-bold text-[#19506e] block">Filter Wilayah Terintegrasi</span>
+            <span className="text-xs font-bold text-[#0a1e36] block">Filter Wilayah Terintegrasi</span>
             <span className="text-[10px] text-slate-400">Pilih Provinsi dan Kabupaten/Kota untuk kalkulasi dinamis</span>
           </div>
         </div>
@@ -570,7 +570,7 @@ export default function GempaNttSection() {
                 setSelectedProvinsi(e.target.value);
                 setSelectedKabupaten('Semua');
               }}
-              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-[#19506e] outline-none cursor-pointer focus:border-[#1f8080] w-full"
+              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-[#0a1e36] outline-none cursor-pointer focus:border-[#1f8080] w-full"
             >
               {listProvinsi.map((prov) => (
                 <option key={prov} value={prov}>
@@ -586,7 +586,7 @@ export default function GempaNttSection() {
             <select
               value={selectedKabupaten}
               onChange={(e) => setSelectedKabupaten(e.target.value)}
-              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-[#19506e] outline-none cursor-pointer focus:border-[#1f8080] w-full"
+              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-[#0a1e36] outline-none cursor-pointer focus:border-[#1f8080] w-full"
             >
               {listKabupaten.map((kab) => (
                 <option key={kab} value={kab}>
@@ -783,7 +783,7 @@ export default function GempaNttSection() {
                 <Activity className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-[#19506e]">Perbandingan Korban Jiwa & Dampak Sosial</h3>
+                <h3 className="text-sm font-bold text-[#0a1e36]">Perbandingan Korban Jiwa & Dampak Sosial</h3>
                 <p className="text-[10px] text-slate-400">Grafik jumlah Meninggal & Luka/Sakit per Kabupaten/Kota</p>
               </div>
             </div>
@@ -815,7 +815,7 @@ export default function GempaNttSection() {
                 <Home className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-[#19506e]">Tingkat Kerusakan Rumah Tinggal</h3>
+                <h3 className="text-sm font-bold text-[#0a1e36]">Tingkat Kerusakan Rumah Tinggal</h3>
                 <p className="text-[10px] text-slate-400">Breakdown Rumah Rusak (Berat, Sedang, Ringan) per Kabupaten</p>
               </div>
             </div>
@@ -847,7 +847,7 @@ export default function GempaNttSection() {
                 <Building className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-[#19506e]">Kerusakan Fasilitas Publik & Infrastruktur Kritis</h3>
+                <h3 className="text-sm font-bold text-[#0a1e36]">Kerusakan Fasilitas Publik & Infrastruktur Kritis</h3>
                 <p className="text-[10px] text-slate-400">Komparasi unit rusak: Sekolah, Fasyankes, Perkantoran, dan Rumah Ibadat</p>
               </div>
             </div>
@@ -880,7 +880,7 @@ export default function GempaNttSection() {
         <div className="bg-slate-50 px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TableIcon className="w-4 h-4 text-[#1f8080]" />
-            <h3 className="text-xs font-bold text-[#19506e]">Tabel Rekapitulasi Data Rinci per Kabupaten/Kota</h3>
+            <h3 className="text-xs font-bold text-[#0a1e36]">Tabel Rekapitulasi Data Rinci per Kabupaten/Kota</h3>
           </div>
           <span className="text-[10px] text-slate-400 font-semibold">{filteredData.length} Kab/Kota Terdampak</span>
         </div>
@@ -905,7 +905,7 @@ export default function GempaNttSection() {
             <tbody className="divide-y divide-slate-100 font-medium">
               {filteredData.map((item) => (
                 <tr key={item.objectid} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-2.5 px-3 font-semibold text-[#19506e]">
+                  <td className="py-2.5 px-3 font-semibold text-[#0a1e36]">
                     {item.kabupaten}
                     <span className="block text-[10px] text-slate-400 font-normal">{item.provinsi}</span>
                   </td>

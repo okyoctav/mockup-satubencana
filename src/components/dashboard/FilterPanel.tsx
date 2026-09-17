@@ -79,7 +79,7 @@ export default function FilterPanel({ data, filters, onFilter, onEventClick }: P
       <div className="p-3.5 border-b border-slate-200 bg-slate-50/50 space-y-3 shrink-0">
         {/* Jenis */}
         <div>
-          <label className="text-[10px] font-bold text-[#19506e] uppercase tracking-wider block mb-1.5">
+          <label className="text-[10px] font-bold text-[#0a1e36] uppercase tracking-wider block mb-1.5">
             Jenis Bencana
           </label>
           <div className="flex flex-wrap gap-1.5">
@@ -104,7 +104,7 @@ export default function FilterPanel({ data, filters, onFilter, onEventClick }: P
 
         {/* Status */}
         <div>
-          <label className="text-[10px] font-bold text-[#19506e] uppercase tracking-wider block mb-1.5">
+          <label className="text-[10px] font-bold text-[#0a1e36] uppercase tracking-wider block mb-1.5">
             Status Terjadi
           </label>
           <div className="grid grid-cols-2 gap-1.5">
@@ -116,8 +116,8 @@ export default function FilterPanel({ data, filters, onFilter, onEventClick }: P
                   onClick={() => onFilter({ ...filters, status: s })}
                   className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all border text-center ${
                     isSelected
-                      ? 'bg-[#19506e] text-white border-[#19506e] shadow-xs scale-105'
-                      : 'bg-white text-slate-700 border-slate-200 hover:border-[#19506e] hover:text-[#19506e]'
+                      ? 'bg-[#0a1e36] text-white border-[#0a1e36] shadow-xs scale-105'
+                      : 'bg-white text-slate-700 border-slate-200 hover:border-[#0a1e36] hover:text-[#0a1e36]'
                   }`}
                 >
                   {s === 'Semua' ? 'Semua Status' : STATUS_LABEL[s]}
@@ -129,7 +129,7 @@ export default function FilterPanel({ data, filters, onFilter, onEventClick }: P
 
         {/* Level */}
         <div>
-          <label className="text-[10px] font-bold text-[#19506e] uppercase tracking-wider block mb-1.5">
+          <label className="text-[10px] font-bold text-[#0a1e36] uppercase tracking-wider block mb-1.5">
             Level Dampak
           </label>
           <div className="flex gap-1.5">

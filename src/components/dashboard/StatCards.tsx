@@ -58,10 +58,10 @@ const NATIONAL_CARDS = [
     sublabel: 'Rusak Berat/Sedang/Ringan',
     getValue: () => (DIBI_TOTAL.rumah_terdampak / 1_000_000).toFixed(2) + ' Jt',
     unit: 'unit',
-    icon: <Home className="w-5 h-5 text-[#19506e]" /> as CardIcon,
-    accentBg: 'bg-[#19506e]/10',
-    accentBorder: 'group-hover:border-[#19506e]',
-    accentText: 'text-[#19506e]',
+    icon: <Home className="w-5 h-5 text-[#0a1e36]" /> as CardIcon,
+    accentBg: 'bg-[#0a1e36]/10',
+    accentBorder: 'group-hover:border-[#0a1e36]',
+    accentText: 'text-[#0a1e36]',
     getTrend: () => '11,8 juta unit terendam/rusak',
     trendUp: true,
   },
@@ -140,10 +140,10 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
             ? regionStats.rumah_terdampak.toLocaleString('id')
             : '—',
           unit: regionStats.rumah_terdampak > 0 ? 'unit' : '',
-          icon: <Home className="w-5 h-5 text-[#19506e]" /> as CardIcon,
-          accentBg: 'bg-[#19506e]/10',
-          accentBorder: 'group-hover:border-[#19506e]',
-          accentText: 'text-[#19506e]',
+          icon: <Home className="w-5 h-5 text-[#0a1e36]" /> as CardIcon,
+          accentBg: 'bg-[#0a1e36]/10',
+          accentBorder: 'group-hover:border-[#0a1e36]',
+          accentText: 'text-[#0a1e36]',
           trend: regionStats.rumah_terdampak > 0 ? 'berdasarkan data wilayah' : 'data lokal terbatas',
           trendUp: true,
         },
@@ -172,10 +172,10 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
     <div className="space-y-3">
       {/* Region filter header notification if active */}
       {regionLabel && (
-        <div className="flex items-center justify-between bg-[#1f8080]/10 border border-[#1f8080]/30 rounded-xl px-4 py-2 text-xs text-[#19506e]">
+        <div className="flex items-center justify-between bg-[#1f8080]/10 border border-[#1f8080]/30 rounded-xl px-4 py-2 text-xs text-[#0a1e36]">
           <div className="flex items-center gap-2 font-medium">
             <MapPin className="w-4 h-4 text-[#1f8080]" />
-            <span>Menampilkan data statistik khusus: <strong className="font-bold text-[#19506e]">{regionLabel}</strong></span>
+            <span>Menampilkan data statistik khusus: <strong className="font-bold text-[#0a1e36]">{regionLabel}</strong></span>
           </div>
           {onClearRegion && (
             <button
@@ -245,7 +245,7 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
             </div>
 
             <div className="mt-4 flex items-baseline gap-1.5">
-              <span className="text-2xl font-extrabold text-slate-900 tracking-tight leading-none group-hover:text-[#19506e] transition-colors">
+              <span className="text-2xl font-extrabold text-slate-900 tracking-tight leading-none group-hover:text-[#0a1e36] transition-colors">
                 {card.value}
               </span>
               {card.unit && (

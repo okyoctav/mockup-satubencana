@@ -1924,7 +1924,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                     <tr><td style="color:#64748b; padding:2px 0;">Koordinat:</td><td style="font-weight:600;">${vol.ga_lat_gapi}, ${vol.ga_lon_gapi}</td></tr>
                     ${vol.has_vona ? `<tr><td style="color:#64748b; padding:2px 0;">VONA Notice:</td><td style="font-weight:bold; color:#DC2626;">✈️ ${vol.noticenumber || 'Ya'}</td></tr>` : ''}
                   </table>
-                  <a href="https://magma.esdm.go.id" target="_blank" rel="noopener noreferrer" style="display:inline-block; width:100%; text-align:center; background:#19506e; color:#FFF; font-weight:bold; font-size:11px; padding:6px 0; border-radius:6px; text-decoration:none; box-shadow:0 2px 4px rgba(0,0,0,0.2);">
+                  <a href="https://magma.esdm.go.id" target="_blank" rel="noopener noreferrer" style="display:inline-block; width:100%; text-align:center; background:#0a1e36; color:#FFF; font-weight:bold; font-size:11px; padding:6px 0; border-radius:6px; text-decoration:none; box-shadow:0 2px 4px rgba(0,0,0,0.2);">
                     🌐 Portal Resmi MAGMA ESDM →
                   </a>
                 </div>
@@ -2104,13 +2104,13 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
       const kelHtml = validRegionGroups.length > 0
         ? `<div style="margin-top:8px; padding-top:6px; border-top:1.5px solid #E2E8F0;">
-             <div style="font-weight:700; color:#19506e; margin-bottom:4px; font-size:11px;">🏛️ Wilayah Terdampak (${kelList.length} Kel/Desa):</div>
+             <div style="font-weight:700; color:#0a1e36; margin-bottom:4px; font-size:11px;">🏛️ Wilayah Terdampak (${kelList.length} Kel/Desa):</div>
              <div style="max-height:110px; overflow-y:auto; font-size:10px; color:#334155;">
                ${validRegionGroups.map((g) => {
                  const title = g.kab ? `📍 ${g.prov}, ${g.kab}` : `📍 ${g.prov}`;
                  return `
                    <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:4px 6px; margin-bottom:4px;">
-                     <div style="font-weight:700; color:#19506e;">${title}</div>
+                     <div style="font-weight:700; color:#0a1e36;">${title}</div>
                      <div style="color:#475569; margin-top:2px;">• <b>Kel/Desa:</b> ${
                        g.kels.map((kName) => {
                          const item = kelList.find((x) => x.namaKelurahan === kName);
@@ -2128,12 +2128,12 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
       const landCoverHtml = landCoverList.length > 0
         ? `<div style="margin-top:8px; padding-top:6px; border-top:1.5px solid #E2E8F0;">
-             <div style="font-weight:700; color:#19506e; margin-bottom:4px; font-size:11px;">🏗️ Penutup Lahan & Fasilitas (BIG 2024):</div>
+             <div style="font-weight:700; color:#0a1e36; margin-bottom:4px; font-size:11px;">🏗️ Penutup Lahan & Fasilitas (BIG 2024):</div>
              <div style="max-height:100px; overflow-y:auto; font-size:10px; color:#334155; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:4px 6px;">
                ${landCoverList.map((lc) => `
                  <div style="display:flex; justify-content:space-between; border-bottom:1px border-slate-100 py-0.5;">
                    <span style="font-medium; color:#475569;">• ${lc.label}:</span>
-                   <b style="color:#19506e;">${lc.count.toLocaleString('id')}</b>
+                   <b style="color:#0a1e36;">${lc.count.toLocaleString('id')}</b>
                  </div>
                `).join('')}
              </div>
@@ -2142,7 +2142,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
       const hakAtasTanahHtml = hakAtasTanahList.length > 0
         ? `<div style="margin-top:8px; padding-top:6px; border-top:1.5px solid #E2E8F0;">
-             <div style="font-weight:700; color:#19506e; margin-bottom:4px; font-size:11px;">📜 Status Hak Atas Tanah (ATR/BPN):</div>
+             <div style="font-weight:700; color:#0a1e36; margin-bottom:4px; font-size:11px;">📜 Status Hak Atas Tanah (ATR/BPN):</div>
              <div style="max-height:100px; overflow-y:auto; font-size:10px; color:#334155; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px; padding:4px 6px;">
                ${hakAtasTanahList.map((hat) => `
                  <div style="display:flex; justify-content:space-between; border-bottom:1px border-slate-100 py-0.5;">
@@ -2156,7 +2156,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
       const content = `
         <div style="font-family:sans-serif; min-width:260px; font-size:11px; color:#0F172A;">
-          <div style="font-weight:bold; color:#19506e; border-bottom:1.5px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px;">📐 Estimasi Cepat Area Terdampak</div>
+          <div style="font-weight:bold; color:#0a1e36; border-bottom:1.5px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px;">📐 Estimasi Cepat Area Terdampak</div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👨 Laki-laki:</span><b>${stats.totalLakiLaki.toLocaleString('id')}</b></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👩 Perempuan:</span><b>${stats.totalPerempuan.toLocaleString('id')}</b></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👴 Lansia:</span><b>${stats.totalLansia.toLocaleString('id')}</b></div>
@@ -2329,7 +2329,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
 
           <button
             onClick={handleOpenLayerModal}
-            className="px-3 h-8 rounded-xl bg-white/50 hover:bg-white/80 text-[#19506e] font-bold text-xs flex items-center gap-1.5 border border-white/80 shadow-xs transition-all hover:scale-105"
+            className="px-3 h-8 rounded-xl bg-white/50 hover:bg-white/80 text-[#0a1e36] font-bold text-xs flex items-center gap-1.5 border border-white/80 shadow-xs transition-all hover:scale-105"
           >
             <Layers className="w-4 h-4 text-[#1f8080]" />
             <span className="hidden sm:inline">Layer ({activeOverlays.length})</span>
@@ -2351,7 +2351,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                     setGlassSearchQuery(res.display_name);
                   }
                 }}
-                className="w-full text-left p-2 rounded-xl text-xs hover:bg-[#1f8080]/10 hover:text-[#19506e] transition-colors truncate font-medium text-slate-700"
+                className="w-full text-left p-2 rounded-xl text-xs hover:bg-[#1f8080]/10 hover:text-[#0a1e36] transition-colors truncate font-medium text-slate-700"
               >
                 📍 {res.display_name}
               </button>
@@ -2368,7 +2368,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
             onClick={() => { setShowBmkg(true); setBmkgMode("terkini"); }}
             className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
               showBmkg && bmkgMode === "terkini" 
-                ? "bg-[#19506e] text-white shadow-xs" 
+                ? "bg-[#0a1e36] text-white shadow-xs" 
                 : "text-gray-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-slate-800"
             }`}
             title="Gempa Terkini M >= 5.0 (gempaterkini.json)"
@@ -2381,7 +2381,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
             onClick={() => { setShowBmkg(true); setBmkgMode("dirasakan"); }}
             className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
               showBmkg && bmkgMode === "dirasakan" 
-                ? "bg-[#19506e] text-white shadow-xs" 
+                ? "bg-[#0a1e36] text-white shadow-xs" 
                 : "text-gray-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-slate-800"
             }`}
             title="Gempa Dirasakan MMI (gempadirasakan.json)"
@@ -2394,7 +2394,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
             onClick={() => { setShowBmkg(true); setBmkgMode("autogempa"); }}
             className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
               showBmkg && bmkgMode === "autogempa" 
-                ? "bg-[#19506e] text-white shadow-xs" 
+                ? "bg-[#0a1e36] text-white shadow-xs" 
                 : "text-gray-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-slate-800"
             }`}
             title="Gempa Terbaru Autogempa TEWS (autogempa.json)"
@@ -2523,7 +2523,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
         <button
           onClick={() => setShowBencanaData(!showBencanaData)}
           className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center ${
-            showBencanaData ? 'bg-[#19506e] text-white border-white/40' : 'bg-white/80 text-slate-700 border-white/80'
+            showBencanaData ? 'bg-[#0a1e36] text-white border-white/40' : 'bg-white/80 text-slate-700 border-white/80'
           }`}
           title="Toggle Titik Kejadian Bencana"
         >
@@ -2538,14 +2538,14 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
           }`}
           title={isFullscreen ? 'Keluar Fullscreen Peta' : 'Mode Layar Penuh (Fullscreen Peta)'}
         >
-          {isFullscreen ? <Minimize2 className="w-4 h-4 text-amber-200" /> : <Maximize2 className="w-4 h-4 text-[#19506e]" />}
+          {isFullscreen ? <Minimize2 className="w-4 h-4 text-amber-200" /> : <Maximize2 className="w-4 h-4 text-[#0a1e36]" />}
         </button>
 
         {/* Toggle Legenda */}
         <button
           onClick={() => setShowLegend(!showLegend)}
           className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center ${
-            showLegend ? 'bg-[#19506e] text-white border-white/40' : 'bg-white/80 text-slate-700 border-white/80'
+            showLegend ? 'bg-[#0a1e36] text-white border-white/40' : 'bg-white/80 text-slate-700 border-white/80'
           }`}
           title="Tampilkan Legenda Peta"
         >
@@ -2555,7 +2555,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
         {/* Legenda Floating Box */}
         {showLegend && (
           <div className="bg-white/95 backdrop-blur-xl border border-slate-200 rounded-2xl p-3 shadow-xl space-y-2 max-w-xs text-xs">
-            <span className="font-bold text-[#19506e] block border-b pb-1">Legenda Jenis Bencana</span>
+            <span className="font-bold text-[#0a1e36] block border-b pb-1">Legenda Jenis Bencana</span>
             <div className="space-y-1.5">
               {LEGEND_ITEMS.map((item) => (
                 <div key={item.label} className="flex items-center gap-2">
@@ -2589,7 +2589,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
       {showLayerModal && (
         <div className="absolute inset-4 z-[600] bg-white/95 backdrop-blur-2xl border border-white/80 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {/* Modal Header */}
-          <div className="bg-[#19506e] text-white px-6 py-4 flex items-center justify-between border-b border-white/10 shrink-0">
+          <div className="bg-[#0a1e36] text-white px-6 py-4 flex items-center justify-between border-b border-white/10 shrink-0">
             <div className="flex items-center gap-2.5">
               <div className="p-2 rounded-xl bg-[#1f8080] text-white shadow-xs">
                 <Layers className="w-5 h-5" />
@@ -2609,7 +2609,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
             {/* GRID 1: LEFT 30% WIDTH - SEARCH & LAYER SELECTION LIST (REMOVED EMOJI ICONS) */}
             <div className="lg:col-span-4 border-r border-slate-200/80 p-5 flex flex-col gap-4 bg-slate-50/60 overflow-y-auto">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[#19506e] uppercase tracking-wider block">1. Cari & Filter Layer</label>
+                <label className="text-xs font-bold text-[#0a1e36] uppercase tracking-wider block">1. Cari & Filter Layer</label>
                 <div className="relative">
                   <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
                   <input
@@ -2684,7 +2684,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
               {/* GRID 2 (TOP): LIVE INTERACTIVE PREVIEW MAP CANVAS SECTION (FIXED HEIGHT) */}
               <div className="h-56 p-4 border-b border-slate-200 flex flex-col relative shrink-0">
                 <div className="flex items-center justify-between mb-2 z-10">
-                  <span className="text-xs font-bold text-[#19506e] uppercase tracking-wider flex items-center gap-2 bg-white/90 px-3 py-1 rounded-xl shadow-xs border border-slate-200">
+                  <span className="text-xs font-bold text-[#0a1e36] uppercase tracking-wider flex items-center gap-2 bg-white/90 px-3 py-1 rounded-xl shadow-xs border border-slate-200">
                     <Eye className="w-4 h-4 text-[#1f8080]" />
                     <span>2. Pratinjau Skema Basemap & Layer Aktif</span>
                   </span>
@@ -2693,7 +2693,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                     <select
                       value={draftBasemap}
                       onChange={(e) => setDraftBasemap(e.target.value)}
-                      className="bg-slate-100 border border-slate-200 rounded-xl px-3 py-0.5 text-xs font-bold text-[#19506e] outline-none cursor-pointer"
+                      className="bg-slate-100 border border-slate-200 rounded-xl px-3 py-0.5 text-xs font-bold text-[#0a1e36] outline-none cursor-pointer"
                     >
                       {BASEMAPS.map((bm) => (
                         <option key={bm.id} value={bm.id}>{bm.label}</option>
@@ -2705,7 +2705,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                 {/* Live Mini Leaflet Preview Container */}
                 <div className="flex-1 rounded-2xl border-2 border-[#1f8080]/30 overflow-hidden relative shadow-inner">
                   <div ref={previewContainerRef} className="w-full h-full z-0 bg-slate-900" />
-                  <div className="absolute bottom-3 left-3 z-[400] bg-[#19506e]/90 text-white backdrop-blur-md px-3 py-1 rounded-xl text-[11px] font-bold border border-white/20 shadow-md flex items-center gap-2">
+                  <div className="absolute bottom-3 left-3 z-[400] bg-[#0a1e36]/90 text-white backdrop-blur-md px-3 py-1 rounded-xl text-[11px] font-bold border border-white/20 shadow-md flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-[#1f8080] animate-pulse" />
                     <span>Live Pratinjau: {BASEMAPS.find((b) => b.id === draftBasemap)?.label} ({draftOverlays.length} Layer)</span>
                   </div>
@@ -2717,7 +2717,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                 <div className="p-4 space-y-2.5 overflow-y-auto flex-1">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-xs font-bold text-[#19506e] uppercase tracking-wider block">3. Layer Yang Dipilih ({draftOverlays.length})</span>
+                      <span className="text-xs font-bold text-[#0a1e36] uppercase tracking-wider block">3. Layer Yang Dipilih ({draftOverlays.length})</span>
                       <span className="text-[10px] text-slate-400">Geser (Drag & Drop) urutan item untuk mengatur tumpukan z-index layer</span>
                     </div>
                     {draftOverlays.length > 0 && (
@@ -2742,7 +2742,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                             onDragStart={() => handleDragStart(index)}
                             onDragOver={handleDragOver}
                             onDrop={() => handleDrop(index)}
-                            className="flex items-center justify-between gap-3 px-3 py-1.5 rounded-xl bg-white border border-[#1f8080]/30 text-xs font-bold text-[#19506e] shadow-2xs cursor-grab active:cursor-grabbing hover:bg-slate-50 transition-all"
+                            className="flex items-center justify-between gap-3 px-3 py-1.5 rounded-xl bg-white border border-[#1f8080]/30 text-xs font-bold text-[#0a1e36] shadow-2xs cursor-grab active:cursor-grabbing hover:bg-slate-50 transition-all"
                             title="Drag untuk mengubah urutan layer stack"
                           >
                             <div className="flex items-center gap-2 truncate">

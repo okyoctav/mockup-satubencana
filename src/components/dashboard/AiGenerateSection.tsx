@@ -24,7 +24,7 @@ function renderFormattedMarkdown(content: string) {
         <div key={`table-wrapper-${keyIndex}`} className="my-3 overflow-x-auto rounded-2xl border border-slate-200/80 shadow-xs bg-white">
           <table className="w-full text-xs text-left border-collapse">
             {tableHeader.length > 0 && (
-              <thead className="bg-[#19506e] text-white font-bold">
+              <thead className="bg-[#0a1e36] text-white font-bold">
                 <tr>
                   {tableHeader.map((h, hIdx) => (
                     <th key={hIdx} className="px-3.5 py-2.5 border-b border-slate-200 text-[11px] uppercase tracking-wider">
@@ -44,7 +44,7 @@ function renderFormattedMarkdown(content: string) {
                       <td
                         key={cIdx}
                         className={`px-3.5 py-2 text-xs ${
-                          isTotal ? 'font-bold text-[#19506e] bg-slate-100/60' : 'text-slate-700'
+                          isTotal ? 'font-bold text-[#0a1e36] bg-slate-100/60' : 'text-slate-700'
                         } ${isHighlight && !isTotal ? 'font-semibold text-slate-900' : ''}`}
                       >
                         {cell.trim()}
@@ -158,18 +158,18 @@ function renderFormattedMarkdown(content: string) {
       return;
     }
     if (line.startsWith('## ')) {
-      elements.push(<h3 key={i} className="font-bold text-slate-900 text-xs mt-3.5 mb-1.5 text-[#19506e] border-b border-slate-200 pb-1 flex items-center gap-1.5">{line.replace('## ', '')}</h3>);
+      elements.push(<h3 key={i} className="font-bold text-slate-900 text-xs mt-3.5 mb-1.5 text-[#0a1e36] border-b border-slate-200 pb-1 flex items-center gap-1.5">{line.replace('## ', '')}</h3>);
       return;
     }
     if (line.startsWith('# ')) {
-      elements.push(<h2 key={i} className="font-bold text-slate-900 text-sm mt-4 mb-2 text-[#19506e] flex items-center gap-2">{line.replace('# ', '')}</h2>);
+      elements.push(<h2 key={i} className="font-bold text-slate-900 text-sm mt-4 mb-2 text-[#0a1e36] flex items-center gap-2">{line.replace('# ', '')}</h2>);
       return;
     }
 
     const parts = line.split(/(\*\*.*?\*\*)/g);
     const formattedLine = parts.map((part, pIdx) => {
       if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={pIdx} className="font-bold text-[#19506e]">{part.slice(2, -2)}</strong>;
+        return <strong key={pIdx} className="font-bold text-[#0a1e36]">{part.slice(2, -2)}</strong>;
       }
       return part;
     });
@@ -366,7 +366,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
   return (
     <div className="space-y-6 font-sans">
       {/* HEADER SECTION */}
-      <div className="bg-gradient-to-r from-[#19506e] via-[#1f8080] to-purple-800 rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-[#0a1e36] via-[#1f8080] to-purple-800 rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-amber-300 animate-pulse" />
@@ -411,13 +411,13 @@ export default function AiGenerateSection({ estimationData }: Props) {
       )}
 
       {/* CONFIG & TEST PANEL */}
-      <div className="bg-[#19506e]/5 border border-[#19506e]/20 rounded-2xl overflow-hidden transition-all shadow-xs">
+      <div className="bg-[#0a1e36]/5 border border-[#0a1e36]/20 rounded-2xl overflow-hidden transition-all shadow-xs">
         <button
           onClick={() => setIsConfigOpen(!isConfigOpen)}
           className="w-full px-5 py-3.5 bg-slate-50 hover:bg-slate-100/80 flex items-center justify-between transition-colors border-b border-slate-200/60"
         >
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-bold text-xs text-[#19506e] tracking-wide uppercase flex items-center gap-2">
+            <span className="font-bold text-xs text-[#0a1e36] tracking-wide uppercase flex items-center gap-2">
               <Cpu className="w-4 h-4 text-[#1f8080]" />
               <span>⚙️ Pengaturan Tunnel & Model AI</span>
             </span>
@@ -427,7 +427,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
           </div>
           <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
             <span>{isConfigOpen ? 'Sembunyikan' : 'Buka Pengaturan API'}</span>
-            {isConfigOpen ? <ChevronUp className="w-4 h-4 text-[#19506e]" /> : <ChevronDown className="w-4 h-4 text-[#19506e]" />}
+            {isConfigOpen ? <ChevronUp className="w-4 h-4 text-[#0a1e36]" /> : <ChevronDown className="w-4 h-4 text-[#0a1e36]" />}
           </div>
         </button>
 
@@ -513,7 +513,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
         {/* CHAT HEADER TOOLBAR */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
-            <Bot className="w-4 h-4 text-[#19506e]" />
+            <Bot className="w-4 h-4 text-[#0a1e36]" />
             <h3 className="font-bold text-xs text-slate-800 tracking-tight">Sesi Dialog & Analisis Kebencanaan</h3>
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold">
               {chatHistory.length} Pesan
@@ -571,7 +571,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
                 }`}
               >
                 {msg.role === 'assistant' && (
-                  <div className="w-7 h-7 rounded-xl bg-[#19506e] text-white flex items-center justify-center shrink-0">
+                  <div className="w-7 h-7 rounded-xl bg-[#0a1e36] text-white flex items-center justify-center shrink-0">
                     <Bot className="w-4 h-4" />
                   </div>
                 )}
@@ -579,7 +579,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
                 <div
                   className={`p-4 rounded-2xl max-w-2xl leading-relaxed ${
                     msg.role === 'user'
-                      ? 'bg-[#19506e] text-white rounded-br-none font-medium'
+                      ? 'bg-[#0a1e36] text-white rounded-br-none font-medium'
                       : 'bg-slate-50 text-slate-800 border border-slate-200/80 rounded-bl-none shadow-2xs space-y-1'
                   }`}
                 >
@@ -622,7 +622,7 @@ export default function AiGenerateSection({ estimationData }: Props) {
           <button
             onClick={() => handleGenerateAI()}
             disabled={loading || !prompt.trim()}
-            className="px-5 py-3 rounded-xl bg-[#19506e] hover:bg-[#19506e]/90 disabled:opacity-50 text-white font-bold text-xs transition-all flex items-center gap-2 shadow-sm shrink-0"
+            className="px-5 py-3 rounded-xl bg-[#0a1e36] hover:bg-[#0a1e36]/90 disabled:opacity-50 text-white font-bold text-xs transition-all flex items-center gap-2 shadow-sm shrink-0"
           >
             {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             <span>Kirim AI</span>

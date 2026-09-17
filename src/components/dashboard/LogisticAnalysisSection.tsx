@@ -126,7 +126,7 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
   return (
     <div className="space-y-6 font-sans">
       {/* SECTION HEADER */}
-      <div className="bg-gradient-to-r from-[#19506e] to-[#1f8080] rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-[#0a1e36] to-[#1f8080] rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <PackageCheck className="w-6 h-6 text-emerald-300" />
@@ -160,19 +160,19 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 pt-2 border-t border-emerald-200/80">
             <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
               <span className="text-[10px] text-slate-500 font-semibold block">👨 Laki-laki</span>
-              <span className="font-extrabold text-[#19506e] text-xs">{estimationData.totalLakiLaki.toLocaleString('id')}</span>
+              <span className="font-extrabold text-[#0a1e36] text-xs">{estimationData.totalLakiLaki.toLocaleString('id')}</span>
             </div>
             <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
               <span className="text-[10px] text-slate-500 font-semibold block">👩 Perempuan</span>
-              <span className="font-extrabold text-[#19506e] text-xs">{estimationData.totalPerempuan.toLocaleString('id')}</span>
+              <span className="font-extrabold text-[#0a1e36] text-xs">{estimationData.totalPerempuan.toLocaleString('id')}</span>
             </div>
             <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
               <span className="text-[10px] text-slate-500 font-semibold block">👴 Lansia</span>
-              <span className="font-extrabold text-[#19506e] text-xs">{estimationData.totalLansia.toLocaleString('id')}</span>
+              <span className="font-extrabold text-[#0a1e36] text-xs">{estimationData.totalLansia.toLocaleString('id')}</span>
             </div>
             <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
               <span className="text-[10px] text-slate-500 font-semibold block">🧒 Balita</span>
-              <span className="font-extrabold text-[#19506e] text-xs">{estimationData.totalBalita.toLocaleString('id')}</span>
+              <span className="font-extrabold text-[#0a1e36] text-xs">{estimationData.totalBalita.toLocaleString('id')}</span>
             </div>
             <div className="bg-white/80 border border-cyan-200 p-2 rounded-xl text-center">
               <span className="text-[10px] text-cyan-700 font-semibold block">🧾 Disabilitas Berat (PD1)</span>
@@ -190,10 +190,10 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
 
           {estimationData.kelurahanDampak && estimationData.kelurahanDampak.length > 0 && (
             <div className="pt-2 border-t border-emerald-200/60">
-              <span className="font-bold text-[#19506e] block mb-1">🏛️ Wilayah Kelurahan / Desa Terdampak:</span>
+              <span className="font-bold text-[#0a1e36] block mb-1">🏛️ Wilayah Kelurahan / Desa Terdampak:</span>
               <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                 {estimationData.kelurahanDampak.map((k, idx) => (
-                  <span key={idx} className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-[11px] text-[#19506e] font-semibold flex items-center gap-1">
+                  <span key={idx} className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-[11px] text-[#0a1e36] font-semibold flex items-center gap-1">
                     <span>📍 {k.namaKelurahan}</span>
                     {k.kodeKemendagri && (
                       <span className="text-[9px] bg-slate-100 px-1 py-0.2 rounded font-mono font-bold text-slate-700">
@@ -217,14 +217,14 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
           className="w-full px-5 py-3.5 bg-slate-50 hover:bg-slate-100/80 flex items-center justify-between transition-colors border-b border-slate-200/60"
         >
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-bold text-xs text-[#19506e] tracking-wide uppercase">⚙️ Variable Estimasi & Parameter Logistik</span>
+            <span className="font-bold text-xs text-[#0a1e36] tracking-wide uppercase">⚙️ Variable Estimasi & Parameter Logistik</span>
             <span className="text-[10px] bg-[#1f8080]/10 text-[#1f8080] font-semibold px-2 py-0.5 rounded-md border border-[#1f8080]/20">
               {durasiHari} Hari • Bumil {persenIbuHamil}% ({jmlIbuHamil.toLocaleString('id')} jiwa) • Busui {persenIbuMenyusui}% ({jmlIbuMenyusui.toLocaleString('id')} jiwa) • Lansia {persenLansia}% ({jmlLansia.toLocaleString('id')} jiwa) • Balita {persenBalita}% ({jmlBalita.toLocaleString('id')} jiwa)
             </span>
           </div>
           <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
             <span>{isVariableOpen ? 'Sembunyikan' : 'Pengaturan Parameter Variable'}</span>
-            {isVariableOpen ? <ChevronUp className="w-4 h-4 text-[#19506e]" /> : <ChevronDown className="w-4 h-4 text-[#19506e]" />}
+            {isVariableOpen ? <ChevronUp className="w-4 h-4 text-[#0a1e36]" /> : <ChevronDown className="w-4 h-4 text-[#0a1e36]" />}
           </div>
         </button>
 
@@ -234,7 +234,7 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
             {/* 1. Durasi Tanggap */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-[11px] font-bold text-[#19506e] uppercase tracking-wider">Durasi Tanggap (Hari)</label>
+                <label className="text-[11px] font-bold text-[#0a1e36] uppercase tracking-wider">Durasi Tanggap (Hari)</label>
                 <button
                   type="button"
                   onClick={() => setActiveInfoModal(PARAM_INFOS.durasiHari)}
@@ -252,7 +252,7 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
               />
               <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500 font-medium px-1">
                 <span>Total Siklus:</span>
-                <span className="font-bold text-[#19506e] bg-slate-100 px-1.5 py-0.5 rounded">{durasiHari} Hari Tanggap</span>
+                <span className="font-bold text-[#0a1e36] bg-slate-100 px-1.5 py-0.5 rounded">{durasiHari} Hari Tanggap</span>
               </div>
             </div>
 
@@ -331,7 +331,7 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
               />
               <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500 font-medium px-1">
                 <span>Hasil Estimasi:</span>
-                <span className="font-extrabold text-[#19506e] bg-sky-50 border border-sky-200/60 px-1.5 py-0.5 rounded">
+                <span className="font-extrabold text-[#0a1e36] bg-sky-50 border border-sky-200/60 px-1.5 py-0.5 rounded">
                   = {jmlLansia.toLocaleString('id')} Jiwa
                 </span>
               </div>
@@ -358,7 +358,7 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
               />
               <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500 font-medium px-1">
                 <span>Hasil Estimasi:</span>
-                <span className="font-extrabold text-[#19506e] bg-amber-50 border border-amber-200/60 px-1.5 py-0.5 rounded">
+                <span className="font-extrabold text-[#0a1e36] bg-amber-50 border border-amber-200/60 px-1.5 py-0.5 rounded">
                   = {jmlBalita.toLocaleString('id')} Jiwa
                 </span>
               </div>
@@ -389,7 +389,7 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setActiveInfoModal(null)}
-                className="px-4 py-2 bg-[#19506e] hover:bg-[#19506e]/90 text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
+                className="px-4 py-2 bg-[#0a1e36] hover:bg-[#0a1e36]/90 text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
               >
                 Mengerti
               </button>
@@ -407,7 +407,7 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
               <Droplets className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-xs text-[#19506e]">1. Air Minum, Sanitasi & Kebersihan</h3>
+              <h3 className="font-bold text-xs text-[#0a1e36]">1. Air Minum, Sanitasi & Kebersihan</h3>
               <p className="text-[10px] text-slate-400">Permen PPPA No 8/2024 & Perka 7/2008</p>
             </div>
           </div>
@@ -415,27 +415,27 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
           <div className="space-y-2 text-xs">
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Total Air Minum:</span>
-              <strong className="text-[#19506e]">{totalAirMinum.toLocaleString('id')} Liter</strong>
+              <strong className="text-[#0a1e36]">{totalAirMinum.toLocaleString('id')} Liter</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Jamban Darurat (1 / 20 jiwa):</span>
-              <strong className="text-[#19506e]">{jmlJamban} Unit</strong>
+              <strong className="text-[#0a1e36]">{jmlJamban} Unit</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Tandon Air 1.000L (1 / 3 jamban):</span>
-              <strong className="text-[#19506e]">{tandon1000L} Unit</strong>
+              <strong className="text-[#0a1e36]">{tandon1000L} Unit</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Keran Air Tambahan:</span>
-              <strong className="text-[#19506e]">{keranAir} Unit</strong>
+              <strong className="text-[#0a1e36]">{keranAir} Unit</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Ember & Gayung Set:</span>
-              <strong className="text-[#19506e]">{emberGayung} Set</strong>
+              <strong className="text-[#0a1e36]">{emberGayung} Set</strong>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-slate-600">Plastik Sampah Harian:</span>
-              <strong className="text-[#19506e]">{plastikSampah} Lembar</strong>
+              <strong className="text-[#0a1e36]">{plastikSampah} Lembar</strong>
             </div>
           </div>
         </div>
@@ -447,7 +447,7 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
               <Tent className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-xs text-[#19506e]">2. Hunian & Perlengkapan Darurat</h3>
+              <h3 className="font-bold text-xs text-[#0a1e36]">2. Hunian & Perlengkapan Darurat</h3>
               <p className="text-[10px] text-slate-400">Juklak 3/2023 & Acuan Sphere</p>
             </div>
           </div>
@@ -455,23 +455,23 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
           <div className="space-y-2 text-xs">
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Tenda Keluarga (4 jiwa):</span>
-              <strong className="text-[#19506e]">{tendaKeluarga} Unit</strong>
+              <strong className="text-[#0a1e36]">{tendaKeluarga} Unit</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Tenda Pengungsi (20 jiwa):</span>
-              <strong className="text-[#19506e]">{tendaPengungsi20} Unit</strong>
+              <strong className="text-[#0a1e36]">{tendaPengungsi20} Unit</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Estimasi Luas Lahan Tenda:</span>
-              <strong className="text-[#19506e]">{(tendaKeluarga * 13.5).toLocaleString('id')} m²</strong>
+              <strong className="text-[#0a1e36]">{(tendaKeluarga * 13.5).toLocaleString('id')} m²</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Selimut, Bantal & Matras:</span>
-              <strong className="text-[#19506e]">{selimutBantalVelbed.toLocaleString('id')} Pcs</strong>
+              <strong className="text-[#0a1e36]">{selimutBantalVelbed.toLocaleString('id')} Pcs</strong>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-slate-600">Tikar Keluarga:</span>
-              <strong className="text-[#19506e]">{tikar} Lembar</strong>
+              <strong className="text-[#0a1e36]">{tikar} Lembar</strong>
             </div>
           </div>
         </div>
@@ -483,7 +483,7 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
               <Utensils className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-xs text-[#19506e]">3. Pangan & Konsumsi Nutrisi</h3>
+              <h3 className="font-bold text-xs text-[#0a1e36]">3. Pangan & Konsumsi Nutrisi</h3>
               <p className="text-[10px] text-slate-400">Perbadan Bapanas No 11/2023</p>
             </div>
           </div>
@@ -491,15 +491,15 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
           <div className="space-y-2 text-xs">
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Beras (0.25kg/orang/hari):</span>
-              <strong className="text-[#19506e]">{totalBerasKg.toLocaleString('id')} Kg</strong>
+              <strong className="text-[#0a1e36]">{totalBerasKg.toLocaleString('id')} Kg</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Total Paket Makanan Siap Saji:</span>
-              <strong className="text-[#19506e]">{(paketMakananSiapSajiHari * durasiHari).toLocaleString('id')} Paket</strong>
+              <strong className="text-[#0a1e36]">{(paketMakananSiapSajiHari * durasiHari).toLocaleString('id')} Paket</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Asupan Lauk Pauk (1.200 Kkal):</span>
-              <strong className="text-[#19506e] font-semibold">Tersedia per Posko</strong>
+              <strong className="text-[#0a1e36] font-semibold">Tersedia per Posko</strong>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-slate-600">Tambahan Nutrisi Bumil/Busui:</span>
@@ -515,7 +515,7 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
               <Shirt className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-xs text-[#19506e]">4. Sandang & Kit Individu</h3>
+              <h3 className="font-bold text-xs text-[#0a1e36]">4. Sandang & Kit Individu</h3>
               <p className="text-[10px] text-slate-400">Perka 10/2012 & Standar Kit PPAM</p>
             </div>
           </div>
@@ -523,23 +523,23 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
           <div className="space-y-2 text-xs">
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Set Pakaian Lengkap (2 set/orang):</span>
-              <strong className="text-[#19506e]">{setPakaianLengkap.toLocaleString('id')} Set</strong>
+              <strong className="text-[#0a1e36]">{setPakaianLengkap.toLocaleString('id')} Set</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Perlengkapan Ibadah:</span>
-              <strong className="text-[#19506e]">{setIbadah.toLocaleString('id')} Set</strong>
+              <strong className="text-[#0a1e36]">{setIbadah.toLocaleString('id')} Set</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Popok Balita (4 pcs/hari):</span>
-              <strong className="text-[#19506e]">{(popokBalitaHari * durasiHari).toLocaleString('id')} Pcs</strong>
+              <strong className="text-[#0a1e36]">{(popokBalitaHari * durasiHari).toLocaleString('id')} Pcs</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Popok Dewasa/Lansia (4 pcs/hari):</span>
-              <strong className="text-[#19506e]">{(popokDewasaHari * durasiHari).toLocaleString('id')} Pcs</strong>
+              <strong className="text-[#0a1e36]">{(popokDewasaHari * durasiHari).toLocaleString('id')} Pcs</strong>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-slate-600">Pembalut Wanita (Bulanan):</span>
-              <strong className="text-[#19506e]">{pembalutBulan.toLocaleString('id')} Pack</strong>
+              <strong className="text-[#0a1e36]">{pembalutBulan.toLocaleString('id')} Pack</strong>
             </div>
           </div>
         </div>
@@ -551,7 +551,7 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
               <HeartPulse className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-xs text-[#19506e]">5. SDM Layanan Kesehatan</h3>
+              <h3 className="font-bold text-xs text-[#0a1e36]">5. SDM Layanan Kesehatan</h3>
               <p className="text-[10px] text-slate-400">Rasio Medis Standar Permenkes</p>
             </div>
           </div>
@@ -559,19 +559,19 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
           <div className="space-y-2 text-xs">
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Dokter (1 / 1.000 orang):</span>
-              <strong className="text-[#19506e]">{dokter} Orang</strong>
+              <strong className="text-[#0a1e36]">{dokter} Orang</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Perawat (1 / 200 orang):</span>
-              <strong className="text-[#19506e]">{perawat} Orang</strong>
+              <strong className="text-[#0a1e36]">{perawat} Orang</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Bidan (1 / 500 orang):</span>
-              <strong className="text-[#19506e]">{bidan} Orang</strong>
+              <strong className="text-[#0a1e36]">{bidan} Orang</strong>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-slate-600">Tenaga Kesehatan Masyarakat:</span>
-              <strong className="text-[#19506e]">Minimal 1 Orang</strong>
+              <strong className="text-[#0a1e36]">Minimal 1 Orang</strong>
             </div>
           </div>
         </div>
@@ -583,7 +583,7 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
               <HeartHandshake className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-xs text-[#19506e]">6. Layanan Psikososial & Disabilitas</h3>
+              <h3 className="font-bold text-xs text-[#0a1e36]">6. Layanan Psikososial & Disabilitas</h3>
               <p className="text-[10px] text-slate-400">Perlindungan Ramah Anak & Difabel</p>
             </div>
           </div>
@@ -591,15 +591,15 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
           <div className="space-y-2 text-xs">
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Tenda Layanan Psikososial:</span>
-              <strong className="text-[#19506e]">Min. 1 per Posko</strong>
+              <strong className="text-[#0a1e36]">Min. 1 per Posko</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Ruang Ramah Pasutri & Anak:</span>
-              <strong className="text-[#19506e]">Min. 1 per Posko</strong>
+              <strong className="text-[#0a1e36]">Min. 1 per Posko</strong>
             </div>
             <div className="flex justify-between py-1 border-b border-slate-100">
               <span className="text-slate-600">Pekerja Sosial (1 / 7 pasien rentan):</span>
-              <strong className="text-[#19506e]">{pekerjaSosial} Orang</strong>
+              <strong className="text-[#0a1e36]">{pekerjaSosial} Orang</strong>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-slate-600">Total Pasien Rentan (Anak/Lansia/Difabel):</span>
