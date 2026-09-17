@@ -830,11 +830,12 @@ export default function AnalysisDashboard() {
               
               {/* Card 1: Kronologis Per Tahun */}
               <div 
-                className="lg:col-span-8 p-4 rounded-2xl border flex flex-col h-76 sm:h-84 transition-all duration-300"
+                className="lg:col-span-8 p-4 rounded-2xl border flex flex-col justify-between transition-all duration-300"
                 style={{ 
                   backgroundColor: 'var(--bg-card)', 
                   borderColor: 'var(--border-faint)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  height: '350px'
                 }}
               >
                 {/* Material Card Header */}
@@ -856,7 +857,7 @@ export default function AnalysisDashboard() {
                   </span>
                 </div>
 
-                <div className="flex-1 min-h-0">
+                <div className="w-full h-[270px] min-h-[270px] relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={yearlyTrendData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
                       <defs>
@@ -885,11 +886,12 @@ export default function AnalysisDashboard() {
 
               {/* Card 2: Top 10 Provinsi Bar Chart */}
               <div 
-                className="lg:col-span-4 p-4 rounded-2xl border flex flex-col h-76 sm:h-84 transition-all duration-300"
+                className="lg:col-span-4 p-4 rounded-2xl border flex flex-col justify-between transition-all duration-300"
                 style={{ 
                   backgroundColor: 'var(--bg-card)', 
                   borderColor: 'var(--border-faint)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  height: '350px'
                 }}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -904,7 +906,7 @@ export default function AnalysisDashboard() {
                   </div>
                 </div>
 
-                <div className="flex-1 min-h-0">
+                <div className="w-full h-[270px] min-h-[270px] relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart layout="vertical" data={topProvinceData} margin={{ top: 0, right: 10, left: 15, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border-faint)" horizontal={true} vertical={false} />
@@ -923,11 +925,12 @@ export default function AnalysisDashboard() {
               
               {/* Card 3: Pola Musiman Bulanan */}
               <div 
-                className="lg:col-span-7 p-4 rounded-2xl border flex flex-col h-68 transition-all duration-300"
+                className="lg:col-span-7 p-4 rounded-2xl border flex flex-col justify-between transition-all duration-300"
                 style={{ 
                   backgroundColor: 'var(--bg-card)', 
                   borderColor: 'var(--border-faint)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  height: '330px'
                 }}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -942,7 +945,7 @@ export default function AnalysisDashboard() {
                   </div>
                 </div>
 
-                <div className="flex-1 min-h-0">
+                <div className="w-full h-[250px] min-h-[250px] relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={monthlySeasonData} margin={{ top: 5, right: 10, left: -15, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border-faint)" vertical={false} />
@@ -957,11 +960,12 @@ export default function AnalysisDashboard() {
 
               {/* Card 4: Donut Proporsi Bencana */}
               <div 
-                className="lg:col-span-5 p-4 rounded-2xl border flex flex-col h-68 transition-all duration-300"
+                className="lg:col-span-5 p-4 rounded-2xl border flex flex-col justify-between transition-all duration-300"
                 style={{ 
                   backgroundColor: 'var(--bg-card)', 
                   borderColor: 'var(--border-faint)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  height: '330px'
                 }}
               >
                 <div className="flex items-center gap-2 mb-1">
@@ -976,14 +980,14 @@ export default function AnalysisDashboard() {
                   </div>
                 </div>
 
-                <div className="flex-1 min-h-0 flex items-center">
+                <div className="w-full h-[250px] min-h-[250px] relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie 
                         data={disasterTypeData} 
                         dataKey="kejadian" 
                         nameKey="name" 
-                        cx="50%" 
+                        cx="42%" 
                         cy="50%" 
                         innerRadius={45} 
                         outerRadius={75}
@@ -1018,11 +1022,12 @@ export default function AnalysisDashboard() {
               
               {/* Card 1: Fatalitas Per Bencana (7 Cols) */}
               <div 
-                className="lg:col-span-7 p-4 rounded-2xl border flex flex-col h-80 transition-all duration-300"
+                className="lg:col-span-7 p-4 rounded-2xl border flex flex-col justify-between transition-all duration-300"
                 style={{ 
                   backgroundColor: 'var(--bg-card)', 
                   borderColor: 'var(--border-faint)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  height: '350px'
                 }}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -1037,7 +1042,7 @@ export default function AnalysisDashboard() {
                   </div>
                 </div>
 
-                <div className="flex-1 min-h-0">
+                <div className="w-full h-[270px] min-h-[270px] relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={disasterTypeData} margin={{ top: 10, right: 10, left: -10, bottom: 25 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border-faint)" vertical={false} />
@@ -1058,11 +1063,12 @@ export default function AnalysisDashboard() {
 
               {/* Card 2: Pengungsi Per Provinsi (5 Cols) */}
               <div 
-                className="lg:col-span-5 p-4 rounded-2xl border flex flex-col h-80 transition-all duration-300"
+                className="lg:col-span-5 p-4 rounded-2xl border flex flex-col justify-between transition-all duration-300"
                 style={{ 
                   backgroundColor: 'var(--bg-card)', 
                   borderColor: 'var(--border-faint)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  height: '350px'
                 }}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -1077,7 +1083,7 @@ export default function AnalysisDashboard() {
                   </div>
                 </div>
 
-                <div className="flex-1 min-h-0">
+                <div className="w-full h-[270px] min-h-[270px] relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart layout="vertical" data={topProvinceData} margin={{ top: 0, right: 10, left: 15, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border-faint)" horizontal={true} vertical={false} />
@@ -1141,11 +1147,12 @@ export default function AnalysisDashboard() {
               
               {/* Card 1: Fasilitas Publik Vital Rusak (6 Cols) */}
               <div 
-                className="lg:col-span-6 p-4 rounded-2xl border flex flex-col h-76 transition-all duration-300"
+                className="lg:col-span-6 p-4 rounded-2xl border flex flex-col justify-between transition-all duration-300"
                 style={{ 
                   backgroundColor: 'var(--bg-card)', 
                   borderColor: 'var(--border-faint)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  height: '350px'
                 }}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -1160,7 +1167,7 @@ export default function AnalysisDashboard() {
                   </div>
                 </div>
 
-                <div className="flex-1 min-h-0">
+                <div className="w-full h-[270px] min-h-[270px] relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={fasilitasData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border-faint)" vertical={false} />
@@ -1179,11 +1186,12 @@ export default function AnalysisDashboard() {
 
               {/* Card 2: Gradasi Kerusakan Rumah (6 Cols) */}
               <div 
-                className="lg:col-span-6 p-4 rounded-2xl border flex flex-col h-76 transition-all duration-300"
+                className="lg:col-span-6 p-4 rounded-2xl border flex flex-col justify-between transition-all duration-300"
                 style={{ 
                   backgroundColor: 'var(--bg-card)', 
                   borderColor: 'var(--border-faint)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  height: '350px'
                 }}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -1198,7 +1206,7 @@ export default function AnalysisDashboard() {
                   </div>
                 </div>
 
-                <div className="flex-1 min-h-0">
+                <div className="w-full h-[270px] min-h-[270px] relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={kerusakanRumahData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border-faint)" vertical={false} />
@@ -1218,11 +1226,12 @@ export default function AnalysisDashboard() {
 
             {/* Card 3: Top 10 Provinsi Kerusakan Rumah */}
             <div 
-              className="p-4 rounded-2xl border flex flex-col h-68 transition-all duration-300"
+              className="p-4 rounded-2xl border flex flex-col justify-between transition-all duration-300"
               style={{ 
                 backgroundColor: 'var(--bg-card)', 
                 borderColor: 'var(--border-faint)',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                height: '330px'
               }}
             >
               <div className="flex items-center gap-2 mb-2">
@@ -1237,7 +1246,7 @@ export default function AnalysisDashboard() {
                 </div>
               </div>
 
-              <div className="flex-1 min-h-0">
+              <div className="w-full h-[250px] min-h-[250px] relative">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={topProvinceData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border-faint)" vertical={false} />
