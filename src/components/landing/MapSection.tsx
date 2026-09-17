@@ -156,7 +156,7 @@ export default function MapSection() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-teal-300" />
+                      <BookOpen className="w-4 h-4 text-white" />
                       <h3 className="text-sm font-black uppercase tracking-wider">
                         Arsip Dokumen & Artikel
                       </h3>
@@ -187,8 +187,8 @@ export default function MapSection() {
                       }}
                       className={`py-1.5 rounded-lg text-xs font-black transition-all text-center ${
                         activeArticleTab === 'semua'
-                          ? 'bg-white dark:bg-slate-900 text-teal-800 dark:text-teal-300 shadow-sm'
-                          : 'text-slate-500 hover:text-slate-800'
+                          ? 'bg-teal-700 dark:bg-teal-600 text-white shadow-sm'
+                          : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                       }`}
                     >
                       Semua Dokumen ({allGridPosts.length})
@@ -201,13 +201,13 @@ export default function MapSection() {
                       }}
                       className={`py-1.5 rounded-lg text-xs font-black transition-all text-center flex items-center justify-center gap-1.5 ${
                         activeArticleTab === 'terfilter'
-                          ? 'bg-white dark:bg-slate-900 text-teal-800 dark:text-teal-300 shadow-sm'
-                          : 'text-slate-500 hover:text-slate-800'
+                          ? 'bg-teal-700 dark:bg-teal-600 text-white shadow-sm'
+                          : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
                       }`}
                     >
                       <span>Terfilter Peta</span>
                       {selectedDisaster && (
-                        <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+                        <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                       )}
                     </button>
                   </div>
@@ -304,7 +304,7 @@ export default function MapSection() {
 
                           <Link
                             href={`/blog/${post.id}`}
-                            className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1 transition-colors hover:underline text-teal-700 dark:text-teal-300 cursor-pointer"
+                            className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1 transition-colors hover:underline text-teal-700 dark:text-white cursor-pointer"
                           >
                             <span>Baca Artikel</span>
                             <ArrowRight className="w-3.5 h-3.5" />

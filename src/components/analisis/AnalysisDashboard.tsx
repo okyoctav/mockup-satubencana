@@ -444,7 +444,7 @@ export default function AnalysisDashboard() {
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 shrink-0">
             <span className="w-2.5 h-2.5 rounded-full bg-teal-600 animate-pulse" />
-            <span className="font-black text-[11px] uppercase tracking-wider text-teal-700 dark:text-teal-300">
+            <span className="font-black text-[11px] uppercase tracking-wider text-teal-800 dark:text-white">
               Alur 1 · Jenis Bencana:
             </span>
           </div>
@@ -494,7 +494,7 @@ export default function AnalysisDashboard() {
         {/* Row 2: Secondary Dropdown Filters (Material Select Field) */}
         <div className="flex flex-wrap items-center gap-2 pt-2 border-t" style={{ borderColor: 'var(--border-faint)' }}>
           <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500 uppercase tracking-wide">
-            <Filter className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
+            <Filter className="w-3.5 h-3.5 text-teal-800 dark:text-white" />
             <span>Dimensi Wilayah & Waktu:</span>
           </div>
 
@@ -748,8 +748,8 @@ export default function AnalysisDashboard() {
             onClick={() => setActiveTab('tren')}
             className={`px-4 py-2.5 font-black text-[11px] uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer border-b-2 ${
               activeTab === 'tren' 
-                ? 'border-teal-700 text-teal-800 dark:text-teal-300 dark:border-teal-400' 
-                : 'border-transparent text-slate-500 hover:text-slate-900'
+                ? 'border-teal-600 text-teal-800 dark:text-white dark:border-teal-400' 
+                : 'border-transparent text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
             }`}
           >
             <TrendingUp className="w-3.5 h-3.5" />
@@ -760,8 +760,8 @@ export default function AnalysisDashboard() {
             onClick={() => setActiveTab('korban')}
             className={`px-4 py-2.5 font-black text-[11px] uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer border-b-2 ${
               activeTab === 'korban' 
-                ? 'border-teal-700 text-teal-800 dark:text-teal-300 dark:border-teal-400' 
-                : 'border-transparent text-slate-500 hover:text-slate-900'
+                ? 'border-teal-600 text-teal-800 dark:text-white dark:border-teal-400' 
+                : 'border-transparent text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
             }`}
           >
             <Users className="w-3.5 h-3.5" />
@@ -772,8 +772,8 @@ export default function AnalysisDashboard() {
             onClick={() => setActiveTab('kerusakan')}
             className={`px-4 py-2.5 font-black text-[11px] uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer border-b-2 ${
               activeTab === 'kerusakan' 
-                ? 'border-teal-700 text-teal-800 dark:text-teal-300 dark:border-teal-400' 
-                : 'border-transparent text-slate-500 hover:text-slate-900'
+                ? 'border-teal-600 text-teal-800 dark:text-white dark:border-teal-400' 
+                : 'border-transparent text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
             }`}
           >
             <Home className="w-3.5 h-3.5" />
@@ -784,8 +784,8 @@ export default function AnalysisDashboard() {
             onClick={() => setActiveTab('tabel')}
             className={`px-4 py-2.5 font-black text-[11px] uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer border-b-2 ${
               activeTab === 'tabel' 
-                ? 'border-teal-700 text-teal-800 dark:text-teal-300 dark:border-teal-400' 
-                : 'border-transparent text-slate-500 hover:text-slate-900'
+                ? 'border-teal-600 text-teal-800 dark:text-white dark:border-teal-400' 
+                : 'border-transparent text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
             }`}
           >
             <TableIcon className="w-3.5 h-3.5" />
@@ -851,7 +851,7 @@ export default function AnalysisDashboard() {
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-300">
+                  <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-teal-700 text-white shadow-2xs">
                     Area View
                   </span>
                 </div>
@@ -1360,7 +1360,7 @@ export default function AnalysisDashboard() {
             {/* Table Footer */}
             <div className="flex items-center justify-between text-[10.5px] text-slate-400 font-medium pt-1 px-1">
               <span>Menampilkan {Math.min(100, regencyTableData.length)} dari {regencyTableData.length} entitas wilayah</span>
-              <span className="font-extrabold text-teal-700 dark:text-teal-300">Urutan Prioritas Kejadian Tertinggi</span>
+              <span className="font-extrabold text-teal-800 dark:text-white">Urutan Prioritas Kejadian Tertinggi</span>
             </div>
           </div>
         )}

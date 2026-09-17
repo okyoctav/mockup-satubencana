@@ -181,8 +181,28 @@ body {
 }
 
 /* ============================================================
-   IMPACT POPUP — native Leaflet popup styled (light/white)
+   LEAFLET POPUP GLOBAL & CUSTOM STYLING
    ============================================================ */
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: normal;
+}
+
+.material-custom-popup .leaflet-popup-content-wrapper {
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 12px !important;
+}
+.material-custom-popup .leaflet-popup-content {
+  margin: 0 !important;
+  line-height: normal !important;
+}
+.material-custom-popup .leaflet-popup-tip {
+  background: #ffffff;
+}
+
 .impact-popup .leaflet-popup-content-wrapper {
   background: #ffffff;
   border: 1.5px solid #E2E8F0;
@@ -192,7 +212,7 @@ body {
   color: #0F172A;
 }
 .impact-popup .leaflet-popup-content {
-  margin: 0;
+  margin: 0 !important;
   line-height: 1;
 }
 .impact-popup .leaflet-popup-tip-container {
