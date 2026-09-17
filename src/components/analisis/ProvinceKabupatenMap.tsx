@@ -1,0 +1,468 @@
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { Layers, RotateCcw, Eye, EyeOff, Compass } from 'lucide-react';
+import { PROVINCE_COORDINATES, getKabupatenCoord } from '@/data/provinceCoordinates';
+
+export interface KabupatenItem {
+  nama: string;
+  kejadian: number;
+  meninggal: number;
+  hilang: number;
+  luka: number;
+  pengungsi: number;
+  rusakBerat: number;
+  rusakSedang: number;
+  rusakRingan: number;
+  totalRumahRusak: number;
+  terendam: number;
+  fasilitas: number;
+  topBencana?: string;
+  jenisBreakdown?: Record<string, number>;
+}
+
+interface ProvinceKabupatenMapProps {
+  provinsi: string;
+  kabupatenStats: KabupatenItem[];
+  selectedKabupaten?: string | null;
+  onSelectKabupaten?: (kab: string) => void;
+}
+
+export default function ProvinceKabupatenMap({
+  provinsi,
+  kabupatenStats,
+  selectedKabupaten,
+  onSelectKabupaten
+}: ProvinceKabupatenMapProps) {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const wmsLayerRef = useRef<L.TileLayer.WMS | null>(null);
+  const markersLayerGroupRef = useRef<L.LayerGroup | null>(null);
+  const baseTileRef = useRef<L.TileLayer | null>(null);
+
+  const [basemap, setBasemap] = useState<'light' | 'satellite' | 'osm'>('light');
+  const [showWms, setShowWms] = useState<boolean>(true);
+  const [useCqlFilter, setUseCqlFilter] = useState<boolean>(true);
+  const [wmsOpacity, setWmsOpacity] = useState<number>(0.85);
+  const [showMarkers, setShowMarkers] = useState<boolean>(true);
+
+  // Normalize province name for lookup and GeoServer CQL
+  const provUpper = (provinsi || '').toUpperCase().trim();
+  const provCoord = PROVINCE_COORDINATES[provUpper] || { lat: -2.5, lng: 118.0, zoom: 5.5 };
+
+  // 1. Initialize Map
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
+
+    // Bersihkan instance map lama jika ada
+    if (mapRef.current) {
+      mapRef.current.remove();
+      mapRef.current = null;
+    }
+
+    const map = L.map(mapContainerRef.current, {
+      center: [provCoord.lat, provCoord.lng],
+      zoom: provCoord.zoom,
+      zoomControl: false,
+      attributionControl: false
+    });
+
+    // Basemap: Light Carto Positron
+    baseTileRef.current = L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      {
+        subdomains: 'abcd',
+        maxZoom: 19
+      }
+    ).addTo(map);
+
+    // Attribution
+    L.control.attribution({ position: 'bottomright' })
+      .addAttribution('&copy; <a href="https://bappenas.go.id">BAPPENAS</a> &middot; <a href="https://openstreetmap.org">OSM</a>')
+      .addTo(map);
+
+    // Layer Group untuk Markers Kabupaten
+    markersLayerGroupRef.current = L.layerGroup().addTo(map);
+
+    mapRef.current = map;
+
+    // Invalidate size setelah modal rendering selesai
+    const timer1 = setTimeout(() => {
+      map.invalidateSize();
+    }, 200);
+
+    const timer2 = setTimeout(() => {
+      map.invalidateSize();
+      map.setView([provCoord.lat, provCoord.lng], provCoord.zoom);
+    }, 500);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, [provinsi, provCoord.lat, provCoord.lng, provCoord.zoom]);
+
+  // 2. Switch Basemap
+  useEffect(() => {
+    if (!mapRef.current) return;
+    if (baseTileRef.current) {
+      mapRef.current.removeLayer(baseTileRef.current);
+    }
+
+    let url = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+    let sub = 'abcd';
+    let maxZ = 19;
+
+    if (basemap === 'satellite') {
+      url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+      sub = '';
+      maxZ = 18;
+    } else if (basemap === 'osm') {
+      url = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      sub = 'abc';
+      maxZ = 19;
+    }
+
+    baseTileRef.current = L.tileLayer(url, {
+      subdomains: sub ? sub.split('') : [],
+      maxZoom: maxZ
+    }).addTo(mapRef.current);
+
+    // Ensure WMS and markers stay on top
+    if (wmsLayerRef.current && mapRef.current.hasLayer(wmsLayerRef.current)) {
+      wmsLayerRef.current.bringToFront();
+    }
+  }, [basemap]);
+
+  // 3. Update BAPPENAS GeoServer WMS Layer
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    if (wmsLayerRef.current) {
+      mapRef.current.removeLayer(wmsLayerRef.current);
+      wmsLayerRef.current = null;
+    }
+
+    if (!showWms) return;
+
+    // Bersihkan nama provinsi untuk filter CQL (misal: "KALIMANTAN SELATAN")
+    const cleanProv = provUpper.replace(/^(PROVINSI|DAERAH KHUSUS IBUKOTA|DAERAH ISTIMEWA)\s+/, '').trim();
+
+    // WMS Parameters sesuai URL GetMap Bappenas
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const wmsOptions: any = {
+      layers: 'BATAS_WILAYAH:ADMINISTRASI_AR_KABKOTA_50K_2023',
+      format: 'image/png',
+      transparent: true,
+      version: '1.1.0',
+      opacity: wmsOpacity,
+      zIndex: 10
+    };
+
+    // Terapkan CQL_FILTER agar hanya batas wilayah kab/kota provinsi terkait yang muncul
+    if (useCqlFilter && cleanProv) {
+      wmsOptions.cql_filter = `WADMPR ILIKE '%${cleanProv}%'`;
+    }
+
+    const wms = L.tileLayer.wms(
+      'https://mandata.bappenas.go.id/geoserver/BATAS_WILAYAH/wms',
+      wmsOptions
+    );
+
+    wms.addTo(mapRef.current);
+    wmsLayerRef.current = wms;
+
+    return () => {
+      if (mapRef.current && wms) {
+        mapRef.current.removeLayer(wms);
+      }
+    };
+  }, [showWms, useCqlFilter, wmsOpacity, provUpper]);
+
+  // 4. Render Markers Kabupaten/Kota dengan data bencana
+  useEffect(() => {
+    if (!mapRef.current || !markersLayerGroupRef.current) return;
+
+    markersLayerGroupRef.current.clearLayers();
+    if (!showMarkers) return;
+
+    const totalKabs = kabupatenStats.length;
+    const maxKejadian = Math.max(...kabupatenStats.map(k => k.kejadian), 1);
+
+    kabupatenStats.forEach((kab, idx) => {
+      const coord = getKabupatenCoord(provinsi, kab.nama, idx, totalKabs);
+      const isSelected = selectedKabupaten && selectedKabupaten.toLowerCase() === kab.nama.toLowerCase();
+
+      // Radius proporsional dengan skala kejadian (8px - 28px)
+      const ratio = kab.kejadian / maxKejadian;
+      const radius = 8 + Math.round(ratio * 18);
+
+      // Warna tegas berdasarkan status volume
+      let fillColor = '#00897b'; // hijau teal
+      if (ratio > 0.6) fillColor = '#e53935'; // merah
+      else if (ratio > 0.3) fillColor = '#fb8c00'; // oranye
+      else if (ratio > 0.1) fillColor = '#1e88e5'; // biru
+
+      const marker = L.circleMarker([coord.lat, coord.lng], {
+        radius: isSelected ? radius + 4 : radius,
+        fillColor: fillColor,
+        color: isSelected ? '#ffffff' : '#ffffff',
+        weight: isSelected ? 3.5 : 2,
+        opacity: 1,
+        fillOpacity: isSelected ? 0.95 : 0.82
+      });
+
+      // Tooltip ringan saat hover
+      marker.bindTooltip(`
+        <div style="font-family: inherit; font-size: 11px; font-weight: 700; color: #0f172a; padding: 2px 4px;">
+          <div>📍 ${kab.nama}</div>
+          <div style="color: #00695c; font-size: 10px; font-weight: 800;">${kab.kejadian.toLocaleString('id-ID')} Kejadian</div>
+        </div>
+      `, {
+        direction: 'top',
+        offset: [0, -radius],
+        permanent: false
+      });
+
+      // Popup detail saat diklik
+      const popupHtml = `
+        <div style="font-family: system-ui, -apple-system, sans-serif; min-width: 220px; padding: 4px 2px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid ${fillColor}; padding-bottom: 6px; margin-bottom: 8px;">
+            <div>
+              <div style="font-size: 13px; font-weight: 900; color: #0f172a;">${kab.nama}</div>
+              <div style="font-size: 10px; color: #64748b; font-weight: 600;">Provinsi ${provinsi}</div>
+            </div>
+            <span style="background: ${fillColor}; color: #fff; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 9999px;">
+              ${kab.kejadian.toLocaleString('id-ID')} Kejadian
+            </span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; margin-bottom: 10px;">
+            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 6px;">
+              <div style="color: #991b1b; font-size: 9px; font-weight: 700;">KORBAN JIWA</div>
+              <div style="font-size: 12px; font-weight: 800; color: #b91c1c;">${(kab.meninggal + kab.hilang + kab.luka).toLocaleString('id-ID')}</div>
+              <div style="font-size: 9px; color: #7f1d1d;">(${kab.meninggal} Meninggal)</div>
+            </div>
+
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 6px;">
+              <div style="color: #92400e; font-size: 9px; font-weight: 700;">MENGUNGSI</div>
+              <div style="font-size: 12px; font-weight: 800; color: #d97706;">${kab.pengungsi.toLocaleString('id-ID')}</div>
+              <div style="font-size: 9px; color: #b45309;">Jiwa Terdampak</div>
+            </div>
+
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 6px;">
+              <div style="color: #166534; font-size: 9px; font-weight: 700;">RUMAH RUSAK</div>
+              <div style="font-size: 12px; font-weight: 800; color: #15803d;">${kab.totalRumahRusak.toLocaleString('id-ID')}</div>
+              <div style="font-size: 9px; color: #166534;">Unit Teridentifikasi</div>
+            </div>
+
+            <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 6px;">
+              <div style="color: #075985; font-size: 9px; font-weight: 700;">FASILITAS PUBLIK</div>
+              <div style="font-size: 12px; font-weight: 800; color: #0284c7;">${kab.fasilitas.toLocaleString('id-ID')}</div>
+              <div style="font-size: 9px; color: #0369a1;">Sarana Prasarana</div>
+            </div>
+          </div>
+
+          ${kab.terendam > 0 ? `
+            <div style="font-size: 10px; color: #0284c7; background: #e0f2fe; padding: 4px 8px; border-radius: 6px; margin-bottom: 8px; font-weight: 600;">
+              💧 Rumah Terendam: <b>${kab.terendam.toLocaleString('id-ID')}</b> unit
+            </div>
+          ` : ''}
+
+          <div style="text-align: center;">
+            <button 
+              id="btn-select-kab-${idx}" 
+              style="width: 100%; background: #00695c; color: #ffffff; border: none; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer;"
+            >
+              Lihat di Tabel &amp; Grafik &rarr;
+            </button>
+          </div>
+        </div>
+      `;
+
+      marker.bindPopup(popupHtml, {
+        maxWidth: 280,
+        className: 'kabupaten-map-popup'
+      });
+
+      marker.on('popupopen', () => {
+        const btn = document.getElementById(`btn-select-kab-${idx}`);
+        if (btn && onSelectKabupaten) {
+          btn.onclick = () => {
+            onSelectKabupaten(kab.nama);
+            marker.closePopup();
+          };
+        }
+      });
+
+      marker.on('click', () => {
+        if (onSelectKabupaten) {
+          onSelectKabupaten(kab.nama);
+        }
+      });
+
+      marker.addTo(markersLayerGroupRef.current!);
+    });
+  }, [kabupatenStats, selectedKabupaten, showMarkers, provinsi, onSelectKabupaten]);
+
+  // Handler Zoom / Focus
+  const handleResetZoom = () => {
+    if (mapRef.current) {
+      mapRef.current.flyTo([provCoord.lat, provCoord.lng], provCoord.zoom, {
+        duration: 1.2
+      });
+    }
+  };
+
+  return (
+    <div className="relative w-full h-full min-h-[380px] rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-inner bg-slate-950">
+      {/* Leaflet Canvas */}
+      <div ref={mapContainerRef} className="w-full h-full z-0" />
+
+      {/* Floating Header Info Badge */}
+      <div className="absolute top-3 left-3 z-[400] pointer-events-none">
+        <div className="pointer-events-auto bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-lg flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-[#004d40] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+            <Compass className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+              <span>{provinsi}</span>
+              <span className="text-[9.5px] px-1.5 py-0.2 rounded bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 font-bold">
+                {kabupatenStats.length} Kab/Kota
+              </span>
+            </div>
+            <div className="text-[10px] text-slate-500 font-medium">
+              Batas Wilayah BAPPENAS 50K &middot; Koordinat [{provCoord.lat.toFixed(2)}, {provCoord.lng.toFixed(2)}]
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Floating Map Controls Toolbar */}
+      <div className="absolute top-3 right-3 z-[400] flex flex-col gap-2 items-end">
+        {/* Basemap Switcher */}
+        <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-1 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md flex items-center gap-1">
+          <button
+            onClick={() => setBasemap('light')}
+            className={`px-2 py-1 rounded-lg text-[10.5px] font-bold transition-all ${
+              basemap === 'light' ? 'bg-[#00695c] text-white shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+            title="Peta Terang"
+          >
+            Peta
+          </button>
+          <button
+            onClick={() => setBasemap('satellite')}
+            className={`px-2 py-1 rounded-lg text-[10.5px] font-bold transition-all ${
+              basemap === 'satellite' ? 'bg-[#00695c] text-white shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+            title="Citra Satelit"
+          >
+            Satelit
+          </button>
+          <button
+            onClick={() => setBasemap('osm')}
+            className={`px-2 py-1 rounded-lg text-[10.5px] font-bold transition-all ${
+              basemap === 'osm' ? 'bg-[#00695c] text-white shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+            title="OpenStreetMap"
+          >
+            OSM
+          </button>
+        </div>
+
+        {/* Bappenas WMS Layer Controls */}
+        <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md flex flex-col gap-1.5 w-48 text-[11px]">
+          <div className="flex items-center justify-between font-bold text-slate-800 dark:text-slate-200">
+            <span className="flex items-center gap-1">
+              <Layers className="w-3.5 h-3.5 text-[#00695c]" />
+              Batas Kab/Kota
+            </span>
+            <button
+              onClick={() => setShowWms(!showWms)}
+              className={`p-1 rounded-md transition-colors ${
+                showWms ? 'text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950' : 'text-slate-400 hover:bg-slate-100'
+              }`}
+              title={showWms ? 'Sembunyikan WMS Batas Wilayah' : 'Tampilkan WMS Batas Wilayah'}
+            >
+              {showWms ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+            </button>
+          </div>
+
+          {showWms && (
+            <>
+              {/* CQL Filter Toggle */}
+              <label className="flex items-center justify-between text-[10px] text-slate-600 dark:text-slate-400 cursor-pointer pt-1 border-t border-slate-100 dark:border-slate-800">
+                <span>Filter Hanya {provinsi}</span>
+                <input
+                  type="checkbox"
+                  checked={useCqlFilter}
+                  onChange={(e) => setUseCqlFilter(e.target.checked)}
+                  className="rounded text-teal-600 focus:ring-teal-500 w-3.5 h-3.5"
+                />
+              </label>
+
+              {/* Opacity Slider */}
+              <div className="flex items-center justify-between text-[10px] text-slate-500">
+                <span>Opasitas</span>
+                <span>{Math.round(wmsOpacity * 100)}%</span>
+              </div>
+              <input
+                type="range"
+                min="0.2"
+                max="1.0"
+                step="0.05"
+                value={wmsOpacity}
+                onChange={(e) => setWmsOpacity(parseFloat(e.target.value))}
+                className="w-full accent-[#00695c] h-1 bg-slate-200 rounded-lg cursor-pointer"
+              />
+            </>
+          )}
+
+          {/* Markers Toggle */}
+          <label className="flex items-center justify-between text-[10px] text-slate-600 dark:text-slate-400 cursor-pointer pt-1 border-t border-slate-100 dark:border-slate-800">
+            <span>Titik Kabupaten</span>
+            <input
+              type="checkbox"
+              checked={showMarkers}
+              onChange={(e) => setShowMarkers(e.target.checked)}
+              className="rounded text-teal-600 focus:ring-teal-500 w-3.5 h-3.5"
+            />
+          </label>
+        </div>
+
+        {/* Reset Zoom Button */}
+        <button
+          onClick={handleResetZoom}
+          className="p-2 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 shadow-md transition-all flex items-center justify-center"
+          title={`Fokus kembali ke ${provinsi}`}
+        >
+          <RotateCcw className="w-4 h-4 text-teal-600" />
+        </button>
+      </div>
+
+      {/* Floating Bottom Legend */}
+      <div className="absolute bottom-3 left-3 z-[400] pointer-events-none">
+        <div className="pointer-events-auto bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md flex items-center gap-3 text-[10px] font-semibold text-slate-700 dark:text-slate-300">
+          <span className="font-bold text-slate-900 dark:text-white">Skala Bencana:</span>
+          <span className="flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#e53935]" /> Tinggi
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#fb8c00]" /> Sedang
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#00897b]" /> Rendah
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}

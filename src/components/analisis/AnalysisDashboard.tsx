@@ -10,6 +10,7 @@ import {
   Filter, RotateCcw, Activity, Calendar, MapPin, Table as TableIcon,
   ShieldAlert, Layers, Search, Sparkles
 } from 'lucide-react';
+import ProvinceDetailModal from './ProvinceDetailModal';
 
 interface BencanaData {
   Tahun: number;
@@ -71,6 +72,7 @@ export default function AnalysisDashboard() {
   const [activeTab, setActiveTab] = useState<'tren' | 'korban' | 'kerusakan' | 'tabel'>('tren');
   const [trendMetric, setTrendMetric] = useState<'kejadian' | 'meninggal' | 'pengungsi' | 'rumah'>('kejadian');
   const [searchTable, setSearchTable] = useState<string>('');
+  const [selectedModalProvince, setSelectedModalProvince] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/20260505_072732.json')
@@ -890,31 +892,80 @@ export default function AnalysisDashboard() {
                   backgroundColor: 'var(--bg-card)', 
                   borderColor: 'var(--border-faint)',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                  height: '350px'
+                  minHeight: '350px'
                 }}
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-[#1e88e5]">
-                    <MapPin className="w-4 h-4" />
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-[#1e88e5]">
+                      <MapPin className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-xs uppercase tracking-wide" style={{ color: 'var(--text-primary)' }}>
+                        Top 10 Provinsi Terdampak
+                      </h3>
+                      <p className="text-[10px] text-slate-400 font-medium">Klik provinsi untuk peta BAPPENAS &amp; kab/kota</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-extrabold text-xs uppercase tracking-wide" style={{ color: 'var(--text-primary)' }}>
-                      Top 10 Provinsi Terdampak
-                    </h3>
-                    <p className="text-[10px] text-slate-400 font-medium">Akumulasi kejadian bencana</p>
-                  </div>
+                  <span className="text-[9.5px] px-2 py-0.5 rounded-full bg-[#00695c] text-white font-extrabold flex items-center gap-1 shadow-xs animate-pulse">
+                    <span>🗺️</span> Peta Bappenas
+                  </span>
                 </div>
 
-                <div className="w-full h-[270px] min-h-[270px] relative">
+                <div className="w-full h-[220px] min-h-[220px] relative">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart layout="vertical" data={topProvinceData} margin={{ top: 0, right: 10, left: 15, bottom: 0 }}>
+                    <BarChart 
+                      layout="vertical" 
+                      data={topProvinceData} 
+                      margin={{ top: 0, right: 10, left: 15, bottom: 0 }}
+                      onClick={(e) => {
+                        const evt = e as { activePayload?: Array<{ payload?: { provinsi?: string } }> } | null;
+                        if (evt?.activePayload?.[0]?.payload?.provinsi) {
+                          setSelectedModalProvince(evt.activePayload[0].payload.provinsi);
+                        }
+                      }}
+                      className="cursor-pointer"
+                    >
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border-faint)" horizontal={true} vertical={false} />
                       <XAxis type="number" stroke="var(--text-secondary)" tick={{ fontSize: 9 }} />
-                      <YAxis type="category" dataKey="provinsi" stroke="var(--text-secondary)" tick={{ fontSize: 9 }} width={80} />
-                      <Tooltip contentStyle={customTooltipStyle} />
-                      <Bar dataKey="kejadian" fill="#1e88e5" radius={[0, 4, 4, 0]} name="Kejadian" />
+                      <YAxis 
+                        type="category" 
+                        dataKey="provinsi" 
+                        stroke="var(--text-secondary)" 
+                        tick={{ fontSize: 9, cursor: 'pointer' }} 
+                        width={85} 
+                      />
+                      <Tooltip 
+                        contentStyle={customTooltipStyle}
+                        formatter={(val) => [
+                          `${Number(val || 0).toLocaleString()} Kejadian (Klik untuk peta Bappenas)`,
+                          'Kejadian'
+                        ]}
+                      />
+                      <Bar 
+                        dataKey="kejadian" 
+                        fill="#1e88e5" 
+                        radius={[0, 4, 4, 0]} 
+                        name="Kejadian"
+                        className="cursor-pointer hover:opacity-80 transition-opacity"
+                      />
                     </BarChart>
                   </ResponsiveContainer>
+                </div>
+
+                {/* Quick Province Badges (Clickable) */}
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center gap-1 overflow-x-auto no-scrollbar">
+                  {topProvinceData.map((p, idx) => (
+                    <button
+                      key={p.provinsi}
+                      onClick={() => setSelectedModalProvince(p.provinsi)}
+                      className="text-[9.5px] px-2 py-0.5 rounded-lg border font-bold hover:scale-105 transition-all flex items-center gap-1 cursor-pointer bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-teal-500 hover:text-teal-700 dark:hover:text-teal-300 shadow-xs shrink-0"
+                      title={`Buka peta BAPPENAS & grafik detail ${p.provinsi}`}
+                    >
+                      <span className="text-teal-600 font-extrabold">#{idx + 1}</span>
+                      <span>{p.provinsi}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -1247,12 +1298,31 @@ export default function AnalysisDashboard() {
 
               <div className="w-full h-[250px] min-h-[250px] relative">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={topProvinceData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+                  <BarChart 
+                    data={topProvinceData} 
+                    margin={{ top: 5, right: 10, left: -10, bottom: 0 }}
+                    onClick={(e) => {
+                      const evt = e as { activePayload?: Array<{ payload?: { provinsi?: string } }> } | null;
+                      if (evt?.activePayload?.[0]?.payload?.provinsi) {
+                        setSelectedModalProvince(evt.activePayload[0].payload.provinsi);
+                      }
+                    }}
+                    className="cursor-pointer"
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border-faint)" vertical={false} />
                     <XAxis dataKey="provinsi" stroke="var(--text-secondary)" tick={{ fontSize: 9.5 }} />
                     <YAxis stroke="var(--text-secondary)" tick={{ fontSize: 10 }} />
-                    <Tooltip contentStyle={customTooltipStyle} />
-                    <Bar dataKey="rumah" fill="#8e24aa" radius={[4, 4, 0, 0]} name="Total Rumah Rusak" />
+                    <Tooltip 
+                      contentStyle={customTooltipStyle} 
+                      formatter={(val) => [`${Number(val || 0).toLocaleString()} Rumah (Klik untuk peta Bappenas)`, 'Total Kerusakan']}
+                    />
+                    <Bar 
+                      dataKey="rumah" 
+                      fill="#8e24aa" 
+                      radius={[4, 4, 0, 0]} 
+                      name="Total Rumah Rusak" 
+                      className="cursor-pointer hover:opacity-80"
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -1329,7 +1399,13 @@ export default function AnalysisDashboard() {
                       >
                         <td className="p-3 pl-4 text-slate-400 font-mono">{idx + 1}</td>
                         <td className="p-3 font-bold" style={{ color: 'var(--text-primary)' }}>{row.kabupaten}</td>
-                        <td className="p-3 text-slate-500">{row.provinsi}</td>
+                        <td 
+                          className="p-3 text-slate-500 hover:text-teal-700 dark:hover:text-teal-300 font-semibold cursor-pointer hover:underline"
+                          onClick={() => setSelectedModalProvince(row.provinsi)}
+                          title={`Buka peta BAPPENAS & grafik detail ${row.provinsi}`}
+                        >
+                          {row.provinsi}
+                        </td>
                         <td className="p-3 text-right font-black text-[#1e88e5]">{row.kejadian.toLocaleString()}</td>
                         <td className="p-3 text-right font-bold text-[#e53935]">{row.meninggal.toLocaleString()}</td>
                         <td className="p-3 text-right text-[#fb8c00] font-bold">{row.pengungsi.toLocaleString()}</td>
@@ -1366,6 +1442,19 @@ export default function AnalysisDashboard() {
         )}
 
       </div>
+
+      {/* Detail Modal Spasial & Grafik BAPPENAS Level Kabupaten/Kota */}
+      {selectedModalProvince && (
+        <ProvinceDetailModal
+          isOpen={!!selectedModalProvince}
+          onClose={() => setSelectedModalProvince(null)}
+          provinsi={selectedModalProvince}
+          allData={data}
+          activeFilterJenis={selectedJenis}
+          startTahun={startTahun}
+          endTahun={endTahun}
+        />
+      )}
     </div>
   );
 }
