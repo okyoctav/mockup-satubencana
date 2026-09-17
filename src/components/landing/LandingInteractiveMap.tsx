@@ -443,7 +443,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
               {/* Circular Material Avatar */}
               <div 
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white shadow-sm shrink-0"
-                style={{ backgroundColor: 'rgb(25, 79, 112)' }}
+                style={{ backgroundColor: '#0f766e' }}
               >
                 <Compass className="w-4 h-4 animate-spin-slow" />
               </div>
@@ -459,13 +459,9 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
 
             {/* Total Points Badge */}
             <div 
-              className="px-2.5 py-1 rounded-full text-[10px] font-extrabold flex items-center gap-1.5 shrink-0"
-              style={{
-                backgroundColor: 'rgba(25, 79, 112, 0.12)',
-                color: 'rgb(25, 79, 112)'
-              }}
+              className="px-2.5 py-1 rounded-full text-[10px] font-extrabold flex items-center gap-1.5 shrink-0 bg-teal-700 text-white shadow-xs"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
               <span>{markersRef.current.length} Lokasi Peristiwa</span>
             </div>
           </div>
@@ -514,7 +510,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
           }}
           title={basemapMode === 'default' ? 'Ganti ke Citra Satelit' : 'Ganti ke Peta Standar'}
         >
-          <Layers className="w-4 h-4 text-[rgb(25,79,112)]" />
+          <Layers className="w-4 h-4 text-teal-700 dark:text-teal-400" />
         </button>
 
         {/* FAB: Reset Zoom to Indonesia */}
