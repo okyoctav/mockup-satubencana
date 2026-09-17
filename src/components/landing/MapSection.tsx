@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
 import Link from 'next/link';
 import { 
   Calendar, ArrowRight, ChevronLeft, ChevronRight, Search,
@@ -213,18 +212,23 @@ export default function MapSection() {
                     </button>
                   </div>
 
-                  {/* Selected Map Disaster Indicator Chip */}
+                  {/* Selected Map Disaster Indicator Chip - Warna Tegas Solid */}
                   {selectedDisaster && (
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-800 dark:text-teal-300">
-                      <div className="truncate text-[11px] font-semibold">
-                        📍 Lokasi Peta: <b>{selectedDisaster.Nama_Bencana}</b> ({selectedDisaster.Tahun})
+                    <div 
+                      className="flex items-center justify-between px-3 py-2 rounded-xl text-white shadow-xs"
+                      style={{ backgroundColor: 'rgb(25, 79, 112)' }}
+                    >
+                      <div className="truncate text-xs font-bold flex items-center gap-1.5">
+                        <span>📍 Lokasi Peta:</span>
+                        <span className="font-extrabold text-amber-300">{selectedDisaster.Nama_Bencana}</span>
+                        <span className="opacity-90 font-medium">({selectedDisaster.Tahun})</span>
                       </div>
                       <button
                         onClick={() => {
                           setSelectedDisaster(null);
                           setActiveArticleTab('semua');
                         }}
-                        className="text-xs text-rose-500 font-extrabold hover:underline ml-2 shrink-0"
+                        className="px-2 py-0.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-black uppercase tracking-wider ml-2 shrink-0 transition-colors cursor-pointer shadow-xs"
                       >
                         Reset
                       </button>
@@ -249,73 +253,62 @@ export default function MapSection() {
                   </div>
                 </div>
 
-                {/* 3. Material Card Article List */}
-                <div className="flex-1 min-h-0 p-3 overflow-y-auto space-y-3">
+                {/* 3. Material Card Article List (Tanpa Cover Gambar) */}
+                <div className="flex-1 min-h-0 p-3 overflow-y-auto space-y-2.5">
                   {currentGridPosts.length > 0 ? (
                     currentGridPosts.map((post) => (
                       <article
                         key={post.id}
-                        className="group rounded-2xl border overflow-hidden transition-all duration-300 hover:shadow-md flex flex-col"
+                        className="group rounded-2xl border p-3.5 transition-all duration-300 hover:shadow-md flex flex-col justify-between space-y-2"
                         style={{
                           backgroundColor: 'var(--bg-card)',
                           borderColor: 'var(--border-faint)',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.04)'
                         }}
                       >
-                        {/* Material Card Top Image */}
-                        <div className="relative w-full h-32 overflow-hidden bg-slate-100">
-                          <Image
-                            src={post.image}
-                            alt={post.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          
-                          {/* Floating Category Badge on top of image */}
-                          <div className="absolute top-2 left-2 z-10">
-                            <span
-                              className="px-2.5 py-1 rounded-full text-[9.5px] font-extrabold uppercase tracking-wide text-white shadow-md"
-                              style={{ backgroundColor: post.tagColor || '#00897b' }}
-                            >
-                              {post.category}
-                            </span>
-                          </div>
+                        {/* Top Metadata: Category Pill & Date */}
+                        <div className="flex items-center justify-between gap-2">
+                          <span
+                            className="px-2.5 py-0.5 rounded-full text-[9.5px] font-extrabold uppercase tracking-wide text-white shadow-xs"
+                            style={{ backgroundColor: post.tagColor || '#00897b' }}
+                          >
+                            {post.category}
+                          </span>
 
-                          <div className="absolute bottom-2 right-2 z-10 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-white text-[9.5px] flex items-center gap-1 font-medium">
-                            <Calendar className="w-3 h-3 text-teal-400" />
+                          <div className="flex items-center gap-1 text-[10.5px] text-slate-400 font-medium">
+                            <Calendar className="w-3 h-3 text-teal-600 dark:text-teal-400" />
                             <span>{post.date}</span>
                           </div>
                         </div>
 
-                        {/* Material Card Body */}
-                        <div className="p-3.5 space-y-1.5 flex-1 flex flex-col justify-between">
-                          <Link href={`/blog/${post.id}`}>
-                            <h4
-                              className="text-xs sm:text-sm font-black leading-snug line-clamp-2 transition-colors cursor-pointer group-hover:text-teal-600"
-                              style={{ color: 'var(--text-primary)' }}
-                            >
-                              {post.title}
-                            </h4>
+                        {/* Article Title */}
+                        <Link href={`/blog/${post.id}`}>
+                          <h4
+                            className="text-xs sm:text-sm font-black leading-snug line-clamp-2 transition-colors cursor-pointer group-hover:text-teal-600"
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            {post.title}
+                          </h4>
+                        </Link>
+
+                        {/* Article Excerpt */}
+                        <p className="text-[11px] leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
+                          {post.excerpt}
+                        </p>
+
+                        {/* Card Action Bar Footer */}
+                        <div className="pt-2 border-t flex items-center justify-between" style={{ borderColor: 'var(--border-faint)' }}>
+                          <span className="text-[10px] text-slate-400 font-semibold">
+                            Oleh {post.author}
+                          </span>
+
+                          <Link
+                            href={`/blog/${post.id}`}
+                            className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1 transition-colors hover:underline text-[rgb(25,79,112)] dark:text-teal-400 cursor-pointer"
+                          >
+                            <span>Baca Artikel</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
                           </Link>
-
-                          <p className="text-[11px] leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
-                            {post.excerpt}
-                          </p>
-
-                          {/* Material Card Action Bar */}
-                          <div className="pt-2 mt-1 border-t flex items-center justify-between" style={{ borderColor: 'var(--border-faint)' }}>
-                            <span className="text-[10px] text-slate-400 font-semibold">
-                              Oleh {post.author}
-                            </span>
-
-                            <Link
-                              href={`/blog/${post.id}`}
-                              className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1 transition-colors hover:underline text-[rgb(25,79,112)]"
-                            >
-                              <span>Baca Artikel</span>
-                              <ArrowRight className="w-3.5 h-3.5" />
-                            </Link>
-                          </div>
                         </div>
                       </article>
                     ))
