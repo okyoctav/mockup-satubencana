@@ -422,7 +422,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
     : '#00897b';
 
   return (
-    <div className="relative w-full h-full flex flex-col bg-slate-950 overflow-hidden font-sans select-none">
+    <div className="relative w-full h-full flex flex-col bg-slate-950 overflow-hidden font-sans select-none landing-map-container">
       
       {/* ============================================================
           TOP FLOATING MATERIAL APP BAR (Title + Material Chips Filter)

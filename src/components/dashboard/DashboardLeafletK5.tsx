@@ -2304,7 +2304,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
   }, []);
 
   return (
-    <div ref={mapContainerWrapperRef} className="relative w-full h-full overflow-hidden font-sans bg-slate-900">
+    <div ref={mapContainerWrapperRef} className="relative w-full h-full overflow-hidden font-sans bg-slate-900 dashboard-k5-map">
       {/* Map Container */}
       <div ref={containerRef} className="w-full h-full z-0" />
 
@@ -2344,8 +2344,11 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                 key={i}
                 onClick={() => {
                   if (mapRef.current) {
-                    mapRef.current.flyTo([parseFloat(res.lat), parseFloat(res.lon)], 11);
+                    const lat = parseFloat(res.lat);
+                    const lon = parseFloat(res.lon);
+                    mapRef.current.flyTo([lat, lon], 12, { animate: true });
                     setGlassSearchResults([]);
+                    setGlassSearchQuery(res.display_name);
                   }
                 }}
                 className="w-full text-left p-2 rounded-xl text-xs hover:bg-[#1f8080]/10 hover:text-[#19506e] transition-colors truncate font-medium text-slate-700"
@@ -2364,33 +2367,39 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
           <button
             onClick={() => { setShowBmkg(true); setBmkgMode("terkini"); }}
             className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              showBmkg && bmkgMode === "terkini" ? "bg-[#19506e] text-white shadow-xs" : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              showBmkg && bmkgMode === "terkini" 
+                ? "bg-[#19506e] text-white shadow-xs" 
+                : "text-gray-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-slate-800"
             }`}
             title="Gempa Terkini M >= 5.0 (gempaterkini.json)"
           >
-            <Activity className="w-3.5 h-3.5 text-emerald-400" />
+            <Activity className={`w-3.5 h-3.5 ${showBmkg && bmkgMode === "terkini" ? "text-emerald-400" : "text-gray-400"}`} />
             <span>Gempa Terkini</span>
           </button>
 
           <button
             onClick={() => { setShowBmkg(true); setBmkgMode("dirasakan"); }}
             className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              showBmkg && bmkgMode === "dirasakan" ? "bg-[#19506e] text-white shadow-xs" : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              showBmkg && bmkgMode === "dirasakan" 
+                ? "bg-[#19506e] text-white shadow-xs" 
+                : "text-gray-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-slate-800"
             }`}
             title="Gempa Dirasakan MMI (gempadirasakan.json)"
           >
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+            <span className={`w-2 h-2 rounded-full ${showBmkg && bmkgMode === "dirasakan" ? "bg-amber-500 animate-ping" : "bg-amber-400/60"}`} />
             <span>Gempa Dirasakan</span>
           </button>
 
           <button
             onClick={() => { setShowBmkg(true); setBmkgMode("autogempa"); }}
             className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              showBmkg && bmkgMode === "autogempa" ? "bg-[#19506e] text-white shadow-xs" : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              showBmkg && bmkgMode === "autogempa" 
+                ? "bg-[#19506e] text-white shadow-xs" 
+                : "text-gray-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-slate-800"
             }`}
             title="Gempa Terbaru Autogempa TEWS (autogempa.json)"
           >
-            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+            <span className={`w-2 h-2 rounded-full ${showBmkg && bmkgMode === "autogempa" ? "bg-rose-500 animate-pulse" : "bg-rose-400/60"}`} />
             <span>Gempa Terbaru</span>
           </button>
 

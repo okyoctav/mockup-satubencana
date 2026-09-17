@@ -183,9 +183,25 @@ body {
 /* ============================================================
    LEAFLET POPUP GLOBAL & CUSTOM STYLING
    ============================================================ */
+/* Default Leaflet Popup Content */
 .leaflet-popup-content {
+  margin: 13px 24px 13px 20px;
+  line-height: 1.3;
+}
+
+/* Khusus Frontend Landing Page: margin 0 sesuai estetika card custom */
+.landing-map-container .leaflet-popup-content,
+#peta .leaflet-popup-content,
+.material-custom-popup .leaflet-popup-content {
   margin: 0 !important;
-  line-height: normal;
+  line-height: normal !important;
+}
+
+/* Khusus Dashboard K5: margin normal 13px 24px 13px 20px */
+.dashboard-k5-map .leaflet-popup-content,
+.dashboard-k5-container .leaflet-popup-content {
+  margin: 13px 24px 13px 20px !important;
+  line-height: 1.3 !important;
 }
 
 .material-custom-popup .leaflet-popup-content-wrapper {

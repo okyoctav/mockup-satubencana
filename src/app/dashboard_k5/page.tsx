@@ -204,7 +204,7 @@ export default function DashboardK5Page() {
   }
 
   return (
-    <div className="min-h-screen flex bg-white text-slate-800 font-sans selection:bg-[#1f8080] selection:text-white antialiased relative">
+    <div className="min-h-screen flex bg-white text-slate-800 font-sans selection:bg-[#1f8080] selection:text-white antialiased relative dashboard-k5-container">
       {/* FULLSCREEN BUMPER LOGO VIDEO (Played 1x on first-time visit) */}
       {showBumper && (
         <div className="fixed inset-0 z-[99999] bg-black flex items-center justify-center overflow-hidden transition-opacity duration-500">
@@ -320,20 +320,6 @@ export default function DashboardK5Page() {
                   </>
                 ) : (
                   <span className="text-[10px] font-bold text-[#1f8080]">K5</span>
-                )}
-              </a>
-              <a
-                href="/dashboard_k6"
-                className={`flex items-center ${isSidebarOpen ? 'justify-between px-3' : 'justify-center px-0'} py-2 rounded-lg text-slate-200 hover:bg-white/10 transition-colors`}
-                title={!isSidebarOpen ? 'Konsep Materialize (K6)' : undefined}
-              >
-                {isSidebarOpen ? (
-                  <>
-                    <span>Konsep Materialize</span>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-teal-600 text-white font-bold">K6</span>
-                  </>
-                ) : (
-                  <span className="text-[10px] font-bold text-teal-300">K6</span>
                 )}
               </a>
             </div>
