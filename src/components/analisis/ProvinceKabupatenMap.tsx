@@ -42,17 +42,15 @@ export default function ProvinceKabupatenMap({
   const markersLayerGroupRef = useRef<L.LayerGroup | null>(null);
   const baseTileRef = useRef<L.TileLayer | null>(null);
 
-  const [basemap, setBasemap] = useState<'light' | 'satellite' | 'osm'>('light');
   const [showWms, setShowWms] = useState<boolean>(true);
-  const [useCqlFilter, setUseCqlFilter] = useState<boolean>(true);
   const [wmsOpacity, setWmsOpacity] = useState<number>(0.85);
   const [showMarkers, setShowMarkers] = useState<boolean>(true);
 
-  // Normalize province name for lookup and GeoServer CQL
+  // Normalize province name for lookup and coordinates
   const provUpper = (provinsi || '').toUpperCase().trim();
   const provCoord = PROVINCE_COORDINATES[provUpper] || { lat: -2.5, lng: 118.0, zoom: 5.5 };
 
-  // 1. Initialize Map
+  // 1. Initialize Map with Satellite Basemap
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
@@ -69,18 +67,17 @@ export default function ProvinceKabupatenMap({
       attributionControl: false
     });
 
-    // Basemap: Light Carto Positron
+    // Basemap: Satelit (ArcGIS World Imagery)
     baseTileRef.current = L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       {
-        subdomains: 'abcd',
-        maxZoom: 19
+        maxZoom: 18
       }
     ).addTo(map);
 
     // Attribution
     L.control.attribution({ position: 'bottomright' })
-      .addAttribution('&copy; <a href="https://bappenas.go.id">BAPPENAS</a> &middot; <a href="https://openstreetmap.org">OSM</a>')
+      .addAttribution('&copy; Esri &middot; &copy; <a href="https://bappenas.go.id">BAPPENAS</a>')
       .addTo(map);
 
     // Layer Group untuk Markers Kabupaten
@@ -108,39 +105,7 @@ export default function ProvinceKabupatenMap({
     };
   }, [provinsi, provCoord.lat, provCoord.lng, provCoord.zoom]);
 
-  // 2. Switch Basemap
-  useEffect(() => {
-    if (!mapRef.current) return;
-    if (baseTileRef.current) {
-      mapRef.current.removeLayer(baseTileRef.current);
-    }
-
-    let url = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-    let sub = 'abcd';
-    let maxZ = 19;
-
-    if (basemap === 'satellite') {
-      url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-      sub = '';
-      maxZ = 18;
-    } else if (basemap === 'osm') {
-      url = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-      sub = 'abc';
-      maxZ = 19;
-    }
-
-    baseTileRef.current = L.tileLayer(url, {
-      subdomains: sub ? sub.split('') : [],
-      maxZoom: maxZ
-    }).addTo(mapRef.current);
-
-    // Ensure WMS and markers stay on top
-    if (wmsLayerRef.current && mapRef.current.hasLayer(wmsLayerRef.current)) {
-      wmsLayerRef.current.bringToFront();
-    }
-  }, [basemap]);
-
-  // 3. Update BAPPENAS GeoServer WMS Layer
+  // 2. Update BAPPENAS GeoServer WMS Layer (Batas Kab/Kota Auto On)
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -150,9 +115,6 @@ export default function ProvinceKabupatenMap({
     }
 
     if (!showWms) return;
-
-    // Bersihkan nama provinsi untuk filter CQL (misal: "KALIMANTAN SELATAN")
-    const cleanProv = provUpper.replace(/^(PROVINSI|DAERAH KHUSUS IBUKOTA|DAERAH ISTIMEWA)\s+/, '').trim();
 
     // WMS Parameters sesuai URL GetMap Bappenas
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -165,11 +127,6 @@ export default function ProvinceKabupatenMap({
       zIndex: 10
     };
 
-    // Terapkan CQL_FILTER agar hanya batas wilayah kab/kota provinsi terkait yang muncul
-    if (useCqlFilter && cleanProv) {
-      wmsOptions.cql_filter = `WADMPR ILIKE '%${cleanProv}%'`;
-    }
-
     const wms = L.tileLayer.wms(
       'https://mandata.bappenas.go.id/geoserver/BATAS_WILAYAH/wms',
       wmsOptions
@@ -178,12 +135,22 @@ export default function ProvinceKabupatenMap({
     wms.addTo(mapRef.current);
     wmsLayerRef.current = wms;
 
+    // Ensure markers stay on top
+    if (markersLayerGroupRef.current) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      markersLayerGroupRef.current.eachLayer((layer: any) => {
+        if (typeof layer.bringToFront === 'function') {
+          layer.bringToFront();
+        }
+      });
+    }
+
     return () => {
       if (mapRef.current && wms) {
         mapRef.current.removeLayer(wms);
       }
     };
-  }, [showWms, useCqlFilter, wmsOpacity, provUpper]);
+  }, [showWms, wmsOpacity]);
 
   // 4. Render Markers Kabupaten/Kota dengan data bencana
   useEffect(() => {
@@ -330,75 +297,33 @@ export default function ProvinceKabupatenMap({
 
       {/* Floating Map Controls Toolbar */}
       <div className="absolute top-3 right-3 z-[400] flex flex-col gap-2 items-end">
-        {/* Basemap Switcher */}
-        <div className="bg-slate-900/95 backdrop-blur-md p-1 rounded-xl border border-slate-700/80 shadow-md flex items-center gap-1 text-white">
-          <button
-            onClick={() => setBasemap('light')}
-            className={`px-2 py-1 rounded-lg text-[10.5px] font-bold transition-all ${
-              basemap === 'light' ? 'bg-[#00695c] text-white shadow-xs' : 'text-slate-300 hover:bg-slate-800'
-            }`}
-            title="Peta Terang"
-          >
-            Peta
-          </button>
-          <button
-            onClick={() => setBasemap('satellite')}
-            className={`px-2 py-1 rounded-lg text-[10.5px] font-bold transition-all ${
-              basemap === 'satellite' ? 'bg-[#00695c] text-white shadow-xs' : 'text-slate-300 hover:bg-slate-800'
-            }`}
-            title="Citra Satelit"
-          >
-            Satelit
-          </button>
-          <button
-            onClick={() => setBasemap('osm')}
-            className={`px-2 py-1 rounded-lg text-[10.5px] font-bold transition-all ${
-              basemap === 'osm' ? 'bg-[#00695c] text-white shadow-xs' : 'text-slate-300 hover:bg-slate-800'
-            }`}
-            title="OpenStreetMap"
-          >
-            OSM
-          </button>
-        </div>
-
         {/* Bappenas WMS Layer Controls */}
         <div 
-          className="bg-slate-900/95 backdrop-blur-md p-2 rounded-xl border border-slate-700/80 shadow-md flex flex-col gap-1.5 w-48 text-[11px] text-white"
+          className="bg-slate-900/95 backdrop-blur-md p-2.5 rounded-xl border border-slate-700/80 shadow-md flex flex-col gap-2 w-48 text-[11px] text-white"
           style={{ color: '#fff' }}
         >
           <div className="flex items-center justify-between font-bold text-white" style={{ color: '#fff' }}>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-teal-400" />
               Batas Kab/Kota
             </span>
             <button
               onClick={() => setShowWms(!showWms)}
-              className={`p-1 rounded-md transition-colors ${
+              className={`p-1 rounded-md transition-colors cursor-pointer ${
                 showWms ? 'text-teal-400 hover:bg-slate-800' : 'text-slate-400 hover:bg-slate-800'
               }`}
-              title={showWms ? 'Sembunyikan WMS Batas Wilayah' : 'Tampilkan WMS Batas Wilayah'}
+              title={showWms ? 'Sembunyikan Batas Wilayah' : 'Tampilkan Batas Wilayah'}
             >
               {showWms ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
             </button>
           </div>
 
           {showWms && (
-            <>
-              {/* CQL Filter Toggle */}
-              <label className="flex items-center justify-between text-[10px] text-slate-200 cursor-pointer pt-1 border-t border-slate-800">
-                <span>Filter Hanya {provinsi}</span>
-                <input
-                  type="checkbox"
-                  checked={useCqlFilter}
-                  onChange={(e) => setUseCqlFilter(e.target.checked)}
-                  className="rounded text-teal-500 focus:ring-teal-400 w-3.5 h-3.5 accent-teal-600"
-                />
-              </label>
-
+            <div className="flex flex-col gap-1 pt-1.5 border-t border-slate-800">
               {/* Opacity Slider */}
               <div className="flex items-center justify-between text-[10px] text-slate-300">
-                <span>Opasitas</span>
-                <span>{Math.round(wmsOpacity * 100)}%</span>
+                <span>Opasitas Batas</span>
+                <span className="font-semibold text-teal-400">{Math.round(wmsOpacity * 100)}%</span>
               </div>
               <input
                 type="range"
@@ -409,7 +334,7 @@ export default function ProvinceKabupatenMap({
                 onChange={(e) => setWmsOpacity(parseFloat(e.target.value))}
                 className="w-full accent-[#00695c] h-1 bg-slate-700 rounded-lg cursor-pointer"
               />
-            </>
+            </div>
           )}
 
           {/* Markers Toggle */}

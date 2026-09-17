@@ -450,7 +450,10 @@ export default function ProvinceDetailModal({
         {/* ============================================================
             2. TOP KPI SUMMARY STRIP (MATERIAL CHIPS)
             ============================================================ */}
-        <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 shrink-0 text-xs">
+        <div 
+          className="px-5 py-3 border-b border-slate-200 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 shrink-0 text-xs shadow-inner"
+          style={{ background: '#477997' }}
+        >
           {/* Total Kejadian */}
           <div className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-[#194f70] flex items-center justify-center text-white font-bold shadow-xs">
@@ -703,19 +706,22 @@ export default function ProvinceDetailModal({
               </div>
 
               {/* Bottom Quick Table Bar: Switch to Full Table */}
-              <div className="p-3.5 rounded-2xl bg-teal-50/70 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 flex items-center justify-between gap-3">
+              <div 
+                className="p-3.5 rounded-2xl border border-[#00695c] flex items-center justify-between gap-3 shadow-md text-white"
+                style={{ background: 'linear-gradient(135deg, rgb(25, 79, 112), rgb(15, 55, 80))' }}
+              >
                 <div className="flex items-center gap-2">
-                  <TableIcon className="w-4 h-4 text-teal-800 dark:text-teal-300" />
-                  <span className="text-xs font-bold text-teal-900 dark:text-teal-200">
+                  <TableIcon className="w-4 h-4 text-teal-200" />
+                  <span className="text-xs font-bold text-white">
                     Tersedia {kabupatenStats.length} Kabupaten/Kota dengan data lengkap korban &amp; infrastruktur.
                   </span>
                 </div>
                 <button
                   onClick={() => setActiveTab('tabel')}
-                  className="px-3.5 py-1.5 rounded-xl bg-[#00695c] hover:bg-[#004d40] text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white border border-white/20 font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>Buka Tabel Seluruh Kab/Kota</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  <ChevronRight className="w-3.5 h-3.5 text-teal-200" />
                 </button>
               </div>
             </div>
