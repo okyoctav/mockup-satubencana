@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ClipboardList, Users, Tent, Home, MapPin, Building2, X } from 'lucide-react';
+import { ClipboardList, Users, Tent, Home, TrendingUp, MapPin, Building2, X } from 'lucide-react';
 import { DIBI_TOTAL } from '@/data/dibiStats';
 
 type CardIcon = React.ReactNode;
@@ -256,9 +256,17 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
                 </span>
               </div>
 
-              {/* Filtered Region/Disaster Badge if active */}
+              {/* Bottom-left dynamic note (replaces 'Periode data simulasi' from presentation) */}
+              <div className="absolute left-[5%] bottom-[7.5%] flex items-center gap-1.5 pointer-events-none max-w-[58%] truncate">
+                <TrendingUp className="w-3.5 h-3.5 text-[#1f8080] shrink-0" />
+                <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 truncate">
+                  {card.trend}
+                </span>
+              </div>
+
+              {/* Filtered Region/Disaster Badge if active (Moved to bottom right) */}
               {regionLabel && (
-                <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-300 text-[10px] font-black text-[#0a1e36] shadow-sm truncate max-w-[130px]">
+                <div className="absolute bottom-2.5 right-2.5 px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-300 text-[10px] font-black text-[#0a1e36] shadow-sm truncate max-w-[130px] z-10">
                   {regionLabel}
                 </div>
               )}
