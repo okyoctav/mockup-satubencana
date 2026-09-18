@@ -1,6 +1,6 @@
 'use client';
 
-const JENIS_CONFIG: Record<
+export const JENIS_CONFIG: Record<
   string,
   { label: string; icon: string; color: string }
 > = {
@@ -15,11 +15,11 @@ const JENIS_CONFIG: Record<
   'angin puting beliung': { label: 'Cuaca Ekstrem', icon: '🌪️', color: '#4f46e5' },
 };
 
-const JENIS_LIST = Object.keys(JENIS_CONFIG);
-const STATUS_LIST = ['Semua', 'pra', 'saat', 'pasca'];
-const LEVEL_LIST = ['Semua', 'tinggi', 'sedang', 'rendah'];
+export const JENIS_LIST = Object.keys(JENIS_CONFIG);
+export const STATUS_LIST = ['Semua', 'pra', 'saat', 'pasca'];
+export const LEVEL_LIST = ['Semua', 'tinggi', 'sedang', 'rendah'];
 
-const JENIS_COLOR: Record<string, string> = {
+export const JENIS_COLOR: Record<string, string> = {
   banjir: '#0284c7',
   gempa: '#ef4444',
   longsor: '#d97706',

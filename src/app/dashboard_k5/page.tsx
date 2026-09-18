@@ -5,7 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import AlertTicker from '@/components/dashboard/AlertTicker';
 import StatCards from '@/components/dashboard/StatCards';
 import DashboardMapK5 from '@/components/dashboard/DashboardMapK5';
-import FilterPanel from '@/components/dashboard/FilterPanel';
+import FilterPanel, { JENIS_CONFIG, JENIS_LIST } from '@/components/dashboard/FilterPanel';
 import ChartSection from '@/components/dashboard/ChartSection';
 import AnalysisModelsSection from '@/components/dashboard/AnalysisModelsSection';
 import LogisticAnalysisSection from '@/components/dashboard/LogisticAnalysisSection';
@@ -485,13 +485,125 @@ export default function DashboardK5Page() {
 
         {/* Scrollable Content Body */}
         <main className="flex-1 p-6 space-y-6 overflow-y-auto">
-          {/* 1. Key Stat Cards */}
+          {/* 1. HERO SIMULATION STEP 1: PILIH JENIS BENCANA (HIGH-PRIORITY CALLOUT) */}
+          <section
+            className={`bg-white rounded-2xl p-4 sm:p-5 transition-all duration-300 ${
+              filters.jenis === 'Semua'
+                ? 'border-2 border-[#1f8080] shadow-lg ring-4 ring-[#1f8080]/15'
+                : 'border border-slate-200 shadow-xs'
+            }`}
+          >
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#0a1e36] text-white flex items-center justify-center font-black text-sm shadow-md shrink-0">
+                  1
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-sm font-bold text-[#0a1e36]">
+                      Mulai Simulasi: Pilih Jenis Bencana
+                    </h2>
+                    {filters.jenis === 'Semua' ? (
+                      <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1.5 animate-pulse">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                        Langkah Utama · Klik Jenis Bencana
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        Simulasi Aktif
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Tentukan kategori bencana utama sebagai basis pemodelan spasial, analisis logistik, fasilitas, dan respon darurat.
+                  </p>
+                </div>
+              </div>
+
+              {/* Status Indicator & Reset */}
+              <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
+                {filters.jenis !== 'Semua' ? (
+                  <>
+                    <div
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold text-white shadow-xs flex items-center gap-1.5"
+                      style={{ backgroundColor: JENIS_CONFIG[filters.jenis]?.color || '#0a1e36' }}
+                    >
+                      <span className="text-sm">{JENIS_CONFIG[filters.jenis]?.icon}</span>
+                      <span>Skenario: {JENIS_CONFIG[filters.jenis]?.label}</span>
+                      <span className="text-[10px] bg-white/20 px-1.5 py-0.2 rounded font-mono font-normal">
+                        {filteredData.length} Titik
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFilters({ ...filters, jenis: 'Semua' })}
+                      className="px-3 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl border border-rose-200 transition-colors cursor-pointer"
+                    >
+                      Reset Pilihan
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-2 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl animate-pulse">
+                    <span>👆</span>
+                    <span>Klik salah satu bencana di bawah ini untuk memulai</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Grid of Disaster Chips */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-2 pt-3">
+              {JENIS_LIST.map((j) => {
+                const isSelected = filters.jenis === j;
+                const cfg = JENIS_CONFIG[j];
+                return (
+                  <button
+                    key={j}
+                    type="button"
+                    onClick={() => setFilters({ ...filters, jenis: j })}
+                    className={`p-2.5 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer relative ${
+                      isSelected
+                        ? 'text-white shadow-md scale-105 ring-2 ring-offset-1 ring-[#0a1e36]/30'
+                        : filters.jenis === 'Semua'
+                        ? 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80 hover:border-[#1f8080] hover:scale-102 hover:shadow-xs'
+                        : 'bg-slate-50/70 hover:bg-slate-100 text-slate-600 border border-slate-200/60'
+                    }`}
+                    style={{
+                      backgroundColor: isSelected ? cfg.color : undefined,
+                      boxShadow: isSelected ? `0 4px 14px ${cfg.color}55` : undefined,
+                    }}
+                    title={`Pilih skenario simulasi: ${cfg.label}`}
+                  >
+                    <span className="text-xl sm:text-lg">{cfg.icon}</span>
+                    <span className="text-center font-bold tracking-tight">{cfg.label}</span>
+                    {isSelected && (
+                      <span className="w-2 h-2 rounded-full bg-white animate-ping absolute top-1.5 right-1.5" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* 2. Key Stat Cards */}
           <section className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs">
             <StatCards
               status={filters.status}
-              regionData={activeFilter ? regionFilteredData : undefined}
-              regionLabel={activeFilter?.nama}
-              onClearRegion={activeFilter ? handleClearSearch : undefined}
+              regionData={activeFilter || filters.jenis !== 'Semua' ? filteredData : undefined}
+              regionLabel={
+                activeFilter
+                  ? (filters.jenis !== 'Semua' ? `${activeFilter.nama} (${JENIS_CONFIG[filters.jenis]?.label})` : activeFilter.nama)
+                  : (filters.jenis !== 'Semua' ? `Bencana ${JENIS_CONFIG[filters.jenis]?.label}` : undefined)
+              }
+              onClearRegion={
+                activeFilter || filters.jenis !== 'Semua'
+                  ? () => {
+                      if (activeFilter) handleClearSearch();
+                      if (filters.jenis !== 'Semua') setFilters({ ...filters, jenis: 'Semua' });
+                    }
+                  : undefined
+              }
             />
           </section>
 
