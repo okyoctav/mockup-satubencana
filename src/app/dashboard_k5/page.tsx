@@ -590,6 +590,7 @@ export default function DashboardK5Page() {
           <section className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs">
             <StatCards
               status={filters.status}
+              selectedJenis={filters.jenis}
               regionData={activeFilter || filters.jenis !== 'Semua' ? filteredData : undefined}
               regionLabel={
                 activeFilter

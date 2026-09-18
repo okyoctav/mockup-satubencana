@@ -1247,13 +1247,13 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
   const [layerSearch, setLayerSearch] = useState('');
   const [layerGroupFilter, setLayerGroupFilter] = useState('ALL');
   
-  const [showBmkg, setShowBmkg] = useState(true);
+  const [showBmkg, setShowBmkg] = useState(false);
   const [bmkgMode, setBmkgMode] = useState<'terkini' | 'dirasakan' | 'autogempa'>('terkini');
   const [bmkgDirasakanData, setBmkgDirasakanData] = useState<BmkgGempa[]>([]);
   const [bmkgAutoData, setBmkgAutoData] = useState<BmkgGempa[]>([]);
   const [bmkgData, setBmkgData] = useState<BmkgGempa[]>([]);
   const [showBencanaData, setShowBencanaData] = useState(true);
-  const [showKerentanan, setShowKerentanan] = useState(true);
+  const [showKerentanan, setShowKerentanan] = useState(false);
   const [kerentananCode, setKerentananCode] = useState<'7171' | '7172' | 'kjs_individu'>('7172');
   const [kerentananData, setKerentananData] = useState<KerentananData[]>([]);
   const kerentananMarkersRef = useRef<L.Layer[]>([]);

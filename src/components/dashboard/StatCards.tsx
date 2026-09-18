@@ -72,9 +72,10 @@ interface Props {
   regionData?: Kejadian[];
   regionLabel?: string;
   onClearRegion?: () => void;
+  selectedJenis?: string;
 }
 
-export default function StatCards({ status, regionData, regionLabel, onClearRegion }: Props) {
+export default function StatCards({ status, regionData, regionLabel, onClearRegion, selectedJenis }: Props) {
   const [showRehabModal, setShowRehabModal] = useState(false);
   const showRehab = status === 'pasca';
 
@@ -223,8 +224,21 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
         )}
 
         {cards.map((card) => {
+          const getDisasterKejadianImage = () => {
+            const key = (selectedJenis || '').toLowerCase().trim();
+            if (key === 'banjir') return '/images/cards/card_kejadian_banjir.png';
+            if (key === 'gempa' || key === 'gempabumi') return '/images/cards/card_kejadian_gempa.png';
+            if (key === 'longsor' || key === 'tanah longsor') return '/images/cards/card_kejadian_longsor.png';
+            if (key === 'kebakaran' || key === 'karhutla' || key === 'kebakaran hutan') return '/images/cards/card_kejadian_kebakaran.png';
+            if (key === 'erupsi' || key === 'gunung api') return '/images/cards/card_kejadian_erupsi.png';
+            if (key === 'tsunami') return '/images/cards/card_kejadian_tsunami.png';
+            if (key === 'kekeringan') return '/images/cards/card_kejadian_kekeringan.png';
+            if (key.includes('cuaca') || key.includes('angin') || key.includes('puting')) return '/images/cards/card_kejadian_cuaca_ekstrem.png';
+            return '/images/cards/card_kejadian_banjir.png';
+          };
+
           const templateMap: Record<string, string> = {
-            kejadian: '/images/cards/card_kejadian_clean.png',
+            kejadian: getDisasterKejadianImage(),
             korban: '/images/cards/card_korban_clean.png',
             pengungsi: '/images/cards/card_pengungsi_clean.png',
             rumah: '/images/cards/card_rumah_clean.png',
