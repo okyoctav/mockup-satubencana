@@ -789,6 +789,7 @@ export default function DashboardK5Page() {
                     flyTo={flyTo}
                     theme={theme}
                     kodeKemendagri={activeFilter?.kodeKemendagri}
+                    selectedJenis={filters.jenis}
                     onDrawEstimation={(stats) => setDrawEstimation(stats)}
                     onActiveOverlaysChange={(overlays) => setActiveOverlays(overlays)}
                   />

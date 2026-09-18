@@ -39,6 +39,7 @@ interface Props {
     sekolahDampak?: SekolahDampakItem[];
   }) => void;
   theme: string;
+  selectedJenis?: string;
   onActiveOverlaysChange?: (activeOverlays: string[]) => void;
 }
 
@@ -259,8 +260,19 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'bmkg_curah_hujan_10hari', label: 'Prakiraan Curah Hujan 10 Hari Kedepan (BMKG)', color: '#0369A1', emoji: '🌦️', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakicu10days/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:all' },
   { id: 'bmkg_seismisitas_dangkal', label: 'Peta Seismisitas Indonesia - Dangkal (BMKG)', color: '#EF4444', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/30', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:30' },
   { id: 'bmkg_seismisitas_menengah', label: 'Peta Seismisitas Indonesia - Menengah (BMKG)', color: '#F59E0B', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/31', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:31' },
-  { id: 'bmkg_seismisitas_dalam', label: 'Peta Seismisitas Indonesia - Dalam (BMKG)', color: '#8B5CF6', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/29', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:29' },
 ];
+
+export const DISASTER_DEFAULT_LAYERS: Record<string, string[]> = {
+  'Semua': ['cuaca_ekstrim_img'],
+  'banjir': ['banjir', 'banjir_bandang', 'bmkg_curah_hujan_bulanan'],
+  'gempa': ['gempa', 'sesar_wms', 'bmkg_seismisitas_dangkal'],
+  'longsor': ['longsor', 'longsor_wms'],
+  'kebakaran': ['karhutla', 'nasa_firms_active_fires'],
+  'erupsi': ['gunungapi', 'magma_volcanoes'],
+  'tsunami': ['tsunami'],
+  'kekeringan': ['kekeringan', 'bmkg_sifat_hujan_bulanan'],
+  'angin puting beliung': ['cuaca_ekstrim_img', 'cuaca_ekstrim', 'Peta_Curah_Hujan_dan_Hari_Hujan'],
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createVectorTileLayer(L: any, serviceUrl: string, color: string): any {
@@ -960,7 +972,7 @@ async function queryAtrBpnHakAtasTanah(drawLayer: L.Layer): Promise<HakAtasTanah
   }
 }
 
-export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDrawEstimation, onActiveOverlaysChange }: Props) {
+export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, selectedJenis, onDrawEstimation, onActiveOverlaysChange }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -987,6 +999,30 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
   const [activeBasemap, setActiveBasemap] = useState('esri_imagery');
   const [draftBasemap, setDraftBasemap] = useState('esri_imagery');
   const [activeOverlays, setActiveOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
+
+  // Automatically select thematic GIS layers when disaster type changes
+  useEffect(() => {
+    if (!selectedJenis) return;
+    const targetLayers = DISASTER_DEFAULT_LAYERS[selectedJenis] ?? ['cuaca_ekstrim_img'];
+    setActiveOverlays(targetLayers);
+    setDraftOverlays(targetLayers);
+
+    // Set balanced default opacity (0.75) for newly activated hazard layers
+    setLayerOpacities((prev) => {
+      const next = { ...prev };
+      targetLayers.forEach((id) => {
+        if (next[id] === undefined) {
+          next[id] = 0.75;
+        }
+      });
+      return next;
+    });
+
+    if (selectedJenis === 'gempa') {
+      setShowBmkg(true);
+      setBmkgMode('terkini');
+    }
+  }, [selectedJenis]);
 
   useEffect(() => {
     onActiveOverlaysChange?.(activeOverlays);
@@ -2356,6 +2392,25 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, onDraw
                 📍 {res.display_name}
               </button>
             ))}
+          </div>
+        )}
+
+        {/* Active Disaster Auto-Selected Layer Badge */}
+        {selectedJenis && selectedJenis !== 'Semua' && (
+          <div className="bg-[#0a1e36]/90 backdrop-blur-xl border border-white/20 rounded-2xl px-3.5 py-1.5 shadow-md flex items-center justify-between gap-2.5 text-[11px] text-white animate-in fade-in duration-200">
+            <div className="flex items-center gap-2 truncate">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              <span className="truncate">
+                Layer Bencana: <b className="text-emerald-300">{activeOverlays.map(id => BNPB_LAYERS.find(l => l.id === id)?.label?.split('(')[0]?.trim() || id).join(', ')}</b>
+              </span>
+            </div>
+            <button
+              onClick={handleOpenLayerModal}
+              className="text-[10px] font-bold bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded-lg shrink-0 transition-colors cursor-pointer"
+              title="Sesuaikan Layer Peta"
+            >
+              Ubah
+            </button>
           </div>
         )}
       </div>
