@@ -3,7 +3,7 @@
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { useState, useEffect, useRef } from 'react';
-import { Layers, Search, Check, X, Eye, Activity, MapPin, Pencil, Home, BarChart2, Maximize2, Minimize2 } from 'lucide-react';
+import { Layers, Search, Check, X, Eye, Activity, MapPin, Pencil, Home, Maximize2, Minimize2, BookOpen } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet-draw';
 
@@ -376,6 +376,219 @@ const LEGEND_ITEMS = [
   { label: 'Tsunami', color: '#EC4899' },
   { label: 'Puting Beliung', color: '#06B6D4' },
 ];
+
+const PREDEFINED_LAYER_LEGENDS: Record<
+  string,
+  { label: string; items: { color: string; text: string; icon?: string }[] }
+> = {
+  banjir: {
+    label: 'Indeks Bahaya Banjir (InARISK)',
+    items: [
+      { color: '#DC2626', text: 'Bahaya Tinggi' },
+      { color: '#F59E0B', text: 'Bahaya Sedang' },
+      { color: '#10B981', text: 'Bahaya Rendah' },
+    ],
+  },
+  banjir_bandang: {
+    label: 'Indeks Bahaya Banjir Bandang (InARISK)',
+    items: [
+      { color: '#991B1B', text: 'Bahaya Sangat Tinggi' },
+      { color: '#EA580C', text: 'Bahaya Tinggi' },
+      { color: '#FBBF24', text: 'Bahaya Sedang' },
+    ],
+  },
+  banjir_wms: {
+    label: 'Bahaya Banjir WMS (InARISK)',
+    items: [
+      { color: '#0284C7', text: 'Zona Rendaman Banjir' },
+      { color: '#38BDF8', text: 'Potensi Genangan' },
+    ],
+  },
+  gempa: {
+    label: 'Bahaya Gempa Bumi 30 (InARISK)',
+    items: [
+      { color: '#DC2626', text: 'Percepatan Tanah Tinggi (PGA > 0.4g)' },
+      { color: '#F97316', text: 'Percepatan Tanah Sedang (PGA 0.2 - 0.4g)' },
+      { color: '#FBBF24', text: 'Percepatan Tanah Rendah (PGA < 0.2g)' },
+    ],
+  },
+  sesar_wms: {
+    label: 'Peta Sesar & Patahan Aktif (Faults Indonesia)',
+    items: [
+      { color: '#EF4444', text: 'Jalur Patahan Sesar Aktif Utama' },
+      { color: '#8B5CF6', text: 'Zona Deformasi Struktur' },
+    ],
+  },
+  Faults_new: {
+    label: 'Jalur Sesar Aktif (BNPB InARISK)',
+    items: [
+      { color: '#DC2626', text: 'Garis Patahan Aktif' },
+    ],
+  },
+  bmkg_seismisitas_dangkal: {
+    label: 'Seismisitas Gempa Dangkal (BMKG)',
+    items: [
+      { color: '#DC2626', text: 'Kedalaman < 60 km (Dangkal)' },
+    ],
+  },
+  bmkg_seismisitas_menengah: {
+    label: 'Seismisitas Gempa Menengah (BMKG)',
+    items: [
+      { color: '#F59E0B', text: 'Kedalaman 60 - 300 km' },
+    ],
+  },
+  bmkg_seismisitas_dalam: {
+    label: 'Seismisitas Gempa Dalam (BMKG)',
+    items: [
+      { color: '#8B5CF6', text: 'Kedalaman > 300 km' },
+    ],
+  },
+  longsor: {
+    label: 'Bahaya Tanah Longsor 30 (InARISK)',
+    items: [
+      { color: '#B45309', text: 'Kerentanan Gerakan Tanah Tinggi' },
+      { color: '#F59E0B', text: 'Kerentanan Gerakan Tanah Menengah' },
+      { color: '#84CC16', text: 'Kerentanan Gerakan Tanah Rendah' },
+    ],
+  },
+  longsor_wms: {
+    label: 'Bahaya Longsor WMS (InARISK)',
+    items: [
+      { color: '#D97706', text: 'Kelerengan Curam & Zona Longsor' },
+    ],
+  },
+  karhutla: {
+    label: 'Bahaya Kebakaran Hutan & Lahan 30 (InARISK)',
+    items: [
+      { color: '#DC2626', text: 'Tingkat Kerawanan Tinggi' },
+      { color: '#F97316', text: 'Tingkat Kerawanan Sedang' },
+      { color: '#FBBF24', text: 'Tingkat Kerawanan Rendah' },
+    ],
+  },
+  nasa_firms_active_fires: {
+    label: 'Titik Panas / Hotspots Realtime (NASA FIRMS NOAA-20)',
+    items: [
+      { color: '#EF4444', text: 'Hotspot Tingkat Kepercayaan Tinggi (>80%)' },
+      { color: '#F59E0B', text: 'Hotspot Tingkat Kepercayaan Nominal' },
+    ],
+  },
+  nasa_gibs_fire_viirs: {
+    label: 'Titik Panas NASA VIIRS (375m)',
+    items: [
+      { color: '#DC2626', text: 'Anomali Termal Kebakaran Aktif' },
+    ],
+  },
+  gunungapi: {
+    label: 'Bahaya Letusan Gunung Api (InARISK)',
+    items: [
+      { color: '#7C2D12', text: 'KRB III (Kawasan Rawan Bencana Sangat Tinggi)' },
+      { color: '#EA580C', text: 'KRB II (Zona Lontaran Piroklastik)' },
+      { color: '#FBBF24', text: 'KRB I (Zona Aliran Lahar Hujan)' },
+    ],
+  },
+  magma_volcanoes: {
+    label: 'Tingkat Aktivitas Gunung Api (PVMBG MAGMA)',
+    items: [
+      { color: '#DC2626', text: 'Level IV (Awas)' },
+      { color: '#EA580C', text: 'Level III (Siaga)' },
+      { color: '#FBBF24', text: 'Level II (Waspada)' },
+      { color: '#10B981', text: 'Level I (Normal)' },
+    ],
+  },
+  tsunami: {
+    label: 'Bahaya Tsunami 30 (InARISK)',
+    items: [
+      { color: '#0369A1', text: 'Ketinggian Hempasan > 3 meter' },
+      { color: '#0284C7', text: 'Ketinggian Hempasan 1 - 3 meter' },
+      { color: '#38BDF8', text: 'Ketinggian Hempasan < 1 meter' },
+    ],
+  },
+  kekeringan: {
+    label: 'Bahaya Kekeringan 30 (InARISK)',
+    items: [
+      { color: '#B45309', text: 'Indeks Kekeringan Ekstrem' },
+      { color: '#D97706', text: 'Indeks Kekeringan Parah' },
+      { color: '#FBBF24', text: 'Indeks Kekeringan Sedang' },
+    ],
+  },
+  cuaca_ekstrim_img: {
+    label: 'Bahaya Cuaca Ekstrem (InARISK)',
+    items: [
+      { color: '#0891B2', text: 'Potensi Angin Kencang / Badai Tinggi' },
+      { color: '#06B6D4', text: 'Potensi Angin Kencang Sedang' },
+      { color: '#67E8F9', text: 'Potensi Angin Kencang Rendah' },
+    ],
+  },
+  cuaca_ekstrim: {
+    label: 'Bahaya Cuaca Ekstrem (MS BNPB)',
+    items: [
+      { color: '#0E7490', text: 'Zona Bahaya Cuaca Ekstrem' },
+    ],
+  },
+  bmkg_curah_hujan_bulanan: {
+    label: 'Prakiraan Curah Hujan Bulanan (BMKG)',
+    items: [
+      { color: '#1E3A8A', text: 'Sangat Tinggi (> 500 mm)' },
+      { color: '#1D4ED8', text: 'Tinggi (300 - 500 mm)' },
+      { color: '#0284C7', text: 'Menengah (100 - 300 mm)' },
+      { color: '#FCD34D', text: 'Rendah (< 100 mm)' },
+    ],
+  },
+  bmkg_sifat_hujan_bulanan: {
+    label: 'Prakiraan Sifat Hujan (BMKG)',
+    items: [
+      { color: '#1D4ED8', text: 'Atas Normal (AN)' },
+      { color: '#10B981', text: 'Normal (N)' },
+      { color: '#F59E0B', text: 'Bawah Normal (BN)' },
+    ],
+  },
+  Peta_Curah_Hujan_dan_Hari_Hujan: {
+    label: 'Curah Hujan & Hari Hujan (BMKG)',
+    items: [
+      { color: '#0284C7', text: 'Curah Hujan Tinggi' },
+      { color: '#60A5FA', text: 'Curah Hujan Sedang / Ringan' },
+    ],
+  },
+  hexbin_res9: {
+    label: 'Kepadatan Penduduk DTSEN (BAPPENAS)',
+    items: [
+      { color: '#0284C7', text: 'Kepadatan Penduduk Tinggi' },
+      { color: '#38BDF8', text: 'Kepadatan Penduduk Sedang' },
+      { color: '#BAE6FD', text: 'Kepadatan Penduduk Rendah' },
+    ],
+  },
+  dukcapil_kel_fix: {
+    label: 'Kependudukan Kelurahan (Dukcapil)',
+    items: [
+      { color: '#3B82F6', text: 'Batas Kependudukan Desa/Kelurahan' },
+    ],
+  },
+  atr_bpn_aht_sulawesi: {
+    label: 'Hak Atas Tanah (ATR/BPN)',
+    items: [
+      { color: '#8B5CF6', text: 'Hak Milik / HGB / HGU' },
+    ],
+  },
+  bappenas_batas_desakel: {
+    label: 'Batas Kelurahan/Desa (BAPPENAS)',
+    items: [
+      { color: '#0284C7', text: 'Batas Administrasi Desa/Kelurahan 10K' },
+    ],
+  },
+  gempa_ntt_2026_v2: {
+    label: 'Dampak Gempa NTT 2026 (Layer 29 BNPB)',
+    items: [
+      { color: '#DC2626', text: 'Zona Terdampak Kerusakan Berat' },
+      { color: '#F59E0B', text: 'Zona Terdampak Kerusakan Sedang' },
+    ],
+  },
+  foto_geotag_ntt: {
+    label: 'Foto Geotag Lapangan (Gempa NTT)',
+    items: [
+      { color: '#F59E0B', text: 'Titik Dokumentasi Foto Kerusakan Lapangan', icon: '📸' },
+    ],
+  },
+};
 
 const DRAW_TOOLS = [
   { id: 'polyline', label: 'Garis', icon: '📏' },
@@ -2366,9 +2579,23 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
           <button
             onClick={handleOpenLayerModal}
             className="px-3 h-8 rounded-xl bg-white/50 hover:bg-white/80 text-[#0a1e36] font-bold text-xs flex items-center gap-1.5 border border-white/80 shadow-xs transition-all hover:scale-105"
+            title="Kelola Layer Peta"
           >
             <Layers className="w-4 h-4 text-[#1f8080]" />
             <span className="hidden sm:inline">Layer ({activeOverlays.length})</span>
+          </button>
+
+          <button
+            onClick={() => setShowLegend(!showLegend)}
+            className={`px-3 h-8 rounded-xl font-bold text-xs flex items-center gap-1.5 border shadow-xs transition-all hover:scale-105 cursor-pointer ${
+              showLegend
+                ? 'bg-[#0a1e36] text-white border-white/40 shadow-sm'
+                : 'bg-white/50 hover:bg-white/80 text-[#0a1e36] border-white/80'
+            }`}
+            title="Tampilkan Legenda Khusus Layer Terpilih"
+          >
+            <BookOpen className="w-4 h-4 text-amber-500" />
+            <span className="hidden sm:inline">Legenda ({activeOverlays.length})</span>
           </button>
         </div>
 
@@ -2599,43 +2826,170 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
         {/* Toggle Legenda */}
         <button
           onClick={() => setShowLegend(!showLegend)}
-          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center ${
-            showLegend ? 'bg-[#0a1e36] text-white border-white/40' : 'bg-white/80 text-slate-700 border-white/80'
+          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center cursor-pointer ${
+            showLegend ? 'bg-[#0a1e36] text-white border-white/40' : 'bg-white/80 text-slate-700 border-white/80 hover:bg-white'
           }`}
-          title="Tampilkan Legenda Peta"
+          title="Tampilkan Legenda Khusus Layer Terpilih"
         >
-          <BarChart2 className="w-4 h-4" />
+          <BookOpen className="w-4 h-4 text-amber-500" />
         </button>
 
-        {/* Legenda Floating Box */}
+        {/* Legenda Floating Box Sesuai Layers yang Dipilih */}
         {showLegend && (
-          <div className="bg-white/95 backdrop-blur-xl border border-slate-200 rounded-2xl p-3 shadow-xl space-y-2 max-w-xs text-xs">
-            <span className="font-bold text-[#0a1e36] block border-b pb-1">Legenda Jenis Bencana</span>
-            <div className="space-y-1.5">
-              {LEGEND_ITEMS.map((item) => (
-                <div key={item.label} className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full" style={{ background: item.color }} />
-                  <span className="text-slate-700 font-medium">{item.label}</span>
+          <div className="absolute top-16 right-0 z-[500] w-80 sm:w-96 max-h-[75vh] bg-white/95 backdrop-blur-2xl border border-slate-200 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Header Legenda */}
+            <div className="bg-[#0a1e36] text-white px-4 py-3 flex items-center justify-between border-b border-white/10 shrink-0">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-amber-400" />
+                <div>
+                  <div className="font-bold text-xs">Legenda Layer Terpilih</div>
+                  <div className="text-[10px] text-slate-300">
+                    {activeOverlays.length} Layer Peta Sedang Aktif
+                  </div>
                 </div>
-              ))}
+              </div>
+              <button
+                onClick={() => setShowLegend(false)}
+                className="p-1 rounded-lg hover:bg-white/20 text-white/80 hover:text-white transition-colors cursor-pointer"
+                title="Tutup Legenda"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            {/* MapServer Dynamic Legend Render */}
-            {activeOverlays.map((lyrId) => {
-              const items = mapserverLegends[lyrId];
-              if (!items || items.length === 0) return null;
-              return (
-                <div key={lyrId} className="border-t pt-2 space-y-1">
-                  <span className="font-bold text-[10px] text-slate-500 uppercase block">Layer: {BNPB_LAYERS.find((l) => l.id === lyrId)?.label || lyrId}</span>
-                  {items.map((it, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <img src={`data:image/png;base64,${it.imageData}`} alt={it.label} className="w-4 h-4 object-contain" />
-                      <span className="text-[11px] text-slate-700">{it.label}</span>
-                    </div>
-                  ))}
+            {/* Content Legenda Scrollable */}
+            <div className="p-4 overflow-y-auto space-y-3 text-xs flex-1">
+              {activeOverlays.length === 0 ? (
+                <div className="text-center py-6 text-slate-400 space-y-2">
+                  <BookOpen className="w-8 h-8 mx-auto text-slate-300" />
+                  <p className="font-semibold text-xs">Belum ada layer yang dipilih</p>
+                  <p className="text-[11px] text-slate-400">Silakan pilih layer atau klik jenis bencana untuk melihat legenda.</p>
                 </div>
-              );
-            })}
+              ) : (
+                activeOverlays.map((lyrId) => {
+                  const lyr = BNPB_LAYERS.find((l) => l.id === lyrId);
+                  const predefined = PREDEFINED_LAYER_LEGENDS[lyrId];
+                  const mapserverItems = mapserverLegends[lyrId];
+
+                  return (
+                    <div
+                      key={lyrId}
+                      className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2"
+                    >
+                      <div className="flex items-center justify-between gap-2 border-b border-slate-200/60 pb-1.5">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <span className="text-sm shrink-0">{lyr?.emoji || '🗺️'}</span>
+                          <span className="font-bold text-[#0a1e36] text-[11px] truncate">
+                            {predefined?.label || lyr?.label || lyrId}
+                          </span>
+                        </div>
+                        <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-white text-slate-600 border border-slate-200 shrink-0">
+                          {lyr?.group || 'GIS'}
+                        </span>
+                      </div>
+
+                      {/* Render Predefined Classification Items */}
+                      {predefined && predefined.items.length > 0 && (
+                        <div className="space-y-1.5 pt-0.5">
+                          {predefined.items.map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <span
+                                className="w-3.5 h-3.5 rounded-md shrink-0 shadow-2xs border border-black/10"
+                                style={{ backgroundColor: item.color }}
+                              />
+                              <span className="text-[11px] text-slate-700 font-medium leading-tight">
+                                {item.text}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Render MapServer Image Legend if available */}
+                      {mapserverItems && mapserverItems.length > 0 && (
+                        <div className="space-y-1 pt-1 border-t border-slate-200/60">
+                          {mapserverItems.map((it, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <img
+                                src={`data:image/png;base64,${it.imageData}`}
+                                alt={it.label}
+                                className="w-4 h-4 object-contain shrink-0"
+                              />
+                              <span className="text-[11px] text-slate-700 leading-tight">
+                                {it.label}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* If no predefined and no mapserver, show generic layer info */}
+                      {!predefined && (!mapserverItems || mapserverItems.length === 0) && (
+                        <div className="text-[10px] text-slate-500 italic">
+                          Layer aktif tipe {lyr?.type || 'GIS'}. Simbologi dimuat langsung dari geodatabase server.
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+
+              {/* BMKG Gempa Terkini Realtime Legend (If showBmkg active) */}
+              {showBmkg && (
+                <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2">
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-200/60 pb-1.5">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <span className="text-sm">⚡</span>
+                      <span className="font-bold text-[#0a1e36] text-[11px]">
+                        Monitoring Gempa Realtime (BMKG TEWS)
+                      </span>
+                    </div>
+                    <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-white text-emerald-700 border border-emerald-300">
+                      LIVE
+                    </span>
+                  </div>
+                  <div className="space-y-1.5 pt-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-3.5 h-3.5 rounded-full bg-rose-500 border border-white shrink-0 shadow-xs animate-pulse" />
+                      <span className="text-[11px] text-slate-700 font-medium">
+                        Episenter Gempa Terkini M ≥ 5.0
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-3.5 h-3.5 rounded-full bg-amber-500 border border-white shrink-0 shadow-xs" />
+                      <span className="text-[11px] text-slate-700 font-medium">
+                        Gempa Dirasakan (Intensitas MMI II - VI+)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Titik Kejadian Bencana DIBI Legend (If showBencanaData active) */}
+              {showBencanaData && (
+                <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-2">
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-200/60 pb-1.5">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <span className="text-sm">📍</span>
+                      <span className="font-bold text-[#0a1e36] text-[11px]">
+                        Titik Kejadian Bencana (DIBI)
+                      </span>
+                    </div>
+                    <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-white text-sky-700 border border-sky-300">
+                      BNPB
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                    {LEGEND_ITEMS.map((item) => (
+                      <div key={item.label} className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: item.color }} />
+                        <span className="text-[10.5px] text-slate-700 truncate">{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
