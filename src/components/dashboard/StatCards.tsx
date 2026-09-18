@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ClipboardList, Users, Tent, Home, TrendingUp, MapPin, Building2, X } from 'lucide-react';
+import { ClipboardList, Users, Tent, Home, MapPin, Building2, X } from 'lucide-react';
 import { DIBI_TOTAL } from '@/data/dibiStats';
 
 type CardIcon = React.ReactNode;
@@ -193,7 +193,7 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
         {showRehab && (
           <div
             onClick={() => setShowRehabModal(true)}
-            className="group relative bg-white border border-emerald-300 rounded-2xl p-4 shadow-2xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden border-l-4 border-l-emerald-500"
+            className="group relative bg-white border border-emerald-300 rounded-[22px] p-4 shadow-2xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden border-l-4 border-l-emerald-500 flex flex-col justify-between"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -209,62 +209,62 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
               </div>
             </div>
 
-            <div className="mt-4 flex items-baseline gap-1.5">
+            <div className="my-3 flex items-baseline gap-1.5">
               <span className="text-2xl font-extrabold text-emerald-700 tracking-tight leading-none">
                 Rp 104,7 T
               </span>
             </div>
 
-            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-emerald-600 font-medium">
+            <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-emerald-600 font-medium">
               <span>Akumulasi 2026–2028</span>
               <span>Rincian ➔</span>
             </div>
           </div>
         )}
 
-        {cards.map((card) => (
-          <div
-            key={card.id}
-            className={`group relative bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default overflow-hidden ${card.accentBorder}`}
-          >
-            {/* Subtle top accent bar on hover */}
-            <div className={`absolute top-0 left-0 right-0 h-1 bg-transparent group-hover:${card.accentBg} transition-colors`} />
+        {cards.map((card) => {
+          const templateMap: Record<string, string> = {
+            kejadian: '/images/cards/card_kejadian_clean.png',
+            korban: '/images/cards/card_korban_clean.png',
+            pengungsi: '/images/cards/card_pengungsi_clean.png',
+            rumah: '/images/cards/card_rumah_clean.png',
+          };
+          const templateImg = templateMap[card.id] || '/images/cards/card_kejadian_clean.png';
 
-            <div className="flex items-start justify-between gap-3">
-              <div className="space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">
-                  {card.sublabel}
-                </span>
-                <h3 className="text-xs font-bold text-slate-700 leading-tight">
-                  {card.label}
-                </h3>
-              </div>
-              <div className={`p-2.5 rounded-xl ${card.accentBg} shrink-0 transition-transform group-hover:scale-110 duration-200`}>
-                {card.icon}
-              </div>
-            </div>
+          return (
+            <div
+              key={card.id}
+              className="relative rounded-[22px] overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-default select-none border border-slate-200/80 bg-white"
+            >
+              {/* Authentic Illustration & Card Frame from gambarpresentasi.png */}
+              <img
+                src={templateImg}
+                alt={card.label}
+                className="w-full h-auto block object-cover select-none pointer-events-none"
+                loading="eager"
+              />
 
-            <div className="mt-4 flex items-baseline gap-1.5">
-              <span className="text-2xl font-extrabold text-slate-900 tracking-tight leading-none group-hover:text-[#0a1e36] transition-colors">
-                {card.value}
-              </span>
-              {card.unit && (
-                <span className="text-xs font-semibold text-slate-500">
+              {/* Dynamic Live Text Overlay (Positioned exactly at value coordinates) */}
+              <div className="absolute left-[6.3%] top-[40.5%] flex flex-col pointer-events-none">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl sm:text-2xl md:text-3xl lg:text-[26px] xl:text-[31px] font-black text-[#081a4d] tracking-tight leading-none drop-shadow-2xs">
+                    {card.value}
+                  </span>
+                </div>
+                <span className="text-xs sm:text-sm font-bold text-[#0c2b64]/85 mt-1 sm:mt-1.5 tracking-tight">
                   {card.unit}
                 </span>
+              </div>
+
+              {/* Filtered Region/Disaster Badge if active */}
+              {regionLabel && (
+                <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-300 text-[10px] font-black text-[#0a1e36] shadow-sm truncate max-w-[130px]">
+                  {regionLabel}
+                </div>
               )}
             </div>
-
-            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
-              <span className="text-slate-400 truncate max-w-[170px]">
-                {card.trend}
-              </span>
-              <div className="flex items-center gap-1 font-semibold text-emerald-600">
-                <TrendingUp className="w-3.5 h-3.5" />
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Modal Details if Rehab selected */}
