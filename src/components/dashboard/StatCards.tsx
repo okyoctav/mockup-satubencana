@@ -1,10 +1,67 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ClipboardList, Users, Tent, Home, TrendingUp, MapPin, Building2, X } from 'lucide-react';
 import { DIBI_TOTAL } from '@/data/dibiStats';
 
 type CardIcon = React.ReactNode;
+
+function CardBackgroundImg({ src, alt }: { src: string; alt: string }) {
+  const [current, setCurrent] = useState(src);
+  const [prev, setPrev] = useState<string | null>(null);
+  const [isFading, setIsFading] = useState(false);
+
+  useEffect(() => {
+    if (src !== current) {
+      setPrev(current);
+      setCurrent(src);
+      setIsFading(false);
+
+      let animId2: number;
+      const animId1 = requestAnimationFrame(() => {
+        animId2 = requestAnimationFrame(() => {
+          setIsFading(true);
+        });
+      });
+
+      const timer = setTimeout(() => {
+        setPrev(null);
+        setIsFading(false);
+      }, 550);
+
+      return () => {
+        cancelAnimationFrame(animId1);
+        if (animId2) cancelAnimationFrame(animId2);
+        clearTimeout(timer);
+      };
+    }
+  }, [src, current]);
+
+  return (
+    <div className="relative w-full h-auto overflow-hidden">
+      {/* Previous image fading out */}
+      {prev && (
+        <img
+          src={prev}
+          alt={alt}
+          className={`absolute inset-0 w-full h-full object-cover select-none pointer-events-none transition-opacity duration-500 ease-in-out ${
+            isFading ? 'opacity-0' : 'opacity-100'
+          }`}
+        />
+      )}
+
+      {/* Current image fading in */}
+      <img
+        src={current}
+        alt={alt}
+        className={`w-full h-auto block object-cover select-none pointer-events-none transition-opacity duration-500 ease-in-out ${
+          prev ? (isFading ? 'opacity-100' : 'opacity-0') : 'opacity-100'
+        }`}
+        loading="eager"
+      />
+    </div>
+  );
+}
 
 type Kejadian = {
   korban_jiwa: number;
@@ -78,6 +135,27 @@ interface Props {
 export default function StatCards({ status, regionData, regionLabel, onClearRegion, selectedJenis }: Props) {
   const [showRehabModal, setShowRehabModal] = useState(false);
   const showRehab = status === 'pasca';
+
+  // Preload disaster card images into memory for instant transitions
+  useEffect(() => {
+    const imagesToPreload = [
+      '/images/cards/card_kejadian_banjir.png',
+      '/images/cards/card_kejadian_gempa.png',
+      '/images/cards/card_kejadian_longsor.png',
+      '/images/cards/card_kejadian_kebakaran.png',
+      '/images/cards/card_kejadian_erupsi.png',
+      '/images/cards/card_kejadian_tsunami.png',
+      '/images/cards/card_kejadian_kekeringan.png',
+      '/images/cards/card_kejadian_cuaca_ekstrem.png',
+      '/images/cards/card_korban_clean.png',
+      '/images/cards/card_pengungsi_clean.png',
+      '/images/cards/card_rumah_clean.png',
+    ];
+    imagesToPreload.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
 
   // Compute dynamic stats from region-filtered data
   const regionStats = regionData
@@ -250,16 +328,11 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
               key={card.id}
               className="relative rounded-[22px] overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-default select-none border border-slate-200/80 bg-white"
             >
-              {/* Authentic Illustration & Card Frame from gambarpresentasi.png */}
-              <img
-                src={templateImg}
-                alt={card.label}
-                className="w-full h-auto block object-cover select-none pointer-events-none"
-                loading="eager"
-              />
+              {/* Authentic Illustration & Card Frame with smooth cross-fade */}
+              <CardBackgroundImg src={templateImg} alt={card.label} />
 
               {/* Dynamic Live Text Overlay (Positioned exactly at value coordinates) */}
-              <div className="absolute left-[5%] top-[41%] flex flex-col pointer-events-none">
+              <div className="absolute left-[5%] top-[41%] flex flex-col pointer-events-none z-10">
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-2xl sm:text-2xl md:text-3xl lg:text-[26px] xl:text-[31px] font-black text-[#081a4d] tracking-tight leading-none drop-shadow-2xs">
                     {card.value}
@@ -271,7 +344,7 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
               </div>
 
               {/* Bottom-left dynamic note (replaces 'Periode data simulasi' from presentation) */}
-              <div className="absolute left-[5%] bottom-[7.5%] flex items-center gap-1.5 pointer-events-none max-w-[58%] truncate">
+              <div className="absolute left-[5%] bottom-[7.5%] flex items-center gap-1.5 pointer-events-none max-w-[58%] truncate z-10">
                 <TrendingUp className="w-3.5 h-3.5 text-[#1f8080] shrink-0" />
                 <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 truncate">
                   {card.trend}
