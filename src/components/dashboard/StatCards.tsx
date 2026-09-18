@@ -245,7 +245,7 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
               />
 
               {/* Dynamic Live Text Overlay (Positioned exactly at value coordinates) */}
-              <div className="absolute left-[6.3%] top-[40.5%] flex flex-col pointer-events-none">
+              <div className="absolute left-[5%] top-[41%] flex flex-col pointer-events-none">
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-2xl sm:text-2xl md:text-3xl lg:text-[26px] xl:text-[31px] font-black text-[#081a4d] tracking-tight leading-none drop-shadow-2xs">
                     {card.value}
