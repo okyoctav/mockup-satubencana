@@ -2585,18 +2585,6 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
             <span className="hidden sm:inline">Layer ({activeOverlays.length})</span>
           </button>
 
-          <button
-            onClick={() => setShowLegend(!showLegend)}
-            className={`px-3 h-8 rounded-xl font-bold text-xs flex items-center gap-1.5 border shadow-xs transition-all hover:scale-105 cursor-pointer ${
-              showLegend
-                ? 'bg-[#0a1e36] text-white border-white/40 shadow-sm'
-                : 'bg-white/50 hover:bg-white/80 text-[#0a1e36] border-white/80'
-            }`}
-            title="Tampilkan Legenda Khusus Layer Terpilih"
-          >
-            <BookOpen className="w-4 h-4 text-amber-500" />
-            <span className="hidden sm:inline">Legenda ({activeOverlays.length})</span>
-          </button>
         </div>
 
         {/* Search Results */}
