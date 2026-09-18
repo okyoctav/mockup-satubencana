@@ -519,7 +519,7 @@ export default function DashboardK5Page() {
                   {isFotoGeotagNttActive && (
                     <option value="gempa_ntt">🌋 Analisis Dampak Gempa NTT 2026</option>
                   )}
-                  <option value="analytics">📊 Analisis Statistik Kebencanaan</option>
+                  {/* Analisis Statistik Kebencanaan sementara di-hide */}
                   <option value="models">🛡️ Model Kerentanan & Respon</option>
                   <option value="logistics">📦 Analisis Kebutuhan Logistik</option>
                   <option value="medical">🩺 Analisis Medis & Faskes Darurat</option>
@@ -560,18 +560,6 @@ export default function DashboardK5Page() {
                   <span className="truncate">Gempa NTT 2026</span>
                 </button>
               )}
-
-              <button
-                onClick={() => setActiveTab('analytics')}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                  activeTab === 'analytics'
-                    ? 'bg-[#0a1e36] text-white shadow-md ring-2 ring-[#0a1e36]/30 scale-[1.02]'
-                    : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
-                }`}
-              >
-                <BarChart3 className="w-4 h-4 shrink-0 text-sky-500" />
-                <span className="truncate">Analisis Statistik</span>
-              </button>
 
               <button
                 onClick={() => setActiveTab('models')}

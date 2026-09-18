@@ -1,17 +1,34 @@
 'use client';
 
-const JENIS_LIST = ['Semua', 'banjir', 'gempa', 'longsor', 'kebakaran', 'erupsi', 'tsunami'];
+const JENIS_CONFIG: Record<
+  string,
+  { label: string; icon: string; color: string }
+> = {
+  'Semua': { label: 'Semua', icon: '🌐', color: '#0a1e36' },
+  'banjir': { label: 'Banjir', icon: '💧', color: '#0284c7' },
+  'gempa': { label: 'Gempa', icon: '🏚️', color: '#ef4444' },
+  'longsor': { label: 'Longsor', icon: '⛰️', color: '#d97706' },
+  'kebakaran': { label: 'Kebakaran', icon: '🔥', color: '#ea580c' },
+  'erupsi': { label: 'Erupsi', icon: '🌋', color: '#8b5cf6' },
+  'tsunami': { label: 'Tsunami', icon: '🌊', color: '#06b6d4' },
+  'kekeringan': { label: 'Kekeringan', icon: '☀️', color: '#ca8a04' },
+  'angin puting beliung': { label: 'Cuaca Ekstrem', icon: '🌪️', color: '#4f46e5' },
+};
+
+const JENIS_LIST = Object.keys(JENIS_CONFIG);
 const STATUS_LIST = ['Semua', 'pra', 'saat', 'pasca'];
 const LEVEL_LIST = ['Semua', 'tinggi', 'sedang', 'rendah'];
 
 const JENIS_COLOR: Record<string, string> = {
-  banjir: '#0EA5E9',
-  gempa: '#EF4444',
-  longsor: '#F97316',
-  kebakaran: '#F59E0B',
-  erupsi: '#8B5CF6',
-  tsunami: '#EC4899',
-  tsunami2: '#06B6D4',
+  banjir: '#0284c7',
+  gempa: '#ef4444',
+  longsor: '#d97706',
+  kebakaran: '#ea580c',
+  erupsi: '#8b5cf6',
+  tsunami: '#06b6d4',
+  kekeringan: '#ca8a04',
+  'angin puting beliung': '#4f46e5',
+  lainnya: '#64748b',
 };
 
 const STATUS_LABEL: Record<string, string> = { saat: 'Sedang Terjadi', pasca: 'Pasca Bencana', pra: 'Pra Bencana' };
@@ -77,25 +94,60 @@ export default function FilterPanel({ data, filters, onFilter, onEventClick }: P
 
       {/* Filters */}
       <div className="p-3.5 border-b border-slate-200 bg-slate-50/50 space-y-3 shrink-0">
-        {/* Jenis */}
+        {/* Jenis Bencana */}
         <div>
-          <label className="text-[10px] font-bold text-[#0a1e36] uppercase tracking-wider block mb-1.5">
-            Jenis Bencana
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <label className="text-[10px] font-bold text-[#0a1e36] uppercase tracking-wider block">
+                Jenis Bencana
+              </label>
+              {filters.jenis !== 'Semua' && (
+                <span
+                  className="text-[9px] font-extrabold px-2 py-0.5 rounded-full text-white shadow-xs flex items-center gap-1 animate-pulse"
+                  style={{ backgroundColor: JENIS_CONFIG[filters.jenis]?.color || '#0a1e36' }}
+                >
+                  <span>{JENIS_CONFIG[filters.jenis]?.icon}</span>
+                  <span>{JENIS_CONFIG[filters.jenis]?.label}</span>
+                </span>
+              )}
+            </div>
+            {filters.jenis !== 'Semua' && (
+              <button
+                type="button"
+                onClick={() => onFilter({ ...filters, jenis: 'Semua' })}
+                className="text-[10px] font-bold text-rose-500 hover:text-rose-700 hover:underline cursor-pointer"
+              >
+                Reset Filter
+              </button>
+            )}
+          </div>
+
           <div className="flex flex-wrap gap-1.5">
             {JENIS_LIST.map((j) => {
               const isSelected = filters.jenis === j;
+              const cfg = JENIS_CONFIG[j];
               return (
                 <button
                   key={j}
+                  type="button"
                   onClick={() => onFilter({ ...filters, jenis: j })}
-                  className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all border ${
-                    isSelected
-                      ? 'bg-[#1f8080] text-white border-[#1f8080] shadow-xs scale-105'
-                      : 'bg-white text-slate-700 border-slate-200 hover:border-[#1f8080] hover:text-[#1f8080]'
-                  } capitalize`}
+                  className="px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  style={{
+                    backgroundColor: isSelected ? cfg.color : '#ffffff',
+                    color: isSelected ? '#ffffff' : '#334155',
+                    border: isSelected ? `1.5px solid ${cfg.color}` : '1px solid #e2e8f0',
+                    boxShadow: isSelected
+                      ? `0 3px 8px -1px ${cfg.color}50, 0 1px 3px rgba(0,0,0,0.12)`
+                      : '0 1px 2px rgba(0,0,0,0.03)',
+                    transform: isSelected ? 'scale(1.04)' : 'none',
+                  }}
+                  title={`Filter jenis bencana: ${cfg.label}`}
                 >
-                  {j}
+                  <span className="text-xs shrink-0">{cfg.icon}</span>
+                  <span>{cfg.label}</span>
+                  {isSelected && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping ml-0.5 shrink-0" />
+                  )}
                 </button>
               );
             })}
