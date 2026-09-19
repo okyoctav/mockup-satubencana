@@ -38,7 +38,7 @@ interface BnpbLayer {
   color: string;
   emoji: string;
   url: string;
-  type?: 'MapServer' | 'ImageServer' | 'VectorTileServer' | 'WMS' | 'Dapodik';
+  type?: 'MapServer' | 'ImageServer' | 'VectorTileServer' | 'WMS' | 'Dapodik' | 'GeoJSON';
   group?: string;
   useLngLat?: boolean;               // use WGS84 (4326) bbox instead of Web Mercator
   layersParam?: string;              // override default 'show:0' layers param or WMS layers
@@ -145,6 +145,7 @@ const BNPB_LAYERS: BnpbLayer[] = [
   // BIG — Badan Informasi Geospasial
   { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
   { id: 'satupeta_geotagging', label: 'Satupeta Geotagging (BAPPENAS DTSEN)', color: '#059669', emoji: '📍', url: '/api/satupeta-geotagging', type: 'Dapodik', group: 'BAPPENAS' },
+  { id: 'monev_sakata_bappenas', label: 'Monev SAKATA Geotagging (BAPPENAS)', color: '#0284C7', emoji: '📊', url: 'https://www.sadana.cloud/api/sandingan/monev/geojson', type: 'GeoJSON', group: 'BAPPENAS', extent: [95.0, 3.0, 99.8, 5.5] },
   { id: 'big_rbi_sulawesi_lot1',       label: 'RBI Sulawesi 2024 Lot 1',      color: '#A855F7', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI_5K_Sulawesi_2024_Lot_1_Jul/VectorTileServer',         type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_bangunan_fasum_sulawesi', label: 'Bangunan Fasum Sulawesi 2024', color: '#F59E0B', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_BANGUNAN_FASUM_SULAWESI_2024/VectorTileServer', type: 'VectorTileServer', group: 'BIG' },
@@ -924,6 +925,103 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
             const group = L.layerGroup(markers);
             bnpbLayersRef.current[id] = group;
             group.addTo(mapRef.current);
+          })
+          .catch(() => null);
+      } else if (def.type === 'GeoJSON' || id === 'monev_sakata_bappenas') {
+        if (!mapRef.current || bnpbLayersRef.current[id]) return;
+        fetch(def.url, { cache: 'no-store' })
+          .then((r) => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json();
+          })
+          .then((geoJson) => {
+            if (!mapRef.current) return;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const geoLayer = L.geoJSON(geoJson, {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              pointToLayer: (feature: any, latlng: any) => {
+                const p = feature.properties || {};
+                const status = String(p.status_pelaksanaan || '').toLowerCase();
+                const color = status.includes('konstruksi') || status.includes('pelaksanaan')
+                  ? '#0284C7'
+                  : status.includes('persiapan')
+                  ? '#F59E0B'
+                  : '#64748B';
+                const iconEmoji = status.includes('konstruksi') || status.includes('pelaksanaan')
+                  ? '🏗️'
+                  : status.includes('persiapan')
+                  ? '📋'
+                  : '⏳';
+
+                const icon = L.divIcon({
+                  className: '',
+                  html: `<div style="background:${color}; width:28px; height:28px; border-radius:50%; border:2px solid #FFFFFF; box-shadow:0 2px 8px rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; color:#FFF; font-size:13px; font-weight:bold; cursor:pointer;" title="${p.kegiatan || 'Monev SAKATA'}">${iconEmoji}</div>`,
+                  iconSize: [28, 28],
+                  iconAnchor: [14, 14],
+                });
+                return L.marker(latlng, { icon });
+              },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              onEachFeature: (feature: any, layer: any) => {
+                const p = feature.properties || {};
+                const paguStr = p.pagu_anggaran != null
+                  ? `Rp ${Number(p.pagu_anggaran).toLocaleString('id-ID')}`
+                  : '-';
+                const realisasiStr = p.realisasi_keuangan != null
+                  ? `Rp ${Number(p.realisasi_keuangan).toLocaleString('id-ID')}`
+                  : '-';
+                const progresFisik = p.realisasi_progres_fisik != null ? `${p.realisasi_progres_fisik}%` : '-';
+                const serapan = p.serapan_keuangan_pct != null ? `${p.serapan_keuangan_pct}%` : '-';
+
+                const status = String(p.status_pelaksanaan || '-');
+                const statusColor = status.toLowerCase().includes('konstruksi') || status.toLowerCase().includes('pelaksanaan')
+                  ? '#0284c7'
+                  : status.toLowerCase().includes('persiapan')
+                  ? '#d97706'
+                  : '#475569';
+
+                layer.bindPopup(`
+                  <div style="font-family:system-ui, -apple-system, sans-serif; min-width:280px; max-width:340px; font-size:11px; color:#1e293b; line-height:1.5;">
+                    <div style="font-weight:bold; color:#0284c7; font-size:12px; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                      <span>📊 Monev SAKATA (BAPPENAS)</span>
+                    </div>
+                    
+                    <div style="font-size:11.5px; font-weight:700; color:#0f172a; margin-bottom:6px; line-height:1.35;">
+                      ${p.kegiatan || '-'}
+                    </div>
+
+                    <div style="margin-bottom:8px; display:inline-block; padding:3px 8px; border-radius:6px; font-size:10px; font-weight:700; border:1px solid; color:${statusColor}; background:#f8fafc;">
+                      Status: ${status}
+                    </div>
+
+                    <table style="width:100%; border-collapse:collapse; font-size:10.5px; margin-bottom:6px;">
+                      <tr><td style="color:#64748b; padding:2px 0; width:95px;">K/L:</td><td style="font-weight:600;">${p.kl || '-'}</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">Program:</td><td style="font-weight:600;">${p.program || '-'}</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">Lokasi:</td><td style="font-weight:600;">${p.lokasi_kab_kota || '-'}, ${p.provinsi || '-'}</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">Pagu Anggaran:</td><td style="font-weight:700; color:#059669;">${paguStr}</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">Realisasi Keuangan:</td><td style="font-weight:600;">${realisasiStr} (${serapan})</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">Progres Fisik:</td><td style="font-weight:700; color:#0284c7;">${progresFisik}</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">Sektor Pemulihan:</td><td style="font-weight:600;">${p.aspek_jitupasna_sektor_pemulihan || '-'}</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">PIC Monev:</td><td style="font-weight:600;">${p.pic_monev || '-'}</td></tr>
+                    </table>
+
+                    ${p.rincian_output_ro ? `
+                      <div style="font-size:10px; color:#475569; background:#f1f5f9; padding:4px 6px; border-radius:4px; margin-top:4px;">
+                        <b>Output:</b> ${p.rincian_output_ro}
+                      </div>
+                    ` : ''}
+                  </div>
+                `);
+              },
+            });
+
+            bnpbLayersRef.current[id] = geoLayer;
+            geoLayer.addTo(mapRef.current);
+
+            if (def.extent && mapRef.current) {
+              const [minLng, minLat, maxLng, maxLat] = def.extent;
+              mapRef.current.flyToBounds([[minLat, minLng], [maxLat, maxLng]], { duration: 1.5, padding: [20, 20] });
+            }
           })
           .catch(() => null);
       } else if (def.type === 'VectorTileServer') {

@@ -873,10 +873,11 @@ export default function DashboardK5Page() {
 
         {/* Footer */}
         <footer className="border-t border-slate-200 bg-white px-6 py-4 text-center text-xs text-slate-500 flex items-center justify-between">
-          <p>© 2026 Satu Bencana — Platform Estimasi & Data Bencana Indonesia</p>
+          <p>© 2026 Manajemen Data Bencana — Kedeputian Bidang Pengembangan Kewilayahan</p>
           <div className="flex items-center gap-2 text-[#0a1e36] font-medium">
             <span className="w-2 h-2 rounded-full bg-[#1f8080]" />
-            <span>Theme Tone: Clean White & #1f8080 / #0a1e36</span>
+            {/* <span>Theme Tone: Clean White & #1f8080 / #0a1e36</span> */}
+            <span>BY TRPPPB</span>
           </div>
         </footer>
       </div>
