@@ -2328,41 +2328,108 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
                 const serapan = p.serapan_keuangan_pct != null ? `${p.serapan_keuangan_pct}%` : '-';
 
                 const status = String(p.status_pelaksanaan || '-');
-                const statusColor = status.toLowerCase().includes('konstruksi') || status.toLowerCase().includes('pelaksanaan')
-                  ? '#0284c7'
-                  : status.toLowerCase().includes('persiapan')
-                  ? '#d97706'
-                  : '#475569';
+                const isKonstruksi = status.toLowerCase().includes('konstruksi') || status.toLowerCase().includes('pelaksanaan');
+                const isPersiapan = status.toLowerCase().includes('persiapan');
+                const statusColor = isKonstruksi ? '#0284c7' : isPersiapan ? '#d97706' : '#475569';
+                const statusBorder = isKonstruksi ? '#bae6fd' : isPersiapan ? '#fde68a' : '#e2e8f0';
 
                 layer.bindPopup(`
-                  <div style="font-family:system-ui, -apple-system, sans-serif; min-width:280px; max-width:340px; font-size:11px; color:#1e293b; line-height:1.5;">
-                    <div style="font-weight:bold; color:#0284c7; font-size:12px; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-                      <span>📊 Monev SADANA (BAPPENAS)</span>
-                    </div>
-                    
-                    <div style="font-size:11.5px; font-weight:700; color:#0f172a; margin-bottom:6px; line-height:1.35;">
-                      ${p.kegiatan || '-'}
+                  <div style="font-family:system-ui, -apple-system, sans-serif; min-width:300px; max-width:380px; max-height:460px; overflow-y:auto; padding-right:4px; font-size:11px; color:#1e293b; line-height:1.5;">
+                    <!-- Header with Badges -->
+                    <div style="border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:8px;">
+                      <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:4px;">
+                        <div style="font-weight:bold; color:#0284c7; font-size:12px; display:flex; align-items:center; gap:5px;">
+                          <span>📊 Monev SADANA</span>
+                          <span style="font-size:9px; background:#e0f2fe; color:#0369a1; padding:1px 5px; border-radius:4px; font-weight:700;">BAPPENAS</span>
+                        </div>
+                        <span style="font-size:9px; font-weight:700; padding:2px 6px; border-radius:9999px; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1;">
+                          ${p.tipe_titik ? String(p.tipe_titik).toUpperCase() : 'UTAMA'} · Titik ${p.nomor_titik || 1}/${p.total_titik_geotag || 1}
+                        </span>
+                      </div>
+                      <div style="font-size:12px; font-weight:800; color:#0f172a; line-height:1.35;">
+                        ${p.kegiatan || '-'}
+                      </div>
+                      ${p.program && p.program !== '-' && p.program !== p.kegiatan ? `
+                        <div style="font-size:10.5px; color:#64748b; margin-top:2px;">
+                          <b>Program:</b> ${p.program}
+                        </div>
+                      ` : ''}
+                      ${p.rincian_output_ro && p.rincian_output_ro !== '-' ? `
+                        <div style="font-size:10.5px; color:#475569; margin-top:2px;">
+                          <b>Output (RO):</b> ${p.rincian_output_ro}
+                        </div>
+                      ` : ''}
                     </div>
 
-                    <div style="margin-bottom:8px; display:inline-block; padding:3px 8px; border-radius:6px; font-size:10px; font-weight:700; border:1px solid; color:${statusColor}; background:#f8fafc;">
-                      Status: ${status}
+                    <!-- Status & Progress Highlight -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:8px;">
+                      <div style="background:#f8fafc; border:1px solid ${statusBorder}; border-radius:8px; padding:6px 8px;">
+                        <div style="font-size:9px; color:#64748b; text-transform:uppercase; font-weight:700;">Status Pelaksanaan</div>
+                        <div style="font-size:11px; font-weight:800; color:${statusColor}; margin-top:2px;">${status}</div>
+                      </div>
+                      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:6px 8px;">
+                        <div style="font-size:9px; color:#64748b; text-transform:uppercase; font-weight:700;">Progres Fisik</div>
+                        <div style="font-size:11px; font-weight:800; color:#0284c7; margin-top:2px;">${progresFisik}</div>
+                      </div>
                     </div>
 
-                    <table style="width:100%; border-collapse:collapse; font-size:10.5px; margin-bottom:6px;">
-                      <tr><td style="color:#64748b; padding:2px 0; width:95px;">K/L:</td><td style="font-weight:600;">${p.kl || '-'}</td></tr>
-                      <tr><td style="color:#64748b; padding:2px 0;">Program:</td><td style="font-weight:600;">${p.program || '-'}</td></tr>
-                      <tr><td style="color:#64748b; padding:2px 0;">Lokasi:</td><td style="font-weight:600;">${p.lokasi_kab_kota || '-'}, ${p.provinsi || '-'}</td></tr>
-                      <tr><td style="color:#64748b; padding:2px 0;">Pagu Anggaran:</td><td style="font-weight:700; color:#059669;">${paguStr}</td></tr>
-                      <tr><td style="color:#64748b; padding:2px 0;">Realisasi Keuangan:</td><td style="font-weight:600;">${realisasiStr} (${serapan})</td></tr>
-                      <tr><td style="color:#64748b; padding:2px 0;">Progres Fisik:</td><td style="font-weight:700; color:#0284c7;">${progresFisik}</td></tr>
-                      <tr><td style="color:#64748b; padding:2px 0;">Sektor Pemulihan:</td><td style="font-weight:600;">${p.aspek_jitupasna_sektor_pemulihan || '-'}</td></tr>
-                      <tr><td style="color:#64748b; padding:2px 0;">PIC Monev:</td><td style="font-weight:600;">${p.pic_monev || '-'}</td></tr>
+                    <!-- Financial Card -->
+                    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:6px 8px; margin-bottom:8px;">
+                      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                        <span style="font-size:9.5px; color:#166534; font-weight:700;">Pagu Anggaran:</span>
+                        <span style="font-size:11px; font-weight:800; color:#15803d;">${paguStr}</span>
+                      </div>
+                      <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:9.5px; color:#166534;">Realisasi Keuangan:</span>
+                        <span style="font-size:10.5px; font-weight:700; color:#166534;">${realisasiStr} <span style="font-size:9.5px; font-weight:600; color:#15803d;">(${serapan})</span></span>
+                      </div>
+                    </div>
+
+                    <!-- All Technical Details Table -->
+                    <table style="width:100%; border-collapse:collapse; font-size:10.5px; margin-bottom:8px;">
+                      <tr><td style="color:#64748b; padding:2px 0; width:115px;">K/L:</td><td style="font-weight:600; color:#1e293b;">${p.kl || '-'}</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">Lokasi:</td><td style="font-weight:600; color:#1e293b;">${p.lokasi_kab_kota || '-'}, ${p.provinsi || '-'} ${p.singkatan_provinsi ? `(${p.singkatan_provinsi})` : ''}</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">Sektor Pemulihan:</td><td style="font-weight:600; color:#1e293b;">${p.aspek_jitupasna_sektor_pemulihan || '-'}</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">Satgas JITUPASNA:</td><td style="font-weight:600; color:#1e293b;">${p.aspek_jitupasna_satgas || '-'}</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">Nomenklatur:</td><td style="font-weight:600; color:#1e293b;">${p.nomenklatur_jitupasna || '-'}</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">Sumber Pembiayaan:</td><td style="font-weight:600; color:#1e293b;">${p.sumber_pembiayaan || '-'}</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">PIC Monev:</td><td style="font-weight:600; color:#1e293b;">${p.pic_monev || '-'}</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">Tanggal Monitoring:</td><td style="font-weight:600; color:#1e293b;">${p.tanggal_monitoring || '-'}</td></tr>
+                      <tr><td style="color:#64748b; padding:2px 0;">ID Sandingan / Geotag:</td><td style="font-weight:600; color:#475569;">#${p.id_sandingan ?? '-'} / ${p.id_geotag ?? '-'}</td></tr>
+                      ${p.deskripsi_titik && p.deskripsi_titik !== '-' ? `
+                        <tr><td style="color:#64748b; padding:2px 0; vertical-align:top;">Deskripsi Titik:</td><td style="font-weight:500; color:#334155; line-height:1.35;">${p.deskripsi_titik}</td></tr>
+                      ` : ''}
                     </table>
 
-                    ${p.rincian_output_ro ? `
-                      <div style="font-size:10px; color:#475569; background:#f1f5f9; padding:4px 6px; border-radius:4px; margin-top:4px;">
-                        <b>Output:</b> ${p.rincian_output_ro}
+                    <!-- Hambatan & Kendala -->
+                    ${p.hambatan_kendala && p.hambatan_kendala !== '-' ? `
+                      <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:6px 8px; margin-bottom:6px;">
+                        <div style="font-size:9.5px; font-weight:700; color:#92400e; display:flex; align-items:center; gap:4px; margin-bottom:2px;">
+                          <span>⚠️ Hambatan & Kendala:</span>
+                        </div>
+                        <div style="font-size:10px; color:#78350f; line-height:1.4;">
+                          ${p.hambatan_kendala}
+                        </div>
                       </div>
+                    ` : ''}
+
+                    <!-- Rekomendasi Tindak Lanjut -->
+                    ${p.rekomendasi_tindak_lanjut && p.rekomendasi_tindak_lanjut !== '-' ? `
+                      <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:6px 8px; margin-bottom:6px;">
+                        <div style="font-size:9.5px; font-weight:700; color:#0369a1; display:flex; align-items:center; gap:4px; margin-bottom:2px;">
+                          <span>💡 Rekomendasi Tindak Lanjut:</span>
+                        </div>
+                        <div style="font-size:10px; color:#0c4a6e; line-height:1.4;">
+                          ${p.rekomendasi_tindak_lanjut}
+                        </div>
+                      </div>
+                    ` : ''}
+
+                    <!-- Link Dokumen Button -->
+                    ${p.link_dokumen ? `
+                      <a href="${p.link_dokumen}" target="_blank" rel="noopener noreferrer" style="display:flex; align-items:center; justify-content:center; gap:6px; background:#0284c7; color:#ffffff; font-weight:700; font-size:11px; padding:7px 12px; border-radius:8px; text-decoration:none; margin-top:8px; box-shadow:0 2px 4px rgba(2,132,199,0.3);">
+                        <span>📄 Buka Dokumen Pendukung BAPPENAS ↗</span>
+                      </a>
                     ` : ''}
                   </div>
                 `);
