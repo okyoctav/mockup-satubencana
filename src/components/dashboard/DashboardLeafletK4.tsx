@@ -145,7 +145,7 @@ const BNPB_LAYERS: BnpbLayer[] = [
   // BIG — Badan Informasi Geospasial
   { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
   { id: 'satupeta_geotagging', label: 'Satupeta Geotagging (BAPPENAS DTSEN)', color: '#059669', emoji: '📍', url: '/api/satupeta-geotagging', type: 'Dapodik', group: 'BAPPENAS' },
-  { id: 'monev_sakata_bappenas', label: 'Monev SADANA Geotagging (BAPPENAS)', color: '#0284C7', emoji: '📊', url: '/api/monev-sakata', type: 'GeoJSON', group: 'BAPPENAS', extent: [95.0, 3.0, 99.8, 5.5] },
+  { id: 'monev_sadana_bappenas', label: 'Monev SADANA Geotagging (BAPPENAS)', color: '#0284C7', emoji: '📊', url: '/api/monev-sadana', type: 'GeoJSON', group: 'BAPPENAS', extent: [95.0, 3.0, 99.8, 5.5] },
   { id: 'big_rbi_sulawesi_lot1',       label: 'RBI Sulawesi 2024 Lot 1',      color: '#A855F7', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI_5K_Sulawesi_2024_Lot_1_Jul/VectorTileServer',         type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_bangunan_fasum_sulawesi', label: 'Bangunan Fasum Sulawesi 2024', color: '#F59E0B', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_BANGUNAN_FASUM_SULAWESI_2024/VectorTileServer', type: 'VectorTileServer', group: 'BIG' },
@@ -927,11 +927,11 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
             group.addTo(mapRef.current);
           })
           .catch(() => null);
-      } else if (def.type === 'GeoJSON' || id === 'monev_sakata_bappenas') {
+      } else if (def.type === 'GeoJSON' || id === 'monev_sadana_bappenas' || id === 'monev_sakata_bappenas') {
         if (!mapRef.current || bnpbLayersRef.current[id]) return;
         fetch(def.url, { cache: 'no-store' })
           .then((r) => {
-            if (!r.ok) return fetch('/data/monev_sakata.geojson', { cache: 'no-store' });
+            if (!r.ok) return fetch('/data/monev_sadana.geojson', { cache: 'no-store' });
             return r;
           })
           .then((r) => {
@@ -959,7 +959,7 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
 
                 const icon = L.divIcon({
                   className: '',
-                  html: `<div style="background:${color}; width:28px; height:28px; border-radius:50%; border:2px solid #FFFFFF; box-shadow:0 2px 8px rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; color:#FFF; font-size:13px; font-weight:bold; cursor:pointer;" title="${p.kegiatan || 'Monev SAKATA'}">${iconEmoji}</div>`,
+                  html: `<div style="background:${color}; width:28px; height:28px; border-radius:50%; border:2px solid #FFFFFF; box-shadow:0 2px 8px rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; color:#FFF; font-size:13px; font-weight:bold; cursor:pointer;" title="${p.kegiatan || 'Monev SADANA'}">${iconEmoji}</div>`,
                   iconSize: [28, 28],
                   iconAnchor: [14, 14],
                 });
@@ -987,7 +987,7 @@ export default function DashboardLeafletK4({ data, flyTo, theme }: Props) {
                 layer.bindPopup(`
                   <div style="font-family:system-ui, -apple-system, sans-serif; min-width:280px; max-width:340px; font-size:11px; color:#1e293b; line-height:1.5;">
                     <div style="font-weight:bold; color:#0284c7; font-size:12px; border-bottom:1px solid #e2e8f0; padding-bottom:6px; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-                      <span>📊 Monev SAKATA (BAPPENAS)</span>
+                      <span>📊 Monev SADANA (BAPPENAS)</span>
                     </div>
                     
                     <div style="font-size:11.5px; font-weight:700; color:#0f172a; margin-bottom:6px; line-height:1.35;">
