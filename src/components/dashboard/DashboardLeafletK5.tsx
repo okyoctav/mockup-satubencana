@@ -200,7 +200,7 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'foto_geotag_ntt', label: 'Foto Geotag Terdampak (Gempa NTT 2026)', color: '#F59E0B', emoji: '📸', url: 'https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/Foto_Geotag_Terdampak/MapServer/0', type: 'MapServer', group: 'BNPB', useLngLat: true, layersParam: 'show:0' },
   { id: 'kjs_individu', label: 'Data KJS Individu (SEPAKAT PK Page 1-5)', color: '#8B5CF6', emoji: '🟣', url: '/datakjs/page_1.json', type: 'Dapodik', group: 'BAPPENAS' },
   { id: 'satupeta_geotagging', label: 'Satupeta Geotagging (BAPPENAS DTSEN)', color: '#059669', emoji: '📍', url: '/api/satupeta-geotagging', type: 'Dapodik', group: 'BAPPENAS' },
-  { id: 'monev_sakata_bappenas', label: 'Monev SAKATA Geotagging (BAPPENAS)', color: '#0284C7', emoji: '📊', url: 'https://www.sadana.cloud/api/sandingan/monev/geojson', type: 'GeoJSON', group: 'BAPPENAS', extent: [95.0, 3.0, 99.8, 5.5] },
+  { id: 'monev_sakata_bappenas', label: 'Monev SAKATA Geotagging (BAPPENAS)', color: '#0284C7', emoji: '📊', url: '/api/monev-sakata', type: 'GeoJSON', group: 'BAPPENAS', extent: [95.0, 3.0, 99.8, 5.5] },
   { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
   { id: 'bappenas_batas_desakel', label: 'Batas Kelurahan/Desa (BAPPENAS)', color: '#0284C7', emoji: '🏛️', url: 'https://mandata.bappenas.go.id/geoserver/ows', type: 'WMS', group: 'BAPPENAS', layersParam: 'BATAS_WILAYAH:ADMINISTRASI_AR_KELDESA_10K_2023' },
   { id: 'dapodik_sd', label: 'Sekolah Dasar (Dapodik)', color: '#EF4444', emoji: '🏠', url: '/data/dapodik/sd', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
@@ -2271,6 +2271,10 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
       } else if (def.type === 'GeoJSON' || id === 'monev_sakata_bappenas') {
         if (!mapRef.current || overlayLayersRef.current[id]) return;
         fetch(def.url, { cache: 'no-store' })
+          .then((r) => {
+            if (!r.ok) return fetch('/data/monev_sakata.geojson', { cache: 'no-store' });
+            return r;
+          })
           .then((r) => {
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
             return r.json();
