@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import { useTheme } from '@/contexts/ThemeContext';
 import AlertTicker from '@/components/dashboard/AlertTicker';
 import StatCards from '@/components/dashboard/StatCards';
@@ -275,18 +276,19 @@ export default function DashboardK5Page() {
                 {isSidebarOpen && <span>Dashboard</span>}
               </button>
 
-              <button
-                onClick={() => setActiveTab('models')}
-                className={`w-full flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'} py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === 'models'
-                    ? 'bg-[#1f8080] text-white shadow-md'
-                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
-                }`}
-                title={!isSidebarOpen ? 'Simulasi Modeling' : undefined}
+              <Link
+                href="/simulasi-modeling"
+                className={`w-full flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'} py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-slate-300 hover:bg-white/10 hover:text-white`}
+                title={!isSidebarOpen ? 'Simulasi Modeling (FastFlood)' : undefined}
               >
                 <Activity className="w-4 h-4 shrink-0 text-emerald-400" />
-                {isSidebarOpen && <span>Simulasi Modeling</span>}
-              </button>
+                {isSidebarOpen && (
+                  <span className="flex items-center justify-between flex-1">
+                    <span>Simulasi Modeling</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">2D</span>
+                  </span>
+                )}
+              </Link>
 
               <button
                 onClick={() => setActiveTab('ai')}
