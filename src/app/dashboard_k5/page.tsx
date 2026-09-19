@@ -26,9 +26,6 @@ import {
   Sun,
   Moon,
   Filter,
-  Maximize2,
-  Minimize2,
-  Radio,
   LayoutDashboard,
   ChevronDown,
   PanelLeftClose,
@@ -132,7 +129,6 @@ export default function DashboardK5Page() {
   const [filters, setFilters] = useState({ jenis: 'Semua', status: 'Semua', level: 'Semua' });
   const [activeFilter, setActiveFilter] = useState<FilterWilayah | null>(null);
   const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical' | 'infrastructure' | 'economic' | 'utilities' | 'routes' | 'ai' | 'gempa_ntt'>('map');
-  const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [drawEstimation, setDrawEstimation] = useState<EstimationData | null>(null);
   const [activeOverlays, setActiveOverlays] = useState<string[]>([]);
   const isFotoGeotagNttActive = activeOverlays.includes('foto_geotag_ntt') || activeOverlays.includes('gempa_ntt_2026_v2');
@@ -395,10 +391,10 @@ export default function DashboardK5Page() {
         <div className={`p-3 border-t border-white/10 bg-[#0a1e36]/90 flex items-center ${isSidebarOpen ? 'justify-between' : 'justify-center flex-col gap-2'} text-xs`}>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 text-rose-300 hover:text-rose-100 hover:bg-rose-500/20 px-2 py-1.5 rounded-lg transition-colors cursor-pointer"
+            className="flex items-center gap-2 text-slate-300 hover:text-white hover:bg-white/10 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
             title={!isSidebarOpen ? 'Logout / Keluar' : undefined}
           >
-            <LogOut className="w-3.5 h-3.5 shrink-0" />
+            <LogOut className="w-3.5 h-3.5 shrink-0 text-slate-400" />
             {isSidebarOpen && <span className="font-semibold text-[11px]">Logout</span>}
           </button>
 
@@ -449,34 +445,12 @@ export default function DashboardK5Page() {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
-                <Radio className="w-3.5 h-3.5 animate-pulse text-emerald-600" />
-                <span>LIVE SYSTEM</span>
-              </div>
-              {activeTab === 'map' && (
-                <button
-                  onClick={() => setIsMapExpanded(!isMapExpanded)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-[#1f8080]/30 text-[#1f8080] hover:bg-[#1f8080] hover:text-white transition-all text-xs font-semibold"
-                >
-                  {isMapExpanded ? (
-                    <>
-                      <Minimize2 className="w-3.5 h-3.5" />
-                      <span>Kecilkan Peta</span>
-                    </>
-                  ) : (
-                    <>
-                      <Maximize2 className="w-3.5 h-3.5" />
-                      <span>Perluas Peta</span>
-                    </>
-                  )}
-                </button>
-              )}
               <button
                 onClick={handleLogout}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 transition-all text-xs font-semibold cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0a1e36] transition-all text-xs font-semibold cursor-pointer shadow-xs"
                 title="Keluar dari akun"
               >
-                <LogOut className="w-3.5 h-3.5 text-rose-600" />
+                <LogOut className="w-3.5 h-3.5 text-slate-500" />
                 <span>Logout</span>
               </button>
             </div>
@@ -774,16 +748,9 @@ export default function DashboardK5Page() {
 
           {/* 3. TAB CONTENT SECTION */}
           <div className={activeTab === 'map' ? 'block' : 'hidden'}>
-            <section className={`grid grid-cols-1 ${isMapExpanded ? 'lg:grid-cols-1' : 'lg:grid-cols-4'} gap-6 transition-all duration-300`}>
+            <section className="grid grid-cols-1 lg:grid-cols-4 gap-6 transition-all duration-300">
               {/* GIS Map Canvas */}
-              <div
-                className={`${
-                  isMapExpanded ? 'lg:col-span-1 min-h-[700px]' : 'lg:col-span-3 min-h-[560px]'
-                } bg-white rounded-2xl border-2 border-[#0a1e36]/20 shadow-md overflow-hidden relative group transition-all duration-300`}
-              >
-                {/* Header overlay badge */}
-                
-
+              <div className="lg:col-span-3 min-h-[560px] bg-white rounded-2xl border-2 border-[#0a1e36]/20 shadow-md overflow-hidden relative group transition-all duration-300">
                 <div className="w-full h-full">
                   <DashboardMapK5
                     data={filteredData}
@@ -798,22 +765,20 @@ export default function DashboardK5Page() {
               </div>
 
               {/* Side Filter Control Panel */}
-              {!isMapExpanded && (
-                <div className="lg:col-span-1 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col h-[580px]">
-                  <div className="bg-[#0a1e36] text-white px-4 py-3 font-semibold text-xs flex items-center gap-2 shrink-0">
-                    <Filter className="w-4 h-4 text-[#1f8080]" />
-                    <span>Filter & Daftar Kejadian</span>
-                  </div>
-                  <div className="flex-1 overflow-y-auto">
-                    <FilterPanel
-                      data={regionFilteredData}
-                      filters={filters}
-                      onFilter={setFilters}
-                      onEventClick={handleEventClick}
-                    />
-                  </div>
+              <div className="lg:col-span-1 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col h-[580px]">
+                <div className="bg-[#0a1e36] text-white px-4 py-3 font-semibold text-xs flex items-center gap-2 shrink-0">
+                  <Filter className="w-4 h-4 text-[#1f8080]" />
+                  <span>Filter & Daftar Kejadian</span>
                 </div>
-              )}
+                <div className="flex-1 overflow-y-auto">
+                  <FilterPanel
+                    data={regionFilteredData}
+                    filters={filters}
+                    onFilter={setFilters}
+                    onEventClick={handleEventClick}
+                  />
+                </div>
+              </div>
             </section>
           </div>
 

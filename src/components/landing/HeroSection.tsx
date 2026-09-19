@@ -75,8 +75,7 @@ export default function HeroSection() {
                 className="text-sm sm:text-base font-medium leading-relaxed"
                 style={{ color: 'var(--text-secondary)' }}
               >
-                Ekosistem geospasial satu pintu yang menghubungkan tata kelola data pra-bencana, 
-                situasi tanggap darurat, hingga akselerasi rekonstruksi tangguh di seluruh penjuru Indonesia.
+                Ekosistem geospasial satu pintu yang menghubungkan tata kelola data dan informasi pra bencana, tanggap darurat hingga rekonstruksi pasca bencana di seluruh indonesia
               </p>
             </div>
 
@@ -142,8 +141,7 @@ export default function HeroSection() {
                   </h3>
                   
                   <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                    Pemodelan bahaya multisektoral, peta kontur kerentanan wilayah, sensor gempa/tsunami otomatis,
-                    serta simulasi evakuasi untuk meminimalkan dampak sebelum bencana terjadi.
+                    Pemodelan bahaya multisektoral, kerentanan wilayah, mengurangi dampak bencana sebelum kejadian dan memberikan informasi cepat potensi bahaya terdeteksi
                   </p>
                 </div>
 
@@ -228,8 +226,7 @@ export default function HeroSection() {
                   </h3>
 
                   <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                    Komando lapangan terpusat, koordinasi multi-instansi (BPBD, Basarnas, TNI/Polri), 
-                    jalur evakuasi presisi, serta penyaluran logistik darurat untuk keselamatan jiwa pengungsi.
+                    Komando lapangan terpusat dalam koordinasi multi-instansi (BPBD, Basarnas, TNI/Polri), jalur evakuasi hingga penyaluran logistik darurat pengungsi dalam menyelamatkan jiwa, memenuhi kebutuhan dasar, mengendalikan situasi, dan mencegah dampak bencana menjadi lebih besar
                   </p>
                 </div>
 
@@ -312,8 +309,7 @@ export default function HeroSection() {
                   </h3>
 
                   <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                    Asesmen cepat kerusakan bangunan (Jitupasna), digitalisasi pencairan bantuan stimulan, 
-                    rekonstruksi hunian tetap aman bencana, serta penguatan ketahanan wilayah jangka panjang.
+                    Asesmen cepat kerusakan bangunan, bantuan stimulan hingga rekonstruksi hunian dalam mengembalikan fungsi kehidupan masyarakat setelah masa tanggap darurat sekaligus membangun kembali wilayah agar lebih aman dan tangguh terhadap bencana.
                   </p>
                 </div>
 
