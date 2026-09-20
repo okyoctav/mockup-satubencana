@@ -68,6 +68,19 @@ export interface SimulationResults {
     avgDepth: number;
     waterVolumePct: number;
   }[];
+
+  // Integrasi Data Demografi SEPAKAT Bappenas
+  sepakatStats?: {
+    isLive: boolean;
+    source: string;
+    totalLakiLaki: number;
+    totalPerempuan: number;
+    totalLansia: number;
+    totalBalita: number;
+    totalPd1: number; // Disabilitas berat
+    totalPd2: number; // Disabilitas sedang
+    totalKeluarga: number;
+  };
 }
 
 export const REGION_PRESETS: RegionPreset[] = [

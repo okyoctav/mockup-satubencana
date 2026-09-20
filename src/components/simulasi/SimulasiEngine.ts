@@ -263,3 +263,103 @@ export function findNearestInspectionPoint(
     hazardLevel: nearest.hazardLevel,
   };
 }
+
+/**
+ * Query data demografi riil dari SEPAKAT Bappenas (Hexbin H3 Res-9)
+ * berdasarkan poligon / bounding box area genangan banjir (AOI).
+ */
+export async function querySepakatStatsForFloodAOI(
+  cells: GridCell[]
+): Promise<SimulationResults['sepakatStats'] | null> {
+  const flooded = cells.filter((c) => c.waterDepth > 0);
+  if (flooded.length === 0) return null;
+
+  let minLat = 90;
+  let maxLat = -90;
+  let minLng = 180;
+  let maxLng = -180;
+
+  for (const c of flooded) {
+    if (c.lat < minLat) minLat = c.lat;
+    if (c.lat > maxLat) maxLat = c.lat;
+    if (c.lng < minLng) minLng = c.lng;
+    if (c.lng > maxLng) maxLng = c.lng;
+  }
+
+  // Padding ring spasial
+  const pad = 0.002;
+  const ring = [
+    [minLng - pad, minLat - pad],
+    [maxLng + pad, minLat - pad],
+    [maxLng + pad, maxLat + pad],
+    [minLng - pad, maxLat + pad],
+    [minLng - pad, minLat - pad],
+  ];
+
+  const queryUrl = 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/hexbin_agg9/MapServer/0/query';
+  const outStatistics = JSON.stringify([
+    { statisticType: 'count', onStatisticField: 'objectid', outStatisticFieldName: 'cnt_hex' },
+    { statisticType: 'sum', onStatisticField: 'jml_lakila', outStatisticFieldName: 'sum_jml_lakila' },
+    { statisticType: 'sum', onStatisticField: 'jml_peremp', outStatisticFieldName: 'sum_jml_peremp' },
+    { statisticType: 'sum', onStatisticField: 'jml_lansia', outStatisticFieldName: 'sum_jml_lansia' },
+    { statisticType: 'sum', onStatisticField: 'jml_balita', outStatisticFieldName: 'sum_jml_balita' },
+    { statisticType: 'sum', onStatisticField: 'jml_pd1', outStatisticFieldName: 'sum_jml_pd1' },
+    { statisticType: 'sum', onStatisticField: 'jml_pd2', outStatisticFieldName: 'sum_jml_pd2' },
+    { statisticType: 'sum', onStatisticField: 'jml_klg', outStatisticFieldName: 'sum_jml_klg' },
+  ]);
+
+  const params = new URLSearchParams({
+    f: 'json',
+    geometry: JSON.stringify({ rings: [ring], spatialReference: { wkid: 4326 } }),
+    geometryType: 'esriGeometryPolygon',
+    spatialRel: 'esriSpatialRelIntersects',
+    inSR: '4326',
+    outSR: '4326',
+    returnGeometry: 'false',
+    outStatistics,
+    where: '1=1',
+  });
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+    const response = await fetch(queryUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) return null;
+    const json = await response.json();
+    const attrs = json.features?.[0]?.attributes;
+    if (!attrs) return null;
+
+    const parseNum = (v: unknown) => {
+      const n = typeof v === 'number' ? v : parseFloat(String(v));
+      return isNaN(n) ? 0 : Math.round(n);
+    };
+
+    const lk = parseNum(attrs.sum_jml_lakila);
+    const pr = parseNum(attrs.sum_jml_peremp);
+    const klg = parseNum(attrs.sum_jml_klg);
+
+    if (lk + pr === 0 && klg === 0) return null;
+
+    return {
+      isLive: true,
+      source: 'SEPAKAT Bappenas (Hexbin H3 Res-9)',
+      totalLakiLaki: lk,
+      totalPerempuan: pr,
+      totalLansia: parseNum(attrs.sum_jml_lansia),
+      totalBalita: parseNum(attrs.sum_jml_balita),
+      totalPd1: parseNum(attrs.sum_jml_pd1),
+      totalPd2: parseNum(attrs.sum_jml_pd2),
+      totalKeluarga: klg,
+    };
+  } catch {
+    return null;
+  }
+}

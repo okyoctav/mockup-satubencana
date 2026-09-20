@@ -497,8 +497,61 @@ export default function SimulasiControlPanel({
                   </div>
                 </div>
 
+                {/* SEPAKAT Bappenas Demographic Card */}
+                {results.sepakatStats ? (
+                  <div className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950 border border-teal-200 dark:border-teal-800 space-y-2">
+                    <div className="flex items-center justify-between border-b border-teal-200/80 dark:border-teal-800/80 pb-1.5">
+                      <div className="font-bold text-[#0a1e36] dark:text-white flex items-center gap-1.5 text-xs">
+                        <span>🏛️</span>
+                        <span>Demografi Riil SEPAKAT Bappenas</span>
+                      </div>
+                      <span className="text-[9px] font-mono font-extrabold px-1.5 py-0.5 rounded bg-teal-200 dark:bg-teal-900 text-teal-900 dark:text-teal-200">
+                        H3 Res-9
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-1.5 text-[10.5px]">
+                      <div className="flex justify-between py-0.5 border-b border-teal-100 dark:border-teal-900">
+                        <span className="text-slate-600 dark:text-slate-400">👨 Laki-laki:</span>
+                        <b className="text-slate-800 dark:text-slate-200">{results.sepakatStats.totalLakiLaki.toLocaleString('id-ID')}</b>
+                      </div>
+                      <div className="flex justify-between py-0.5 border-b border-teal-100 dark:border-teal-900">
+                        <span className="text-slate-600 dark:text-slate-400">👩 Perempuan:</span>
+                        <b className="text-slate-800 dark:text-slate-200">{results.sepakatStats.totalPerempuan.toLocaleString('id-ID')}</b>
+                      </div>
+                      <div className="flex justify-between py-0.5 border-b border-teal-100 dark:border-teal-900">
+                        <span className="text-slate-600 dark:text-slate-400">👴 Lansia:</span>
+                        <b className="text-amber-700 dark:text-amber-400">{results.sepakatStats.totalLansia.toLocaleString('id-ID')}</b>
+                      </div>
+                      <div className="flex justify-between py-0.5 border-b border-teal-100 dark:border-teal-900">
+                        <span className="text-slate-600 dark:text-slate-400">🧒 Balita:</span>
+                        <b className="text-rose-600 dark:text-rose-400">{results.sepakatStats.totalBalita.toLocaleString('id-ID')}</b>
+                      </div>
+                      <div className="flex justify-between py-0.5 border-b border-teal-100 dark:border-teal-900">
+                        <span className="text-slate-600 dark:text-slate-400">♿ Disabilitas (PD1):</span>
+                        <b className="text-cyan-600 dark:text-cyan-400">{results.sepakatStats.totalPd1.toLocaleString('id-ID')}</b>
+                      </div>
+                      <div className="flex justify-between py-0.5 border-b border-teal-100 dark:border-teal-900">
+                        <span className="text-slate-600 dark:text-slate-400">📊 Disabilitas (PD2):</span>
+                        <b className="text-purple-600 dark:text-purple-400">{results.sepakatStats.totalPd2.toLocaleString('id-ID')}</b>
+                      </div>
+                    </div>
+                    <div className="flex justify-between pt-1 text-[11px] font-bold text-teal-950 dark:text-teal-100 border-t border-teal-200 dark:border-teal-800">
+                      <span>🏠 Total Kepala Keluarga (KK):</span>
+                      <span>{results.sepakatStats.totalKeluarga.toLocaleString('id-ID')} KK</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-[10.5px]">
+                    <span className="text-slate-500 dark:text-slate-400">Basis Data: Estimasi Spasial Exposure (BPS/BNPB)</span>
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                      Land Cover
+                    </span>
+                  </div>
+                )}
+
                 {/* Mitigasi & Rekomendasi Box */}
-                <div className="p-3 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 space-y-1.5">
+                <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 space-y-1.5">
                   <div className="font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5 text-xs">
                     <span>💡</span>
                     <span>Rekomendasi Respons Lapangan</span>

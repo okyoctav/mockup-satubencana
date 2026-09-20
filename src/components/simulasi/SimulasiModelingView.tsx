@@ -13,6 +13,7 @@ import {
 import {
   runFastFloodSimulation,
   findNearestInspectionPoint,
+  querySepakatStatsForFloodAOI,
   GridCell,
   SimulationOutput,
 } from './SimulasiEngine';
@@ -83,12 +84,31 @@ export default function SimulasiModelingView({ embedded = false }: SimulasiModel
     (regionToUse = selectedRegion, paramsToUse = params, stepIndex = currentTimelineIndex) => {
       setIsSimulating(true);
 
-      setTimeout(() => {
+      setTimeout(async () => {
         const output: SimulationOutput = runFastFloodSimulation(regionToUse, paramsToUse, stepIndex);
         setGridCells(output.grid);
         setGeoJsonData(output.geoJson);
         setResults(output.results);
         setIsSimulating(false);
+
+        // Async query SEPAKAT Bappenas data for the flooded AOI
+        try {
+          const sepakat = await querySepakatStatsForFloodAOI(output.grid);
+          if (sepakat) {
+            setResults((prev) => {
+              if (!prev) return prev;
+              const pop = sepakat.totalLakiLaki + sepakat.totalPerempuan;
+              return {
+                ...prev,
+                affectedPopulation: pop > 0 ? pop : prev.affectedPopulation,
+                affectedBuildings: sepakat.totalKeluarga > 0 ? sepakat.totalKeluarga : prev.affectedBuildings,
+                sepakatStats: sepakat,
+              };
+            });
+          }
+        } catch {
+          // ignore SEPAKAT query error
+        }
       }, 350);
     },
     [selectedRegion, params, currentTimelineIndex]
