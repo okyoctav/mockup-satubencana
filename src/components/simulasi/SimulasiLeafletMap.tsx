@@ -211,7 +211,7 @@ export default function SimulasiLeafletMap({
         <div className="relative">
           <button
             onClick={() => setShowBasemapMenu(!showBasemapMenu)}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold shadow-lg hover:scale-105 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold shadow-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
             title="Pilih Peta Dasar"
           >
             <Layers className="w-4 h-4 text-sky-500" />
@@ -243,7 +243,7 @@ export default function SimulasiLeafletMap({
       </div>
 
       {/* FLOATING BOTTOM-LEFT: FastFlood Depth Color Legend */}
-      <div className="absolute bottom-24 left-4 z-[400] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-xl max-w-xs text-xs space-y-2">
+      <div className="absolute bottom-24 left-4 z-[400] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-md max-w-xs text-xs space-y-2">
         <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-1.5">
           <span className="font-extrabold text-[#0a1e36] dark:text-white flex items-center gap-1.5 text-[11px]">
             <span>🌊</span>
@@ -275,7 +275,7 @@ export default function SimulasiLeafletMap({
 
       {/* FLOATING INSPECTION CARD (When user clicks anywhere on map) */}
       {inspectionPoint && (
-        <div className="absolute top-4 left-4 z-[400] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 shadow-2xl max-w-xs w-72 text-xs space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-4 left-4 z-[400] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 shadow-md max-w-xs w-72 text-xs space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-1.5">
             <span className="font-extrabold text-[#0a1e36] dark:text-white flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-rose-500" />
@@ -338,7 +338,7 @@ export default function SimulasiLeafletMap({
 
       {/* FLOATING BOTTOM: Interactive FastFlood Timeline Scrubber Bar */}
       {results && results.timelineSteps.length > 0 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[400] w-[94%] max-w-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-3 shadow-2xl flex flex-col gap-2">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[400] w-[94%] max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-md flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <button

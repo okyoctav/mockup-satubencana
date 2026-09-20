@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   FileDown,
   Activity,
+  X,
 } from 'lucide-react';
 
 interface Props {
@@ -26,6 +27,7 @@ interface Props {
   onResetParams: () => void;
   onExportGeoJson: () => void;
   onExportReport: () => void;
+  onClose?: () => void;
 }
 
 export default function SimulasiControlPanel({
@@ -39,6 +41,7 @@ export default function SimulasiControlPanel({
   onResetParams,
   onExportGeoJson,
   onExportReport,
+  onClose,
 }: Props) {
   const [activeTab, setActiveTab] = useState<'rain' | 'boundary' | 'impact' | 'export'>('rain');
   const [isTechnicalMode, setIsTechnicalMode] = useState(false);
@@ -48,34 +51,47 @@ export default function SimulasiControlPanel({
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 overflow-hidden select-none font-sans">
-      {/* 1. TOP HEADER: Region Selector & Mode Toggle */}
-      <div className="p-4 border-b border-slate-200 dark:border-slate-800 space-y-3 shrink-0 bg-slate-50/70 dark:bg-slate-900/70">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400">
+    <div className="w-full h-full flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 overflow-hidden select-none font-sans">
+      {/* 1. TOP HEADER: Region Selector, Mode Toggle & Close Button */}
+      <div className="p-4 border-b border-slate-200 dark:border-slate-800 space-y-3 shrink-0 bg-slate-50 dark:bg-slate-900">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="p-1.5 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 shrink-0">
               <Waves className="w-4 h-4" />
             </div>
-            <div>
-              <h2 className="text-xs font-black text-[#0a1e36] dark:text-white uppercase tracking-wider">
+            <div className="truncate">
+              <h2 className="text-xs font-black text-[#0a1e36] dark:text-white uppercase tracking-wider truncate">
                 FastFlood Engine
               </h2>
-              <p className="text-[10px] text-slate-500">Pemodelan Hidrodinamika 2D Cepat</p>
+              <p className="text-[10px] text-slate-500 truncate">Pemodelan Hidrodinamika 2D Cepat</p>
             </div>
           </div>
 
-          {/* Mode Switcher */}
-          <button
-            onClick={() => setIsTechnicalMode(!isTechnicalMode)}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all cursor-pointer ${
-              isTechnicalMode
-                ? 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-950 dark:text-purple-300'
-                : 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400'
-            }`}
-            title="Beralih antara Mode Global Sederhana dan Mode Teknis Lanjutan"
-          >
-            {isTechnicalMode ? '⚙️ Mode Teknis' : '🌐 Mode Cepat'}
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Mode Switcher */}
+            <button
+              onClick={() => setIsTechnicalMode(!isTechnicalMode)}
+              className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all cursor-pointer ${
+                isTechnicalMode
+                  ? 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-950 dark:text-purple-300'
+                  : 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400'
+              }`}
+              title="Beralih antara Mode Cepat dan Mode Teknis"
+            >
+              {isTechnicalMode ? '⚙️ Teknis' : '🌐 Cepat'}
+            </button>
+
+            {/* Close Button if docked */}
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                title="Tutup Panel Kontrol"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Region Quick Dropdown */}
@@ -185,7 +201,7 @@ export default function SimulasiControlPanel({
             </div>
 
             {/* Slider Intensitas Hujan */}
-            <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
+            <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-[#0a1e36] dark:text-white text-xs">Intensitas Curah Hujan</span>
                 <span className="font-mono font-extrabold text-sky-600 dark:text-sky-400 text-xs">
@@ -209,7 +225,7 @@ export default function SimulasiControlPanel({
             </div>
 
             {/* Slider Durasi Hujan */}
-            <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
+            <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-[#0a1e36] dark:text-white text-xs">Durasi Hujan</span>
                 <span className="font-mono font-extrabold text-sky-600 dark:text-sky-400 text-xs">
@@ -280,7 +296,7 @@ export default function SimulasiControlPanel({
 
             {/* Infiltration Rate Slider (Technical Mode) */}
             {isTechnicalMode && (
-              <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
+              <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-[#0a1e36] dark:text-white text-xs">Laju Infiltrasi Tanah</span>
                   <span className="font-mono font-extrabold text-emerald-600 dark:text-emerald-400 text-xs">
@@ -305,7 +321,7 @@ export default function SimulasiControlPanel({
         {activeTab === 'boundary' && (
           <div className="space-y-4">
             {/* Debit Aliran Hulu */}
-            <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
+            <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-[#0a1e36] dark:text-white text-xs">Debit Aliran Hulu Sungai</span>
                 <span className="font-mono font-extrabold text-blue-600 dark:text-blue-400 text-xs">
@@ -329,7 +345,7 @@ export default function SimulasiControlPanel({
             </div>
 
             {/* Pasang Air Laut / Rob */}
-            <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
+            <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-[#0a1e36] dark:text-white text-xs">Pasang Air Laut (Rob / Tidal Surge)</span>
                 <span className="font-mono font-extrabold text-cyan-600 dark:text-cyan-400 text-xs">
@@ -383,7 +399,7 @@ export default function SimulasiControlPanel({
             </div>
 
             {/* Kapasitas Pompa Pengendali */}
-            <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
+            <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
               <div className="flex justify-between items-center">
                 <span className="font-bold text-[#0a1e36] dark:text-white text-xs">Kapasitas Pompa Drainase</span>
                 <span className="font-mono font-extrabold text-[#1f8080] text-xs">
@@ -432,7 +448,7 @@ export default function SimulasiControlPanel({
 
                 {/* 6 Grid Metrics */}
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                     <span className="text-[10px] text-slate-400 font-bold uppercase block">Luas Tergenang</span>
                     <span className="text-sm font-black text-sky-600 dark:text-sky-400">
                       {results.floodedAreaHa.toLocaleString('id-ID')} Ha
@@ -440,7 +456,7 @@ export default function SimulasiControlPanel({
                     <span className="text-[10px] text-slate-500 block">({results.floodedAreaKm2} km²)</span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                     <span className="text-[10px] text-slate-400 font-bold uppercase block">Populasi Terancam</span>
                     <span className="text-sm font-black text-rose-600 dark:text-rose-400">
                       {results.affectedPopulation.toLocaleString('id-ID')}
@@ -448,7 +464,7 @@ export default function SimulasiControlPanel({
                     <span className="text-[10px] text-slate-500 block">Jiwa butuh evakuasi</span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                     <span className="text-[10px] text-slate-400 font-bold uppercase block">Bangunan Terendam</span>
                     <span className="text-sm font-black text-slate-800 dark:text-slate-200">
                       {results.affectedBuildings.toLocaleString('id-ID')}
@@ -456,7 +472,7 @@ export default function SimulasiControlPanel({
                     <span className="text-[10px] text-slate-500 block">Unit Rumah & Gedung</span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                     <span className="text-[10px] text-slate-400 font-bold uppercase block">Fasum Terdampak</span>
                     <span className="text-sm font-black text-amber-600 dark:text-amber-400">
                       {results.affectedSchools} Sek / {results.affectedHospitals} RS
@@ -464,7 +480,7 @@ export default function SimulasiControlPanel({
                     <span className="text-[10px] text-slate-500 block">Sekolah & Faskes</span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                     <span className="text-[10px] text-slate-400 font-bold uppercase block">Jalan Terputus</span>
                     <span className="text-sm font-black text-slate-800 dark:text-slate-200">
                       {results.inundatedRoadKm} km
@@ -472,7 +488,7 @@ export default function SimulasiControlPanel({
                     <span className="text-[10px] text-slate-500 block">Ruas jalan lumpuh</span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                     <span className="text-[10px] text-slate-400 font-bold uppercase block">Estimasi Kerugian</span>
                     <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">
                       Rp {results.economicLossBillion.toLocaleString('id-ID')} M
@@ -507,7 +523,7 @@ export default function SimulasiControlPanel({
         {/* TAB 4: EXPORT & DATA */}
         {activeTab === 'export' && (
           <div className="space-y-3">
-            <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 space-y-2">
+            <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2">
               <div className="font-bold text-slate-800 dark:text-slate-200 text-xs flex items-center gap-1.5">
                 <FileDown className="w-4 h-4 text-sky-500" />
                 <span>Export Lapisan Spasial & Laporan</span>

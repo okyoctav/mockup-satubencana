@@ -24,6 +24,8 @@ import {
   Minimize2,
   Waves,
   SlidersHorizontal,
+  Building,
+  Users,
 } from 'lucide-react';
 
 // Dynamically import Leaflet Map to avoid SSR window errors
@@ -54,13 +56,19 @@ const DEFAULT_PARAMS: SimulationParams = {
   gridResolution: 'medium',
 };
 
-export default function SimulasiModelingView() {
+interface SimulasiModelingViewProps {
+  embedded?: boolean;
+}
+
+export default function SimulasiModelingView({ embedded = false }: SimulasiModelingViewProps) {
   const [selectedRegion, setSelectedRegion] = useState<RegionPreset>(REGION_PRESETS[0]);
   const [params, setParams] = useState<SimulationParams>(DEFAULT_PARAMS);
   const [currentTimelineIndex, setCurrentTimelineIndex] = useState(3); // default peak (step 3 = hour 8)
   const [isSimulating, setIsSimulating] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  
+  // Default is HIDE as requested by the user
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [basemapId, setBasemapId] = useState('satellite');
 
@@ -75,7 +83,6 @@ export default function SimulasiModelingView() {
     (regionToUse = selectedRegion, paramsToUse = params, stepIndex = currentTimelineIndex) => {
       setIsSimulating(true);
 
-      // Small async delay for realistic computation feel & UI responsiveness
       setTimeout(() => {
         const output: SimulationOutput = runFastFloodSimulation(regionToUse, paramsToUse, stepIndex);
         setGridCells(output.grid);
@@ -92,7 +99,7 @@ export default function SimulasiModelingView() {
     executeSimulation(selectedRegion, params, currentTimelineIndex);
   }, [selectedRegion]);
 
-  // When timeline step changes, update the grid without full re-computation
+  // When timeline step changes, update the grid
   const handleTimelineChange = (newIndex: number) => {
     setCurrentTimelineIndex(newIndex);
     executeSimulation(selectedRegion, params, newIndex);
@@ -109,7 +116,6 @@ export default function SimulasiModelingView() {
   const handleSearchLocation = async () => {
     if (!searchQuery.trim()) return;
 
-    // Check if matches preset first
     const matchedPreset = REGION_PRESETS.find(
       (p) =>
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -121,7 +127,6 @@ export default function SimulasiModelingView() {
       return;
     }
 
-    // Otherwise geocode via OSM Nominatim
     try {
       const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
         searchQuery + ', Indonesia'
@@ -196,68 +201,97 @@ export default function SimulasiModelingView() {
   };
 
   return (
-    <div className="w-screen h-screen overflow-hidden flex flex-col bg-slate-950 font-sans text-slate-100">
-      {/* 1. TOP HEADER BAR */}
-      <header className="h-14 border-b border-slate-800 bg-slate-900/90 backdrop-blur-xl px-4 flex items-center justify-between gap-4 shrink-0 z-30">
-        {/* Left: Back Link & Title */}
+    <div
+      className={`relative overflow-hidden flex flex-col bg-slate-950 font-sans text-slate-100 ${
+        embedded ? 'w-full h-full' : 'w-screen h-screen'
+      }`}
+    >
+      {/* 1. TOP TOOLBAR BAR (Solid clean styling, no glass/blur) */}
+      <header className="h-14 border-b border-slate-800 bg-slate-900 px-4 flex items-center justify-between gap-3 shrink-0 z-30">
+        {/* Left: Title / Region Selector */}
         <div className="flex items-center gap-3 shrink-0">
-          <Link
-            href="/dashboard_k5"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-all border border-slate-700/60"
-            title="Kembali ke Dashboard Utama"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Dashboard</span>
-          </Link>
+          {!embedded && (
+            <Link
+              href="/dashboard_k5"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-all border border-slate-700"
+              title="Kembali ke Dashboard Utama"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Dashboard</span>
+            </Link>
+          )}
 
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-600 to-teal-500 flex items-center justify-center text-white shadow-md">
+            <div className="w-8 h-8 rounded-xl bg-sky-600 flex items-center justify-center text-white shadow-sm shrink-0">
               <Waves className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="text-xs sm:text-sm font-black text-white tracking-wide">
-                  Simulasi Modeling Banjir
+                  FastFlood 2D Engine
                 </span>
-                <span className="text-[9px] px-1.5 py-0.2 rounded font-extrabold bg-sky-500/20 text-sky-400 border border-sky-500/40">
-                  FastFlood Engine
+                <span className="text-[9px] px-1.5 py-0.5 rounded font-extrabold bg-sky-950 text-sky-400 border border-sky-800">
+                  SFFS Hydrodynamic
                 </span>
               </div>
               <p className="text-[10px] text-slate-400 hidden sm:block">
-                Pemodelan Genangan Spasial & Estimasi Kerusakan Berbasis SFFS 2D
+                {selectedRegion.name} · {selectedRegion.province}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Middle: Location Search & Preset Quick Chips */}
-        <div className="flex-1 max-w-md hidden md:flex items-center gap-2">
-          <div className="relative flex-1">
+        {/* Middle: Quick Metrics & Region Search */}
+        <div className="flex-1 max-w-xl hidden md:flex items-center justify-center gap-3">
+          {/* Quick Metrics Chips */}
+          {results && (
+            <div className="flex items-center gap-2 text-xs">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-800 border border-slate-700 text-slate-200">
+                <span className="text-slate-400 text-[10px]">Luas:</span>
+                <span className="font-bold text-sky-400">{results.floodedAreaHa.toLocaleString('id-ID')} Ha</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-800 border border-slate-700 text-slate-200">
+                <Users className="w-3 h-3 text-rose-400" />
+                <span className="font-bold text-rose-400">{results.affectedPopulation.toLocaleString('id-ID')}</span>
+                <span className="text-slate-400 text-[10px]">jiwa</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-800 border border-slate-700 text-slate-200">
+                <Building className="w-3 h-3 text-amber-400" />
+                <span className="font-bold text-amber-400">{results.affectedBuildings.toLocaleString('id-ID')}</span>
+                <span className="text-slate-400 text-[10px]">unit</span>
+              </div>
+            </div>
+          )}
+
+          {/* Search Box */}
+          <div className="relative w-48 lg:w-56">
             <input
               type="text"
-              placeholder="Cari kota, kabupaten, atau sungai..."
+              placeholder="Cari lokasi/sungai..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearchLocation()}
-              className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-1.5 pl-8 text-xs text-slate-200 placeholder:text-slate-500 font-medium outline-none focus:border-sky-500 transition-colors"
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 pl-8 text-xs text-slate-200 placeholder:text-slate-500 font-medium outline-none focus:border-sky-500 transition-colors"
             />
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
           </div>
         </div>
 
-        {/* Right: Quick Tools */}
+        {/* Right: Toggle Control Panel (Docked on Right) & Fullscreen */}
         <div className="flex items-center gap-2 shrink-0">
           <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-              isSidebarOpen
+            onClick={() => setIsPanelOpen(!isPanelOpen)}
+            className={`px-3 py-2 rounded-xl border text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              isPanelOpen
                 ? 'bg-sky-600 text-white border-sky-500 shadow-sm'
-                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                : 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700'
             }`}
-            title="Sembunyikan / Tampilkan Panel Kontrol"
+            title="Tampilkan / Sembunyikan Panel Parameter & Dampak"
           >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span className="hidden lg:inline">{isSidebarOpen ? 'Tutup Panel' : 'Buka Panel'}</span>
+            <SlidersHorizontal className="w-4 h-4 text-sky-400" />
+            <span className="font-semibold">
+              {isPanelOpen ? 'Tutup Parameter' : 'Parameter & Dampak'}
+            </span>
           </button>
 
           <button
@@ -270,13 +304,28 @@ export default function SimulasiModelingView() {
         </div>
       </header>
 
-      {/* 2. MAIN WORKSPACE: MAP CANVAS + COLLAPSIBLE CONTROL PANEL */}
-      <div className="flex-1 relative w-full h-[calc(100vh-56px)] overflow-hidden flex">
-        {/* Left Side: Simulation Control Panel */}
+      {/* 2. MAIN WORKSPACE: MAP (LEFT / FULL) + CONTROL PANEL (RIGHT, COLLAPSIBLE) */}
+      <div className="flex-1 relative w-full h-[calc(100%-56px)] overflow-hidden flex">
+        {/* Left: Leaflet Hydrodynamic Map Canvas */}
+        <main className="flex-1 h-full relative overflow-hidden">
+          <SimulasiLeafletMap
+            region={selectedRegion}
+            geoJsonData={geoJsonData}
+            results={results}
+            currentTimelineIndex={currentTimelineIndex}
+            onTimelineChange={handleTimelineChange}
+            inspectionPoint={inspectionPoint}
+            onMapClick={handleMapClick}
+            basemapId={basemapId}
+            onBasemapChange={setBasemapId}
+          />
+        </main>
+
+        {/* Right Side: Simulation Control Panel (Default Hidden, slides in when open) */}
         <aside
           className={`h-full transition-all duration-300 z-20 shrink-0 ${
-            isSidebarOpen ? 'w-80 sm:w-96' : 'w-0'
-          } overflow-hidden`}
+            isPanelOpen ? 'w-80 sm:w-96' : 'w-0'
+          } overflow-hidden bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800`}
         >
           <div className="w-80 sm:w-96 h-full">
             <SimulasiControlPanel
@@ -296,24 +345,10 @@ export default function SimulasiModelingView() {
               }}
               onExportGeoJson={handleExportGeoJson}
               onExportReport={handleExportReport}
+              onClose={() => setIsPanelOpen(false)}
             />
           </div>
         </aside>
-
-        {/* Right Side / Background: Leaflet Map */}
-        <main className="flex-1 h-full relative overflow-hidden">
-          <SimulasiLeafletMap
-            region={selectedRegion}
-            geoJsonData={geoJsonData}
-            results={results}
-            currentTimelineIndex={currentTimelineIndex}
-            onTimelineChange={handleTimelineChange}
-            inspectionPoint={inspectionPoint}
-            onMapClick={handleMapClick}
-            basemapId={basemapId}
-            onBasemapChange={setBasemapId}
-          />
-        </main>
       </div>
     </div>
   );
