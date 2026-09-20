@@ -150,14 +150,14 @@ export function runFastFloodSimulation(
         sumDepth += depth;
         if (depth > maxDepth) maxDepth = depth;
 
-        // GeoJSON Feature for visualization
+        // GeoJSON Feature for visualization (FastFlood color ramp)
         const fillColor =
-          depth > 1.5 ? '#1e1b4b' : // deep indigo/navy
-          depth > 0.8 ? '#1d4ed8' : // strong blue
-          depth > 0.3 ? '#0284c7' : // sky blue
-          '#38bdf8';               // light cyan
+          depth > 1.5 ? '#1e40af' : // deep royal blue (> 1.5m)
+          depth > 0.8 ? '#2563eb' : // strong blue (0.8 - 1.5m)
+          depth > 0.3 ? '#0284c7' : // sky blue (0.3 - 0.8m)
+          '#38bdf8';               // light cyan (0.08 - 0.3m)
 
-        const fillOpacity = Math.min(0.85, 0.45 + (depth / 2.0) * 0.4);
+        const fillOpacity = Math.min(0.65, 0.35 + (depth / 2.0) * 0.3);
 
         features.push({
           type: 'Feature',

@@ -17,26 +17,30 @@ interface Props {
   onBasemapChange: (id: string) => void;
 }
 
-const BASEMAP_TILES: Record<string, { url: string; attr: string; name: string }> = {
+const BASEMAP_TILES: Record<string, { url: string; attr: string; name: string; maxNativeZoom?: number }> = {
   satellite: {
     name: 'Citra Satelit',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     attr: '© Esri, Maxar',
+    maxNativeZoom: 18,
   },
   topo: {
     name: 'Topografi',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
     attr: '© Esri, USGS',
+    maxNativeZoom: 18,
   },
   osm: {
     name: 'OpenStreetMap',
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attr: '© OpenStreetMap contributors',
+    maxNativeZoom: 19,
   },
   dark: {
     name: 'Dark Canvas',
     url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
     attr: '© CARTO, OpenStreetMap',
+    maxNativeZoom: 19,
   },
 };
 
@@ -54,6 +58,7 @@ export default function SimulasiLeafletMap({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const baseTileLayerRef = useRef<L.TileLayer | null>(null);
+  const currentBasemapIdRef = useRef<string>(basemapId);
   const floodLayerRef = useRef<L.GeoJSON | null>(null);
   const inspectMarkerRef = useRef<L.Marker | null>(null);
 
@@ -77,8 +82,13 @@ export default function SimulasiLeafletMap({
     const tileLayer = L.tileLayer(baseCfg.url, {
       attribution: baseCfg.attr,
       maxZoom: 19,
+      maxNativeZoom: baseCfg.maxNativeZoom ?? 18,
+      keepBuffer: 6,
+      updateWhenIdle: false,
+      updateWhenZooming: false,
     }).addTo(map);
     baseTileLayerRef.current = tileLayer;
+    currentBasemapIdRef.current = basemapId;
 
     // Click handler for inspecting elevation & water depth
     map.on('click', (e: L.LeafletMouseEvent) => {
@@ -87,7 +97,26 @@ export default function SimulasiLeafletMap({
 
     mapInstanceRef.current = map;
 
+    // Handle container resize (e.g. sidebar toggle, panel toggle, window resize)
+    const resizeObserver = new ResizeObserver(() => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize({ debounceMoveend: true });
+      }
+    });
+    if (mapContainerRef.current) {
+      resizeObserver.observe(mapContainerRef.current);
+    }
+
+    // Delayed invalidations to ensure proper rendering after layout shifts
+    const t1 = setTimeout(() => map.invalidateSize(), 150);
+    const t2 = setTimeout(() => map.invalidateSize(), 400);
+    const t3 = setTimeout(() => map.invalidateSize(), 800);
+
     return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      resizeObserver.disconnect();
       map.remove();
       mapInstanceRef.current = null;
     };
@@ -105,6 +134,9 @@ export default function SimulasiLeafletMap({
   // 3. Update Basemap
   useEffect(() => {
     if (!mapInstanceRef.current) return;
+    if (currentBasemapIdRef.current === basemapId && baseTileLayerRef.current) return;
+    currentBasemapIdRef.current = basemapId;
+
     const baseCfg = BASEMAP_TILES[basemapId] || BASEMAP_TILES.satellite;
     if (baseTileLayerRef.current) {
       mapInstanceRef.current.removeLayer(baseTileLayerRef.current);
@@ -112,6 +144,10 @@ export default function SimulasiLeafletMap({
     const newLayer = L.tileLayer(baseCfg.url, {
       attribution: baseCfg.attr,
       maxZoom: 19,
+      maxNativeZoom: baseCfg.maxNativeZoom ?? 18,
+      keepBuffer: 6,
+      updateWhenIdle: false,
+      updateWhenZooming: false,
     }).addTo(mapInstanceRef.current);
     baseTileLayerRef.current = newLayer;
 
@@ -203,7 +239,7 @@ export default function SimulasiLeafletMap({
   return (
     <div className="relative w-full h-full overflow-hidden font-sans">
       {/* Map Element */}
-      <div ref={mapContainerRef} className="w-full h-full z-0 bg-slate-950" />
+      <div ref={mapContainerRef} className="w-full h-full z-0 bg-slate-100 dark:bg-slate-800" />
 
       {/* FLOATING TOP-RIGHT: Basemap & Inspection Stats Bar */}
       <div className="absolute top-4 right-14 z-[400] flex items-center gap-2">
@@ -267,7 +303,7 @@ export default function SimulasiLeafletMap({
             <span className="text-slate-700 dark:text-slate-300">0.80 - 1.50 m · Bahaya Tinggi (Lantai 1)</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-3.5 h-3.5 rounded-md bg-[#1e1b4b] shrink-0 border border-black/10" />
+            <span className="w-3.5 h-3.5 rounded-md bg-[#1e40af] shrink-0 border border-black/10" />
             <span className="text-slate-700 dark:text-slate-300">&gt; 1.50 m · Bahaya Ekstrem (Evakuasi)</span>
           </div>
         </div>
