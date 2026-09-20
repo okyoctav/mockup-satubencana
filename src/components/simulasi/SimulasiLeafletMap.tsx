@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { InspectionPoint, RegionPreset, SimulationResults } from './SimulasiTypes';
 import { Play, Pause, RotateCcw, Layers, Gauge, MapPin } from 'lucide-react';
 

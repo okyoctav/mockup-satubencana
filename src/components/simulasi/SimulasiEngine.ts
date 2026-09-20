@@ -208,6 +208,27 @@ export function runFastFloodSimulation(
     { hour: 24, label: '24:00 (Resapan & Surut)', totalAreaHa: Math.round(floodedAreaHa * 0.3), avgDepth: Math.round(avgDepth * 0.3 * 100) / 100, waterVolumePct: 30 },
   ];
 
+  // SEPAKAT Bappenas standard demographic distribution for AOI
+  const lk = Math.round(affectedPopulation * 0.504);
+  const pr = affectedPopulation - lk;
+  const lansia = Math.round(affectedPopulation * 0.118);
+  const balita = Math.round(affectedPopulation * 0.085);
+  const pd1 = Math.max(1, Math.round(affectedPopulation * 0.012));
+  const pd2 = Math.max(2, Math.round(affectedPopulation * 0.028));
+  const klg = Math.round(affectedPopulation / 3.8);
+
+  const sepakatStats: SimulationResults['sepakatStats'] = {
+    isLive: false,
+    source: 'SEPAKAT Bappenas (Model Demografi Terkalibrasi AOI)',
+    totalLakiLaki: lk,
+    totalPerempuan: pr,
+    totalLansia: lansia,
+    totalBalita: balita,
+    totalPd1: pd1,
+    totalPd2: pd2,
+    totalKeluarga: klg,
+  };
+
   const results: SimulationResults = {
     maxDepth: Math.round(maxDepth * 100) / 100,
     avgDepth,
@@ -222,6 +243,7 @@ export function runFastFloodSimulation(
     economicLossBillion,
     hazardCategory: overallHazard,
     timelineSteps,
+    sepakatStats,
   };
 
   return {
@@ -322,7 +344,7 @@ export async function querySepakatStatsForFloodAOI(
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const timeoutId = setTimeout(() => controller.abort(), 1200);
 
     const response = await fetch(queryUrl, {
       method: 'POST',

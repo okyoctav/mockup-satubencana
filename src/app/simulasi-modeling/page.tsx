@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import 'leaflet/dist/leaflet.css';
 import { useTheme } from '@/contexts/ThemeContext';
 import AlertTicker from '@/components/dashboard/AlertTicker';
 import SimulasiModelingView from '@/components/simulasi/SimulasiModelingView';
@@ -291,7 +292,7 @@ export default function SimulasiModelingPage() {
       </aside>
 
       {/* 2. MAIN CONTENT AREA: HEADER DENGAN ALERT TICKER + FULL HEIGHT SIMULASI MODELING BANJIR 2D SAJA */}
-      <div className="flex-1 flex flex-col min-w-0 bg-slate-950 h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 bg-slate-100 dark:bg-slate-900 h-screen overflow-hidden">
         {/* Top Header Wrapper with Integrated Early Warning Ticker (Identik dengan Dashboard K5) */}
         <header className="sticky top-0 z-[700] bg-white border-b border-slate-200 shadow-2xs shrink-0">
           {/* Integrated Early Warning Alert Ticker */}

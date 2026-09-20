@@ -33,9 +33,9 @@ import {
 const SimulasiLeafletMap = dynamic(() => import('./SimulasiLeafletMap'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-950 text-white gap-3">
-      <div className="w-8 h-8 border-4 border-sky-400 border-t-transparent rounded-full animate-spin" />
-      <span className="text-xs font-bold tracking-wider text-slate-300">
+    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-white gap-3">
+      <div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin" />
+      <span className="text-xs font-bold tracking-wider text-slate-600 dark:text-slate-300">
         Memuat Engine Spasial FastFlood...
       </span>
     </div>
@@ -94,7 +94,7 @@ export default function SimulasiModelingView({ embedded = false }: SimulasiModel
         // Async query SEPAKAT Bappenas data for the flooded AOI
         try {
           const sepakat = await querySepakatStatsForFloodAOI(output.grid);
-          if (sepakat) {
+          if (sepakat && sepakat.isLive) {
             setResults((prev) => {
               if (!prev) return prev;
               const pop = sepakat.totalLakiLaki + sepakat.totalPerempuan;
@@ -222,7 +222,7 @@ export default function SimulasiModelingView({ embedded = false }: SimulasiModel
 
   return (
     <div
-      className={`relative overflow-hidden flex flex-col bg-slate-950 font-sans text-slate-100 ${
+      className={`relative overflow-hidden flex flex-col bg-slate-100 dark:bg-slate-900 font-sans text-slate-900 dark:text-slate-100 ${
         embedded ? 'w-full h-full' : 'w-screen h-screen'
       }`}
     >
