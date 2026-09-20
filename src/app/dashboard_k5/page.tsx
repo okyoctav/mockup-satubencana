@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import { useTheme } from '@/contexts/ThemeContext';
 import AlertTicker from '@/components/dashboard/AlertTicker';
 import StatCards from '@/components/dashboard/StatCards';
@@ -11,7 +12,6 @@ import AnalysisModelsSection from '@/components/dashboard/AnalysisModelsSection'
 import LogisticAnalysisSection from '@/components/dashboard/LogisticAnalysisSection';
 import bencanaData from '@/data/bencana.json';
 import WilayahDropdown, { FilterWilayah } from '@/components/dashboard/WilayahDropdown';
-import SimulasiModelingView from '@/components/simulasi/SimulasiModelingView';
 import {
   MapPin,
   BarChart3,
@@ -129,21 +129,10 @@ export default function DashboardK5Page() {
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [filters, setFilters] = useState({ jenis: 'Semua', status: 'Semua', level: 'Semua' });
   const [activeFilter, setActiveFilter] = useState<FilterWilayah | null>(null);
-  const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'simulasi' | 'logistics' | 'medical' | 'infrastructure' | 'economic' | 'utilities' | 'routes' | 'ai' | 'gempa_ntt'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'analytics' | 'models' | 'logistics' | 'medical' | 'infrastructure' | 'economic' | 'utilities' | 'routes' | 'ai' | 'gempa_ntt'>('map');
   const [drawEstimation, setDrawEstimation] = useState<EstimationData | null>(null);
   const [activeOverlays, setActiveOverlays] = useState<string[]>([]);
   const isFotoGeotagNttActive = activeOverlays.includes('foto_geotag_ntt') || activeOverlays.includes('gempa_ntt_2026_v2');
-
-  // Check URL query param ?tab=simulasi
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const tabParam = urlParams.get('tab');
-      if (tabParam === 'simulasi') {
-        setActiveTab('simulasi');
-      }
-    }
-  }, []);
 
   useEffect(() => {
     if (!isFotoGeotagNttActive && activeTab === 'gempa_ntt') {
@@ -287,13 +276,9 @@ export default function DashboardK5Page() {
                 {isSidebarOpen && <span>Dashboard</span>}
               </button>
 
-              <button
-                onClick={() => setActiveTab('simulasi')}
-                className={`w-full flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'} py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === 'simulasi'
-                    ? 'bg-[#1f8080] text-white shadow-md'
-                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
-                }`}
+              <Link
+                href="/simulasi-modeling"
+                className={`w-full flex items-center ${isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'} py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-slate-300 hover:bg-white/10 hover:text-white`}
                 title={!isSidebarOpen ? 'Simulasi Modeling (FastFlood)' : undefined}
               >
                 <Activity className="w-4 h-4 shrink-0 text-emerald-400" />
@@ -303,7 +288,7 @@ export default function DashboardK5Page() {
                     <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">2D</span>
                   </span>
                 )}
-              </button>
+              </Link>
 
               <button
                 onClick={() => setActiveTab('ai')}
@@ -677,17 +662,6 @@ export default function DashboardK5Page() {
                 <span className="truncate">Model Kerentanan</span>
               </button>
 
-              <button
-                onClick={() => setActiveTab('simulasi')}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                  activeTab === 'simulasi'
-                    ? 'bg-[#0a1e36] text-white shadow-md ring-2 ring-[#0a1e36]/30 scale-[1.02]'
-                    : 'bg-slate-50 text-slate-700 border border-slate-200/80 hover:bg-slate-100 hover:text-[#1f8080]'
-                }`}
-              >
-                <Activity className="w-4 h-4 shrink-0 text-emerald-500" />
-                <span className="truncate">Simulasi Modeling (FastFlood)</span>
-              </button>
 
               <button
                 onClick={() => setActiveTab('logistics')}
@@ -857,30 +831,6 @@ export default function DashboardK5Page() {
             </section>
           )}
 
-          {activeTab === 'simulasi' && (
-            <section className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-[#1f8080]/10 text-[#1f8080]">
-                  <Activity className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-base font-bold text-[#0a1e36]">Simulasi Modeling Banjir 2D</h2>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-teal-50 text-[#1f8080] border border-teal-200 font-bold">
-                      FastFlood Engine SFFS
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500">
-                    Simulasi hidrodinamika genangan air 2D cepat dengan parameter presipitasi, runoff, pasang rob, tanggul, dan analisis dampak risiko
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl border-2 border-[#0a1e36]/20 shadow-md overflow-hidden h-[750px] relative">
-                <SimulasiModelingView embedded />
-              </div>
-            </section>
-          )}
 
           {activeTab === 'logistics' && (
             <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
