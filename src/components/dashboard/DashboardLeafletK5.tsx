@@ -2,7 +2,7 @@
 
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Layers, Search, Check, X, Eye, Activity, MapPin, Pencil, Home, Maximize2, Minimize2, BookOpen, ChevronDown, ChevronUp, RotateCcw, Sparkles } from 'lucide-react';
 import { JENIS_CONFIG } from '@/components/dashboard/FilterPanel';
 import { DISASTER_CATEGORIES, DashboardLayer } from '@/types/layer';
@@ -1302,6 +1302,67 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
   const [layerGroupFilter, setLayerGroupFilter] = useState('ALL');
   const [modalDisasterFilter, setModalDisasterFilter] = useState<string>('ALL');
   const [isDisasterTrayOpen, setIsDisasterTrayOpen] = useState(true);
+
+  // Modal searchable select dropdown states
+  const [isDisasterDropdownOpen, setIsDisasterDropdownOpen] = useState(false);
+  const [disasterFilterSearch, setDisasterFilterSearch] = useState('');
+  const disasterDropdownRef = useRef<HTMLDivElement>(null);
+
+  const [isAgencyDropdownOpen, setIsAgencyDropdownOpen] = useState(false);
+  const [agencyFilterSearch, setAgencyFilterSearch] = useState('');
+  const agencyDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (disasterDropdownRef.current && !disasterDropdownRef.current.contains(e.target as Node)) {
+        setIsDisasterDropdownOpen(false);
+      }
+      if (agencyDropdownRef.current && !agencyDropdownRef.current.contains(e.target as Node)) {
+        setIsAgencyDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const availableAgencies = useMemo(() => {
+    const base = ['BNPB', 'BIG', 'BAPPENAS', 'ATR/BPN', 'KEMENDAGRI', 'BMKG', 'NASA', 'ESDM'];
+    layersList.forEach((l) => {
+      if (l.group && !base.includes(l.group)) {
+        base.push(l.group);
+      }
+    });
+    return base;
+  }, [layersList]);
+
+  const filteredDisasterCategories = useMemo(() => {
+    if (!disasterFilterSearch.trim()) return DISASTER_CATEGORIES;
+    const q = disasterFilterSearch.toLowerCase();
+    return DISASTER_CATEGORIES.filter((c) => c.label.toLowerCase().includes(q) || c.id.toLowerCase().includes(q));
+  }, [disasterFilterSearch]);
+
+  const matchesSemuaDisaster = useMemo(() => {
+    if (!disasterFilterSearch.trim()) return true;
+    const q = disasterFilterSearch.toLowerCase();
+    return 'semua skenario'.includes(q) || 'all'.includes(q);
+  }, [disasterFilterSearch]);
+
+  const filteredAgencies = useMemo(() => {
+    if (!agencyFilterSearch.trim()) return availableAgencies;
+    const q = agencyFilterSearch.toLowerCase();
+    return availableAgencies.filter((a) => a.toLowerCase().includes(q));
+  }, [availableAgencies, agencyFilterSearch]);
+
+  const matchesSemuaAgency = useMemo(() => {
+    if (!agencyFilterSearch.trim()) return true;
+    const q = agencyFilterSearch.toLowerCase();
+    return 'semua instansi sumber'.includes(q) || 'all'.includes(q);
+  }, [agencyFilterSearch]);
+
+  const selectedDisasterCategory = useMemo(() => {
+    if (modalDisasterFilter === 'ALL') return null;
+    return DISASTER_CATEGORIES.find((c) => c.id === modalDisasterFilter);
+  }, [modalDisasterFilter]);
   
   const [showBmkg, setShowBmkg] = useState(false);
   const [bmkgMode, setBmkgMode] = useState<'terkini' | 'dirasakan' | 'autogempa'>('terkini');
@@ -1328,6 +1389,10 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
     if (selectedJenis && selectedJenis !== 'Semua') {
       setModalDisasterFilter(selectedJenis);
     }
+    setIsDisasterDropdownOpen(false);
+    setIsAgencyDropdownOpen(false);
+    setDisasterFilterSearch('');
+    setAgencyFilterSearch('');
     setShowLayerModal(true);
   };
 
@@ -3346,72 +3411,254 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
                 </div>
               </div>
 
-              {/* Disaster Scenario Filter */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-[#0a1e36] uppercase tracking-wider block">
-                    Skenario Bencana
-                  </label>
-                  {modalDisasterFilter !== 'ALL' && (
-                    <button
-                      onClick={() => {
-                        const target = getLayersForDisaster(modalDisasterFilter, layersList);
-                        setDraftOverlays((prev) => Array.from(new Set([...prev, ...target])));
-                      }}
-                      className="text-[10px] font-bold text-[#1f8080] hover:underline cursor-pointer flex items-center gap-1"
-                    >
-                      <Sparkles className="w-3 h-3" />
-                      <span>Pilih Semua Layer {DISASTER_CATEGORIES.find((c) => c.id === modalDisasterFilter)?.label || modalDisasterFilter}</span>
-                    </button>
-                  )}
-                </div>
-                <div className="flex items-center gap-1 flex-wrap">
+              {/* Filter Selects: Skenario Bencana & Instansi/Sumber Data (Searchable Combobox) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {/* 1. Skenario Bencana Select */}
+                <div className="relative" ref={disasterDropdownRef}>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-[#0a1e36] uppercase tracking-wider block truncate">
+                      Skenario Bencana
+                    </label>
+                    {modalDisasterFilter !== 'ALL' && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setModalDisasterFilter('ALL');
+                        }}
+                        className="text-[10px] text-[#1f8080] hover:underline font-semibold cursor-pointer"
+                        title="Reset ke Semua Skenario"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
                   <button
-                    onClick={() => setModalDisasterFilter('ALL')}
-                    className={`px-2 py-1 rounded-lg text-[10.5px] font-bold transition-all cursor-pointer ${
-                      modalDisasterFilter === 'ALL'
-                        ? 'bg-[#0a1e36] text-white shadow-xs'
-                        : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-400'
+                    type="button"
+                    onClick={() => {
+                      setIsDisasterDropdownOpen(!isDisasterDropdownOpen);
+                      setIsAgencyDropdownOpen(false);
+                    }}
+                    className={`w-full h-8.5 px-2.5 rounded-xl border bg-white text-xs font-semibold flex items-center justify-between gap-1.5 transition-all cursor-pointer ${
+                      isDisasterDropdownOpen
+                        ? 'border-[#1f8080] ring-2 ring-[#1f8080]/15'
+                        : modalDisasterFilter !== 'ALL'
+                        ? 'border-[#1f8080]/70 bg-teal-50/50 text-teal-950 shadow-xs'
+                        : 'border-slate-200 text-slate-700 hover:border-slate-300 shadow-xs'
                     }`}
                   >
-                    Semua
+                    <div className="flex items-center gap-1.5 truncate min-w-0">
+                      {modalDisasterFilter === 'ALL' ? (
+                        <>
+                          <span className="text-xs shrink-0">🌐</span>
+                          <span className="truncate">Semua Skenario</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-xs shrink-0">{selectedDisasterCategory?.emoji || '⚠️'}</span>
+                          <span className="truncate">{selectedDisasterCategory?.label || modalDisasterFilter}</span>
+                        </>
+                      )}
+                    </div>
+                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isDisasterDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
-                  {DISASTER_CATEGORIES.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setModalDisasterFilter(cat.id)}
-                      className={`px-2 py-1 rounded-lg text-[10.5px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                        modalDisasterFilter === cat.id
-                          ? 'bg-[#0a1e36] text-white shadow-xs'
-                          : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-400'
-                      }`}
-                    >
-                      <span>{cat.emoji}</span>
-                      <span>{cat.label}</span>
-                    </button>
-                  ))}
+
+                  {/* Skenario Dropdown Menu */}
+                  {isDisasterDropdownOpen && (
+                    <div className="absolute left-0 top-[calc(100%+4px)] z-[70] w-60 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 space-y-1.5 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                        <input
+                          type="text"
+                          autoFocus
+                          placeholder="Cari skenario bencana..."
+                          value={disasterFilterSearch}
+                          onChange={(e) => setDisasterFilterSearch(e.target.value)}
+                          className="w-full pl-8 pr-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 outline-none focus:border-[#1f8080]"
+                        />
+                      </div>
+                      <div className="max-h-48 overflow-y-auto space-y-0.5 pr-0.5">
+                        {matchesSemuaDisaster && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setModalDisasterFilter('ALL');
+                              setIsDisasterDropdownOpen(false);
+                              setDisasterFilterSearch('');
+                            }}
+                            className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between transition-colors cursor-pointer ${
+                              modalDisasterFilter === 'ALL'
+                                ? 'bg-[#1f8080]/15 text-[#1f8080] font-bold'
+                                : 'hover:bg-slate-100 text-slate-700'
+                            }`}
+                          >
+                            <span className="flex items-center gap-1.5">
+                              <span>🌐</span>
+                              <span>Semua Skenario</span>
+                            </span>
+                            {modalDisasterFilter === 'ALL' && <Check className="w-3.5 h-3.5 text-[#1f8080] shrink-0" />}
+                          </button>
+                        )}
+                        {filteredDisasterCategories.map((cat) => {
+                          const isSelected = modalDisasterFilter === cat.id;
+                          return (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() => {
+                                setModalDisasterFilter(cat.id);
+                                setIsDisasterDropdownOpen(false);
+                                setDisasterFilterSearch('');
+                              }}
+                              className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between transition-colors cursor-pointer ${
+                                isSelected
+                                  ? 'bg-[#1f8080]/15 text-[#1f8080] font-bold'
+                                  : 'hover:bg-slate-100 text-slate-700'
+                              }`}
+                            >
+                              <span className="flex items-center gap-1.5 truncate">
+                                <span>{cat.emoji}</span>
+                                <span className="truncate">{cat.label}</span>
+                              </span>
+                              {isSelected && <Check className="w-3.5 h-3.5 text-[#1f8080] shrink-0" />}
+                            </button>
+                          );
+                        })}
+                        {!matchesSemuaDisaster && filteredDisasterCategories.length === 0 && (
+                          <div className="p-3 text-center text-xs text-slate-400">Skenario tidak ditemukan</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Instansi / Sumber Data Select */}
+                <div className="relative" ref={agencyDropdownRef}>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-[#0a1e36] uppercase tracking-wider block truncate">
+                      Instansi / Sumber
+                    </label>
+                    {layerGroupFilter !== 'ALL' && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLayerGroupFilter('ALL');
+                        }}
+                        className="text-[10px] text-[#1f8080] hover:underline font-semibold cursor-pointer"
+                        title="Reset ke Semua Instansi"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAgencyDropdownOpen(!isAgencyDropdownOpen);
+                      setIsDisasterDropdownOpen(false);
+                    }}
+                    className={`w-full h-8.5 px-2.5 rounded-xl border bg-white text-xs font-semibold flex items-center justify-between gap-1.5 transition-all cursor-pointer ${
+                      isAgencyDropdownOpen
+                        ? 'border-[#1f8080] ring-2 ring-[#1f8080]/15'
+                        : layerGroupFilter !== 'ALL'
+                        ? 'border-[#1f8080]/70 bg-teal-50/50 text-teal-950 shadow-xs'
+                        : 'border-slate-200 text-slate-700 hover:border-slate-300 shadow-xs'
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 truncate min-w-0">
+                      <span className="truncate">
+                        {layerGroupFilter === 'ALL' ? 'Semua Instansi' : layerGroupFilter}
+                      </span>
+                    </div>
+                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${isAgencyDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Instansi Dropdown Menu */}
+                  {isAgencyDropdownOpen && (
+                    <div className="absolute right-0 top-[calc(100%+4px)] z-[70] w-56 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 space-y-1.5 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                        <input
+                          type="text"
+                          autoFocus
+                          placeholder="Cari instansi / sumber..."
+                          value={agencyFilterSearch}
+                          onChange={(e) => setAgencyFilterSearch(e.target.value)}
+                          className="w-full pl-8 pr-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 outline-none focus:border-[#1f8080]"
+                        />
+                      </div>
+                      <div className="max-h-48 overflow-y-auto space-y-0.5 pr-0.5">
+                        {matchesSemuaAgency && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setLayerGroupFilter('ALL');
+                              setIsAgencyDropdownOpen(false);
+                              setAgencyFilterSearch('');
+                            }}
+                            className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between transition-colors cursor-pointer ${
+                              layerGroupFilter === 'ALL'
+                                ? 'bg-[#1f8080]/15 text-[#1f8080] font-bold'
+                                : 'hover:bg-slate-100 text-slate-700'
+                            }`}
+                          >
+                            <span>Semua Instansi</span>
+                            {layerGroupFilter === 'ALL' && <Check className="w-3.5 h-3.5 text-[#1f8080] shrink-0" />}
+                          </button>
+                        )}
+                        {filteredAgencies.map((grp) => {
+                          const isSelected = layerGroupFilter === grp;
+                          return (
+                            <button
+                              key={grp}
+                              type="button"
+                              onClick={() => {
+                                setLayerGroupFilter(grp);
+                                setIsAgencyDropdownOpen(false);
+                                setAgencyFilterSearch('');
+                              }}
+                              className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between transition-colors cursor-pointer ${
+                                isSelected
+                                  ? 'bg-[#1f8080]/15 text-[#1f8080] font-bold'
+                                  : 'hover:bg-slate-100 text-slate-700'
+                              }`}
+                            >
+                              <span className="truncate">{grp}</span>
+                              {isSelected && <Check className="w-3.5 h-3.5 text-[#1f8080] shrink-0" />}
+                            </button>
+                          );
+                        })}
+                        {!matchesSemuaAgency && filteredAgencies.length === 0 && (
+                          <div className="p-3 text-center text-xs text-slate-400">Instansi tidak ditemukan</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Group Filter Buttons */}
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                  Instansi / Sumber Data
-                </label>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  {['ALL', 'BNPB', 'BIG', 'BAPPENAS', 'ATR/BPN', 'KEMENDAGRI','BMKG','NASA','ESDM'].map((grp) => (
-                    <button
-                      key={grp}
-                      onClick={() => setLayerGroupFilter(grp)}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                        layerGroupFilter === grp ? 'bg-[#1f8080] text-white shadow-xs' : 'bg-white text-slate-600 border border-slate-200 hover:border-[#1f8080]'
-                      }`}
-                    >
-                      {grp}
-                    </button>
-                  ))}
+              {/* Quick Action: Pilih Semua Layer Skenario jika skenario tertentu dipilih */}
+              {modalDisasterFilter !== 'ALL' && (
+                <div className="flex items-center justify-between bg-teal-50/90 border border-teal-200/80 rounded-xl px-2.5 py-1.5 shadow-xs">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <Sparkles className="w-3.5 h-3.5 text-[#1f8080] shrink-0" />
+                    <span className="text-[10.5px] font-semibold text-teal-900 truncate">
+                      Skenario: {selectedDisasterCategory?.label || modalDisasterFilter}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const target = getLayersForDisaster(modalDisasterFilter, layersList);
+                      setDraftOverlays((prev) => Array.from(new Set([...prev, ...target])));
+                    }}
+                    className="text-[10px] font-bold text-[#1f8080] hover:text-[#135959] hover:underline cursor-pointer shrink-0 ml-1.5"
+                  >
+                    + Pilih Semua Layer
+                  </button>
                 </div>
-              </div>
+              )}
 
               {/* Available Layers List */}
               <div className="flex-1 space-y-2 overflow-y-auto pr-1">
