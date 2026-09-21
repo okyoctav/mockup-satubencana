@@ -10,6 +10,15 @@ export const metadata: Metadata = {
   description:
     "Platform analisis dan manajemen data bencana nasional. Pra-bencana, saat-bencana, dan pasca-bencana dalam satu ekosistem data.",
   keywords: ["bencana", "BNPB", "BPBD", "geospasial", "analisis bencana", "peta bencana Indonesia"],
+  icons: {
+    icon: [
+      { url: "/logo/logofavicon.png", type: "image/png" },
+    ],
+    shortcut: ["/logo/logofavicon.png"],
+    apple: [
+      { url: "/logo/logofavicon.png" },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -19,6 +28,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={cn("font-sans", inter.variable)}>
+      <head>
+        <link rel="icon" href="/logo/logofavicon.png" type="image/png" sizes="any" />
+        <link rel="shortcut icon" href="/logo/logofavicon.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/logo/logofavicon.png" />
+      </head>
       <body className="antialiased">
         <ThemeProvider>
           {children}
