@@ -224,7 +224,7 @@ export default function DashboardK5Page() {
           {/* SKIP BUTTON */}
           <button
             onClick={handleFinishBumper}
-            className="absolute bottom-6 right-6 px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-1.5 cursor-pointer z-[100000]"
+            className="absolute bottom-6 right-6 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-1.5 cursor-pointer z-[100000]"
           >
             <span>Lewati Intro</span>
             <span>&rarr;</span>

@@ -2779,20 +2779,20 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
       {/* Map Container */}
       <div ref={containerRef} className="w-full h-full z-0" />
 
-      {/* 1. GLASSMORPHIC ELEGANT SEARCH FLOATING TOOLBAR */}
+      {/* 1. SOLID MATERIALIZED SEARCH FLOATING TOOLBAR */}
       <div className="absolute top-4 left-4 z-[300] max-w-sm w-full space-y-2">
-        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white/40 backdrop-blur-xl border border-white/60 shadow-lg transition-all duration-200 focus-within:bg-white/70 focus-within:border-white">
+        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md transition-all duration-200 focus-within:border-teal-500">
           <input
             type="text"
             placeholder="Cari lokasi / wilayah..."
             value={glassSearchQuery}
             onChange={(e) => setGlassSearchQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleGlassSearch()}
-            className="flex-1 bg-transparent border-none outline-none px-3 text-xs text-slate-900 placeholder:text-slate-600 font-medium"
+            className="flex-1 bg-transparent border-none outline-none px-3 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium"
           />
           <button
             onClick={handleGlassSearch}
-            className="w-8 h-8 rounded-xl bg-[#1f8080]/80 hover:bg-[#1f8080] text-white flex items-center justify-center backdrop-blur-md shadow-xs transition-all hover:scale-105"
+            className="w-8 h-8 rounded-xl bg-[#1f8080] hover:bg-[#1f8080]/90 text-white flex items-center justify-center shadow-xs transition-all cursor-pointer"
             title="Cari"
           >
             <Search className="w-4 h-4" />
@@ -2800,7 +2800,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
 
           <button
             onClick={handleOpenLayerModal}
-            className="px-3 h-8 rounded-xl bg-white/50 hover:bg-white/80 text-[#0a1e36] font-bold text-xs flex items-center gap-1.5 border border-white/80 shadow-xs transition-all hover:scale-105"
+            className="px-3 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0a1e36] dark:text-slate-100 font-bold text-xs flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 shadow-xs transition-all cursor-pointer"
             title="Kelola Layer Peta"
           >
             <Layers className="w-4 h-4 text-[#1f8080]" />
@@ -2811,7 +2811,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
 
         {/* Search Results */}
         {glassSearchResults.length > 0 && (
-          <div className="bg-white/80 backdrop-blur-xl border border-white/80 rounded-2xl p-2 shadow-xl space-y-1 max-h-48 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-2 shadow-xl space-y-1 max-h-48 overflow-y-auto">
             {glassSearchResults.map((res, i) => (
               <button
                 key={i}
@@ -2824,7 +2824,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
                     setGlassSearchQuery(res.display_name);
                   }
                 }}
-                className="w-full text-left p-2 rounded-xl text-xs hover:bg-[#1f8080]/10 hover:text-[#0a1e36] transition-colors truncate font-medium text-slate-700"
+                className="w-full text-left p-2 rounded-xl text-xs hover:bg-[#1f8080]/10 hover:text-[#0a1e36] dark:hover:text-teal-300 transition-colors truncate font-medium text-slate-700 dark:text-slate-300"
               >
                 📍 {res.display_name}
               </button>
@@ -2834,7 +2834,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
 
         {/* Active Disaster Auto-Selected Layer Badge */}
         {selectedJenis && selectedJenis !== 'Semua' && (
-          <div className="bg-[#0a1e36]/90 backdrop-blur-xl border border-white/20 rounded-2xl px-3.5 py-1.5 shadow-md flex items-center justify-between gap-2.5 text-[11px] text-white animate-in fade-in duration-200">
+          <div className="bg-[#0a1e36] border border-slate-700 rounded-2xl px-3.5 py-1.5 shadow-md flex items-center justify-between gap-2.5 text-[11px] text-white animate-in fade-in duration-200">
             <div className="flex items-center gap-2 truncate">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
               <span className="truncate">
@@ -2855,7 +2855,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
       {/* 2. FLOATING CONTROL BUTTONS & BMKG BAR SEPARATION */}
       {/* BMKG 1-Click Switch Bar (Independent Div Container) */}
       <div className="absolute top-4 right-16 z-[400]">
-        <div className="flex items-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl p-1 shadow-md gap-1">
+        <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-1 shadow-md gap-1">
           <button
             onClick={() => { setShowBmkg(true); setBmkgMode("terkini"); }}
             className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
@@ -2912,8 +2912,8 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
         {/* Toggle Draw Tools Estimator */}
         <button
           onClick={() => setShowDrawTools(!showDrawTools)}
-          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center ${
-            showDrawTools ? 'bg-[#1f8080] text-white border-white/40' : 'bg-white/80 text-slate-700 border-white/80'
+          className={`p-2.5 rounded-2xl border shadow-md transition-all flex items-center justify-center cursor-pointer ${
+            showDrawTools ? 'bg-[#1f8080] text-white border-teal-600' : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
           }`}
           title="Simulasi Estimasi Demografi Draw"
         >
@@ -2922,12 +2922,12 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
 
         {/* Draw Tool Panel */}
         {showDrawTools && (
-          <div className="bg-white/90 backdrop-blur-xl border border-white/80 rounded-2xl p-2 shadow-xl space-y-1">
-            <div className="flex items-center justify-between px-2 pb-1 border-b">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-2 shadow-xl space-y-1">
+            <div className="flex items-center justify-between px-2 pb-1 border-b border-slate-200 dark:border-slate-800">
               <span className="text-[10px] font-bold text-slate-400 uppercase">Pilih Alat Ukur</span>
               <button
                 onClick={handleClearDraw}
-                className="text-[10px] font-bold text-rose-500 hover:underline"
+                className="text-[10px] font-bold text-rose-500 hover:underline cursor-pointer"
               >
                 Hapus Semua Draw
               </button>
@@ -2936,8 +2936,8 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
               <button
                 key={t.id}
                 onClick={() => setActiveDraw(activeDraw === t.id ? null : t.id)}
-                className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
-                  activeDraw === t.id ? 'bg-[#1f8080] text-white' : 'hover:bg-slate-100 text-slate-700'
+                className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                  activeDraw === t.id ? 'bg-[#1f8080] text-white' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
                 }`}
               >
                 <span>{t.icon}</span>
@@ -2947,12 +2947,12 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
           </div>
         )}
 
-                {/* Toggle & Version Selector Survey Kerentanan InARISK */}
-        <div className="flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-1 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md">
+        {/* Toggle & Version Selector Survey Kerentanan InARISK */}
+        <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md">
           <button
             onClick={() => setShowKerentanan(!showKerentanan)}
-            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              showKerentanan ? "bg-[#10B981] text-white shadow-xs" : "bg-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900"
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              showKerentanan ? "bg-[#10B981] text-white shadow-xs" : "bg-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
             }`}
             title="Toggle Survey Kerentanan InARISK"
           >
@@ -2964,8 +2964,8 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
             <div className="flex items-center gap-1 border-l border-slate-200 dark:border-slate-800 pl-1">
               <button
                 onClick={() => setKerentananCode("7171")}
-                className={`px-2 py-1 rounded-lg text-[10.5px] font-extrabold transition-all ${
-                  kerentananCode === "7171" ? "bg-[#0EA5E9] text-white shadow-xs" : "text-slate-500 hover:text-slate-900"
+                className={`px-2 py-1 rounded-lg text-[10.5px] font-extrabold transition-all cursor-pointer ${
+                  kerentananCode === "7171" ? "bg-[#0EA5E9] text-white shadow-xs" : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
                 }`}
                 title="Muat Survey Kerentanan 7171"
               >
@@ -2973,8 +2973,8 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
               </button>
               <button
                 onClick={() => setKerentananCode("7172")}
-                className={`px-2 py-1 rounded-lg text-[10.5px] font-extrabold transition-all ${
-                  kerentananCode === "7172" ? "bg-[#0EA5E9] text-white shadow-xs" : "text-slate-500 hover:text-slate-900"
+                className={`px-2 py-1 rounded-lg text-[10.5px] font-extrabold transition-all cursor-pointer ${
+                  kerentananCode === "7172" ? "bg-[#0EA5E9] text-white shadow-xs" : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
                 }`}
                 title="Muat Survey Kerentanan 7172"
               >
@@ -3002,7 +3002,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
                     alert("⚠️ Gagal memperbarui file JSON lokal");
                   }
                 }}
-                className="px-1.5 py-1 rounded-lg text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-all flex items-center gap-0.5"
+                className="px-1.5 py-1 rounded-lg text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-all flex items-center gap-0.5 cursor-pointer"
                 title="Sync & Update JSON Realtime dari InARISK"
               >
                 🔄 <span className="hidden sm:inline">Sync</span>
@@ -3014,8 +3014,8 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
         {/* Toggle Bencana JSON Markers */}
         <button
           onClick={() => setShowBencanaData(!showBencanaData)}
-          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center ${
-            showBencanaData ? 'bg-[#0a1e36] text-white border-white/40' : 'bg-white/80 text-slate-700 border-white/80'
+          className={`p-2.5 rounded-2xl border shadow-md transition-all flex items-center justify-center cursor-pointer ${
+            showBencanaData ? 'bg-[#0a1e36] text-white border-slate-700' : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
           }`}
           title="Toggle Titik Kejadian Bencana"
         >
@@ -3025,19 +3025,19 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
         {/* Toggle Fullscreen Mode */}
         <button
           onClick={handleToggleFullscreen}
-          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center ${
-            isFullscreen ? 'bg-amber-600 text-white border-amber-400/40 ring-2 ring-amber-400/30' : 'bg-white/80 text-slate-700 border-white/80 hover:bg-white'
+          className={`p-2.5 rounded-2xl border shadow-md transition-all flex items-center justify-center cursor-pointer ${
+            isFullscreen ? 'bg-amber-600 text-white border-amber-600 ring-2 ring-amber-400/30' : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
           }`}
           title={isFullscreen ? 'Keluar Fullscreen Peta' : 'Mode Layar Penuh (Fullscreen Peta)'}
         >
-          {isFullscreen ? <Minimize2 className="w-4 h-4 text-amber-200" /> : <Maximize2 className="w-4 h-4 text-[#0a1e36]" />}
+          {isFullscreen ? <Minimize2 className="w-4 h-4 text-amber-200" /> : <Maximize2 className="w-4 h-4 text-[#0a1e36] dark:text-white" />}
         </button>
 
         {/* Toggle Legenda */}
         <button
           onClick={() => setShowLegend(!showLegend)}
-          className={`p-2.5 rounded-2xl border backdrop-blur-xl shadow-md transition-all flex items-center justify-center cursor-pointer ${
-            showLegend ? 'bg-[#0a1e36] text-white border-white/40' : 'bg-white/80 text-slate-700 border-white/80 hover:bg-white'
+          className={`p-2.5 rounded-2xl border shadow-md transition-all flex items-center justify-center cursor-pointer ${
+            showLegend ? 'bg-[#0a1e36] text-white border-slate-700' : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
           }`}
           title="Tampilkan Legenda Khusus Layer Terpilih"
         >
@@ -3046,7 +3046,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
 
         {/* Legenda Floating Box Sesuai Layers yang Dipilih */}
         {showLegend && (
-          <div className="absolute top-16 right-0 z-[500] w-80 sm:w-96 max-h-[75vh] bg-white/95 backdrop-blur-2xl border border-slate-200 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="absolute top-16 right-0 z-[500] w-80 sm:w-96 max-h-[75vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Header Legenda */}
             <div className="bg-[#0a1e36] text-white px-4 py-3 flex items-center justify-between border-b border-white/10 shrink-0">
               <div className="flex items-center gap-2">
@@ -3206,7 +3206,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
 
       {/* 3. FULL MODAL/POPUP LAYER SELECTION (EXPANDED TO MAP CANVAS AREA) */}
       {showLayerModal && (
-        <div className="absolute inset-4 z-[600] bg-white/95 backdrop-blur-2xl border border-white/80 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute inset-4 z-[600] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {/* Modal Header */}
           <div className="bg-[#0a1e36] text-white px-6 py-4 flex items-center justify-between border-b border-white/10 shrink-0">
             <div className="flex items-center gap-2.5">
@@ -3324,7 +3324,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
                 {/* Live Mini Leaflet Preview Container */}
                 <div className="flex-1 rounded-2xl border-2 border-[#1f8080]/30 overflow-hidden relative shadow-inner">
                   <div ref={previewContainerRef} className="w-full h-full z-0 bg-slate-900" />
-                  <div className="absolute bottom-3 left-3 z-[400] bg-[#0a1e36]/90 text-white backdrop-blur-md px-3 py-1 rounded-xl text-[11px] font-bold border border-white/20 shadow-md flex items-center gap-2">
+                  <div className="absolute bottom-3 left-3 z-[400] bg-[#0a1e36] text-white px-3 py-1 rounded-xl text-[11px] font-bold border border-slate-700 shadow-md flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-[#1f8080] animate-pulse" />
                     <span>Live Pratinjau: {BASEMAPS.find((b) => b.id === draftBasemap)?.label} ({draftOverlays.length} Layer)</span>
                   </div>

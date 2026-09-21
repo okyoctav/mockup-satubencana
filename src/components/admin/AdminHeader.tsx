@@ -1,7 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { PanelLeftClose, PanelLeftOpen, LayoutDashboard, LogOut } from 'lucide-react';
+import MenuIcon from 'nexticons/outline/MenuIcon';
+import ChevronLeftIcon from 'nexticons/outline/ChevronLeftIcon';
+import MapIcon from 'nexticons/outline/MapIcon';
+import SignOutIcon from 'nexticons/outline/SignOutIcon';
 import AlertTicker from '@/components/dashboard/AlertTicker';
 
 interface AdminHeaderProps {
@@ -38,32 +41,32 @@ export default function AdminHeader({
   };
 
   return (
-    <header className="sticky top-0 z-[700] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-2xs shrink-0 select-none">
+    <header className="sticky top-0 z-[700] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xs shrink-0 select-none">
       {/* Integrated Early Warning Alert Ticker */}
-      <div className="border-b border-[#1f8080]/30 text-white">
+      <div className="border-b border-[#1f8080]/30 text-white bg-[#0a1e36]">
         <AlertTicker onAlertClick={() => {}} />
       </div>
 
-      {/* Header Controls Bar */}
+      {/* Header Controls Bar - Solid Materialized Elevation */}
       <div className="px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 flex-wrap bg-white dark:bg-slate-900">
         <div className="flex items-center gap-3 flex-wrap">
           {/* Header Burger Trigger Button */}
           <button
             onClick={onToggleSidebar}
-            className="flex items-center justify-center p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all shadow-2xs group cursor-pointer"
+            className="flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all shadow-xs cursor-pointer"
             title={isSidebarOpen ? 'Sembunyikan Sidebar' : 'Tampilkan Sidebar'}
           >
             {isSidebarOpen ? (
-              <PanelLeftClose className="w-4 h-4 text-slate-600 dark:text-slate-300 group-hover:text-[#0a1e36] dark:group-hover:text-white transition-colors" />
+              <ChevronLeftIcon width={18} height={18} />
             ) : (
-              <PanelLeftOpen className="w-4 h-4 text-[#1f8080] group-hover:text-[#0a1e36] dark:group-hover:text-white transition-colors" />
+              <MenuIcon width={18} height={18} />
             )}
           </button>
 
           {/* Title & Badge */}
           <div className="flex items-center gap-2">
             {icon && (
-              <div className="p-1.5 rounded-lg bg-teal-500/10 text-[#1f8080] dark:text-teal-400">
+              <div className="p-1.5 rounded-xl bg-teal-50 dark:bg-teal-950/50 border border-teal-200/60 dark:border-teal-800 text-[#1f8080] dark:text-teal-400 flex items-center justify-center shadow-2xs">
                 {icon}
               </div>
             )}
@@ -90,7 +93,9 @@ export default function AdminHeader({
             href="/dashboard_k5"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all text-xs font-semibold cursor-pointer shadow-xs"
           >
-            <LayoutDashboard className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+            <span className="text-slate-500 dark:text-slate-400 flex items-center justify-center">
+              <MapIcon width={15} height={15} />
+            </span>
             <span className="hidden sm:inline">Dashboard Utama</span>
           </Link>
 
@@ -99,7 +104,9 @@ export default function AdminHeader({
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-all text-xs font-semibold cursor-pointer shadow-xs"
             title="Keluar dari akun"
           >
-            <LogOut className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+            <span className="text-slate-500 dark:text-slate-400 flex items-center justify-center">
+              <SignOutIcon width={15} height={15} />
+            </span>
             <span className="hidden sm:inline">Logout</span>
           </button>
         </div>

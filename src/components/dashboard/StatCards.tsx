@@ -280,7 +280,7 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
 
               {/* Filtered Region/Disaster Badge if active (Moved to bottom right) */}
               {regionLabel && (
-                <div className="absolute bottom-2.5 right-2.5 px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-300 text-[10px] font-black text-[#0a1e36] shadow-sm truncate max-w-[130px] z-10">
+                <div className="absolute bottom-2.5 right-2.5 px-2.5 py-0.5 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-[10px] font-black text-[#0a1e36] dark:text-slate-100 shadow-xs truncate max-w-[130px] z-10">
                   {regionLabel}
                 </div>
               )}
@@ -291,7 +291,7 @@ export default function StatCards({ status, regionData, regionLabel, onClearRegi
 
       {/* Modal Details if Rehab selected */}
       {showRehabModal && (
-        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-xl border border-slate-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-bold text-slate-800 text-sm">Alokasi Rehab-Rekon Per Provinsi</h3>

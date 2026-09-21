@@ -12,22 +12,20 @@ import {
   LayerType,
 } from '@/types/layer';
 import { DEFAULT_DASHBOARD_LAYERS } from '@/data/defaultLayers';
-import {
-  Database,
-  Plus,
-  Search,
-  Check,
-  Copy,
-  ExternalLink,
-  Edit2,
-  Trash2,
-  Terminal,
-  RefreshCw,
-  X,
-  Layers,
-  CheckCircle2,
-  AlertCircle,
-} from 'lucide-react';
+import ServerIcon from 'nexticons/outline/ServerIcon';
+import TableIcon from 'nexticons/outline/TableIcon';
+import PlusIcon from 'nexticons/outline/PlusIcon';
+import SearchIcon from 'nexticons/outline/SearchIcon';
+import CheckIcon from 'nexticons/outline/CheckIcon';
+import CheckCircleIcon from 'nexticons/outline/CheckCircleIcon';
+import NoteIcon from 'nexticons/outline/NoteIcon';
+import WorldIcon from 'nexticons/outline/WorldIcon';
+import ModifyIcon from 'nexticons/outline/ModifyIcon';
+import TrashIcon from 'nexticons/outline/TrashIcon';
+import ComputerIcon from 'nexticons/outline/ComputerIcon';
+import RepeatIcon from 'nexticons/outline/RepeatIcon';
+import XIcon from 'nexticons/outline/XIcon';
+import WarningIcon from 'nexticons/outline/WarningIcon';
 
 const LOCAL_STORAGE_KEY = 'satubencana_dashboard_layers_v1';
 
@@ -406,14 +404,14 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           title="Manajemen Data Bencana"
           badge="Layer Manager / GIS Catalog"
-          icon={<Database className="w-4 h-4" />}
+          icon={<ServerIcon width={16} height={16} />}
           rightActions={
             <button
               onClick={() => setIsSqlModalOpen(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900 transition-all text-xs font-bold cursor-pointer shadow-xs"
               title="Lihat Script Migrasi Supabase"
             >
-              <Terminal className="w-3.5 h-3.5" />
+              <ComputerIcon width={14} height={14} />
               <span className="hidden sm:inline">Script SQL Supabase</span>
             </button>
           }
@@ -425,7 +423,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
           {dbNotice && (
             <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-start justify-between gap-3 text-xs">
               <div className="flex items-start gap-2.5">
-                <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <WarningIcon width={16} height={16} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-bold text-amber-900 dark:text-amber-200">
                     Tabel Supabase Belum Dibuat atau Belum Dijalankan
@@ -447,7 +445,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
           {isSupabaseConnected && (
             <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-semibold">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <CheckCircleIcon width={16} height={16} className="text-emerald-500 shrink-0" />
                 <span>Terhubung langsung dengan database Supabase (`dashboard_layers`). Perubahan langsung tersinkronisasi.</span>
               </div>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100 font-bold">
@@ -461,7 +459,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
             <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
               <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
                 <span>Total Layer Terdaftar</span>
-                <Layers className="w-4 h-4 text-sky-500" />
+                <TableIcon width={16} height={16} className="text-sky-500 shrink-0" />
               </div>
               <div className="text-2xl font-black text-slate-900 dark:text-white mt-2">
                 {stats.total}
@@ -472,7 +470,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
             <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
               <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
                 <span>Layer Aktif di Peta</span>
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <CheckCircleIcon width={16} height={16} className="text-emerald-500 shrink-0" />
               </div>
               <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-2">
                 {stats.active}
@@ -483,7 +481,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
             <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
               <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
                 <span>Layer Non-Aktif</span>
-                <X className="w-4 h-4 text-amber-500" />
+                <XIcon width={16} height={16} className="text-amber-500 shrink-0" />
               </div>
               <div className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-2">
                 {stats.inactive}
@@ -494,7 +492,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
             <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
               <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
                 <span>Instansi Sumber</span>
-                <Database className="w-4 h-4 text-purple-500" />
+                <ServerIcon width={16} height={16} className="text-purple-500 shrink-0" />
               </div>
               <div className="text-2xl font-black text-purple-600 dark:text-purple-400 mt-2">
                 {stats.groups}
@@ -508,7 +506,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
             <div className="flex items-center justify-between gap-3 flex-wrap">
               {/* Search input */}
               <div className="relative flex-1 min-w-[260px] max-w-md">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <SearchIcon width={16} height={16} className="text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Cari layer berdasarkan ID, label, instansi, atau URL..."
@@ -525,7 +523,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors cursor-pointer"
                   title="Sinkronkan / kembalikan ke layer standar default"
                 >
-                  <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
+                  <RepeatIcon width={14} height={14} className="text-slate-500" />
                   <span>Reset Default (38 Layer)</span>
                 </button>
 
@@ -533,7 +531,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                   onClick={handleOpenAdd}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1f8080] hover:bg-[#1f8080]/90 text-white text-xs font-bold transition-all shadow-sm cursor-pointer hover:scale-102"
                 >
-                  <Plus className="w-4 h-4" />
+                  <PlusIcon width={16} height={16} />
                   <span>Tambah Layer Baru</span>
                 </button>
               </div>
@@ -600,12 +598,12 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
 
             {loading ? (
               <div className="p-12 text-center text-slate-400 text-xs">
-                <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-teal-500" />
+                <RepeatIcon width={24} height={24} className="animate-spin mx-auto mb-2 text-teal-500" />
                 <span>Memuat data katalog layer...</span>
               </div>
             ) : filteredLayers.length === 0 ? (
               <div className="p-12 text-center text-slate-400 text-xs space-y-2">
-                <Database className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600" />
+                <ServerIcon width={32} height={32} className="mx-auto text-slate-300 dark:text-slate-600" />
                 <p className="font-semibold text-slate-600 dark:text-slate-400">Tidak ada layer yang sesuai dengan filter.</p>
                 <button
                   onClick={() => {
@@ -717,9 +715,9 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                                 title="Salin URL Layanan"
                               >
                                 {copiedUrlId === layer.id ? (
-                                  <Check className="w-3.5 h-3.5 text-emerald-500" />
+                                  <CheckIcon width={14} height={14} className="text-emerald-500" />
                                 ) : (
-                                  <Copy className="w-3.5 h-3.5" />
+                                  <NoteIcon width={14} height={14} />
                                 )}
                               </button>
                               {layer.url.startsWith('http') && (
@@ -730,7 +728,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                                   className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-sky-500 transition-colors cursor-pointer shrink-0"
                                   title="Buka Endpoint di Tab Baru"
                                 >
-                                  <ExternalLink className="w-3.5 h-3.5" />
+                                  <WorldIcon width={14} height={14} />
                                 </a>
                               )}
                             </div>
@@ -768,14 +766,14 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                                 className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 transition-colors cursor-pointer"
                                 title="Edit Layer"
                               >
-                                <Edit2 className="w-3.5 h-3.5" />
+                                <ModifyIcon width={14} height={14} />
                               </button>
                               <button
                                 onClick={() => handleDeleteLayer(layer.id)}
                                 className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer"
                                 title="Hapus Layer"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <TrashIcon width={14} height={14} />
                               </button>
                             </div>
                           </td>
@@ -796,7 +794,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
-                <Database className="w-5 h-5 text-teal-600" />
+                <ServerIcon width={20} height={20} className="text-teal-600" />
                 <h3 className="font-bold text-sm text-slate-900 dark:text-white">
                   {editingLayer ? 'Edit Konfigurasi Layer' : 'Tambah Layer Geospasial Baru'}
                 </h3>
@@ -805,7 +803,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                 onClick={() => setIsFormOpen(false)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <XIcon width={20} height={20} />
               </button>
             </div>
 
@@ -1003,7 +1001,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
-                <Terminal className="w-5 h-5 text-teal-600" />
+                <ComputerIcon width={20} height={20} className="text-teal-600" />
                 <h3 className="font-bold text-sm text-slate-900 dark:text-white">
                   Script Migrasi Database Supabase (`dashboard_layers`)
                 </h3>
@@ -1012,7 +1010,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                 onClick={() => setIsSqlModalOpen(false)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <XIcon width={20} height={20} />
               </button>
             </div>
 
@@ -1038,7 +1036,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                   onClick={handleCopySql}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1f8080] hover:bg-[#1f8080]/90 text-white font-bold transition-all shadow-sm cursor-pointer"
                 >
-                  {copiedSql ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {copiedSql ? <CheckIcon width={16} height={16} /> : <NoteIcon width={16} height={16} />}
                   <span>{copiedSql ? 'Tersalin ke Clipboard!' : 'Salin Script SQL'}</span>
                 </button>
               </div>
