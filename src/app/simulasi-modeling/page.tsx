@@ -172,16 +172,16 @@ export default function SimulasiModelingPage() {
               </div>
             )}
             <div className="space-y-1 text-xs">
-              <a
-                href="/management"
+              <Link
+                href="/manajemen-data-bencana"
                 className={`flex items-center ${
                   isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'
                 } py-2 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white transition-colors font-medium`}
-                title={!isSidebarOpen ? 'Manajemen Data' : undefined}
+                title={!isSidebarOpen ? 'Manajemen Data Bencana' : undefined}
               >
                 <Database className="w-4 h-4 text-teal-400 shrink-0" />
-                {isSidebarOpen && <span>Manajemen Data</span>}
-              </a>
+                {isSidebarOpen && <span>Manajemen Data Bencana</span>}
+              </Link>
 
               <a
                 href="/admin/roles"

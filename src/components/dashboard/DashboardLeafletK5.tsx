@@ -1229,6 +1229,40 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
   const [activeBasemap, setActiveBasemap] = useState('esri_imagery');
   const [draftBasemap, setDraftBasemap] = useState('esri_imagery');
   const [activeOverlays, setActiveOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
+  const [layersList, setLayersList] = useState<BnpbLayer[]>(BNPB_LAYERS);
+
+  // Sync custom layers from /manajemen-data-bencana if available
+  useEffect(() => {
+    const cached = localStorage.getItem('satubencana_dashboard_layers_v1');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const activeOnly = parsed.filter((l: any) => l.is_active !== false).map((l: any) => ({
+            id: l.id,
+            label: l.label,
+            color: l.color,
+            emoji: l.emoji,
+            url: l.url,
+            type: l.type,
+            group: l.group || l.group_name,
+            useLngLat: l.useLngLat ?? l.use_lng_lat,
+            layersParam: l.layersParam ?? l.layers_param,
+            extent: l.extent,
+            requiresFilter: l.requiresFilter ?? l.requires_filter,
+            ignoreScale: l.ignoreScale ?? l.ignore_scale,
+            requiresToken: l.requiresToken ?? l.requires_token,
+          }));
+          if (activeOnly.length > 0) {
+            setLayersList(activeOnly);
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
 
   // Automatically select thematic GIS layers when disaster type changes
   useEffect(() => {
@@ -1382,7 +1416,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
 
   // Fetch MapServer Legends
   useEffect(() => {
-    BNPB_LAYERS.filter((l) => l.type === 'MapServer' && !l.url.endsWith('.json') && activeOverlays.includes(l.id)).forEach((layer) => {
+    layersList.filter((l) => l.type === 'MapServer' && !l.url.endsWith('.json') && activeOverlays.includes(l.id)).forEach((layer) => {
       const fetchLegendWithToken = (tok?: string) => {
         const legendUrl = tok ? `${layer.url}/legend?f=pjson&token=${tok}` : `${layer.url}/legend?f=pjson`;
         fetch(legendUrl)
@@ -1726,7 +1760,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
         }
         return;
       }
-      const def = BNPB_LAYERS.find((l) => l.id === id);
+      const def = layersList.find((l) => l.id === id);
       if (!def || def.type === 'Dapodik' || def.type === 'GeoJSON' || def.url.startsWith('/')) return;
       if (def.type === 'WMS') {
         previewOverlayLayersRef.current[id] = L.tileLayer.wms(def.url, {
@@ -1802,7 +1836,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
         }
         return;
       }
-      const def = BNPB_LAYERS.find((l) => l.id === id);
+      const def = layersList.find((l) => l.id === id);
       if (!def) return;
 
       if (id === 'foto_geotag_ntt') {
@@ -2707,7 +2741,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
     setDraggedIndex(null);
   };
 
-  const filteredModalLayers = BNPB_LAYERS.filter((l) => {
+  const filteredModalLayers = layersList.filter((l) => {
     const matchesSearch = l.label.toLowerCase().includes(layerSearch.toLowerCase()) || l.group?.toLowerCase().includes(layerSearch.toLowerCase());
     const matchesGroup = layerGroupFilter === 'ALL' || l.group === layerGroupFilter;
     return matchesSearch && matchesGroup;
@@ -2804,7 +2838,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
             <div className="flex items-center gap-2 truncate">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
               <span className="truncate">
-                Layer Bencana: <b className="text-emerald-300">{activeOverlays.map(id => BNPB_LAYERS.find(l => l.id === id)?.label?.split('(')[0]?.trim() || id).join(', ')}</b>
+                Layer Bencana: <b className="text-emerald-300">{activeOverlays.map(id => layersList.find(l => l.id === id)?.label?.split('(')[0]?.trim() || id).join(', ')}</b>
               </span>
             </div>
             <button
@@ -3043,7 +3077,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
                 </div>
               ) : (
                 activeOverlays.map((lyrId) => {
-                  const lyr = BNPB_LAYERS.find((l) => l.id === lyrId);
+                  const lyr = layersList.find((l) => l.id === lyrId);
                   const predefined = PREDEFINED_LAYER_LEGENDS[lyrId];
                   const mapserverItems = mapserverLegends[lyrId];
 
@@ -3317,7 +3351,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
                       <div className="text-xs text-slate-400 italic py-4 text-center">Belum ada layer terpilih. Silakan pilih dari panel sebelah kiri.</div>
                     ) : (
                       draftOverlays.map((id, index) => {
-                        const lyr = BNPB_LAYERS.find((l) => l.id === id);
+                        const lyr = layersList.find((l) => l.id === id);
                         if (!lyr) return null;
                         const currentOp = draftOpacities[id] ?? 1.0;
                         return (
