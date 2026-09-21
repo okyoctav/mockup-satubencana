@@ -121,17 +121,14 @@ export default function InformasiMitraSection() {
       <div className="relative rounded-3xl p-8 sm:p-12 overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors">
         <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-[rgb(25,79,112)]/10 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-[rgb(25,79,112)]/10 dark:bg-sky-500/20 border border-[rgb(25,79,112)]/20 dark:border-sky-500/40 text-[rgb(25,79,112)] dark:text-sky-300">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Pusat Informasi Publik & Jejaring Kemitraan Strategis</span>
-          </div>
+          
 
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-            Kemitraan Terpadu Penanggulangan Bencana Indonesia
+            Kolaborasi Data dan Informasi Kebencanaan di Indonesia 
           </h1>
 
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-            Menghubungkan data geospasial presisi, sistem peringatan dini, dan kebijakan mitigasi bencana lintas Kementerian/Lembaga nasional untuk keselamatan masyarakat.
+            Pengumpulan, penggabungan, penyelarasan, dan penggunaan data bencana Kementerian/Lembaga dalam satu sistem manajemen data bencana nasional
           </p>
 
           <div className="pt-2 flex items-center gap-4 flex-wrap">
