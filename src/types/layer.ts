@@ -30,6 +30,8 @@ export interface DashboardLayer {
   requires_filter?: boolean; // alias from DB
   requiresToken?: boolean;
   requires_token?: boolean; // alias from DB
+  disasterTypes?: string[];
+  disaster_types?: string[]; // alias from DB
   extent?: [number, number, number, number] | null;
   description?: string | null;
   is_active?: boolean;
@@ -37,6 +39,37 @@ export interface DashboardLayer {
   created_at?: string;
   updated_at?: string;
 }
+
+export type DisasterType = 
+  | 'banjir'
+  | 'gempa'
+  | 'longsor'
+  | 'kebakaran'
+  | 'erupsi'
+  | 'tsunami'
+  | 'kekeringan'
+  | 'angin puting beliung';
+
+export interface DisasterCategoryConfig {
+  id: string;
+  label: string;
+  emoji: string;
+  color: string;
+  solidBg: string;
+  solidText: string;
+  solidBorder: string;
+}
+
+export const DISASTER_CATEGORIES: DisasterCategoryConfig[] = [
+  { id: 'banjir', label: 'Banjir', emoji: '💧', color: '#0284c7', solidBg: 'bg-sky-100', solidText: 'text-sky-900', solidBorder: 'border-sky-300' },
+  { id: 'gempa', label: 'Gempa Bumi', emoji: '🏚️', color: '#ef4444', solidBg: 'bg-rose-100', solidText: 'text-rose-900', solidBorder: 'border-rose-300' },
+  { id: 'longsor', label: 'Tanah Longsor', emoji: '⛰️', color: '#d97706', solidBg: 'bg-amber-100', solidText: 'text-amber-900', solidBorder: 'border-amber-300' },
+  { id: 'kebakaran', label: 'Kebakaran Hutan', emoji: '🔥', color: '#ea580c', solidBg: 'bg-orange-100', solidText: 'text-orange-900', solidBorder: 'border-orange-300' },
+  { id: 'erupsi', label: 'Erupsi Gunung Api', emoji: '🌋', color: '#8b5cf6', solidBg: 'bg-purple-100', solidText: 'text-purple-900', solidBorder: 'border-purple-300' },
+  { id: 'tsunami', label: 'Tsunami', emoji: '🌊', color: '#06b6d4', solidBg: 'bg-cyan-100', solidText: 'text-cyan-900', solidBorder: 'border-cyan-300' },
+  { id: 'kekeringan', label: 'Kekeringan', emoji: '☀️', color: '#ca8a04', solidBg: 'bg-yellow-100', solidText: 'text-yellow-900', solidBorder: 'border-yellow-300' },
+  { id: 'angin puting beliung', label: 'Cuaca Ekstrem', emoji: '🌪️', color: '#4f46e5', solidBg: 'bg-indigo-100', solidText: 'text-indigo-900', solidBorder: 'border-indigo-300' },
+];
 
 export const LAYER_GROUPS = [
   'BNPB',

@@ -3,7 +3,10 @@
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { useState, useEffect, useRef } from 'react';
-import { Layers, Search, Check, X, Eye, Activity, MapPin, Pencil, Home, Maximize2, Minimize2, BookOpen } from 'lucide-react';
+import { Layers, Search, Check, X, Eye, Activity, MapPin, Pencil, Home, Maximize2, Minimize2, BookOpen, ChevronDown, ChevronUp, RotateCcw, Sparkles } from 'lucide-react';
+import { JENIS_CONFIG } from '@/components/dashboard/FilterPanel';
+import { DISASTER_CATEGORIES, DashboardLayer } from '@/types/layer';
+import { DEFAULT_DASHBOARD_LAYERS } from '@/data/defaultLayers';
 import L from 'leaflet';
 import 'leaflet-draw';
 
@@ -103,6 +106,8 @@ interface BnpbLayer {
   requiresFilter?: boolean;
   ignoreScale?: boolean;
   requiresToken?: boolean;
+  disasterTypes?: string[];
+  disaster_types?: string[];
 }
 
 function maskNikOrKk(str: string | number | undefined | null): string {
@@ -190,90 +195,81 @@ const BASEMAPS = [
   },
 ];
 
-const BNPB_BASE = 'https://gis.bnpb.go.id/server/rest/services/inarisk';
 const HEXBIN_RES9_URL = 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/hexbin_agg9/MapServer/0';
 const DUKCAPIL_KEL_URL = 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/services/AGR_VISUAL_KEL_FIX/MapServer/0';
 const BIG_DESAKEL_URL = 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/BATAS_DESAKEL_AR/MapServer/0';
 
-const BNPB_LAYERS: BnpbLayer[] = [
-  { id: 'gempa_ntt_2026_v2', label: 'Layer Dampak Gempa NTT 2026 (Layer 29)', color: '#EF4444', emoji: '📳', url: 'https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/mv_gempa_ntt_2026_v2/MapServer/29', type: 'MapServer', group: 'BNPB', useLngLat: true, layersParam: 'show:29' },
-  { id: 'foto_geotag_ntt', label: 'Foto Geotag Terdampak (Gempa NTT 2026)', color: '#F59E0B', emoji: '📸', url: 'https://gis.bnpb.go.id/server/rest/services/2026_gempabumi_ntt/Foto_Geotag_Terdampak/MapServer/0', type: 'MapServer', group: 'BNPB', useLngLat: true, layersParam: 'show:0' },
-  { id: 'kjs_individu', label: 'Data KJS Individu (SEPAKAT PK Page 1-5)', color: '#8B5CF6', emoji: '🟣', url: '/datakjs/page_1.json', type: 'Dapodik', group: 'BAPPENAS' },
-  { id: 'satupeta_geotagging', label: 'Satupeta Geotagging (BAPPENAS DTSEN)', color: '#059669', emoji: '📍', url: '/api/satupeta-geotagging', type: 'Dapodik', group: 'BAPPENAS' },
-  { id: 'monev_sadana_bappenas', label: 'Monev SADANA Geotagging (BAPPENAS)', color: '#0284C7', emoji: '📊', url: '/api/monev-sadana', type: 'GeoJSON', group: 'BAPPENAS', extent: [95.0, 3.0, 99.8, 5.5] },
-  { id: 'hexbin_res9', label: 'Penduduk DTSEN', color: '#1aa7ed', emoji: '👥', url: HEXBIN_RES9_URL, type: 'MapServer', group: 'BAPPENAS' },
-  { id: 'bappenas_batas_desakel', label: 'Batas Kelurahan/Desa (BAPPENAS)', color: '#0284C7', emoji: '🏛️', url: 'https://mandata.bappenas.go.id/geoserver/ows', type: 'WMS', group: 'BAPPENAS', layersParam: 'BATAS_WILAYAH:ADMINISTRASI_AR_KELDESA_10K_2023' },
-  { id: 'dapodik_sd', label: 'Sekolah Dasar (Dapodik)', color: '#EF4444', emoji: '🏠', url: '/data/dapodik/sd', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
-  { id: 'dapodik_smp', label: 'Sekolah Menengah Pertama (Dapodik)', color: '#3B82F6', emoji: '🏠', url: '/data/dapodik/smp', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
-  { id: 'dapodik_sma', label: 'Sekolah Menengah Atas (Dapodik)', color: '#10B981', emoji: '🏠', url: '/data/dapodik/sma', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
-  { id: 'dapodik_slb', label: 'Sekolah Luar Biasa (Dapodik)', color: '#8B5CF6', emoji: '🏠', url: '/data/dapodik/slb', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
-  { id: 'dapodik_spk', label: 'Sekolah SPK (Dapodik)', color: '#F59E0B', emoji: '🏠', url: '/data/dapodik/spk', type: 'Dapodik', group: 'BAPPENAS', requiresFilter: true },
-  { id: 'big_batas_desakel',           label: 'Batas Desa/Kelurahan (BIG)',   color: '#3B82F6', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/BATASWILAYAH/BATAS_DESAKEL_AR/MapServer', type: 'MapServer', group: 'BIG' },
-  { id: 'big_rbi_sulawesi_lot1',       label: 'RBI Sulawesi 2024 Lot 1',      color: '#A855F7', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI_5K_Sulawesi_2024_Lot_1_Jul/VectorTileServer',         type: 'VectorTileServer', group: 'BIG' },
-  { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
-  { id: 'big_bangunan_fasum_sulawesi', label: 'Bangunan Fasum Sulawesi 2024', color: '#F59E0B', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_BANGUNAN_FASUM_SULAWESI_2024/VectorTileServer', type: 'VectorTileServer', group: 'BIG' },
-  { id: 'petadasar_bitung', label: 'Peta Dasar Bitung 2024', color: '#F472B6', emoji: '🏢', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/PETADASAR_SULAWESI_BITUNG_2024_5K/MapServer/18', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:18', extent: [125.088, 1.375, 125.229, 1.476] },
-  { id: 'rbi5k_sulawesi_2024', label: 'Peta Dasar RBI 5K Sulawesi 2024 (Token BIG Required)', color: '#EC4899', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:all', requiresToken: true },
-  { id: 'rbi5k_sulawesi_layer36', label: 'Penutup Lahan RBI 5K Sulawesi 2024 (Layer 36)', color: '#10B981', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer/36', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:36', requiresToken: true },
-  { id: 'rbi5k_sulawesi_layer4', label: 'Batas Desa/Kelurahan RBI 5K Sulawesi (Layer 4)', color: '#3B82F6', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer/4', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:4', requiresToken: true },
-  { id: 'rbi5k_sulawesi_layer6', label: 'Bangunan & Fasum RBI 5K Sulawesi (Layer 6)', color: '#F59E0B', emoji: '🏢', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer/6', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:6', requiresToken: true },
-  { id: 'rbi5k_sulawesi_layer23', label: 'Jaringan Jalan RBI 5K Sulawesi (Layer 23)', color: '#EF4444', emoji: '🛣️', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/RBI5K_SULAWESI_2024/MapServer/23', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:23', requiresToken: true },
-  { id: 'atr_bpn_aht_sulawesi', label: 'Hak Atas Tanah (ATR/BPN Sulawesi)', color: '#8B5CF6', emoji: '📜', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/test_hat_sul/MapServer/0', type: 'MapServer', group: 'ATR/BPN', useLngLat: false, ignoreScale: true, layersParam: 'show:0' },
-  { id: 'trpppb_zrb_bansor_sumatras', label: 'Wilayah Terdampak BANSOR Sumatera', color: '#EF4444', emoji: '🌋', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/TRPPPB_ZRB_Aceh_Sumut_Sumbar/MapServer/0', type: 'MapServer', group: 'BAPPENAS', useLngLat: true, ignoreScale: true, layersParam: 'show:0' },
-  // ATR/BPN RPJPN Sarana & Prasarana RTRWN Struktur
-  { id: 'rpjpn_rtrwn_semua', label: 'RPJPN Sarana & Prasarana RTRWN (Semua Layer)', color: '#0EA5E9', emoji: '🌐', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/RPJPN_Sarana_Prasarana_RTRWN_Struktur/MapServer', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:all' },
-  { id: 'penutup_lahan_2024', label: 'Penutup Lahan 2024 (Semua Layer)', color: '#0EA5E9', emoji: '🌐', url: 'https://geoportal.planologi.kehutanan.go.id/server/rest/services/Peta_Interaktif_2026/PL_AR_250K/mapserver', type: 'MapServer', group: 'BAPPENAS', useLngLat: true, layersParam: 'show:all' },
-  { id: 'rtrwn_pp_2017', label: 'RTRWN PP 2017 (Semua Layer)', color: '#0EA5E9', emoji: '🌐', url: 'https://geospasial.bappenas.go.id/portal/sharing/servers/2f6ae8da06ea4fd5bc2beb32ee008884/rest/services/000_RTRWN/_RTRWN_PP_2017/MapServer', type: 'MapServer', group: 'BAPPENAS', useLngLat: true, layersParam: 'show:all' },
-  // { id: 'rpjpn_rtrwn_layer0', label: 'RPJPN RTRWN - Struktur Utama (Layer 0)', color: '#3B82F6', emoji: '🏗️', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/RPJPN_Sarana_Prasarana_RTRWN_Struktur/MapServer/0', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:0' },
-  // { id: 'rpjpn_rtrwn_layer1', label: 'RPJPN RTRWN - Jaringan Transportasi (Layer 1)', color: '#10B981', emoji: '🛣️', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/RPJPN_Sarana_Prasarana_RTRWN_Struktur/MapServer/1', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:1' },
-  // { id: 'rpjpn_rtrwn_layer2', label: 'RPJPN RTRWN - Energi & Kelistrikan (Layer 2)', color: '#F59E0B', emoji: '⚡', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/RPJPN_Sarana_Prasarana_RTRWN_Struktur/MapServer/2', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:2' },
-  // { id: 'rpjpn_rtrwn_layer3', label: 'RPJPN RTRWN - Telekomunikasi & Digital (Layer 3)', color: '#8B5CF6', emoji: '📡', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/RPJPN_Sarana_Prasarana_RTRWN_Struktur/MapServer/3', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:3' },
-  // { id: 'rpjpn_rtrwn_layer4', label: 'RPJPN RTRWN - Sumber Daya Air & Utilitas (Layer 4)', color: '#06B6D4', emoji: '💧', url: 'https://geospasial.bappenas.go.id/server/rest/services/Produksi/RPJPN_Sarana_Prasarana_RTRWN_Struktur/MapServer/4', type: 'MapServer', group: 'ATR/BPN', useLngLat: true, layersParam: 'show:4' },
-  // BNPB InARISK
-  { id: 'banjir_wms', label: 'Banjir WMS', color: '#0EA5E9', emoji: '🌊', url: 'https://inarisk1.bnpb.go.id:8443/geoserver/raster/wms', type: 'WMS', group: 'BNPB', layersParam: 'raster:INDEKS_BAHAYA_BANJIR1' },
-  { id: 'longsor_wms', label: 'Longsor WMS', color: '#F97316', emoji: '⛰️', url: 'https://inarisk1.bnpb.go.id:8443/geoserver/raster/wms', type: 'WMS', group: 'BNPB', layersParam: 'raster:INDEKS_BAHAYA_TANAHLONGSOR1' },
-  { id: 'cuacaekstrim_wms', label: 'Cuaca Ekstrim WMS', color: '#F97316', emoji: '⛰️', url: 'https://inarisk1.bnpb.go.id:8443/geoserver/raster/wms', type: 'WMS', group: 'BNPB', layersParam: 'raster:INDEKS_BAHAYA_CUACAEKSTRIM1' },
-  { id: 'Faults_new', label: 'Sesar', color: '#0EA5E9', emoji: '🌐', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/Faults_new/MapServer', type: 'MapServer', group: 'BNPB', useLngLat: true, layersParam: 'show:all' },
-  { id: 'sesar_wms', label: 'Sesar WMS', color: '#EF4444', emoji: '⚡', url: 'https://inarisk1.bnpb.go.id:8443/geoserver/wms', type: 'WMS', group: 'BNPB', layersParam: 'Faults_Indonesia' },
-  // NEW
-  { id: 'cuaca_ekstrim_img', label: 'Cuaca Ekstrim',      color: '#06B6D4', emoji: '🌪️', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/layer_bahaya_cuaca_ekstrim/ImageServer', type: 'ImageServer', group: 'BNPB' },
-  { id: 'banjir',        label: 'Bahaya Banjir',      color: '#0EA5E9', emoji: '🌊', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/INDEKS_BAHAYA_BANJIR/ImageServer', type: 'ImageServer',group: 'BNPB' },
-  { id: 'banjir_bandang',label: 'Banjir Bandang',     color: '#0369A1', emoji: '💧', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/INDEKS_BAHAYA_BANJIRBANDANG/ImageServer', type: 'ImageServer', group: 'BNPB' },
-  { id: 'longsor',       label: 'Tanah Longsor',       color: '#F97316', emoji: '⛰️', url: `${BNPB_BASE}/layer_bahaya_tanah_longsor_30/MapServer`, group: 'BNPB' },
-  { id: 'gempa',         label: 'Gempa Bumi',          color: '#EF4444', emoji: '📳', url: `${BNPB_BASE}/layer_bahaya_gempabumi_30/MapServer`, group: 'BNPB' },
-  { id: 'tsunami',       label: 'Tsunami',             color: '#EC4899', emoji: '🌊', url: `${BNPB_BASE}/layer_bahaya_tsunami_30/MapServer`, group: 'BNPB' },
-  { id: 'gunungapi',     label: 'Letusan Gunung Api',  color: '#8B5CF6', emoji: '🌋', url: `${BNPB_BASE}/layer_bahaya_letusan_gunungapi/MapServer`, group: 'BNPB' },
-  { id: 'karhutla',      label: 'Kebakaran Hutan',     color: '#F59E0B', emoji: '🔥', url: `${BNPB_BASE}/layer_bahaya_kebakaran_hutan_dan_lahan_30/MapServer`, group: 'BNPB' },
-  { id: 'kekeringan',    label: 'Kekeringan',          color: '#D97706', emoji: '☀️', url: `${BNPB_BASE}/layer_bahaya_kekeringan_30/MapServer`, group: 'BNPB' },
-  { id: 'cuaca_ekstrim', label: 'Cuaca Ekstrim (MS)',  color: '#0891B2', emoji: '⛅', url: `${BNPB_BASE}/layer_bahaya_cuaca_ekstrim_30/MapServer`, group: 'BNPB' },
-  { id: 'dukcapil_kel_fix', label: 'Kependudukan Kelurahan', color: '#3B82F6', emoji: '👥', url: 'https://gis.dukcapil.kemendagri.go.id/arcgis/rest/services/AGR_VISUAL_KEL_FIX/MapServer/0', type: 'MapServer', group: 'KEMENDAGRI' },
-  { id: 'Peta_Curah_Hujan_dan_Hari_Hujan', label: 'Curah Hujan', color: '#3B82F6', emoji: '👥', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Peta_Curah_Hujan_dan_Hari_Hujan/MapServer/0', type: 'MapServer', group: 'BMKG' },
-  { id: 'Peta_Curah_Hujan_dan_Hari_Hujan_sebaran', label: 'Curah Hujan Sebaran', color: '#3B82F6', emoji: '👥', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Peta_Curah_Hujan_dan_Hari_Hujan/MapServer/1570', type: 'MapServer', group: 'BMKG' },
-  { id: 'bmkg_sifat_hujan_bulanan', label: 'Prakiraan Sifat Hujan Bulanan (BMKG)', color: '#0EA5E9', emoji: '🌧️', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakiraan_hujan_bulanan/Prakiraan_Sifat_Hujan_Bulanan/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:all' },
-  // NASA GIBS & FIRMS Wildfire / Hotspots
-  { id: 'nasa_gibs_fire_viirs', label: 'Titik Panas Kebakaran Hutan (NASA GIBS VIIRS 375m)', color: '#EF4444', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA', layersParam: 'VIIRS_SNPP_Thermal_Anomalies_375m_All' },
-  { id: 'nasa_gibs_fire_modis', label: 'Anomali Termal Kebakaran (NASA GIBS MODIS)', color: '#F97316', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA', layersParam: 'MODIS_Terra_Thermal_Anomalies_All' },
-  { id: 'nasa_firms_active_fires', label: 'Kebakaran Hutan & Lahan Realtime (NASA FIRMS / GIBS NOAA-20)', color: '#DC2626', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA', layersParam: 'VIIRS_NOAA20_Thermal_Anomalies_375m_All' },
-  // PVMBG MAGMA Indonesia Volcanoes
-  { id: 'magma_volcanoes', label: 'Status Gunung Api Aktif Siaga (PVMBG MAGMA Indonesia)', color: '#DC2626', emoji: '🌋', url: '/api/volcanoes', type: 'Dapodik', group: 'ESDM' },
-  { id: 'magma_volcanoes_v2', label: 'Status Gunung Api 2 (PVMBG MAGMA 69 Gunung)', color: '#F59E0B', emoji: '🌋', url: '/api/volcanoes-v2', type: 'Dapodik', group: 'ESDM' },
-  { id: 'bmkg_curah_hujan_bulanan', label: 'Prakiraan Curah Hujan Bulanan (BMKG)', color: '#0284C7', emoji: '☔', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakiraan_hujan_bulanan/Prakiraan_Curah_Hujan_Bulanan/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:all' },
-  { id: 'bmkg_curah_hujan_10hari', label: 'Prakiraan Curah Hujan 10 Hari Kedepan (BMKG)', color: '#0369A1', emoji: '🌦️', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakicu10days/MapServer', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:all' },
-  { id: 'bmkg_seismisitas_dangkal', label: 'Peta Seismisitas Indonesia - Dangkal (BMKG)', color: '#EF4444', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/30', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:30' },
-  { id: 'bmkg_seismisitas_menengah', label: 'Peta Seismisitas Indonesia - Menengah (BMKG)', color: '#F59E0B', emoji: '📳', url: 'https://gis.bmkg.go.id/arcgis/rest/services/Hosted/Peta_Seismisitas_Indonesia/MapServer/31', type: 'MapServer', group: 'BMKG', useLngLat: false, layersParam: 'show:31' },
-];
+const BNPB_LAYERS: BnpbLayer[] = DEFAULT_DASHBOARD_LAYERS as unknown as BnpbLayer[];
 
 export const DISASTER_DEFAULT_LAYERS: Record<string, string[]> = {
   'Semua': ['cuaca_ekstrim_img'],
-  'banjir': ['banjir', 'banjir_bandang', 'bmkg_curah_hujan_bulanan'],
-  'gempa': ['gempa', 'sesar_wms', 'bmkg_seismisitas_dangkal'],
-  'longsor': ['longsor', 'longsor_wms'],
-  'kebakaran': ['karhutla', 'nasa_firms_active_fires'],
-  'erupsi': ['gunungapi', 'magma_volcanoes'],
-  'tsunami': ['tsunami'],
-  'kekeringan': ['kekeringan', 'bmkg_sifat_hujan_bulanan'],
-  'angin puting beliung': ['cuaca_ekstrim_img', 'cuaca_ekstrim', 'Peta_Curah_Hujan_dan_Hari_Hujan'],
+  'banjir': [
+    'banjir',
+    'banjir_bandang',
+    'banjir_wms',
+    'bmkg_curah_hujan_bulanan',
+    'Peta_Curah_Hujan_dan_Hari_Hujan',
+    'Peta_Curah_Hujan_dan_Hari_Hujan_sebaran',
+  ],
+  'gempa': [
+    'gempa',
+    'sesar_wms',
+    'Faults_new',
+    'bmkg_seismisitas_dangkal',
+    'bmkg_seismisitas_menengah',
+    'gempa_ntt_2026_v2',
+    'foto_geotag_ntt',
+  ],
+  'longsor': [
+    'longsor',
+    'longsor_wms',
+    'trpppb_zrb_bansor_sumatras',
+    'bmkg_curah_hujan_bulanan',
+  ],
+  'kebakaran': [
+    'karhutla',
+    'nasa_firms_active_fires',
+    'nasa_gibs_fire_viirs',
+    'nasa_gibs_fire_modis',
+  ],
+  'erupsi': [
+    'gunungapi',
+    'magma_volcanoes',
+    'magma_volcanoes_v2',
+  ],
+  'tsunami': [
+    'tsunami',
+    'sesar_wms',
+    'Faults_new',
+  ],
+  'kekeringan': [
+    'kekeringan',
+    'bmkg_sifat_hujan_bulanan',
+    'Peta_Curah_Hujan_dan_Hari_Hujan',
+  ],
+  'angin puting beliung': [
+    'cuaca_ekstrim_img',
+    'cuaca_ekstrim',
+    'cuacaekstrim_wms',
+    'bmkg_curah_hujan_10hari',
+    'Peta_Curah_Hujan_dan_Hari_Hujan',
+  ],
 };
+
+export function getLayersForDisaster(jenis: string, layers: (BnpbLayer | DashboardLayer)[]): string[] {
+  if (!jenis || jenis === 'Semua') return DISASTER_DEFAULT_LAYERS['Semua'] ?? ['cuaca_ekstrim_img'];
+
+  // Check if any layer in catalogue has this disaster tag
+  const tagged = (layers || [])
+    .filter((l) => {
+      const types = (l as DashboardLayer)?.disasterTypes || (l as DashboardLayer)?.disaster_types;
+      return Array.isArray(types) && types.includes(jenis);
+    })
+    .map((l) => l.id);
+
+  if (tagged.length > 0) return tagged;
+  return DISASTER_DEFAULT_LAYERS[jenis] ?? ['cuaca_ekstrim_img'];
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createVectorTileLayer(L: any, serviceUrl: string, color: string): any {
@@ -1253,6 +1249,8 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
             requiresFilter: l.requiresFilter ?? l.requires_filter,
             ignoreScale: l.ignoreScale ?? l.ignore_scale,
             requiresToken: l.requiresToken ?? l.requires_token,
+            disasterTypes: l.disasterTypes ?? l.disaster_types ?? [],
+            disaster_types: l.disasterTypes ?? l.disaster_types ?? [],
           }));
           if (activeOnly.length > 0) {
             setLayersList(activeOnly);
@@ -1267,7 +1265,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
   // Automatically select thematic GIS layers when disaster type changes
   useEffect(() => {
     if (!selectedJenis) return;
-    const targetLayers = DISASTER_DEFAULT_LAYERS[selectedJenis] ?? ['cuaca_ekstrim_img'];
+    const targetLayers = getLayersForDisaster(selectedJenis, layersList);
     setActiveOverlays(targetLayers);
     setDraftOverlays(targetLayers);
 
@@ -1286,7 +1284,12 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
       setShowBmkg(true);
       setBmkgMode('terkini');
     }
-  }, [selectedJenis]);
+
+    if (selectedJenis !== 'Semua') {
+      setIsDisasterTrayOpen(true);
+      setModalDisasterFilter(selectedJenis);
+    }
+  }, [selectedJenis, layersList]);
 
   useEffect(() => {
     onActiveOverlaysChange?.(activeOverlays);
@@ -1297,6 +1300,8 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
   const [showLayerModal, setShowLayerModal] = useState(false);
   const [layerSearch, setLayerSearch] = useState('');
   const [layerGroupFilter, setLayerGroupFilter] = useState('ALL');
+  const [modalDisasterFilter, setModalDisasterFilter] = useState<string>('ALL');
+  const [isDisasterTrayOpen, setIsDisasterTrayOpen] = useState(true);
   
   const [showBmkg, setShowBmkg] = useState(false);
   const [bmkgMode, setBmkgMode] = useState<'terkini' | 'dirasakan' | 'autogempa'>('terkini');
@@ -1320,6 +1325,9 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
     setDraftBasemap(activeBasemap);
     setDraftOverlays([...activeOverlays]);
     setDraftOpacities({ ...layerOpacities });
+    if (selectedJenis && selectedJenis !== 'Semua') {
+      setModalDisasterFilter(selectedJenis);
+    }
     setShowLayerModal(true);
   };
 
@@ -2741,10 +2749,15 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
     setDraggedIndex(null);
   };
 
-  const filteredModalLayers = layersList.filter((l) => {
-    const matchesSearch = l.label.toLowerCase().includes(layerSearch.toLowerCase()) || l.group?.toLowerCase().includes(layerSearch.toLowerCase());
+  const filteredModalLayers = layersList.filter((l: BnpbLayer) => {
+    const matchesSearch = l.label.toLowerCase().includes(layerSearch.toLowerCase()) || (l.group ? l.group.toLowerCase().includes(layerSearch.toLowerCase()) : false);
     const matchesGroup = layerGroupFilter === 'ALL' || l.group === layerGroupFilter;
-    return matchesSearch && matchesGroup;
+    const lTypes = l.disasterTypes || l.disaster_types || [];
+    const matchesDisaster =
+      modalDisasterFilter === 'ALL' ||
+      (Array.isArray(lTypes) && lTypes.includes(modalDisasterFilter)) ||
+      ((DISASTER_DEFAULT_LAYERS[modalDisasterFilter] || []).includes(l.id));
+    return matchesSearch && matchesGroup && matchesDisaster;
   });
 
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -2780,7 +2793,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
       <div ref={containerRef} className="w-full h-full z-0" />
 
       {/* 1. SOLID MATERIALIZED SEARCH FLOATING TOOLBAR */}
-      <div className="absolute top-4 left-4 z-[300] max-w-sm w-full space-y-2">
+      <div className="absolute top-4 left-4 z-[300] max-w-md w-full space-y-2">
         <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md transition-all duration-200 focus-within:border-teal-500">
           <input
             type="text"
@@ -2806,7 +2819,6 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
             <Layers className="w-4 h-4 text-[#1f8080]" />
             <span className="hidden sm:inline">Layer ({activeOverlays.length})</span>
           </button>
-
         </div>
 
         {/* Search Results */}
@@ -2832,24 +2844,117 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
           </div>
         )}
 
-        {/* Active Disaster Auto-Selected Layer Badge */}
-        {selectedJenis && selectedJenis !== 'Semua' && (
-          <div className="bg-[#0a1e36] border border-slate-700 rounded-2xl px-3.5 py-1.5 shadow-md flex items-center justify-between gap-2.5 text-[11px] text-white animate-in fade-in duration-200">
-            <div className="flex items-center gap-2 truncate">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-              <span className="truncate">
-                Layer Bencana: <b className="text-emerald-300">{activeOverlays.map(id => layersList.find(l => l.id === id)?.label?.split('(')[0]?.trim() || id).join(', ')}</b>
-              </span>
+        {/* Active Disaster Thematic Layer Drawer Card */}
+        {selectedJenis && selectedJenis !== 'Semua' && (() => {
+          const cfg = (JENIS_CONFIG as Record<string, { label: string; icon: string; color: string }>)[selectedJenis] || {
+            label: selectedJenis,
+            icon: '⚠️',
+            color: '#0a1e36',
+          };
+          const scenarioTargetLayers = getLayersForDisaster(selectedJenis, layersList);
+          const activeScenarioLayers = scenarioTargetLayers.filter((id) => activeOverlays.includes(id));
+          const allActive = activeScenarioLayers.length === scenarioTargetLayers.length && scenarioTargetLayers.length > 0;
+
+          return (
+            <div className="bg-[#0a1e36] border border-slate-700 rounded-2xl shadow-xl overflow-hidden text-white animate-in fade-in duration-200">
+              {/* Card Header */}
+              <div className="p-3 flex items-center justify-between gap-2 border-b border-white/10">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-base shrink-0">{cfg.icon}</span>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-xs text-white truncate">Skenario {cfg.label}</span>
+                      <span className="text-[10px] font-extrabold px-1.5 py-0.2 rounded-full bg-emerald-500 text-white shrink-0">
+                        {activeScenarioLayers.length}/{scenarioTargetLayers.length} Layer Aktif
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-slate-300 truncate">
+                      Layer tematik otomatis terpilih untuk {cfg.label}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    onClick={() => setIsDisasterTrayOpen(!isDisasterTrayOpen)}
+                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                    title={isDisasterTrayOpen ? "Sembunyikan daftar layer" : "Tampilkan daftar layer"}
+                  >
+                    {isDisasterTrayOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  </button>
+                  <button
+                    onClick={handleOpenLayerModal}
+                    className="text-[10px] font-bold bg-[#1f8080] hover:bg-[#166565] text-white px-2.5 py-1 rounded-lg transition-colors cursor-pointer shadow-xs"
+                    title="Buka Pusat Layer Lengkap"
+                  >
+                    Kelola
+                  </button>
+                </div>
+              </div>
+
+              {/* Card Body: Interactive Layer Chips */}
+              {isDisasterTrayOpen && (
+                <div className="p-3 space-y-2 bg-[#0d2542] max-h-56 overflow-y-auto">
+                  <div className="flex items-center justify-between text-[10px] text-slate-300">
+                    <span>Klik layer untuk aktif/non-aktifkan:</span>
+                    {!allActive && (
+                      <button
+                        onClick={() => {
+                          const target = getLayersForDisaster(selectedJenis, layersList);
+                          setActiveOverlays((prev) => Array.from(new Set([...prev, ...target])));
+                          setDraftOverlays((prev) => Array.from(new Set([...prev, ...target])));
+                        }}
+                        className="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 cursor-pointer hover:underline"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>Pulihkan Semua</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    {scenarioTargetLayers.map((id) => {
+                      const lyr = layersList.find((l) => l.id === id);
+                      const isSelected = activeOverlays.includes(id);
+                      const shortLabel = lyr?.label?.split('(')[0]?.trim() || id;
+
+                      return (
+                        <button
+                          key={id}
+                          onClick={() => {
+                            setActiveOverlays((prev) =>
+                              isSelected ? prev.filter((x) => x !== id) : [...prev, id]
+                            );
+                            setDraftOverlays((prev) =>
+                              isSelected ? prev.filter((x) => x !== id) : [...prev, id]
+                            );
+                          }}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition-all cursor-pointer border ${
+                            isSelected
+                              ? 'bg-emerald-600 text-white border-emerald-500 shadow-xs hover:bg-emerald-700'
+                              : 'bg-white/10 text-slate-300 border-white/20 hover:bg-white/20'
+                          }`}
+                          title={`${lyr?.label || id} (${isSelected ? 'Sedang Aktif - Klik untuk nonaktif' : 'Non-Aktif - Klik untuk aktifkan'})`}
+                        >
+                          <span
+                            className="w-2 h-2 rounded-full shrink-0"
+                            style={{ backgroundColor: lyr?.color || '#38bdf8' }}
+                          />
+                          <span className="truncate max-w-[170px]">{shortLabel}</span>
+                          {isSelected ? (
+                            <Check className="w-3 h-3 text-white shrink-0" />
+                          ) : (
+                            <span className="text-[9px] text-slate-400 font-mono">+</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
-            <button
-              onClick={handleOpenLayerModal}
-              className="text-[10px] font-bold bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded-lg shrink-0 transition-colors cursor-pointer"
-              title="Sesuaikan Layer Peta"
-            >
-              Ubah
-            </button>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       {/* 2. FLOATING CONTROL BUTTONS & BMKG BAR SEPARATION */}
@@ -3241,26 +3346,90 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
                 </div>
               </div>
 
-              {/* Group Filter Buttons */}
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {['ALL', 'BNPB', 'BIG', 'BAPPENAS', 'ATR/BPN', 'KEMENDAGRI','BMKG','NASA','ESDM'].map((grp) => (
+              {/* Disaster Scenario Filter */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-[#0a1e36] uppercase tracking-wider block">
+                    Skenario Bencana
+                  </label>
+                  {modalDisasterFilter !== 'ALL' && (
+                    <button
+                      onClick={() => {
+                        const target = getLayersForDisaster(modalDisasterFilter, layersList);
+                        setDraftOverlays((prev) => Array.from(new Set([...prev, ...target])));
+                      }}
+                      className="text-[10px] font-bold text-[#1f8080] hover:underline cursor-pointer flex items-center gap-1"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      <span>Pilih Semua Layer {DISASTER_CATEGORIES.find((c) => c.id === modalDisasterFilter)?.label || modalDisasterFilter}</span>
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-1 flex-wrap">
                   <button
-                    key={grp}
-                    onClick={() => setLayerGroupFilter(grp)}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
-                      layerGroupFilter === grp ? 'bg-[#1f8080] text-white shadow-xs' : 'bg-white text-slate-600 border border-slate-200 hover:border-[#1f8080]'
+                    onClick={() => setModalDisasterFilter('ALL')}
+                    className={`px-2 py-1 rounded-lg text-[10.5px] font-bold transition-all cursor-pointer ${
+                      modalDisasterFilter === 'ALL'
+                        ? 'bg-[#0a1e36] text-white shadow-xs'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-400'
                     }`}
                   >
-                    {grp}
+                    Semua
                   </button>
-                ))}
+                  {DISASTER_CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setModalDisasterFilter(cat.id)}
+                      className={`px-2 py-1 rounded-lg text-[10.5px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                        modalDisasterFilter === cat.id
+                          ? 'bg-[#0a1e36] text-white shadow-xs'
+                          : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-400'
+                      }`}
+                    >
+                      <span>{cat.emoji}</span>
+                      <span>{cat.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {/* Available Layers List (NO EMOJIS) */}
+              {/* Group Filter Buttons */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                  Instansi / Sumber Data
+                </label>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {['ALL', 'BNPB', 'BIG', 'BAPPENAS', 'ATR/BPN', 'KEMENDAGRI','BMKG','NASA','ESDM'].map((grp) => (
+                    <button
+                      key={grp}
+                      onClick={() => setLayerGroupFilter(grp)}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                        layerGroupFilter === grp ? 'bg-[#1f8080] text-white shadow-xs' : 'bg-white text-slate-600 border border-slate-200 hover:border-[#1f8080]'
+                      }`}
+                    >
+                      {grp}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Available Layers List */}
               <div className="flex-1 space-y-2 overflow-y-auto pr-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Layer Tersedia ({filteredModalLayers.length})</label>
-                {filteredModalLayers.map((layer) => {
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
+                    Layer Tersedia ({filteredModalLayers.length})
+                  </label>
+                  {filteredModalLayers.length > 0 && (
+                    <span className="text-[10px] text-slate-400">
+                      Klik untuk pilih / lepas
+                    </span>
+                  )}
+                </div>
+                {filteredModalLayers.map((layer: BnpbLayer) => {
                   const isSelected = draftOverlays.includes(layer.id);
+                  const isScenarioDefault = selectedJenis && selectedJenis !== 'Semua' && (DISASTER_DEFAULT_LAYERS[selectedJenis] || []).includes(layer.id);
+                  const layerDisasters = layer.disasterTypes || layer.disaster_types || [];
+
                   return (
                     <div
                       key={layer.id}
@@ -3271,25 +3440,44 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
                         isSelected ? 'bg-white border-[#1f8080] shadow-sm ring-2 ring-[#1f8080]/20' : 'bg-white border-slate-200 hover:border-slate-300'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-md flex items-center justify-center border transition-colors ${
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-5 h-5 rounded-md flex items-center justify-center border transition-colors shrink-0 ${
                           isSelected ? 'bg-[#1f8080] border-[#1f8080] text-white' : 'border-slate-300'
                         }`}>
                           {isSelected && <Check className="w-3.5 h-3.5" />}
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <div className="text-xs font-bold text-slate-800 leading-tight flex items-center gap-1.5 flex-wrap">
-                            <span>{layer.label}</span>
+                            <span className="truncate">{layer.label}</span>
+                            {isScenarioDefault && (
+                              <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded border border-emerald-300 shrink-0">
+                                ★ Skenario Aktif
+                              </span>
+                            )}
                             {layer.requiresFilter && !kodeKemendagri && (
-                              <span className="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-semibold border border-amber-300">
+                              <span className="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded font-semibold border border-amber-300 shrink-0">
                                 ⚠️ Butuh Filter Provinsi
                               </span>
                             )}
                           </div>
-                          <div className="text-[10px] text-slate-400 mt-0.5">{layer.group} · {layer.type}</div>
+                          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                            <span className="text-[10px] text-slate-500 font-semibold">{layer.group} · {layer.type}</span>
+                            {layerDisasters.map((dtype: string) => {
+                              const cat = DISASTER_CATEGORIES.find((c) => c.id === dtype);
+                              if (!cat) return null;
+                              return (
+                                <span
+                                  key={dtype}
+                                  className={`text-[9px] font-bold px-1.5 py-0.2 rounded border ${cat.solidBg} ${cat.solidText} ${cat.solidBorder}`}
+                                >
+                                  {cat.emoji} {cat.label}
+                                </span>
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 font-bold text-slate-600">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 font-bold text-slate-600 shrink-0">
                         {layer.type || 'GIS'}
                       </span>
                     </div>

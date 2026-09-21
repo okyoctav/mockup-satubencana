@@ -10,6 +10,7 @@ import {
   LAYER_TYPES,
   GROUP_COLOR_MAP,
   LayerType,
+  DISASTER_CATEGORIES,
 } from '@/types/layer';
 import { DEFAULT_DASHBOARD_LAYERS } from '@/data/defaultLayers';
 import ServerIcon from 'nexticons/outline/ServerIcon';
@@ -40,6 +41,7 @@ export default function ManajemenDataBencanaPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<string>('Semua');
   const [selectedType, setSelectedType] = useState<string>('Semua');
+  const [selectedDisaster, setSelectedDisaster] = useState<string>('Semua');
   const [statusFilter, setStatusFilter] = useState<'Semua' | 'Aktif' | 'Non-Aktif'>('Semua');
 
   // Modals
@@ -63,6 +65,7 @@ export default function ManajemenDataBencanaPage() {
     ignoreScale: false,
     requiresFilter: false,
     requiresToken: false,
+    disasterTypes: [],
     description: '',
     is_active: true,
   });
@@ -102,6 +105,8 @@ export default function ManajemenDataBencanaPage() {
             requires_filter: d.requires_filter,
             requiresToken: d.requires_token ?? d.requiresToken ?? false,
             requires_token: d.requires_token,
+            disasterTypes: d.disaster_types || d.disasterTypes || [],
+            disaster_types: d.disaster_types || d.disasterTypes || [],
             extent: d.extent,
             description: d.description,
             is_active: d.is_active ?? true,
@@ -126,7 +131,7 @@ export default function ManajemenDataBencanaPage() {
       }
     }
 
-    // Fallback: Check LocalStorage or use default 38 layers
+    // Fallback: Check LocalStorage or use default 55 layers
     const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (cached) {
       try {
@@ -170,6 +175,7 @@ export default function ManajemenDataBencanaPage() {
           ignore_scale: layer.ignoreScale,
           requires_filter: layer.requiresFilter,
           requires_token: layer.requiresToken,
+          disaster_types: layer.disasterTypes || layer.disaster_types || [],
           extent: layer.extent ? JSON.stringify(layer.extent) : null,
           description: layer.description,
           is_active: layer.is_active,
@@ -245,6 +251,7 @@ export default function ManajemenDataBencanaPage() {
       ignoreScale: false,
       requiresFilter: false,
       requiresToken: false,
+      disasterTypes: [],
       description: '',
       is_active: true,
       sort_order: layers.length + 1,
@@ -263,6 +270,7 @@ export default function ManajemenDataBencanaPage() {
       ignoreScale: layer.ignoreScale ?? layer.ignore_scale ?? false,
       requiresFilter: layer.requiresFilter ?? layer.requires_filter ?? false,
       requiresToken: layer.requiresToken ?? layer.requires_token ?? false,
+      disasterTypes: layer.disasterTypes || layer.disaster_types || [],
     });
     setIsFormOpen(true);
   };
@@ -296,6 +304,8 @@ export default function ManajemenDataBencanaPage() {
       requires_filter: !!formData.requiresFilter,
       requiresToken: !!formData.requiresToken,
       requires_token: !!formData.requiresToken,
+      disasterTypes: formData.disasterTypes || [],
+      disaster_types: formData.disasterTypes || [],
       description: formData.description?.trim() || undefined,
       is_active: formData.is_active ?? true,
       sort_order: formData.sort_order ?? layers.length + 1,
@@ -305,9 +315,9 @@ export default function ManajemenDataBencanaPage() {
     setIsFormOpen(false);
   };
 
-  // Reset to default 38 layers
+  // Reset to default 55 layers
   const handleResetToDefault = () => {
-    if (confirm('Kembalikan seluruh layer ke konfigurasi standar default 38 layer BNPB?')) {
+    if (confirm('Kembalikan seluruh layer ke konfigurasi standar default 55 layer BNPB?')) {
       setLayers(DEFAULT_DASHBOARD_LAYERS);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(DEFAULT_DASHBOARD_LAYERS));
     }
@@ -334,14 +344,18 @@ export default function ManajemenDataBencanaPage() {
 
       const matchGroup = selectedGroup === 'Semua' || l.group === selectedGroup;
       const matchType = selectedType === 'Semua' || l.type === selectedType;
+      const lDisasters = l.disasterTypes || l.disaster_types || [];
+      const matchDisaster =
+        selectedDisaster === 'Semua' ||
+        (Array.isArray(lDisasters) && lDisasters.includes(selectedDisaster));
       const matchStatus =
         statusFilter === 'Semua' ||
         (statusFilter === 'Aktif' && l.is_active) ||
         (statusFilter === 'Non-Aktif' && !l.is_active);
 
-      return matchSearch && matchGroup && matchType && matchStatus;
+      return matchSearch && matchGroup && matchType && matchStatus && matchDisaster;
     });
-  }, [layers, searchQuery, selectedGroup, selectedType, statusFilter]);
+  }, [layers, searchQuery, selectedGroup, selectedType, selectedDisaster, statusFilter]);
 
   // KPI Calculations
   const stats = useMemo(() => {
@@ -367,6 +381,7 @@ CREATE TABLE IF NOT EXISTS public.dashboard_layers (
     ignore_scale BOOLEAN DEFAULT false,
     requires_filter BOOLEAN DEFAULT false,
     requires_token BOOLEAN DEFAULT false,
+    disaster_types TEXT[] DEFAULT '{}',
     extent JSONB,
     description TEXT,
     is_active BOOLEAN DEFAULT true,
@@ -383,7 +398,7 @@ CREATE POLICY "Allow authenticated update" ON public.dashboard_layers FOR UPDATE
 CREATE POLICY "Allow authenticated delete" ON public.dashboard_layers FOR DELETE TO authenticated USING (true);
 CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon USING (true) WITH CHECK (true);
 
--- (File migrasi lengkap dengan seed 38 layer tersedia di: supabase/migrations/20260921_create_dashboard_layers.sql)`;
+-- (File migrasi lengkap dengan seed 55 layer tersedia di: supabase/migrations/20260921_create_dashboard_layers.sql)`;
 
   const handleCopySql = () => {
     navigator.clipboard.writeText(sqlScript);
@@ -445,10 +460,10 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
             <div className="p-3 rounded-2xl bg-[#ecfdf5] border border-[#a7f3d0] flex items-center justify-between gap-2 text-xs shadow-xs">
               <div className="flex items-center gap-2 text-[#065f46] font-semibold">
                 <CheckCircleIcon width={16} height={16} className="text-[#059669] shrink-0" />
-                <span>Terhubung langsung dengan database Supabase (`dashboard_layers`). Perubahan langsung tersinkronisasi.</span>
+                <span>Jika service tidak bisa, dipastikan service pada sumber data sudah aktif / publish</span>
               </div>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#059669] text-white font-bold">
-                LIVE DB
+                Informasi Penting
               </span>
             </div>
           )}
@@ -523,7 +538,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                   title="Sinkronkan / kembalikan ke layer standar default"
                 >
                   <RepeatIcon width={14} height={14} className="text-slate-600" />
-                  <span>Reset Default (38 Layer)</span>
+                  <span>Reset Default (55 Layer)</span>
                 </button>
 
                 <button
@@ -556,8 +571,21 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                 ))}
               </div>
 
-              {/* Type & Status Selectors */}
-              <div className="flex items-center gap-2">
+              {/* Type, Disaster & Status Selectors */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <select
+                  value={selectedDisaster}
+                  onChange={(e) => setSelectedDisaster(e.target.value)}
+                  className="bg-[#f8fafc] border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 outline-none font-semibold"
+                >
+                  <option value="Semua">Semua Bencana</option>
+                  {DISASTER_CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.emoji} {c.label}
+                    </option>
+                  ))}
+                </select>
+
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
@@ -682,6 +710,23 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                                 <div className="text-[10.5px] font-mono text-slate-500 mt-0.5">
                                   id: {layer.id}
                                 </div>
+                                {((layer.disasterTypes || layer.disaster_types || []) as string[]).length > 0 && (
+                                  <div className="flex flex-wrap items-center gap-1 mt-1.5 max-w-[280px]">
+                                    {((layer.disasterTypes || layer.disaster_types || []) as string[]).map((dId) => {
+                                      const cat = DISASTER_CATEGORIES.find((c) => c.id === dId);
+                                      return (
+                                        <span
+                                          key={dId}
+                                          className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-300 inline-flex items-center gap-1"
+                                          title={`Skenario Bencana: ${cat?.label || dId}`}
+                                        >
+                                          <span>{cat?.emoji || '🏷️'}</span>
+                                          <span className="capitalize">{cat?.label || dId}</span>
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </td>
@@ -927,6 +972,46 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                       className="flex-1 bg-[#f8fafc] border border-slate-300 text-slate-900 rounded-xl px-3 py-2 font-mono outline-none uppercase focus:border-teal-600"
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* Skenario Bencana Terkait */}
+              <div className="space-y-1.5 pt-2 border-t border-slate-200">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-slate-700">Skenario Bencana Terkait</label>
+                  <span className="text-[11px] text-slate-500">
+                    Pilih skenario yang mengaktifkan layer ini otomatis di peta
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {DISASTER_CATEGORIES.map((cat) => {
+                    const isChecked = (formData.disasterTypes || []).includes(cat.id);
+                    return (
+                      <label
+                        key={cat.id}
+                        className={`flex items-center gap-2 p-2 rounded-xl border text-xs font-semibold cursor-pointer transition-colors ${
+                          isChecked
+                            ? 'bg-teal-50 border-teal-500 text-teal-900'
+                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            const current = formData.disasterTypes || [];
+                            const updated = e.target.checked
+                              ? [...current, cat.id]
+                              : current.filter((x) => x !== cat.id);
+                            setFormData({ ...formData, disasterTypes: updated });
+                          }}
+                          className="w-3.5 h-3.5 rounded text-teal-600"
+                        />
+                        <span>{cat.emoji}</span>
+                        <span className="truncate">{cat.label}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 

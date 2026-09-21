@@ -9,9 +9,9 @@ import { LayoutDashboard, Menu, X } from 'lucide-react';
 const NAV_ITEMS = [
   { label: 'Beranda', href: '/' },
   { label: 'Sejarah Kebencanaan', href: '/sejarah-kebencanaan' },
-  { label: 'Analisis Data', href: '/analisis-data' },
-  { label: 'Simulasi Modeling', href: '/simulasi-modeling' },
-  { label: 'Informasi & Mitra', href: '/informasi-mitra' },
+  { label: 'Data Kebencanaan', href: '/analisis-data' },
+  // { label: 'Simulasi Modeling', href: '/simulasi-modeling' },
+  { label: 'Informasi', href: '/informasi-mitra' },
 ];
 
 function ThemeToggle() {
