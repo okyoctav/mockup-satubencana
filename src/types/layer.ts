@@ -59,12 +59,12 @@ export const LAYER_TYPES: LayerType[] = [
 ];
 
 export const GROUP_COLOR_MAP: Record<string, { bg: string; text: string; border: string }> = {
-  BNPB: { bg: 'bg-rose-50 dark:bg-rose-950/40', text: 'text-rose-700 dark:text-rose-300', border: 'border-rose-200 dark:border-rose-800' },
-  BAPPENAS: { bg: 'bg-sky-50 dark:bg-sky-950/40', text: 'text-sky-700 dark:text-sky-300', border: 'border-sky-200 dark:border-sky-800' },
-  BIG: { bg: 'bg-purple-50 dark:bg-purple-950/40', text: 'text-purple-700 dark:text-purple-300', border: 'border-purple-200 dark:border-purple-800' },
-  BMKG: { bg: 'bg-blue-50 dark:bg-blue-950/40', text: 'text-blue-700 dark:text-blue-300', border: 'border-blue-200 dark:border-blue-800' },
-  NASA: { bg: 'bg-orange-50 dark:bg-orange-950/40', text: 'text-orange-700 dark:text-orange-300', border: 'border-orange-200 dark:border-orange-800' },
-  ESDM: { bg: 'bg-amber-50 dark:bg-amber-950/40', text: 'text-amber-700 dark:text-amber-300', border: 'border-amber-200 dark:border-amber-800' },
-  'ATR/BPN': { bg: 'bg-emerald-50 dark:bg-emerald-950/40', text: 'text-emerald-700 dark:text-emerald-300', border: 'border-emerald-200 dark:border-emerald-800' },
-  KEMENDAGRI: { bg: 'bg-indigo-50 dark:bg-indigo-950/40', text: 'text-indigo-700 dark:text-indigo-300', border: 'border-indigo-200 dark:border-indigo-800' },
+  BNPB: { bg: 'bg-rose-100', text: 'text-rose-900', border: 'border-rose-300' },
+  BAPPENAS: { bg: 'bg-sky-100', text: 'text-sky-900', border: 'border-sky-300' },
+  BIG: { bg: 'bg-purple-100', text: 'text-purple-900', border: 'border-purple-300' },
+  BMKG: { bg: 'bg-blue-100', text: 'text-blue-900', border: 'border-blue-300' },
+  NASA: { bg: 'bg-orange-100', text: 'text-orange-900', border: 'border-orange-300' },
+  ESDM: { bg: 'bg-amber-100', text: 'text-amber-900', border: 'border-amber-300' },
+  'ATR/BPN': { bg: 'bg-emerald-100', text: 'text-emerald-900', border: 'border-emerald-300' },
+  KEMENDAGRI: { bg: 'bg-indigo-100', text: 'text-indigo-900', border: 'border-indigo-300' },
 };

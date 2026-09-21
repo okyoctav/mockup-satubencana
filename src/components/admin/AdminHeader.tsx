@@ -15,6 +15,7 @@ interface AdminHeaderProps {
   badgeColor?: string;
   icon?: React.ReactNode;
   rightActions?: React.ReactNode;
+  showDashboardLink?: boolean;
 }
 
 export default function AdminHeader({
@@ -22,9 +23,10 @@ export default function AdminHeader({
   onToggleSidebar,
   title,
   badge,
-  badgeColor = 'bg-teal-50 text-[#1f8080] border-teal-200 dark:bg-teal-950/60 dark:text-teal-300 dark:border-teal-800',
+  badgeColor = 'bg-teal-50 text-[#1f8080] border-teal-200',
   icon,
   rightActions,
+  showDashboardLink = true,
 }: AdminHeaderProps) {
   const handleLogout = async () => {
     localStorage.removeItem('is_logged_in');
@@ -66,7 +68,7 @@ export default function AdminHeader({
           {/* Title & Badge */}
           <div className="flex items-center gap-2">
             {icon && (
-              <div className="p-1.5 rounded-xl bg-teal-50 dark:bg-teal-950/50 border border-teal-200/60 dark:border-teal-800 text-[#1f8080] dark:text-teal-400 flex items-center justify-center shadow-2xs">
+              <div className="p-1.5 rounded-xl bg-teal-50 border border-teal-200 text-[#1f8080] flex items-center justify-center shadow-2xs">
                 {icon}
               </div>
             )}
@@ -89,15 +91,17 @@ export default function AdminHeader({
         <div className="flex items-center gap-2.5 sm:gap-3">
           {rightActions}
 
-          <Link
-            href="/dashboard_k5"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all text-xs font-semibold cursor-pointer shadow-xs"
-          >
-            <span className="text-slate-500 dark:text-slate-400 flex items-center justify-center">
-              <MapIcon width={15} height={15} />
-            </span>
-            <span className="hidden sm:inline">Dashboard Utama</span>
-          </Link>
+          {showDashboardLink && (
+            <Link
+              href="/dashboard_k5"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all text-xs font-semibold cursor-pointer shadow-xs"
+            >
+              <span className="text-slate-500 dark:text-slate-400 flex items-center justify-center">
+                <MapIcon width={15} height={15} />
+              </span>
+              <span className="hidden sm:inline">Dashboard Utama</span>
+            </Link>
+          )}
 
           <button
             onClick={handleLogout}

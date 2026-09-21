@@ -392,50 +392,49 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans antialiased relative">
+    <div
+      className="min-h-screen flex text-slate-800 font-sans antialiased relative"
+      style={{ backgroundColor: '#f3f3f3' }}
+    >
       {/* 1. REUSABLE LEFT SIDEBAR */}
       <AdminSidebar isSidebarOpen={isSidebarOpen} activePathOverride="/manajemen-data-bencana" />
 
       {/* 2. MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+      <div
+        className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden"
+        style={{ backgroundColor: '#f3f3f3' }}
+      >
         {/* HEADER NAVBAR */}
         <AdminHeader
           isSidebarOpen={isSidebarOpen}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           title="Manajemen Data Bencana"
-          badge="Layer Manager / GIS Catalog"
           icon={<ServerIcon width={16} height={16} />}
-          rightActions={
-            <button
-              onClick={() => setIsSqlModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900 transition-all text-xs font-bold cursor-pointer shadow-xs"
-              title="Lihat Script Migrasi Supabase"
-            >
-              <ComputerIcon width={14} height={14} />
-              <span className="hidden sm:inline">Script SQL Supabase</span>
-            </button>
-          }
+          showDashboardLink={false}
         />
 
         {/* WORKSPACE CONTENT (SCROLLABLE) */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+        <main
+          className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6"
+          style={{ backgroundColor: '#f3f3f3' }}
+        >
           {/* SUPABASE STATUS BANNER */}
           {dbNotice && (
-            <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-start justify-between gap-3 text-xs">
+            <div className="p-4 rounded-2xl bg-[#fffbeb] border border-[#fde68a] flex items-start justify-between gap-3 text-xs shadow-xs">
               <div className="flex items-start gap-2.5">
-                <WarningIcon width={16} height={16} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <WarningIcon width={16} height={16} className="text-[#d97706] shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-bold text-amber-900 dark:text-amber-200">
+                  <h4 className="font-bold text-[#92400e]">
                     Tabel Supabase Belum Dibuat atau Belum Dijalankan
                   </h4>
-                  <p className="text-amber-700 dark:text-amber-300/90 mt-0.5">
-                    Modul saat ini berjalan dalam mode <b>Local Sync (38 layer siap pakai)</b>. Agar data tersimpan permanen di cloud Supabase Anda, jalankan script SQL migrasi yang telah kami siapkan di Supabase SQL Editor.
+                  <p className="text-[#b45309] mt-0.5">
+                    Modul saat ini berjalan dalam mode <b>Local Sync (38 layer siap pakai)</b>. Agar data tersimpan permanen di cloud Supabase Anda, jalankan script SQL migrasi di Supabase SQL Editor.
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsSqlModalOpen(true)}
-                className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold shrink-0 transition-colors shadow-xs"
+                className="px-3 py-1.5 rounded-xl bg-[#d97706] hover:bg-[#b45309] text-white font-bold shrink-0 transition-colors shadow-xs cursor-pointer"
               >
                 Buka Script SQL
               </button>
@@ -443,12 +442,12 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
           )}
 
           {isSupabaseConnected && (
-            <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between gap-2 text-xs">
-              <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-semibold">
-                <CheckCircleIcon width={16} height={16} className="text-emerald-500 shrink-0" />
+            <div className="p-3 rounded-2xl bg-[#ecfdf5] border border-[#a7f3d0] flex items-center justify-between gap-2 text-xs shadow-xs">
+              <div className="flex items-center gap-2 text-[#065f46] font-semibold">
+                <CheckCircleIcon width={16} height={16} className="text-[#059669] shrink-0" />
                 <span>Terhubung langsung dengan database Supabase (`dashboard_layers`). Perubahan langsung tersinkronisasi.</span>
               </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100 font-bold">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#059669] text-white font-bold">
                 LIVE DB
               </span>
             </div>
@@ -456,53 +455,53 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
 
           {/* 3. KPI STATS CARDS */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-            <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-              <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+            <div className="p-4 rounded-2xl bg-white border border-slate-300 shadow-sm">
+              <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
                 <span>Total Layer Terdaftar</span>
-                <TableIcon width={16} height={16} className="text-sky-500 shrink-0" />
+                <TableIcon width={16} height={16} className="text-sky-600 shrink-0" />
               </div>
-              <div className="text-2xl font-black text-slate-900 dark:text-white mt-2">
+              <div className="text-2xl font-black text-slate-900 mt-2">
                 {stats.total}
               </div>
-              <div className="text-[11px] text-slate-400 mt-1">Katalog layer geospasial</div>
+              <div className="text-[11px] text-slate-500 mt-1">Katalog layer geospasial</div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-              <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+            <div className="p-4 rounded-2xl bg-white border border-slate-300 shadow-sm">
+              <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
                 <span>Layer Aktif di Peta</span>
-                <CheckCircleIcon width={16} height={16} className="text-emerald-500 shrink-0" />
+                <CheckCircleIcon width={16} height={16} className="text-emerald-600 shrink-0" />
               </div>
-              <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-2">
+              <div className="text-2xl font-black text-emerald-700 mt-2">
                 {stats.active}
               </div>
-              <div className="text-[11px] text-slate-400 mt-1">Muncul di menu Dashboard K5</div>
+              <div className="text-[11px] text-slate-500 mt-1">Muncul di menu Dashboard K5</div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-              <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+            <div className="p-4 rounded-2xl bg-white border border-slate-300 shadow-sm">
+              <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
                 <span>Layer Non-Aktif</span>
-                <XIcon width={16} height={16} className="text-amber-500 shrink-0" />
+                <XIcon width={16} height={16} className="text-amber-600 shrink-0" />
               </div>
-              <div className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-2">
+              <div className="text-2xl font-black text-amber-700 mt-2">
                 {stats.inactive}
               </div>
-              <div className="text-[11px] text-slate-400 mt-1">Disimpan sebagai arsip</div>
+              <div className="text-[11px] text-slate-500 mt-1">Disimpan sebagai arsip</div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-              <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold">
+            <div className="p-4 rounded-2xl bg-white border border-slate-300 shadow-sm">
+              <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
                 <span>Instansi Sumber</span>
-                <ServerIcon width={16} height={16} className="text-purple-500 shrink-0" />
+                <ServerIcon width={16} height={16} className="text-purple-600 shrink-0" />
               </div>
-              <div className="text-2xl font-black text-purple-600 dark:text-purple-400 mt-2">
+              <div className="text-2xl font-black text-purple-700 mt-2">
                 {stats.groups}
               </div>
-              <div className="text-[11px] text-slate-400 mt-1">BNPB, BAPPENAS, BIG, dll</div>
+              <div className="text-[11px] text-slate-500 mt-1">BNPB, BAPPENAS, BIG, dll</div>
             </div>
           </div>
 
           {/* 4. ACTION BAR & FILTER CONTROLS */}
-          <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3.5">
+          <div className="p-4 rounded-2xl bg-white border border-slate-300 shadow-sm space-y-3.5">
             <div className="flex items-center justify-between gap-3 flex-wrap">
               {/* Search input */}
               <div className="relative flex-1 min-w-[260px] max-w-md">
@@ -512,7 +511,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                   placeholder="Cari layer berdasarkan ID, label, instansi, atau URL..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 outline-none focus:border-teal-500 transition-colors"
+                  className="w-full bg-[#f8fafc] border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:border-teal-600 transition-colors"
                 />
               </div>
 
@@ -520,16 +519,16 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
               <div className="flex items-center gap-2 flex-wrap">
                 <button
                   onClick={handleResetToDefault}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-300 bg-[#f8fafc] hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
                   title="Sinkronkan / kembalikan ke layer standar default"
                 >
-                  <RepeatIcon width={14} height={14} className="text-slate-500" />
+                  <RepeatIcon width={14} height={14} className="text-slate-600" />
                   <span>Reset Default (38 Layer)</span>
                 </button>
 
                 <button
                   onClick={handleOpenAdd}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1f8080] hover:bg-[#1f8080]/90 text-white text-xs font-bold transition-all shadow-sm cursor-pointer hover:scale-102"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1f8080] hover:bg-[#166565] text-white text-xs font-bold transition-all shadow-sm cursor-pointer hover:scale-102"
                 >
                   <PlusIcon width={16} height={16} />
                   <span>Tambah Layer Baru</span>
@@ -538,10 +537,10 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
             </div>
 
             {/* Filter Pills & Dropdowns */}
-            <div className="flex items-center justify-between gap-3 flex-wrap pt-2 border-t border-slate-100 dark:border-slate-800/60">
+            <div className="flex items-center justify-between gap-3 flex-wrap pt-2 border-t border-slate-200">
               {/* Group filter pills */}
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[11px] font-bold text-slate-400 mr-1">Instansi:</span>
+                <span className="text-[11px] font-bold text-slate-500 mr-1">Instansi:</span>
                 {['Semua', ...LAYER_GROUPS].map((grp) => (
                   <button
                     key={grp}
@@ -549,7 +548,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                     className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                       selectedGroup === grp
                         ? 'bg-[#1f8080] text-white shadow-2xs'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
                     }`}
                   >
                     {grp}
@@ -562,7 +561,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
-                  className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 outline-none"
+                  className="bg-[#f8fafc] border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 outline-none"
                 >
                   <option value="Semua">Semua Tipe Layanan</option>
                   {LAYER_TYPES.map((t) => (
@@ -575,7 +574,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value as 'Semua' | 'Aktif' | 'Non-Aktif')}
-                  className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 outline-none"
+                  className="bg-[#f8fafc] border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 outline-none"
                 >
                   <option value="Semua">Semua Status</option>
                   <option value="Aktif">Hanya Aktif</option>
@@ -586,11 +585,11 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
           </div>
 
           {/* 5. DATA TABLE / LIST */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden">
-            <div className="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <div className="bg-white border border-slate-300 rounded-2xl shadow-sm overflow-hidden">
+            <div className="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+              <h3 className="text-xs font-bold text-slate-800 flex items-center gap-2">
                 <span>Daftar Layer GIS</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold border border-slate-200">
                   {filteredLayers.length} ditemukan
                 </span>
               </h3>
@@ -598,13 +597,13 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
 
             {loading ? (
               <div className="p-12 text-center text-slate-400 text-xs">
-                <RepeatIcon width={24} height={24} className="animate-spin mx-auto mb-2 text-teal-500" />
+                <RepeatIcon width={24} height={24} className="animate-spin mx-auto mb-2 text-teal-600" />
                 <span>Memuat data katalog layer...</span>
               </div>
             ) : filteredLayers.length === 0 ? (
               <div className="p-12 text-center text-slate-400 text-xs space-y-2">
-                <ServerIcon width={32} height={32} className="mx-auto text-slate-300 dark:text-slate-600" />
-                <p className="font-semibold text-slate-600 dark:text-slate-400">Tidak ada layer yang sesuai dengan filter.</p>
+                <ServerIcon width={32} height={32} className="mx-auto text-slate-400" />
+                <p className="font-semibold text-slate-600">Tidak ada layer yang sesuai dengan filter.</p>
                 <button
                   onClick={() => {
                     setSearchQuery('');
@@ -612,7 +611,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                     setSelectedType('Semua');
                     setStatusFilter('Semua');
                   }}
-                  className="text-teal-600 dark:text-teal-400 font-bold hover:underline cursor-pointer"
+                  className="text-teal-700 font-bold hover:underline cursor-pointer"
                 >
                   Reset Semua Filter
                 </button>
@@ -621,7 +620,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">
+                    <tr className="bg-slate-100 border-b border-slate-200 text-slate-600 font-extrabold uppercase text-[10px] tracking-wider">
                       <th className="py-3 px-4 w-12 text-center">Aktif</th>
                       <th className="py-3 px-4">Layer / Label</th>
                       <th className="py-3 px-4">Instansi</th>
@@ -630,19 +629,19 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                       <th className="py-3 px-4 w-28 text-center">Aksi</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tbody className="divide-y divide-slate-200">
                     {filteredLayers.map((layer) => {
                       const groupStyle =
                         GROUP_COLOR_MAP[layer.group || 'BNPB'] || {
-                          bg: 'bg-slate-100 dark:bg-slate-800',
-                          text: 'text-slate-700 dark:text-slate-300',
-                          border: 'border-slate-200 dark:border-slate-700',
+                          bg: 'bg-slate-100',
+                          text: 'text-slate-800',
+                          border: 'border-slate-300',
                         };
 
                       return (
                         <tr
                           key={layer.id}
-                          className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
+                          className="hover:bg-slate-50 transition-colors"
                         >
                           {/* Toggle Active */}
                           <td className="py-3 px-4 text-center">
@@ -651,7 +650,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                               className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors cursor-pointer ${
                                 layer.is_active
                                   ? 'bg-[#1f8080]'
-                                  : 'bg-slate-300 dark:bg-slate-700'
+                                  : 'bg-slate-300'
                               }`}
                               title={layer.is_active ? 'Klik untuk non-aktifkan' : 'Klik untuk aktifkan'}
                             >
@@ -670,17 +669,17 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                                 {layer.emoji || '🗺️'}
                               </span>
                               <div>
-                                <div className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                                <div className="font-bold text-slate-900 flex items-center gap-1.5">
                                   <span>{layer.label}</span>
                                   {layer.color && (
                                     <span
-                                      className="w-2.5 h-2.5 rounded-full inline-block shrink-0 border border-black/10"
+                                      className="w-2.5 h-2.5 rounded-full inline-block shrink-0 border border-slate-300"
                                       style={{ backgroundColor: layer.color }}
                                       title={`Warna: ${layer.color}`}
                                     />
                                   )}
                                 </div>
-                                <div className="text-[10.5px] font-mono text-slate-400 dark:text-slate-500 mt-0.5">
+                                <div className="text-[10.5px] font-mono text-slate-500 mt-0.5">
                                   id: {layer.id}
                                 </div>
                               </div>
@@ -698,7 +697,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
 
                           {/* Service Type */}
                           <td className="py-3 px-4 whitespace-nowrap">
-                            <span className="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                            <span className="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-300">
                               {layer.type || 'MapServer'}
                             </span>
                           </td>
@@ -706,16 +705,16 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                           {/* URL & Params */}
                           <td className="py-3 px-4 max-w-xs sm:max-w-md">
                             <div className="flex items-center gap-1.5">
-                              <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate max-w-[260px] sm:max-w-[340px]">
+                              <span className="text-[11px] font-mono text-slate-600 truncate max-w-[260px] sm:max-w-[340px]">
                                 {layer.url}
                               </span>
                               <button
                                 onClick={() => handleCopyUrl(layer.id, layer.url)}
-                                className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer shrink-0"
+                                className="p-1 rounded hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer shrink-0"
                                 title="Salin URL Layanan"
                               >
                                 {copiedUrlId === layer.id ? (
-                                  <CheckIcon width={14} height={14} className="text-emerald-500" />
+                                  <CheckIcon width={14} height={14} className="text-emerald-600" />
                                 ) : (
                                   <NoteIcon width={14} height={14} />
                                 )}
@@ -725,7 +724,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                                   href={layer.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-sky-500 transition-colors cursor-pointer shrink-0"
+                                  className="p-1 rounded hover:bg-slate-200 text-slate-500 hover:text-teal-700 transition-colors cursor-pointer shrink-0"
                                   title="Buka Endpoint di Tab Baru"
                                 >
                                   <WorldIcon width={14} height={14} />
@@ -733,25 +732,25 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                               )}
                             </div>
 
-                            {/* Additional Flag badges */}
+                            {/* Additional Flag badges - 100% Solid Material Colors */}
                             <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                               {layer.layersParam && (
-                                <span className="text-[9.5px] font-mono px-1.5 py-0.2 rounded bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                                <span className="text-[9.5px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-100 text-sky-900 border border-sky-300">
                                   param: {layer.layersParam}
                                 </span>
                               )}
                               {layer.requiresToken && (
-                                <span className="text-[9.5px] font-bold px-1.5 py-0.2 rounded bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                                <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-900 border border-rose-300">
                                   Token BIG
                                 </span>
                               )}
                               {layer.requiresFilter && (
-                                <span className="text-[9.5px] font-bold px-1.5 py-0.2 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
                                   Filter Req
                                 </span>
                               )}
                               {layer.useLngLat && (
-                                <span className="text-[9.5px] font-bold px-1.5 py-0.2 rounded bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                                <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-900 border border-purple-300">
                                   LngLat
                                 </span>
                               )}
@@ -763,14 +762,14 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                             <div className="flex items-center justify-center gap-1">
                               <button
                                 onClick={() => handleOpenEdit(layer)}
-                                className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-sky-600 dark:hover:text-sky-400 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-200 hover:text-teal-700 transition-colors cursor-pointer"
                                 title="Edit Layer"
                               >
                                 <ModifyIcon width={14} height={14} />
                               </button>
                               <button
                                 onClick={() => handleDeleteLayer(layer.id)}
-                                className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg text-slate-600 hover:bg-rose-100 hover:text-rose-700 transition-colors cursor-pointer"
                                 title="Hapus Layer"
                               >
                                 <TrashIcon width={14} height={14} />
@@ -791,17 +790,17 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
       {/* 6. MODAL: TAMBAH / EDIT LAYER */}
       {isFormOpen && (
         <div className="fixed inset-0 z-[800] bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="bg-white border border-slate-300 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div className="flex items-center gap-2">
                 <ServerIcon width={20} height={20} className="text-teal-600" />
-                <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                <h3 className="font-bold text-sm text-slate-900">
                   {editingLayer ? 'Edit Konfigurasi Layer' : 'Tambah Layer Geospasial Baru'}
                 </h3>
               </div>
               <button
                 onClick={() => setIsFormOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
               >
                 <XIcon width={20} height={20} />
               </button>
@@ -811,25 +810,25 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
               {/* ID & Emoji */}
               <div className="grid grid-cols-4 gap-3">
                 <div className="col-span-1 space-y-1">
-                  <label className="font-bold text-slate-700 dark:text-slate-300">Emoji</label>
+                  <label className="font-bold text-slate-700">Emoji</label>
                   <input
                     type="text"
                     value={formData.emoji}
                     onChange={(e) => setFormData({ ...formData, emoji: e.target.value })}
-                    className="w-full text-center text-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2 outline-none"
+                    className="w-full text-center text-lg bg-[#f8fafc] border border-slate-300 rounded-xl p-2 outline-none focus:border-teal-600 text-slate-900"
                     placeholder="🗺️"
                   />
                 </div>
                 <div className="col-span-3 space-y-1">
-                  <label className="font-bold text-slate-700 dark:text-slate-300">
-                    ID Unik (Slug) <span className="text-rose-500">*</span>
+                  <label className="font-bold text-slate-700">
+                    ID Unik (Slug) <span className="text-rose-600">*</span>
                   </label>
                   <input
                     type="text"
                     disabled={!!editingLayer}
                     value={formData.id}
                     onChange={(e) => setFormData({ ...formData, id: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 font-mono outline-none focus:border-teal-500 disabled:opacity-60"
+                    className="w-full bg-[#f8fafc] border border-slate-300 text-slate-900 rounded-xl px-3 py-2 font-mono outline-none focus:border-teal-600 disabled:opacity-60"
                     placeholder="contoh: banjirdki_2026"
                     required
                   />
@@ -838,14 +837,14 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
 
               {/* Label */}
               <div className="space-y-1">
-                <label className="font-bold text-slate-700 dark:text-slate-300">
-                  Nama / Label Layer <span className="text-rose-500">*</span>
+                <label className="font-bold text-slate-700">
+                  Nama / Label Layer <span className="text-rose-600">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.label}
                   onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 outline-none focus:border-teal-500"
+                  className="w-full bg-[#f8fafc] border border-slate-300 text-slate-900 rounded-xl px-3 py-2 outline-none focus:border-teal-600"
                   placeholder="contoh: Peta Risiko Banjir Wilayah DKI"
                   required
                 />
@@ -854,11 +853,11 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
               {/* Group & Type */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-700 dark:text-slate-300">Instansi / Grup</label>
+                  <label className="font-bold text-slate-700">Instansi / Grup</label>
                   <select
                     value={formData.group}
                     onChange={(e) => setFormData({ ...formData, group: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 outline-none"
+                    className="w-full bg-[#f8fafc] border border-slate-300 text-slate-900 rounded-xl px-3 py-2 outline-none focus:border-teal-600"
                   >
                     {LAYER_GROUPS.map((g) => (
                       <option key={g} value={g}>
@@ -869,11 +868,11 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-700 dark:text-slate-300">Tipe Layanan</label>
+                  <label className="font-bold text-slate-700">Tipe Layanan</label>
                   <select
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value as LayerType })}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 outline-none"
+                    className="w-full bg-[#f8fafc] border border-slate-300 text-slate-900 rounded-xl px-3 py-2 outline-none focus:border-teal-600"
                   >
                     {LAYER_TYPES.map((t) => (
                       <option key={t} value={t}>
@@ -886,14 +885,14 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
 
               {/* URL */}
               <div className="space-y-1">
-                <label className="font-bold text-slate-700 dark:text-slate-300">
-                  URL Service / Endpoint <span className="text-rose-500">*</span>
+                <label className="font-bold text-slate-700">
+                  URL Service / Endpoint <span className="text-rose-600">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.url}
                   onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 font-mono text-[11px] outline-none focus:border-teal-500"
+                  className="w-full bg-[#f8fafc] border border-slate-300 text-slate-900 rounded-xl px-3 py-2 font-mono text-[11px] outline-none focus:border-teal-600"
                   placeholder="https://gis.bnpb.go.id/server/rest/services/..."
                   required
                 />
@@ -902,18 +901,18 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
               {/* Param & Color */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-700 dark:text-slate-300">Parameter Layer (Opsional)</label>
+                  <label className="font-bold text-slate-700">Parameter Layer (Opsional)</label>
                   <input
                     type="text"
                     value={formData.layersParam || ''}
                     onChange={(e) => setFormData({ ...formData, layersParam: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 font-mono outline-none"
+                    className="w-full bg-[#f8fafc] border border-slate-300 text-slate-900 rounded-xl px-3 py-2 font-mono outline-none focus:border-teal-600"
                     placeholder="contoh: show:0 atau raster:NAME"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-700 dark:text-slate-300">Warna Aksen</label>
+                  <label className="font-bold text-slate-700">Warna Aksen</label>
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
@@ -925,14 +924,14 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                       type="text"
                       value={formData.color || '#0284C7'}
                       onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                      className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 font-mono outline-none uppercase"
+                      className="flex-1 bg-[#f8fafc] border border-slate-300 text-slate-900 rounded-xl px-3 py-2 font-mono outline-none uppercase focus:border-teal-600"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Toggles */}
-              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
@@ -940,7 +939,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                     onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                     className="w-4 h-4 rounded text-teal-600"
                   />
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">Aktif di Dashboard</span>
+                  <span className="font-semibold text-slate-800">Aktif di Dashboard</span>
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -950,7 +949,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                     onChange={(e) => setFormData({ ...formData, useLngLat: e.target.checked })}
                     className="w-4 h-4 rounded text-teal-600"
                   />
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">Gunakan Format Lng/Lat</span>
+                  <span className="font-semibold text-slate-800">Gunakan Format Lng/Lat</span>
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -960,7 +959,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                     onChange={(e) => setFormData({ ...formData, requiresToken: e.target.checked })}
                     className="w-4 h-4 rounded text-teal-600"
                   />
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">Butuh Token BIG</span>
+                  <span className="font-semibold text-slate-800">Butuh Token BIG</span>
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -970,22 +969,22 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
                     onChange={(e) => setFormData({ ...formData, ignoreScale: e.target.checked })}
                     className="w-4 h-4 rounded text-teal-600"
                   />
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">Abaikan Batasan Skala</span>
+                  <span className="font-semibold text-slate-800">Abaikan Batasan Skala</span>
                 </label>
               </div>
 
               {/* Buttons */}
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setIsFormOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer font-bold"
+                  className="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer font-bold"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#1f8080] hover:bg-[#1f8080]/90 text-white font-bold transition-colors cursor-pointer shadow-sm"
+                  className="px-5 py-2 rounded-xl bg-[#1f8080] hover:bg-[#166565] text-white font-bold transition-colors cursor-pointer shadow-sm"
                 >
                   {editingLayer ? 'Simpan Perubahan' : 'Tambahkan Layer'}
                 </button>
@@ -998,28 +997,28 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
       {/* 7. MODAL: SCRIPT SQL SUPABASE */}
       {isSqlModalOpen && (
         <div className="fixed inset-0 z-[800] bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="bg-white border border-slate-300 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div className="flex items-center gap-2">
                 <ComputerIcon width={20} height={20} className="text-teal-600" />
-                <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                <h3 className="font-bold text-sm text-slate-900">
                   Script Migrasi Database Supabase (`dashboard_layers`)
                 </h3>
               </div>
               <button
                 onClick={() => setIsSqlModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
               >
                 <XIcon width={20} height={20} />
               </button>
             </div>
 
-            <div className="text-xs text-slate-600 dark:text-slate-400 space-y-1.5">
+            <div className="text-xs text-slate-700 space-y-1.5">
               <p>
                 Silakan salin script SQL ini dan jalankan langsung di <b>Supabase Dashboard &gt; SQL Editor</b>.
               </p>
               <p className="text-[11px] text-slate-500">
-                Script ini akan membuat tabel <code className="text-teal-600 font-bold font-mono">public.dashboard_layers</code>, menyiapkan kebijakan keamanan RLS, dan otomatis mengisi seluruh 38 layer default BNPB, Bappenas, BIG, BMKG, NASA, ESDM, dan ATR/BPN.
+                Script ini akan membuat tabel <code className="text-teal-700 font-bold font-mono">public.dashboard_layers</code>, menyiapkan kebijakan keamanan RLS, dan otomatis mengisi seluruh 38 layer default BNPB, Bappenas, BIG, BMKG, NASA, ESDM, dan ATR/BPN.
               </p>
             </div>
 
@@ -1027,14 +1026,14 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
               <pre>{sqlScript}</pre>
             </div>
 
-            <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
-              <span className="text-[11px] text-slate-400">
-                File tersimpan di: <code className="font-mono text-slate-600 dark:text-slate-300">supabase/migrations/20260921_create_dashboard_layers.sql</code>
+            <div className="flex items-center justify-between pt-3 border-t border-slate-200">
+              <span className="text-[11px] text-slate-500">
+                File tersimpan di: <code className="font-mono text-slate-700 font-semibold">supabase/migrations/20260921_create_dashboard_layers.sql</code>
               </span>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopySql}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1f8080] hover:bg-[#1f8080]/90 text-white font-bold transition-all shadow-sm cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1f8080] hover:bg-[#166565] text-white font-bold transition-all shadow-sm cursor-pointer"
                 >
                   {copiedSql ? <CheckIcon width={16} height={16} /> : <NoteIcon width={16} height={16} />}
                   <span>{copiedSql ? 'Tersalin ke Clipboard!' : 'Salin Script SQL'}</span>

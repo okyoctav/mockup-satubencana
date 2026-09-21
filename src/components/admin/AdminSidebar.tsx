@@ -132,7 +132,7 @@ export default function AdminSidebar({
               {isSidebarOpen && (
                 <span className="flex items-center justify-between flex-1">
                   <span>Simulasi Modeling</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#132c4d] text-emerald-300 border border-emerald-500/40 font-mono font-bold">
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#132c4d] text-emerald-300 border border-emerald-500 font-mono font-bold">
                     2D
                   </span>
                 </span>
