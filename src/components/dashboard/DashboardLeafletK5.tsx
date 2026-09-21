@@ -202,7 +202,7 @@ const BIG_DESAKEL_URL = 'https://geoservices.big.go.id/rbi/rest/services/BATASWI
 const BNPB_LAYERS: BnpbLayer[] = DEFAULT_DASHBOARD_LAYERS as unknown as BnpbLayer[];
 
 export const DISASTER_DEFAULT_LAYERS: Record<string, string[]> = {
-  'Semua': ['cuaca_ekstrim_img'],
+  'Semua': ['cuaca_ekstrim_img', 'bappenas_batas_desakel'],
   'banjir': [
     'banjir',
     'banjir_bandang',
@@ -210,6 +210,7 @@ export const DISASTER_DEFAULT_LAYERS: Record<string, string[]> = {
     'bmkg_curah_hujan_bulanan',
     'Peta_Curah_Hujan_dan_Hari_Hujan',
     'Peta_Curah_Hujan_dan_Hari_Hujan_sebaran',
+    'bappenas_batas_desakel',
   ],
   'gempa': [
     'gempa',
@@ -219,33 +220,39 @@ export const DISASTER_DEFAULT_LAYERS: Record<string, string[]> = {
     'bmkg_seismisitas_menengah',
     'gempa_ntt_2026_v2',
     'foto_geotag_ntt',
+    'bappenas_batas_desakel',
   ],
   'longsor': [
     'longsor',
     'longsor_wms',
     'trpppb_zrb_bansor_sumatras',
     'bmkg_curah_hujan_bulanan',
+    'bappenas_batas_desakel',
   ],
   'kebakaran': [
     'karhutla',
     'nasa_firms_active_fires',
     'nasa_gibs_fire_viirs',
     'nasa_gibs_fire_modis',
+    'bappenas_batas_desakel',
   ],
   'erupsi': [
     'gunungapi',
     'magma_volcanoes',
     'magma_volcanoes_v2',
+    'bappenas_batas_desakel',
   ],
   'tsunami': [
     'tsunami',
     'sesar_wms',
     'Faults_new',
+    'bappenas_batas_desakel',
   ],
   'kekeringan': [
     'kekeringan',
     'bmkg_sifat_hujan_bulanan',
     'Peta_Curah_Hujan_dan_Hari_Hujan',
+    'bappenas_batas_desakel',
   ],
   'angin puting beliung': [
     'cuaca_ekstrim_img',
@@ -253,11 +260,13 @@ export const DISASTER_DEFAULT_LAYERS: Record<string, string[]> = {
     'cuacaekstrim_wms',
     'bmkg_curah_hujan_10hari',
     'Peta_Curah_Hujan_dan_Hari_Hujan',
+    'bappenas_batas_desakel',
   ],
 };
 
 export function getLayersForDisaster(jenis: string, layers: (BnpbLayer | DashboardLayer)[]): string[] {
-  if (!jenis || jenis === 'Semua') return DISASTER_DEFAULT_LAYERS['Semua'] ?? ['cuaca_ekstrim_img'];
+  const fallback = DISASTER_DEFAULT_LAYERS[jenis] ?? ['cuaca_ekstrim_img', 'bappenas_batas_desakel'];
+  if (!jenis || jenis === 'Semua') return DISASTER_DEFAULT_LAYERS['Semua'] ?? fallback;
 
   // Check if any layer in catalogue has this disaster tag
   const tagged = (layers || [])
@@ -267,8 +276,10 @@ export function getLayersForDisaster(jenis: string, layers: (BnpbLayer | Dashboa
     })
     .map((l) => l.id);
 
-  if (tagged.length > 0) return tagged;
-  return DISASTER_DEFAULT_LAYERS[jenis] ?? ['cuaca_ekstrim_img'];
+  if (tagged.length > 0) {
+    return Array.from(new Set([...tagged, 'bappenas_batas_desakel']));
+  }
+  return fallback;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1224,7 +1235,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
 
   const [activeBasemap, setActiveBasemap] = useState('esri_imagery');
   const [draftBasemap, setDraftBasemap] = useState('esri_imagery');
-  const [activeOverlays, setActiveOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
+  const [activeOverlays, setActiveOverlays] = useState<string[]>(['cuaca_ekstrim_img', 'bappenas_batas_desakel']);
   const [layersList, setLayersList] = useState<BnpbLayer[]>(BNPB_LAYERS);
 
   // Sync custom layers from /manajemen-data-bencana if available
@@ -1294,7 +1305,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
   useEffect(() => {
     onActiveOverlaysChange?.(activeOverlays);
   }, [activeOverlays, onActiveOverlaysChange]);
-  const [draftOverlays, setDraftOverlays] = useState<string[]>(['cuaca_ekstrim_img']);
+  const [draftOverlays, setDraftOverlays] = useState<string[]>(['cuaca_ekstrim_img', 'bappenas_batas_desakel']);
   const [layerOpacities, setLayerOpacities] = useState<Record<string, number>>({});
   const [draftOpacities, setDraftOpacities] = useState<Record<string, number>>({});
   const [showLayerModal, setShowLayerModal] = useState(false);
