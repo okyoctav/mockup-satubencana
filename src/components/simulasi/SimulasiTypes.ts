@@ -1,3 +1,11 @@
+export interface RiverPathConfig {
+  orientation: 'north-south' | 'east-west';
+  meanderAmplitude: number; // amplitudo kelokan sungai dalam derajat
+  meanderWavelength: number;// panjang gelombang kelokan
+  baseWidthMeters: number;  // lebar dasar palung sungai (meter)
+  phaseOffset?: number;     // pergeseran fase kurva
+}
+
 export interface RegionPreset {
   id: string;
   name: string;
@@ -8,6 +16,7 @@ export interface RegionPreset {
   description: string;
   defaultDemBase: number; // Base elevation in meters
   riskType: 'Sungai' | 'Rob / Pesisir' | 'Banjir Bandang' | 'Drainase Perkotaan';
+  riverConfig?: RiverPathConfig;
 }
 
 export interface SimulationParams {
@@ -94,6 +103,13 @@ export const REGION_PRESETS: RegionPreset[] = [
     description: 'Kawasan rawan banjir luapan sungai Ciliwung dan pertemuan drainase perkotaan padat Jakarta.',
     defaultDemBase: 8.5,
     riskType: 'Sungai',
+    riverConfig: {
+      orientation: 'north-south',
+      meanderAmplitude: 0.0035,
+      meanderWavelength: 2.8,
+      baseWidthMeters: 45,
+      phaseOffset: 0.35,
+    },
   },
   {
     id: 'kaligawe_smg',
@@ -105,6 +121,13 @@ export const REGION_PRESETS: RegionPreset[] = [
     description: 'Dataran rendah pantai utara dengan ancaman kombinasi banjir pasang air laut (rob) dan genangan drainase.',
     defaultDemBase: 1.2,
     riskType: 'Rob / Pesisir',
+    riverConfig: {
+      orientation: 'north-south',
+      meanderAmplitude: 0.0022,
+      meanderWavelength: 2.0,
+      baseWidthMeters: 38,
+      phaseOffset: 0.1,
+    },
   },
   {
     id: 'citarum_bdg',
@@ -116,6 +139,13 @@ export const REGION_PRESETS: RegionPreset[] = [
     description: 'Cekungan Bandung dengan kemiringan lereng landai yang menampung aliran sungai Citarum hulu.',
     defaultDemBase: 652.0,
     riskType: 'Sungai',
+    riverConfig: {
+      orientation: 'east-west',
+      meanderAmplitude: 0.0042,
+      meanderWavelength: 3.2,
+      baseWidthMeters: 55,
+      phaseOffset: 0.6,
+    },
   },
   {
     id: 'bengawan_solo',
@@ -127,6 +157,13 @@ export const REGION_PRESETS: RegionPreset[] = [
     description: 'Lembah sungai Bengawan Solo dengan risiko luapan air kiriman saat curah hujan ekstrem di hulu.',
     defaultDemBase: 92.0,
     riskType: 'Sungai',
+    riverConfig: {
+      orientation: 'north-south',
+      meanderAmplitude: 0.0034,
+      meanderWavelength: 2.4,
+      baseWidthMeters: 65,
+      phaseOffset: 0.2,
+    },
   },
   {
     id: 'batangkuranji_pdg',
@@ -138,6 +175,13 @@ export const REGION_PRESETS: RegionPreset[] = [
     description: 'DAS curam dari Bukit Barisan menuju pesisir barat yang rentan banjir bandang lahar hujan & debit kilat.',
     defaultDemBase: 18.0,
     riskType: 'Banjir Bandang',
+    riverConfig: {
+      orientation: 'east-west',
+      meanderAmplitude: 0.003,
+      meanderWavelength: 2.5,
+      baseWidthMeters: 42,
+      phaseOffset: 0.4,
+    },
   },
   {
     id: 'porong_sda',
@@ -149,5 +193,12 @@ export const REGION_PRESETS: RegionPreset[] = [
     description: 'Jalur pembuangan air sungai Brantas menuju Selat Madura dengan tantangan tanggul dan sedimentasi.',
     defaultDemBase: 4.8,
     riskType: 'Sungai',
+    riverConfig: {
+      orientation: 'east-west',
+      meanderAmplitude: 0.002,
+      meanderWavelength: 1.8,
+      baseWidthMeters: 70,
+      phaseOffset: 0.0,
+    },
   },
 ];

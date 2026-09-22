@@ -417,6 +417,39 @@ export default function SimulasiControlPanel({
                 className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#1f8080]"
               />
             </div>
+
+            {/* Resolusi Grid Spasial Simulasi */}
+            <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-[#0a1e36] dark:text-white text-xs">Resolusi Grid Alur Sungai</span>
+                <span className="font-mono font-extrabold text-sky-600 dark:text-sky-400 text-[11px]">
+                  {params.gridResolution === 'high' ? '~35m (Halus)' : params.gridResolution === 'medium' ? '~50m (Standar)' : '~65m (Cepat)'}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5 pt-1">
+                {[
+                  { key: 'high', label: 'Halus (~35m)' },
+                  { key: 'medium', label: 'Standar (~50m)' },
+                  { key: 'low', label: 'Cepat (~65m)' },
+                ].map((item) => (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => updateParam('gridResolution', item.key as SimulationParams['gridResolution'])}
+                    className={`py-2 px-1 text-center rounded-xl text-[10.5px] font-bold border transition-all cursor-pointer ${
+                      params.gridResolution === item.key
+                        ? 'bg-sky-500 text-white border-sky-400 shadow-xs'
+                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100'
+                    }`}
+                  >
+                    <div>{item.label}</div>
+                  </button>
+                ))}
+              </div>
+              <p className="text-[9.5px] text-slate-400 italic pt-0.5">
+                Grid lebih kecil memperhalus bentuk kelokan sungai dan detail pelebaran luapan air saat puncak hujan.
+              </p>
+            </div>
           </div>
         )}
 

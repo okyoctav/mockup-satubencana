@@ -9,6 +9,7 @@ export interface GridCell {
   velocity: number;        // m/s
   hazardLevel: 'Aman' | 'Rendah' | 'Sedang' | 'Tinggi' | 'Ekstrem';
   polygonCoords: [number, number][]; // GeoJSON format [lng, lat]
+  isRiverChannel?: boolean;
 }
 
 export interface SimulationOutput {
@@ -18,41 +19,84 @@ export interface SimulationOutput {
 }
 
 /**
- * FastFlood-inspired Hydrodynamic Flood Spreading Engine
- * Menggunakan prinsip Super Fast Flood Simulation (SFFS) dengan:
- * - Depresi elevasi topografi (DEM)
- * - Persamaan kontinuitas volume hujan akumulatif
- * - Koefisien limpasan (Runoff C) & laju infiltrasi tanah
- * - Kenaikan pasang surut (Tidal surge) & debit hulu
+ * FastFlood Hydrodynamic River Spreading Engine
+ * Menggunakan prinsip hidrodinamika 2D beresolusi tinggi (grid sel halus ~35m-50m)
+ * yang difokuskan pada koridor alur sungai:
+ * - Menghitung elevasi palung sungai, bantaran, tanggul, dan dataran banjir
+ * - Jam 00:00 (baseline): Aliran air hanya berada di palung sungai normal
+ * - Jam demi jam: Ketika curah hujan akumulatif naik menuju puncak (Jam 08:00),
+ *   muka air sungai meluap melebihi bibir tanggul dan melebar secara lateral
+ *   ke kiri dan kanan bantaran/pemukiman warga.
+ * - Semakin tinggi intensitas curah hujan (mm/jam), semakin lebar dan dalam
+ *   luapan aliran sungai yang terjadi.
  */
 export function runFastFloodSimulation(
   region: RegionPreset,
   params: SimulationParams,
-  currentHourIndex = 3 // default to peak (step 3 = hour 8)
+  currentHourIndex = 4 // default to peak (index 4 = hour 8)
 ): SimulationOutput {
-  const gridSize = params.gridResolution === 'high' ? 32 : params.gridResolution === 'medium' ? 24 : 18;
-  const stepDegree = 0.0018; // ~200m per grid cell
+  // Grid resolution: Finer resolution (~35m - 50m per cell)
+  const gridSize = params.gridResolution === 'high' ? 56 : params.gridResolution === 'medium' ? 44 : 34;
+  const stepDegree = params.gridResolution === 'high' ? 0.00035 : params.gridResolution === 'medium' ? 0.00045 : 0.00062;
   const half = Math.floor(gridSize / 2);
 
-  // 1. Hitung total curah hujan efektif (Effective Rainfall Depth in meters)
-  // Runoff (P_eff) = (Rainfall - Infiltration) * RunoffCoefficient
+  // 1. Parameter Hidrologi & Curah Hujan Efektif
   const totalRainfallMm = params.rainfallIntensity * params.durationHours;
-  const totalInfiltrationMm = Math.min(params.infiltrationRate * params.durationHours, totalRainfallMm * 0.7);
+  const totalInfiltrationMm = Math.min(params.infiltrationRate * params.durationHours, totalRainfallMm * 0.6);
   const netRainfallMm = Math.max(0, totalRainfallMm - totalInfiltrationMm);
   const effectiveRainfallM = (netRainfallMm / 1000) * params.runoffCoefficient;
 
-  // Efek debit hulu (Inflow factor)
-  const inflowDepthBoost = (params.riverInflow / 1000) * 0.4;
+  // Efek debit hulu (Inflow m3/s)
+  const inflowFactor = ((params.riverInflow - 50) / 750) * 1.35;
 
-  // Efek tanggul jebol / overtopping
-  const leveeFactor = params.leveeStatus === 'breached' ? 1.6 : params.leveeStatus === 'overtopped' ? 1.25 : 1.0;
+  // Efek pasang surut / rob (m)
+  const tideFactor = params.tidalSurge * (region.riskType === 'Rob / Pesisir' ? 0.95 : 0.25);
 
-  // Efek kapasitas pompa (mengurangi genangan)
-  const pumpReduction = Math.min(0.35, (params.pumpCapacity / 50) * 0.3);
+  // Efek tanggul (intact / breached / overtopped)
+  const leveeMultiplier = params.leveeStatus === 'breached' ? 1.75 : params.leveeStatus === 'overtopped' ? 1.32 : 1.0;
 
-  // Timeline multipliers (0h -> 2h -> 4h -> 8h [Peak] -> 16h -> 24h)
-  const timelineMultipliers = [0.05, 0.35, 0.72, 1.0, 0.65, 0.3];
-  const activeTimelineMul = timelineMultipliers[currentHourIndex] ?? 1.0;
+  // Efek kapasitas pompa drainase (mengurangi tinggi genangan)
+  const pumpReduction = Math.min(0.45, (params.pumpCapacity / 50) * 0.4);
+
+  // 2. Timeline steps: 8 tahapan jam dari awal hujan hingga surut
+  const timelineMultipliers = [0.0, 0.22, 0.55, 0.82, 1.0, 0.88, 0.50, 0.20];
+  const activeFloodMul = timelineMultipliers[currentHourIndex] ?? 1.0;
+
+  // Total kenaikan muka air sungai (Stage Rise) saat puncak banjir (Jam 08:00)
+  const peakStageRise = ((effectiveRainfallM * 4.6) + inflowFactor + tideFactor) * leveeMultiplier;
+
+  // Kenaikan muka air sungai pada jam yang sedang aktif
+  const currentStageRise = Math.max(0, (peakStageRise * activeFloodMul) - (pumpReduction * activeFloodMul));
+
+  // Konfigurasi Alur Sungai (River Geometry)
+  const riverCfg = region.riverConfig || {
+    orientation: 'north-south',
+    meanderAmplitude: 0.0032,
+    meanderWavelength: 2.6,
+    baseWidthMeters: 45,
+    phaseOffset: 0.25,
+  };
+
+  const centerLat = region.lat;
+  const centerLng = region.lng;
+  const baseDem = region.defaultDemBase;
+  const halfRiverW = riverCfg.baseWidthMeters / 2;
+  const latRad = (centerLat * Math.PI) / 180;
+  const metersPerLngDegree = 111320 * Math.cos(latRad);
+  const metersPerLatDegree = 111320;
+
+  // Muka air sungai baseline (saat kering / normal)
+  const baselineRiverWSE = baseDem - 1.2;
+  const riverWSE = baselineRiverWSE + currentStageRise;
+
+  // Tinggi bibir tanggul/tebing sungai
+  const bankCrestElevation = params.leveeStatus === 'breached' ? baseDem - 0.2 : baseDem + 0.5;
+  const overflowHead = Math.max(0, riverWSE - bankCrestElevation);
+
+  // Jangkauan pelebaran lateral sungai (m):
+  // Meningkat tajam saat intensitas hujan tinggi & muka air meluap
+  const rainIntensityRatio = Math.pow(Math.max(10, params.rainfallIntensity) / 50, 1.15);
+  const maxSpreadDistance = halfRiverW + 30 + (Math.pow(overflowHead, 1.35) * 380 * rainIntensityRatio);
 
   const cells: GridCell[] = [];
   const features: GeoJSON.Feature[] = [];
@@ -63,9 +107,8 @@ export function runFastFloodSimulation(
   let sumDepth = 0;
   let floodedCellCount = 0;
 
-  const centerLat = region.lat;
-  const centerLng = region.lng;
-  const baseDem = region.defaultDemBase;
+  // Luas area per sel grid dalam m2
+  const cellAreaM2 = (stepDegree * metersPerLatDegree) * (stepDegree * metersPerLngDegree);
 
   for (let i = 0; i < gridSize; i++) {
     for (let j = 0; j < gridSize; j++) {
@@ -74,50 +117,96 @@ export function runFastFloodSimulation(
       const cellLat = centerLat + latOffset;
       const cellLng = centerLng + lngOffset;
 
-      // Bentuk topografi sintetis realistis:
-      // Palung sungai berada di tengah (j = half), lereng naik ke pinggir
-      const distFromRiver = Math.abs(j - half) / half;
+      // 3. Hitung jarak tegak lurus ke garis tengah alur sungai (Centerline Distance)
+      let distMeters = 0;
 
-      // Variasi elevasi alami (DEM)
-      let cellElevation = baseDem + distFromRiver * 4.5 + Math.sin(i * 0.6) * 0.8 + Math.cos(j * 0.5) * 0.6;
-      
-      // Jika tipe risiko rob/pesisir: sisi utara lebih rendah mendekati laut
+      if (riverCfg.orientation === 'north-south') {
+        const u = latOffset / (half * stepDegree); // -1.0 s/d +1.0
+        const riverLng =
+          centerLng +
+          Math.sin(u * Math.PI * (riverCfg.meanderWavelength / 2) + (riverCfg.phaseOffset || 0)) * riverCfg.meanderAmplitude +
+          Math.sin(u * Math.PI * riverCfg.meanderWavelength * 1.6) * (riverCfg.meanderAmplitude * 0.28);
+        distMeters = Math.abs(cellLng - riverLng) * metersPerLngDegree;
+      } else {
+        const v = lngOffset / (half * stepDegree); // -1.0 s/d +1.0
+        const riverLat =
+          centerLat +
+          Math.sin(v * Math.PI * (riverCfg.meanderWavelength / 2) + (riverCfg.phaseOffset || 0)) * riverCfg.meanderAmplitude +
+          Math.sin(v * Math.PI * riverCfg.meanderWavelength * 1.6) * (riverCfg.meanderAmplitude * 0.28);
+        distMeters = Math.abs(cellLat - riverLat) * metersPerLatDegree;
+      }
+
+      const isRiverChannel = distMeters <= halfRiverW;
+
+      // 4. Hitung Elevasi Tanah / DEM berdasarkan profil penampang sungai
+      let cellElevation: number;
+
+      if (isRiverChannel) {
+        // Di palung sungai: palung melengkung ke bawah
+        const bedProfile = 1 - Math.pow(distMeters / halfRiverW, 2);
+        cellElevation = baseDem - 2.6 * bedProfile;
+      } else if (distMeters <= halfRiverW + 30) {
+        // Bantaran & tanggul pelindung
+        const bankRatio = (distMeters - halfRiverW) / 30;
+        cellElevation = baseDem - 0.4 + bankRatio * 0.9;
+      } else {
+        // Dataran banjir, jalan, dan pemukiman
+        const distFromBankM = distMeters - halfRiverW - 30;
+        const slopeRise = Math.min(2.8, (distFromBankM / 550) * 1.0);
+        const microUndulation = Math.sin(i * 0.75) * 0.22 + Math.cos(j * 0.65) * 0.18;
+        cellElevation = baseDem + 0.5 + slopeRise + microUndulation;
+      }
+
+      // Jika wilayah pesisir / rob: sisi utara lebih rendah mendekati laut
       if (region.riskType === 'Rob / Pesisir') {
-        cellElevation += (i - half) * 0.3; // Makin ke utara makin rendah
+        cellElevation += ((cellLat - centerLat) / (half * stepDegree)) * 0.5;
       }
 
-      // Base flood level di lembah sungai
-      const riverWaterLevel = baseDem + 1.2 + (inflowDepthBoost * leveeFactor) + (params.tidalSurge * (1 - distFromRiver));
-
-      // Hitung akumulasi kedalaman air (water depth)
+      // 5. Hitung Kedalaman Air (Water Depth)
       let depth = 0;
-      if (riverWaterLevel > cellElevation) {
-        // Air sungai meluap ke daratan
-        depth += (riverWaterLevel - cellElevation);
+
+      if (isRiverChannel) {
+        // Di alur sungai: SELALU ada air mengalir (kondisi normal sungai baseline)
+        const baseNormalDepth = (baseDem - 1.2) - cellElevation;
+        depth = Math.max(0.9, baseNormalDepth + currentStageRise);
+      } else {
+        // Di luar sungai: air hanya ada jika sungai meluap melebihi tanggul
+        if (overflowHead > 0 && distMeters < maxSpreadDistance) {
+          const lateralFactor = Math.max(0, 1 - Math.pow(distMeters / maxSpreadDistance, 1.7));
+          const headAtDistance = riverWSE - cellElevation;
+          if (headAtDistance > 0) {
+            depth = headAtDistance * (0.35 + lateralFactor * 0.65);
+          }
+        }
+
+        // Genangan pluvial (hujan lokal di cekungan tertutup)
+        const depressionFactor = Math.max(0, (baseDem + 0.8) - cellElevation);
+        if (depressionFactor > 0 && effectiveRainfallM > 0.02) {
+          const pluvialDepth = effectiveRainfallM * 0.85 * activeFloodMul * Math.min(1.4, depressionFactor);
+          depth = Math.max(depth, pluvialDepth);
+        }
       }
 
-      // Tambahkan genangan dari curah hujan langsung (pluvial flood) di daerah cekungan
-      const depressionFactor = Math.max(0, 1 - distFromRiver * 0.8);
-      depth += effectiveRainfallM * (1.2 + depressionFactor * 1.5) * leveeFactor;
+      // Cutoff: kedalaman di bawah 8 cm di daratan dianggap kering/basah
+      if (!isRiverChannel && depth < 0.08) {
+        depth = 0;
+      }
 
-      // Kurangi dari pompa
-      depth = Math.max(0, depth - pumpReduction);
+      // 6. Kecepatan Arus (Velocity m/s)
+      let velocity = 0;
+      if (isRiverChannel) {
+        velocity = Math.min(3.5, Math.round((1.4 + currentStageRise * 0.5) * 100) / 100);
+      } else if (depth > 0) {
+        const distRatio = Math.max(0, 1 - distMeters / maxSpreadDistance);
+        velocity = Math.min(1.6, Math.round((0.15 + depth * 0.35 * distRatio) * 100) / 100);
+      }
 
-      // Skalakan dengan timeline aktif
-      depth = depth * activeTimelineMul;
-
-      // Jika kedalaman di bawah 0.08m, anggap kering/hanya basah
-      if (depth < 0.08) depth = 0;
-
-      // Kecepatan aliran (m/s) berdasarkan kemiringan dan kedalaman (Manning's formula approximation)
-      const slope = Math.max(0.001, Math.abs(distFromRiver * 0.015));
-      const velocity = depth > 0 ? Math.min(2.8, Math.round(((1 / params.manningsN) * Math.pow(depth, 0.66) * Math.sqrt(slope)) * 100) / 100) : 0;
-
+      // 7. Status Bahaya
       let hazardLevel: GridCell['hazardLevel'] = 'Aman';
       if (depth > 1.5) hazardLevel = 'Ekstrem';
       else if (depth > 0.8) hazardLevel = 'Tinggi';
       else if (depth > 0.3) hazardLevel = 'Sedang';
-      else if (depth > 0) hazardLevel = 'Rendah';
+      else if (depth > 0.08) hazardLevel = 'Rendah';
 
       // Cell polygon bounds
       const halfStep = stepDegree / 2;
@@ -138,26 +227,31 @@ export function runFastFloodSimulation(
         velocity,
         hazardLevel,
         polygonCoords: polyCoords,
+        isRiverChannel,
       };
 
       cells.push(cell);
 
       if (depth > 0) {
         floodedCellCount++;
-        const cellAreaM2 = 200 * 200; // ~40,000 m2 (4 Ha)
         totalFloodedAreaM2 += cellAreaM2;
         totalVolumeM3 += depth * cellAreaM2;
         sumDepth += depth;
         if (depth > maxDepth) maxDepth = depth;
 
-        // GeoJSON Feature for visualization (FastFlood color ramp)
+        // Color coding FastFlood SFFS 2D
         const fillColor =
-          depth > 1.5 ? '#1e40af' : // deep royal blue (> 1.5m)
-          depth > 0.8 ? '#2563eb' : // strong blue (0.8 - 1.5m)
-          depth > 0.3 ? '#0284c7' : // sky blue (0.3 - 0.8m)
-          '#38bdf8';               // light cyan (0.08 - 0.3m)
+          isRiverChannel && depth > 1.5
+            ? '#1e3a8a' // palung sungai dalam (navy)
+            : depth > 1.5
+            ? '#1e40af' // genangan ekstrem > 1.5m (royal blue)
+            : depth > 0.8
+            ? '#2563eb' // genangan tinggi 0.8 - 1.5m (blue)
+            : depth > 0.3
+            ? '#0284c7' // genangan sedang 0.3 - 0.8m (sky blue)
+            : '#38bdf8'; // genangan rendah 0.08 - 0.3m (cyan)
 
-        const fillOpacity = Math.min(0.65, 0.35 + (depth / 2.0) * 0.3);
+        const fillOpacity = isRiverChannel ? 0.8 : Math.min(0.72, 0.42 + (depth / 2.0) * 0.3);
 
         features.push({
           type: 'Feature',
@@ -167,6 +261,7 @@ export function runFastFloodSimulation(
             waterElevation: cell.waterElevation,
             velocity: cell.velocity,
             hazardLevel: cell.hazardLevel,
+            isRiverChannel,
             fillColor,
             fillOpacity,
           },
@@ -184,7 +279,7 @@ export function runFastFloodSimulation(
   const avgDepth = floodedCellCount > 0 ? Math.round((sumDepth / floodedCellCount) * 100) / 100 : 0;
   const waterVolumeMillionM3 = Math.round((totalVolumeM3 / 1000000) * 100) / 100;
 
-  // Estimasi dampak sosial & infrastruktur berdasarkan kepadatan populasi (rasio per Ha)
+  // Estimasi dampak sosial & infrastruktur berdasarkan kepadatan populasi
   const densityMultiplier = params.landCoverType === 'urban' ? 180 : params.landCoverType === 'suburban' ? 95 : 30;
   const affectedPopulation = Math.round(floodedAreaHa * densityMultiplier * (avgDepth > 0.5 ? 1.0 : 0.4));
   const affectedBuildings = Math.round(affectedPopulation / 4.2);
@@ -198,17 +293,67 @@ export function runFastFloodSimulation(
   else if (maxDepth > 1.0 || affectedPopulation > 8000) overallHazard = 'Tinggi';
   else if (maxDepth > 0.4) overallHazard = 'Sedang';
 
-  // Timeline progression steps
+  // 8 Tahapan Timeline Interaktif (0h -> 2h -> 4h -> 6h -> 8h [Peak] -> 12h -> 18h -> 24h)
   const timelineSteps = [
-    { hour: 0, label: '00:00 (Awal Hujan)', totalAreaHa: Math.round(floodedAreaHa * 0.05), avgDepth: Math.round(avgDepth * 0.05 * 100) / 100, waterVolumePct: 5 },
-    { hour: 2, label: '02:00 (Hujan Menggenang)', totalAreaHa: Math.round(floodedAreaHa * 0.35), avgDepth: Math.round(avgDepth * 0.35 * 100) / 100, waterVolumePct: 35 },
-    { hour: 4, label: '04:00 (Limpasan Meluas)', totalAreaHa: Math.round(floodedAreaHa * 0.72), avgDepth: Math.round(avgDepth * 0.72 * 100) / 100, waterVolumePct: 72 },
-    { hour: 8, label: '08:00 (Puncak Banjir)', totalAreaHa: floodedAreaHa, avgDepth: avgDepth, waterVolumePct: 100 },
-    { hour: 16, label: '16:00 (Hujan Reda & Aliran)', totalAreaHa: Math.round(floodedAreaHa * 0.65), avgDepth: Math.round(avgDepth * 0.65 * 100) / 100, waterVolumePct: 65 },
-    { hour: 24, label: '24:00 (Resapan & Surut)', totalAreaHa: Math.round(floodedAreaHa * 0.3), avgDepth: Math.round(avgDepth * 0.3 * 100) / 100, waterVolumePct: 30 },
+    {
+      hour: 0,
+      label: '00:00 (Aliran Normal)',
+      totalAreaHa: Math.round(floodedAreaHa * 0.08),
+      avgDepth: Math.max(0.2, Math.round(avgDepth * 0.25 * 100) / 100),
+      waterVolumePct: 8,
+    },
+    {
+      hour: 2,
+      label: '02:00 (Hujan Menggenang)',
+      totalAreaHa: Math.round(floodedAreaHa * 0.25),
+      avgDepth: Math.round(avgDepth * 0.45 * 100) / 100,
+      waterVolumePct: 25,
+    },
+    {
+      hour: 4,
+      label: '04:00 (Mendekati Tanggul)',
+      totalAreaHa: Math.round(floodedAreaHa * 0.55),
+      avgDepth: Math.round(avgDepth * 0.7 * 100) / 100,
+      waterVolumePct: 55,
+    },
+    {
+      hour: 6,
+      label: '06:00 (Luapan Awal)',
+      totalAreaHa: Math.round(floodedAreaHa * 0.82),
+      avgDepth: Math.round(avgDepth * 0.88 * 100) / 100,
+      waterVolumePct: 82,
+    },
+    {
+      hour: 8,
+      label: '08:00 (Puncak Hujan & Melebar)',
+      totalAreaHa: floodedAreaHa,
+      avgDepth: avgDepth,
+      waterVolumePct: 100,
+    },
+    {
+      hour: 12,
+      label: '12:00 (Genangan Maksimal)',
+      totalAreaHa: Math.round(floodedAreaHa * 0.88),
+      avgDepth: Math.round(avgDepth * 0.9 * 100) / 100,
+      waterVolumePct: 88,
+    },
+    {
+      hour: 18,
+      label: '18:00 (Hujan Reda & Surut)',
+      totalAreaHa: Math.round(floodedAreaHa * 0.5),
+      avgDepth: Math.round(avgDepth * 0.55 * 100) / 100,
+      waterVolumePct: 50,
+    },
+    {
+      hour: 24,
+      label: '24:00 (Surut ke Alur Sungai)',
+      totalAreaHa: Math.round(floodedAreaHa * 0.2),
+      avgDepth: Math.round(avgDepth * 0.3 * 100) / 100,
+      waterVolumePct: 20,
+    },
   ];
 
-  // SEPAKAT Bappenas standard demographic distribution for AOI
+  // SEPAKAT Bappenas demografi AOI
   const lk = Math.round(affectedPopulation * 0.504);
   const pr = affectedPopulation - lk;
   const lansia = Math.round(affectedPopulation * 0.118);

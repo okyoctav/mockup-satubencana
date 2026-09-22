@@ -55,7 +55,7 @@ const DEFAULT_PARAMS: SimulationParams = {
   tidalSurge: 0.0,
   leveeStatus: 'intact',
   pumpCapacity: 10,      // 10 m3/s
-  gridResolution: 'medium',
+  gridResolution: 'high', // Resolusi halus (~35m-50m per sel grid)
 };
 
 interface SimulasiModelingViewProps {
@@ -65,7 +65,7 @@ interface SimulasiModelingViewProps {
 export default function SimulasiModelingView({ embedded = false }: SimulasiModelingViewProps) {
   const [selectedRegion, setSelectedRegion] = useState<RegionPreset>(REGION_PRESETS[0]);
   const [params, setParams] = useState<SimulationParams>(DEFAULT_PARAMS);
-  const [currentTimelineIndex, setCurrentTimelineIndex] = useState(3); // default peak (step 3 = hour 8)
+  const [currentTimelineIndex, setCurrentTimelineIndex] = useState(4); // default peak (step 4 = hour 8: Puncak Hujan & Melebar)
   const [isSimulating, setIsSimulating] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   

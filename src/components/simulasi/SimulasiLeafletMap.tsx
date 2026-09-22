@@ -168,21 +168,26 @@ export default function SimulasiLeafletMap({
     }
 
     if (geoJsonData && geoJsonData.features.length > 0) {
+      const canvasRenderer = L.canvas({ padding: 0.5 });
       const geoLayer = L.geoJSON(geoJsonData, {
         style: (feature) => {
           const p = feature?.properties || {};
           return {
+            renderer: canvasRenderer,
             fillColor: p.fillColor || '#0284c7',
             fillOpacity: p.fillOpacity || 0.65,
             color: p.fillColor || '#0284c7',
-            weight: 0.5,
-            opacity: 0.8,
+            weight: p.isRiverChannel ? 0.8 : 0.3,
+            opacity: 0.85,
           };
         },
         onEachFeature: (feature, layer) => {
           const p = feature.properties || {};
+          const channelBadge = p.isRiverChannel
+            ? '<span style="color:#38bdf8; font-weight:800;">🌊 Alur Sungai Utama</span>'
+            : '<span style="color:#fbbf24; font-weight:800;">💧 Bantaran Meluap</span>';
           layer.bindTooltip(
-            `Kedalaman: <b>${p.waterDepth} m</b><br>Elevasi: ${p.elevation} m dpl<br>Status: <b>${p.hazardLevel}</b>`,
+            `${channelBadge}<br>Kedalaman: <b>${p.waterDepth} m</b><br>Elevasi: ${p.elevation} m dpl<br>Arus: ${p.velocity} m/s<br>Bahaya: <b>${p.hazardLevel}</b>`,
             { sticky: true, className: 'simulasi-tooltip' }
           );
         },
@@ -230,7 +235,7 @@ export default function SimulasiLeafletMap({
 
     const interval = setInterval(() => {
       onTimelineChange((currentTimelineIndex + 1) % results.timelineSteps.length);
-    }, 2200);
+    }, 1600);
 
     return () => clearInterval(interval);
   }, [isPlaying, currentTimelineIndex, results, onTimelineChange]);
@@ -284,28 +289,32 @@ export default function SimulasiLeafletMap({
         <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-1.5">
           <span className="font-extrabold text-[#0a1e36] dark:text-white flex items-center gap-1.5 text-[11px]">
             <span>🌊</span>
-            <span>Kedalaman Genangan (FastFlood)</span>
+            <span>Aliran & Luapan Sungai (FastFlood 2D)</span>
           </span>
           <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300">
-            SFFS 2D
+            Grid Halus
           </span>
         </div>
         <div className="space-y-1.5 text-[10.5px]">
           <div className="flex items-center gap-2">
-            <span className="w-3.5 h-3.5 rounded-md bg-[#38bdf8] shrink-0 border border-black/10" />
-            <span className="text-slate-700 dark:text-slate-300">0.08 - 0.30 m · Genangan Rendah</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3.5 h-3.5 rounded-md bg-[#0284c7] shrink-0 border border-black/10" />
-            <span className="text-slate-700 dark:text-slate-300">0.30 - 0.80 m · Genangan Sedang (Mogok)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3.5 h-3.5 rounded-md bg-[#1d4ed8] shrink-0 border border-black/10" />
-            <span className="text-slate-700 dark:text-slate-300">0.80 - 1.50 m · Bahaya Tinggi (Lantai 1)</span>
+            <span className="w-3.5 h-3.5 rounded-md bg-[#1e3a8a] shrink-0 border border-black/10" />
+            <span className="text-slate-700 dark:text-slate-300">Alur Palung Sungai Utama (&gt; 1.5 m)</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-3.5 h-3.5 rounded-md bg-[#1e40af] shrink-0 border border-black/10" />
-            <span className="text-slate-700 dark:text-slate-300">&gt; 1.50 m · Bahaya Ekstrem (Evakuasi)</span>
+            <span className="text-slate-700 dark:text-slate-300">&gt; 1.50 m · Luapan Ekstrem Bantaran</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3.5 h-3.5 rounded-md bg-[#2563eb] shrink-0 border border-black/10" />
+            <span className="text-slate-700 dark:text-slate-300">0.80 - 1.50 m · Luapan Tinggi</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3.5 h-3.5 rounded-md bg-[#0284c7] shrink-0 border border-black/10" />
+            <span className="text-slate-700 dark:text-slate-300">0.30 - 0.80 m · Luapan Sedang</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3.5 h-3.5 rounded-md bg-[#38bdf8] shrink-0 border border-black/10" />
+            <span className="text-slate-700 dark:text-slate-300">0.08 - 0.30 m · Luapan Rendah</span>
           </div>
         </div>
       </div>
