@@ -124,7 +124,7 @@ export default function InformasiMitraSection() {
           
 
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-            Kolaborasi Data dan Informasi Kebencanaan di Indonesia 
+            Kolaborasi Data dan Informasi Kebencanaan di Indonesia.
           </h1>
 
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
