@@ -40,7 +40,9 @@ import {
   BookOpen,
   RefreshCw,
   Handshake,
+  HelpCircle,
 } from 'lucide-react';
+import DashboardIntroModal from '@/components/dashboard/DashboardIntroModal';
 
 type Kejadian = {
   id: number;
@@ -125,6 +127,7 @@ export default function DashboardK5Page() {
 
   const { theme, toggle } = useTheme();
   const [showBumper, setShowBumper] = useState<boolean>(false);
+  const [showIntroModal, setShowIntroModal] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [filters, setFilters] = useState({ jenis: 'Semua', status: 'Semua', level: 'Semua' });
@@ -140,12 +143,15 @@ export default function DashboardK5Page() {
     }
   }, [isFotoGeotagNttActive, activeTab]);
 
-  // First-time visit Bumper Video check
+  // First-time visit Bumper Video & Intro Modal check
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const hasPlayedBumper = sessionStorage.getItem('mdb_bumper_played');
+      const isIntroDismissed = localStorage.getItem('mdb_dashboard_k5_intro_dismissed') === 'true';
       if (!hasPlayedBumper) {
         setShowBumper(true);
+      } else if (!isIntroDismissed) {
+        setShowIntroModal(true);
       }
     }
   }, []);
@@ -154,6 +160,21 @@ export default function DashboardK5Page() {
     setShowBumper(false);
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('mdb_bumper_played', 'true');
+      const isIntroDismissed = localStorage.getItem('mdb_dashboard_k5_intro_dismissed') === 'true';
+      if (!isIntroDismissed) {
+        setShowIntroModal(true);
+      }
+    }
+  };
+
+  const handleCloseIntroTemporarily = () => {
+    setShowIntroModal(false);
+  };
+
+  const handleDismissIntroPermanently = () => {
+    setShowIntroModal(false);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('mdb_dashboard_k5_intro_dismissed', 'true');
     }
   };
 
@@ -446,7 +467,17 @@ export default function DashboardK5Page() {
               )}
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button
+                onClick={() => setShowIntroModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 bg-teal-50/80 hover:bg-teal-100 text-[#00695c] hover:text-[#004d40] transition-all text-xs font-bold cursor-pointer shadow-2xs group"
+                title="Buka panduan & informasi dashboard MDB"
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-[#00695c] group-hover:scale-110 transition-transform" />
+                <span className="hidden sm:inline">Panduan Dashboard</span>
+                <span className="sm:hidden">Panduan</span>
+              </button>
+
               <button
                 onClick={handleLogout}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0a1e36] transition-all text-xs font-semibold cursor-pointer shadow-xs"
@@ -885,6 +916,13 @@ export default function DashboardK5Page() {
           </div>
         </footer>
       </div>
+
+      {/* ONBOARDING INTRO MODAL */}
+      <DashboardIntroModal
+        isOpen={showIntroModal}
+        onCloseTemporarily={handleCloseIntroTemporarily}
+        onDismissPermanently={handleDismissIntroPermanently}
+      />
     </div>
   );
 }
