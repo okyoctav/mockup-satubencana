@@ -485,7 +485,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
                   Sejarah Kebencanaan Indonesia
                 </h2>
                 <p className="text-[10px] font-medium" style={{ color: 'var(--text-secondary)' }}>
-                  Peta spasial kronologis peristiwa alam nusantara
+                  Kumpulan informasi data dan peta kejadian bencana nusantara.
                 </p>
               </div>
             </div>

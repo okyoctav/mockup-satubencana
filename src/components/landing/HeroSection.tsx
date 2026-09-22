@@ -58,7 +58,7 @@ export default function HeroSection() {
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.15]"
                 style={{ color: 'var(--text-primary)' }}
               >
-                Sistem Analisis{' '}
+                Manajemen{' '}
                 <span
                   style={{
                     background: 'linear-gradient(135deg, #0EA5E9 0%, #10B981 100%)',
@@ -69,13 +69,13 @@ export default function HeroSection() {
                 >
                   Data Bencana
                 </span>{' '}
-                Nasional
+              
               </h1>
               <p
                 className="text-sm sm:text-base font-medium leading-relaxed"
                 style={{ color: 'var(--text-secondary)' }}
               >
-                Ekosistem geospasial satu pintu yang menghubungkan tata kelola data dan informasi pra bencana, tanggap darurat hingga rekonstruksi pasca bencana di seluruh indonesia
+                Sistem Informasi data bencana terintegrasi untuk perencanaan pembangunan nasional.
               </p>
             </div>
 
@@ -131,17 +131,17 @@ export default function HeroSection() {
                 <div className="flex-1 space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-                      FASE 01 · MITIGASI & KESIAPSIAGAAN
+                      FASE 01 · PRABENCANA
                     </span>
                     <span className="text-[10px] font-bold text-slate-400">Pra-Bencana</span>
                   </div>
 
                   <h3 className="text-sm sm:text-base font-extrabold" style={{ color: 'var(--text-primary)' }}>
-                    Pencegahan Risiko & Peringatan Dini
+                    Mitigasi, Kesiapsiagaan, dan Peringatan Dini
                   </h3>
                   
                   <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                    Pemodelan bahaya multisektoral, kerentanan wilayah, mengurangi dampak bencana sebelum kejadian dan memberikan informasi cepat potensi bahaya terdeteksi
+                    Pemodelan ancaman dan risiko bencana untuk mengurangi dampak bencana serta memberikan informasi cepat potensi bahaya.
                   </p>
                 </div>
 
@@ -216,17 +216,17 @@ export default function HeroSection() {
                 <div className="flex-1 space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-500/10 text-amber-600 border border-amber-500/20">
-                      FASE 02 · TANGGAP DARURAT & PENYELAMATAN
+                      FASE 02 · TANGGAP DARURAT
                     </span>
                     <span className="text-[10px] font-bold text-slate-400">Saat Bencana</span>
                   </div>
 
                   <h3 className="text-sm sm:text-base font-extrabold" style={{ color: 'var(--text-primary)' }}>
-                    Situasi Real-Time & Komando Terpadu
+                    Kaji Cepat Dampak Bencana
                   </h3>
 
                   <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                    Komando lapangan terpusat dalam koordinasi multi-instansi (BPBD, Basarnas, TNI/Polri), jalur evakuasi hingga penyaluran logistik darurat pengungsi dalam menyelamatkan jiwa, memenuhi kebutuhan dasar, mengendalikan situasi, dan mencegah dampak bencana menjadi lebih besar
+                    Pengkajian secara cepat dan tepat terhadap lokasi, kerusakan, dan sumberdaya.
                   </p>
                 </div>
 
@@ -299,17 +299,17 @@ export default function HeroSection() {
                 <div className="flex-1 space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-sky-500/10 text-sky-600 border border-sky-500/20">
-                      FASE 03 · PEMULIHAN & REKONSTRUKSI
+                      FASE 03 · PASCABENCANA
                     </span>
                     <span className="text-[10px] font-bold text-slate-400">Pasca-Bencana</span>
                   </div>
 
                   <h3 className="text-sm sm:text-base font-extrabold" style={{ color: 'var(--text-primary)' }}>
-                    Rehabilitasi Infrastruktur & Resiliensi Kota
+                    Perencanaan Rehabilitasi dan Rekonstruksi
                   </h3>
 
                   <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                    Asesmen cepat kerusakan bangunan, bantuan stimulan hingga rekonstruksi hunian dalam mengembalikan fungsi kehidupan masyarakat setelah masa tanggap darurat sekaligus membangun kembali wilayah agar lebih aman dan tangguh terhadap bencana.
+                    Perencanaan pemulihan pascabencana dengan prinsip “Build Back Better, Safer, and Sustainable”.
                   </p>
                 </div>
 

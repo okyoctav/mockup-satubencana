@@ -6,10 +6,10 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
-  title: "DataBencana — Sistem Analisis Data Bencana Nasional",
+  title: "DataBencana — Manajemen Data Bencana Nasional",
   description:
     "Platform analisis dan manajemen data bencana nasional. Pra-bencana, saat-bencana, dan pasca-bencana dalam satu ekosistem data.",
-  keywords: ["bencana", "BNPB", "BPBD", "geospasial", "analisis bencana", "peta bencana Indonesia"],
+  keywords: ["bencana", "BNPB", "BPBD", "geospasial", "manajemen bencana", "peta bencana Indonesia"],
   icons: {
     icon: "/logo/logofavicon.png",
     shortcut: "/logo/logofavicon.png",
