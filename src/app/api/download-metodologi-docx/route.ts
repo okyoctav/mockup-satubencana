@@ -1,32 +1,33 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { buildDocx } = require('../../../../scripts/generate_docx');
 
 export async function GET() {
   try {
-    const buffer = await buildDocx();
+    const filePath = path.join(
+      process.cwd(),
+      'public',
+      'docs',
+      'DOKUMEN_METODOLOGI_SIMULASI_PEMODELAN_BENCANA.doc'
+    );
 
-    // Also write to root directory if writable
-    try {
-      const filePath = path.join(process.cwd(), 'DOKUMEN_METODOLOGI_SIMULASI_PEMODELAN_BENCANA.docx');
-      fs.writeFileSync(filePath, buffer);
-    } catch {
-      // ignore write error on readonly host environments
+    if (!fs.existsSync(filePath)) {
+      return NextResponse.json({ error: 'Dokumen belum tersedia' }, { status: 404 });
     }
 
-    return new NextResponse(buffer, {
+    const fileBuffer = fs.readFileSync(filePath);
+
+    return new NextResponse(fileBuffer, {
       status: 200,
       headers: {
-        'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'Content-Disposition': 'attachment; filename="DOKUMEN_METODOLOGI_SIMULASI_PEMODELAN_BENCANA.docx"',
+        'Content-Type': 'application/msword',
+        'Content-Disposition': 'attachment; filename="DOKUMEN_METODOLOGI_SIMULASI_PEMODELAN_BENCANA.doc"',
       },
     });
   } catch (error) {
-    console.error('Error generating docx:', error);
+    console.error('Error serving document:', error);
     return NextResponse.json(
-      { error: 'Gagal membuat dokumen .docx', detail: String(error) },
+      { error: 'Gagal mengunduh dokumen' },
       { status: 500 }
     );
   }

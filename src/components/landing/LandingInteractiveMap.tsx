@@ -444,7 +444,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
         year: markersRef.current[idx]?.item?.Tahun,
         name: markersRef.current[idx]?.item?.Nama_Bencana,
       }))
-      .filter((m) => m.year != null);
+      .filter((m): m is { index: number; year: number; name?: string } => typeof m.year === 'number');
   })();
 
   return (
@@ -732,7 +732,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
                     style={{
                       accentColor: activeColor,
                       background: `linear-gradient(to right, ${activeColor} 0%, ${activeColor} ${sliderPercent}%, var(--border-subtle) ${sliderPercent}%, var(--border-subtle) 100%)`,
-                    }}
+                    } as React.CSSProperties}
                     title={`Geser peristiwa tahun (${activeDisaster.Tahun || ''})`}
                   />
                 </div>
