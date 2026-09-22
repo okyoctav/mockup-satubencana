@@ -5,13 +5,13 @@ import dynamic from 'next/dynamic';
 import { 
   X, MapPin, BarChart3, Table as TableIcon, Users, Home, 
   Building2, ShieldAlert, Download, Search, 
-  ArrowUpDown, ChevronRight, Compass
+  ArrowUpDown, ChevronRight, Compass, Filter
 } from 'lucide-react';
 import { 
   BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell, 
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
-import { KabupatenItem } from './ProvinceKabupatenMap';
+import { KabupatenItem, DISASTER_THEMES, DISASTER_COLORS } from './disasterConstants';
 
 // Dynamic import of Leaflet Map to avoid SSR errors
 const ProvinceKabupatenMap = dynamic(() => import('./ProvinceKabupatenMap'), {
@@ -58,19 +58,6 @@ interface ProvinceDetailModalProps {
   endTahun?: string;
 }
 
-// Material Design Color Palette
-const DISASTER_COLORS: Record<string, string> = {
-  'Banjir': '#1e88e5',
-  'Longsor': '#6d4c41',
-  'Cuaca ekstrem': '#3949ab',
-  'Kekeringan': '#fbc02d',
-  'Kebakaran hutan dan lahan': '#e53935',
-  'Gempabumi': '#8e24aa',
-  'Gelombang pasang / Abrasi': '#00acc1',
-  'Erupsi gunung api': '#f4511e',
-  'Tsunami': '#0288d1'
-};
-
 export default function ProvinceDetailModal({
   isOpen,
   onClose,
@@ -85,7 +72,12 @@ export default function ProvinceDetailModal({
   const [selectedKabupaten, setSelectedKabupaten] = useState<string | null>(null);
   const [sortField, setSortField] = useState<keyof KabupatenItem>('kejadian');
   const [sortAsc, setSortAsc] = useState<boolean>(false);
-  const filterScope = activeFilterJenis !== 'Semua' ? 'active_filter' : 'all_disasters';
+  const [selectedJenis, setSelectedJenis] = useState<string>(activeFilterJenis || 'Semua');
+
+  // Synchronize when activeFilterJenis or isOpen changes
+  useEffect(() => {
+    setSelectedJenis(activeFilterJenis || 'Semua');
+  }, [activeFilterJenis, isOpen]);
 
   // Close modal on ESC key
   useEffect(() => {
@@ -108,8 +100,8 @@ export default function ProvinceDetailModal({
     setSearchKab('');
   }, [provinsi]);
 
-  // Filter raw rows for this province
-  const provinceRows = useMemo(() => {
+  // 1. Raw rows for this province (all disasters, filtered by year)
+  const allProvinceRows = useMemo(() => {
     if (!provinsi || !allData.length) return [];
     const provTarget = provinsi.trim().toLowerCase();
 
@@ -117,11 +109,6 @@ export default function ProvinceDetailModal({
       if (!d.Provinsi) return false;
       const matchProv = d.Provinsi.trim().toLowerCase() === provTarget;
       if (!matchProv) return false;
-
-      // Filter jenis jika user memilih active_filter
-      if (filterScope === 'active_filter' && activeFilterJenis !== 'Semua') {
-        if (d['Jenis Bencana'] !== activeFilterJenis) return false;
-      }
 
       // Filter Tahun
       if (d.Tahun) {
@@ -131,7 +118,42 @@ export default function ProvinceDetailModal({
 
       return true;
     });
-  }, [allData, provinsi, filterScope, activeFilterJenis, startTahun, endTahun]);
+  }, [allData, provinsi, startTahun, endTahun]);
+
+  // Total Kejadian across all disasters in province
+  const allProvinceTotalKejadian = useMemo(() => {
+    return allProvinceRows.reduce((sum, r) => sum + (r['Jumlah Kejadian'] || 0), 0);
+  }, [allProvinceRows]);
+
+  // Complete Disaster Type Distribution in this Province (used for pie chart & selection)
+  const allDisasterTypeDistribution = useMemo(() => {
+    const map: Record<string, number> = {};
+    allProvinceRows.forEach(r => {
+      const jb = r['Jenis Bencana'] || 'Lainnya';
+      map[jb] = (map[jb] || 0) + (r['Jumlah Kejadian'] || 0);
+    });
+
+    return Object.entries(map)
+      .map(([name, value]) => ({
+        name,
+        value: Math.round(value),
+        color: DISASTER_THEMES[name]?.main || DISASTER_COLORS[name] || '#00897b'
+      }))
+      .sort((a, b) => b.value - a.value);
+  }, [allProvinceRows]);
+
+  // 2. Filtered rows for this province (filtered by selectedJenis)
+  const provinceRows = useMemo(() => {
+    if (!selectedJenis || selectedJenis === 'Semua') {
+      return allProvinceRows;
+    }
+    const targetJenis = selectedJenis.trim().toLowerCase();
+    return allProvinceRows.filter(d => {
+      return d['Jenis Bencana'] && d['Jenis Bencana'].trim().toLowerCase() === targetJenis;
+    });
+  }, [allProvinceRows, selectedJenis]);
+
+  const currentTheme = DISASTER_THEMES[selectedJenis] || DISASTER_THEMES['Semua'];
 
   // Aggregate Kabupaten/Kota Stats
   const kabupatenStats: KabupatenItem[] = useMemo(() => {
@@ -199,7 +221,9 @@ export default function ProvinceDetailModal({
       totalRumahRusak: Math.round(k.totalRumahRusak),
       terendam: Math.round(k.terendam),
       fasilitas: Math.round(k.fasilitas)
-    })).sort((a, b) => b.kejadian - a.kejadian);
+    }))
+    .filter(k => k.kejadian > 0)
+    .sort((a, b) => b.kejadian - a.kejadian);
   }, [provinceRows]);
 
   // Overall Province KPIs
@@ -236,23 +260,6 @@ export default function ProvinceDetailModal({
       totalKabupaten: kabupatenStats.length
     };
   }, [kabupatenStats]);
-
-  // Jenis Bencana Distribution
-  const disasterTypeDistribution = useMemo(() => {
-    const map: Record<string, number> = {};
-    provinceRows.forEach(r => {
-      const jb = r['Jenis Bencana'] || 'Lainnya';
-      map[jb] = (map[jb] || 0) + (r['Jumlah Kejadian'] || 0);
-    });
-
-    return Object.entries(map)
-      .map(([name, value]) => ({
-        name,
-        value: Math.round(value),
-        color: DISASTER_COLORS[name] || '#00897b'
-      }))
-      .sort((a, b) => b.value - a.value);
-  }, [provinceRows]);
 
   // Tren Tahunan
   const yearlyTrend = useMemo(() => {
@@ -341,7 +348,8 @@ export default function ProvinceDetailModal({
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `analisis_bencana_${provinsi.toLowerCase().replace(/\s+/g, '_')}_${startTahun}_${endTahun}.csv`);
+    const jenisFilename = selectedJenis !== 'Semua' ? `_${selectedJenis.toLowerCase().replace(/\s+/g, '_')}` : '';
+    link.setAttribute('download', `analisis_bencana_${provinsi.toLowerCase().replace(/\s+/g, '_')}${jenisFilename}_${startTahun}_${endTahun}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -394,6 +402,26 @@ export default function ProvinceDetailModal({
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/15 text-white font-semibold">
                   Tahun {startTahun} - {endTahun}
                 </span>
+                {selectedJenis !== 'Semua' && (
+                  <span 
+                    className="text-[10px] px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1.5 shadow-xs border animate-in fade-in"
+                    style={{ 
+                      backgroundColor: currentTheme.light, 
+                      color: '#ffffff', 
+                      borderColor: currentTheme.border 
+                    }}
+                  >
+                    <span>{currentTheme.icon}</span>
+                    <span>Filter: {selectedJenis}</span>
+                    <button
+                      onClick={() => setSelectedJenis('Semua')}
+                      className="ml-1 hover:text-rose-300 font-black cursor-pointer text-xs"
+                      title="Hapus filter jenis bencana"
+                    >
+                      &times;
+                    </button>
+                  </span>
+                )}
               </div>
               <p className="text-xs text-teal-100/80 font-medium">
                 Peta Spasial Batas Wilayah BAPPENAS 50K &middot; Analisis Level Kabupaten/Kota
@@ -534,6 +562,59 @@ export default function ProvinceDetailModal({
         </div>
 
         {/* ============================================================
+            DISASTER FILTER QUICK CHIPS BAR
+            ============================================================ */}
+        <div 
+          className="px-5 py-2 border-b flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0 shadow-2xs"
+          style={{
+            backgroundColor: 'var(--bg-card)',
+            borderColor: 'var(--border-faint)'
+          }}
+        >
+          <div className="flex items-center gap-1 text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider shrink-0 mr-1">
+            <Filter className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+            <span>Filter Bencana:</span>
+          </div>
+
+          {/* Button Semua */}
+          <button
+            onClick={() => setSelectedJenis('Semua')}
+            className={`px-3 py-1 rounded-full text-[11px] font-extrabold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer border ${
+              selectedJenis === 'Semua'
+                ? 'bg-[#00695c] text-white border-[#00695c] shadow-xs'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
+            }`}
+          >
+            <span>🌐</span>
+            <span>Semua Bencana ({Math.round(allProvinceTotalKejadian).toLocaleString('id-ID')})</span>
+          </button>
+
+          {/* Disaster Options present in this province */}
+          {allDisasterTypeDistribution.map(d => {
+            const isSelected = selectedJenis === d.name;
+            const theme = DISASTER_THEMES[d.name] || { main: d.color, icon: '⚠️', light: `${d.color}20`, border: d.color };
+            return (
+              <button
+                key={d.name}
+                onClick={() => setSelectedJenis(isSelected ? 'Semua' : d.name)}
+                className={`px-3 py-1 rounded-full text-[11px] font-extrabold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer border ${
+                  isSelected
+                    ? 'text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
+                }`}
+                style={isSelected ? { backgroundColor: theme.main, borderColor: theme.border } : {}}
+              >
+                <span>{theme.icon}</span>
+                <span>{d.name}</span>
+                <span className={`text-[9.5px] px-1.5 py-0.2 rounded-full font-black ${isSelected ? 'bg-white/25 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+                  {d.value.toLocaleString('id-ID')}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ============================================================
             3. TAB CONTENT AREA
             ============================================================ */}
         <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5">
@@ -548,10 +629,31 @@ export default function ProvinceDetailModal({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Compass className="w-4 h-4 text-teal-700 dark:text-teal-400" />
-                      <span className="font-extrabold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
-                        Peta Wilayah Administrasi Kab/Kota &middot; Provinsi {provinsi}
+                      <span className="font-extrabold text-xs text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5 flex-wrap">
+                        {selectedJenis !== 'Semua' ? (
+                          <>
+                            <span>Peta Sebaran:</span>
+                            <span style={{ color: currentTheme.main }} className="font-black flex items-center gap-1">
+                              <span>{currentTheme.icon}</span>
+                              <span>{selectedJenis}</span>
+                            </span>
+                            <span className="text-slate-400">&middot;</span>
+                            <span>Provinsi {provinsi}</span>
+                          </>
+                        ) : (
+                          <>Peta Wilayah Administrasi Kab/Kota &middot; Provinsi {provinsi}</>
+                        )}
                       </span>
                     </div>
+
+                    {selectedJenis !== 'Semua' && (
+                      <button
+                        onClick={() => setSelectedJenis('Semua')}
+                        className="text-[10px] font-bold text-teal-700 dark:text-teal-300 hover:underline cursor-pointer flex items-center gap-1 shrink-0"
+                      >
+                        <span>Tampilkan Semua Bencana</span>
+                      </button>
+                    )}
                   </div>
 
                   <div className="flex-1 w-full h-full min-h-[420px] relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -560,6 +662,8 @@ export default function ProvinceDetailModal({
                       kabupatenStats={kabupatenStats}
                       selectedKabupaten={selectedKabupaten}
                       onSelectKabupaten={(kab) => setSelectedKabupaten(kab)}
+                      activeFilterJenis={selectedJenis}
+                      onResetFilterJenis={() => setSelectedJenis('Semua')}
                     />
                   </div>
                 </div>
@@ -579,8 +683,8 @@ export default function ProvinceDetailModal({
                   >
                     <div className="flex items-center justify-between mb-1">
                       <div>
-                        <h4 className="font-black text-xs uppercase tracking-wide text-slate-900 dark:text-white">
-                          Kejadian Bencana Per Kabupaten / Kota
+                        <h4 className="font-black text-xs uppercase tracking-wide text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <span>Kejadian {selectedJenis !== 'Semua' ? selectedJenis : 'Bencana'} Per Kab/Kota</span>
                         </h4>
                         <p className="text-[10px] text-slate-400">Total akumulasi peristiwa</p>
                       </div>
@@ -612,7 +716,7 @@ export default function ProvinceDetailModal({
                             width={110} 
                           />
                           <Tooltip 
-                            formatter={(value) => [`${Number(value || 0).toLocaleString()} Kejadian`, 'Total']}
+                            formatter={(value) => [`${Number(value || 0).toLocaleString()} Kejadian`, selectedJenis !== 'Semua' ? selectedJenis : 'Total']}
                             contentStyle={{
                               backgroundColor: 'var(--bg-card)',
                               borderColor: 'var(--border-faint)',
@@ -623,16 +727,16 @@ export default function ProvinceDetailModal({
                           />
                           <Bar 
                             dataKey="kejadian" 
-                            fill="#00695c" 
+                            fill={selectedJenis !== 'Semua' ? currentTheme.main : '#00695c'} 
                             radius={[0, 4, 4, 0]} 
-                            className="cursor-pointer hover:opacity-80"
+                            className="cursor-pointer hover:opacity-80 transition-opacity"
                           />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
                   </div>
 
-                  {/* Card: Proporsi Jenis Bencana di Provinsi Ini */}
+                  {/* Card: Proporsi Jenis Bencana di Provinsi Ini (Interactive) */}
                   <div 
                     className="p-4 rounded-2xl border flex flex-col justify-between"
                     style={{
@@ -644,14 +748,31 @@ export default function ProvinceDetailModal({
                   >
                     <div className="flex items-center justify-between mb-1">
                       <div>
-                        <h4 className="font-black text-xs uppercase tracking-wide text-slate-900 dark:text-white">
-                          Komposisi Jenis Bencana di {provinsi}
+                        <h4 className="font-black text-xs uppercase tracking-wide text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <span>Komposisi Jenis Bencana di {provinsi}</span>
                         </h4>
-                        <p className="text-[10px] text-slate-400">Proporsi peristiwa terbanyak</p>
+                        <p className="text-[10px] text-slate-400">
+                          {selectedJenis !== 'Semua' ? (
+                            <span className="text-teal-600 dark:text-teal-400 font-bold">
+                              Aktif: {selectedJenis} &middot; Klik untuk reset
+                            </span>
+                          ) : (
+                            'Klik diagram untuk memfilter peta spasial'
+                          )}
+                        </p>
                       </div>
-                      <span className="text-[10px] font-extrabold text-blue-600 bg-blue-50 dark:bg-blue-950 px-2 py-0.5 rounded-full">
-                        {disasterTypeDistribution.length} Tipe
-                      </span>
+                      {selectedJenis !== 'Semua' ? (
+                        <button
+                          onClick={() => setSelectedJenis('Semua')}
+                          className="text-[10px] font-extrabold text-rose-500 hover:underline bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-full border border-rose-200 dark:border-rose-900 cursor-pointer"
+                        >
+                          Reset Filter
+                        </button>
+                      ) : (
+                        <span className="text-[10px] font-extrabold text-blue-600 bg-blue-50 dark:bg-blue-950 px-2 py-0.5 rounded-full">
+                          {allDisasterTypeDistribution.length} Tipe
+                        </span>
+                      )}
                     </div>
 
                     <div className="w-full h-[180px] flex items-center">
@@ -659,20 +780,38 @@ export default function ProvinceDetailModal({
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
                             <Pie
-                              data={disasterTypeDistribution}
+                              data={allDisasterTypeDistribution}
                               cx="50%"
                               cy="50%"
                               innerRadius={36}
                               outerRadius={65}
                               paddingAngle={3}
                               dataKey="value"
+                              cursor="pointer"
+                              onClick={(entry) => {
+                                if (entry && entry.name) {
+                                  setSelectedJenis(selectedJenis === entry.name ? 'Semua' : entry.name);
+                                }
+                              }}
                             >
-                              {disasterTypeDistribution.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                              ))}
+                              {allDisasterTypeDistribution.map((entry, index) => {
+                                const isSelected = selectedJenis === entry.name;
+                                return (
+                                  <Cell 
+                                    key={`cell-${index}`} 
+                                    fill={entry.color} 
+                                    stroke={isSelected ? '#ffffff' : 'transparent'}
+                                    strokeWidth={isSelected ? 3 : 1}
+                                    opacity={selectedJenis === 'Semua' || isSelected ? 1 : 0.4}
+                                  />
+                                );
+                              })}
                             </Pie>
                             <Tooltip 
-                              formatter={(val) => [`${Number(val || 0).toLocaleString()} Kejadian`, 'Jumlah']}
+                              formatter={(val, name) => [
+                                `${Number(val || 0).toLocaleString()} Kejadian (Klik untuk filter peta)`,
+                                String(name)
+                              ]}
                               contentStyle={{
                                 backgroundColor: 'var(--bg-card)',
                                 borderColor: 'var(--border-faint)',
@@ -685,19 +824,30 @@ export default function ProvinceDetailModal({
                         </ResponsiveContainer>
                       </div>
 
-                      {/* Legend List */}
+                      {/* Legend List (Interactive) */}
                       <div className="w-1/2 flex flex-col gap-1.5 overflow-y-auto max-h-[160px] pr-1">
-                        {disasterTypeDistribution.slice(0, 5).map((d) => (
-                          <div key={d.name} className="flex items-center justify-between text-[10px]">
-                            <span className="flex items-center gap-1.5 truncate text-slate-700 dark:text-slate-300">
-                              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
-                              <span className="truncate">{d.name}</span>
-                            </span>
-                            <span className="font-extrabold text-slate-900 dark:text-white ml-2">
-                              {d.value.toLocaleString('id-ID')}
-                            </span>
-                          </div>
-                        ))}
+                        {allDisasterTypeDistribution.map((d) => {
+                          const isSelected = selectedJenis === d.name;
+                          return (
+                            <button
+                              key={d.name}
+                              onClick={() => setSelectedJenis(isSelected ? 'Semua' : d.name)}
+                              className={`flex items-center justify-between text-[10px] p-1 rounded-lg transition-all text-left cursor-pointer border ${
+                                isSelected
+                                  ? 'bg-teal-50 dark:bg-teal-950/60 border-teal-500 shadow-2xs font-extrabold'
+                                  : 'hover:bg-slate-100 dark:hover:bg-slate-800 border-transparent text-slate-700 dark:text-slate-300'
+                              }`}
+                            >
+                              <span className="flex items-center gap-1.5 truncate">
+                                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
+                                <span className="truncate">{d.name}</span>
+                              </span>
+                              <span className={`ml-2 shrink-0 ${isSelected ? 'text-teal-700 dark:text-teal-300 font-black' : 'font-extrabold text-slate-900 dark:text-white'}`}>
+                                {d.value.toLocaleString('id-ID')}
+                              </span>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
