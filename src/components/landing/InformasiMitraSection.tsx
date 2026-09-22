@@ -205,119 +205,60 @@ export default function InformasiMitraSection() {
       </div>
 
       {/* 4. INFORMASI HUBUNGI KAMI */}
-      <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 transition-colors">
-        <div className="border-b border-slate-200 dark:border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-              <PhoneCall className="w-5 h-5 text-[rgb(25,79,112)] dark:text-sky-400" />
-              <span>Hubungi Kami</span>
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-              Sekretariat SatuBencana — Informasi koordinasi data dan layanan komunikasi resmi
-            </p>
-          </div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 w-fit border border-slate-200 dark:border-slate-700">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Jam Layanan: Senin – Jumat (08.00 – 16.00 WIB)</span>
-          </div>
+      <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors space-y-6">
+        <div>
+          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+            <PhoneCall className="w-5 h-5 text-[rgb(25,79,112)] dark:text-sky-400" />
+            <span>Hubungi Kami</span>
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+            Sekretariat SatuBencana — Kementerian PPN / Bappenas
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1: Alamat */}
-          <div className="p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 flex flex-col justify-between space-y-4 hover:border-[rgb(25,79,112)]/40 dark:hover:border-sky-500/40 transition-all shadow-xs">
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-xl bg-[rgb(25,79,112)]/10 dark:bg-sky-500/20 text-[rgb(25,79,112)] dark:text-sky-400 flex items-center justify-center">
-                <MapPin className="w-6 h-6" />
-              </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">
-                  Lokasi Kantor
-                </span>
-                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-                  Alamat
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed pt-1">
-                  Gedung Menara Bappenas Lantai 8, Jl. HR. Rasuna Said Kav. B-2 Kuningan, Jakarta Selatan
-                </p>
-              </div>
+        <div className="divide-y divide-slate-100 dark:divide-slate-800 border-t border-slate-100 dark:border-slate-800">
+          {/* Alamat */}
+          <div className="py-4 grid grid-cols-1 sm:grid-cols-12 gap-1 sm:gap-4 items-baseline">
+            <div className="sm:col-span-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+              <MapPin className="w-4 h-4 text-[rgb(25,79,112)] dark:text-sky-400 shrink-0" />
+              <span>Alamat</span>
             </div>
-            <a
-              href="https://maps.google.com/?q=Menara+Bappenas+Rasuna+Said+Jakarta"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[rgb(25,79,112)] dark:text-sky-400 hover:underline pt-3 border-t border-slate-200 dark:border-slate-700"
-            >
-              <span>Petunjuk Lokasi (Google Maps)</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
-
-          {/* Card 2: Telepon / Fax */}
-          <div className="p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 flex flex-col justify-between space-y-4 hover:border-[rgb(25,79,112)]/40 dark:hover:border-sky-500/40 transition-all shadow-xs">
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                <PhoneCall className="w-6 h-6" />
-              </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">
-                  Saluran Komunikasi
-                </span>
-                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-                  Telepon / Fax
-                </h3>
-                <div className="pt-2 space-y-2">
-                  <a
-                    href="tel:02131936207"
-                    className="flex items-center gap-2.5 text-sm font-extrabold text-slate-800 dark:text-slate-200 hover:text-[rgb(25,79,112)] dark:hover:text-sky-400 transition-colors"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                    <span>021-3193-6207</span>
-                  </a>
-                  <a
-                    href="tel:0213145374"
-                    className="flex items-center gap-2.5 text-sm font-extrabold text-slate-800 dark:text-slate-200 hover:text-[rgb(25,79,112)] dark:hover:text-sky-400 transition-colors"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                    <span>021-3145-374</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="text-[11px] text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-200 dark:border-slate-700">
-              Layanan Sekretariat & Administrasi
+            <div className="sm:col-span-9 text-sm font-medium text-slate-800 dark:text-slate-200 leading-relaxed">
+              Gedung Menara Bappenas Lantai 8, Jl. HR. Rasuna Said Kav. B-2 Kuningan, Jakarta Selatan
             </div>
           </div>
 
-          {/* Card 3: Alamat Email */}
-          <div className="p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 flex flex-col justify-between space-y-4 hover:border-[rgb(25,79,112)]/40 dark:hover:border-sky-500/40 transition-all shadow-xs">
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-xl bg-sky-500/10 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400 flex items-center justify-center">
-                <Mail className="w-6 h-6" />
-              </div>
-              <div className="space-y-1">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">
-                  Surat Elektronik Resmi
-                </span>
-                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-                  Alamat Email
-                </h3>
-                <div className="pt-2">
-                  <a
-                    href="mailto:sekretariat.regional@bappenas.go.id"
-                    className="text-xs sm:text-sm font-extrabold text-[rgb(25,79,112)] dark:text-sky-400 hover:underline break-all"
-                  >
-                    sekretariat.regional@bappenas.go.id
-                  </a>
-                </div>
-              </div>
+          {/* Telepon / Fax */}
+          <div className="py-4 grid grid-cols-1 sm:grid-cols-12 gap-1 sm:gap-4 items-baseline">
+            <div className="sm:col-span-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+              <PhoneCall className="w-4 h-4 text-[rgb(25,79,112)] dark:text-sky-400 shrink-0" />
+              <span>Telepon / Fax</span>
             </div>
-            <a
-              href="mailto:sekretariat.regional@bappenas.go.id"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[rgb(25,79,112)] dark:text-sky-400 hover:underline pt-3 border-t border-slate-200 dark:border-slate-700"
-            >
-              <span>Kirim Email Langsung</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+            <div className="sm:col-span-9 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm font-medium text-slate-800 dark:text-slate-200">
+              <a href="tel:02131936207" className="hover:text-[rgb(25,79,112)] dark:hover:text-sky-400 transition-colors font-semibold">
+                021-3193-6207
+              </a>
+              <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
+              <a href="tel:0213145374" className="hover:text-[rgb(25,79,112)] dark:hover:text-sky-400 transition-colors font-semibold">
+                021-3145-374
+              </a>
+            </div>
+          </div>
+
+          {/* Email */}
+          <div className="py-4 grid grid-cols-1 sm:grid-cols-12 gap-1 sm:gap-4 items-baseline">
+            <div className="sm:col-span-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+              <Mail className="w-4 h-4 text-[rgb(25,79,112)] dark:text-sky-400 shrink-0" />
+              <span>Alamat Email</span>
+            </div>
+            <div className="sm:col-span-9 text-sm font-semibold">
+              <a
+                href="mailto:sekretariat.regional@bappenas.go.id"
+                className="text-[rgb(25,79,112)] dark:text-sky-400 hover:underline break-all"
+              >
+                sekretariat.regional@bappenas.go.id
+              </a>
+            </div>
           </div>
         </div>
       </div>
