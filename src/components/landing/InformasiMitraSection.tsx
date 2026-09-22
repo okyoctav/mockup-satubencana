@@ -1,18 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import {
   Building2,
   ExternalLink,
   ShieldAlert,
-  FileText,
   PhoneCall,
   CheckCircle2,
   Layers,
   Sparkles,
-  BookOpen,
-  Database,
-  ArrowRight
+  MapPin,
+  Mail
 } from 'lucide-react';
 
 const MITRA_LIST = [
@@ -41,7 +38,7 @@ const MITRA_LIST = [
     kepanjangan: 'Pusat Vulkanologi dan Mitigasi Bencana Geologi',
     deskripsi: 'Unit kerja di bawah KESDM yang memantau tingkat aktivitas gunung api, pemetaan zona kerentanan bencana geologi, dan tanah longsor.',
     url: 'https://vsi.esdm.go.id',
-    logo: '/logo/logo_bnpb.png',
+    logo: '/logo/pvmbg.png',
     tag: 'Pemantauan Vulkanologi',
     status: 'Update Aktivitas Magma',
     color: '#F59E0B'
@@ -78,33 +75,6 @@ const MITRA_LIST = [
   },
 ];
 
-const INFORMASI_PANDUAN = [
-  {
-    id: 'standar-data',
-    title: 'Standar & Integrasi Data Geospasial',
-    icon: Database,
-    content: 'Seluruh data bencana yang disajikan pada portal SatuBencana dikumpulkan sesuai standar ISO 19115 (Geographic Information) dan format GeoJSON/SHP resmi. Data dikurasi dari BNPB, BMKG, dan BPBD Daerah untuk memastikan akurasi spasial dan temporal.'
-  },
-  {
-    id: 'sistem-peringatan',
-    title: 'Prosedur Early Warning & Notifikasi Darurat',
-    icon: ShieldAlert,
-    content: 'Integrasi sistem peringatan dini gempa bumi dan tsunami BMKG terhubung melalui protokol WSS / REST API. Notifikasi sirine dan pengumuman tanggap darurat disalurkan secara real-time ke posko BPBD wilayah terdampak.'
-  },
-  {
-    id: 'kebijakan-akses',
-    title: 'Kebijakan Data Terbuka (Open Data Policy)',
-    icon: FileText,
-    content: 'Portal SatuBencana mendukung prinsip Open Government Data. Peneliti, akademisi, dan publik dapat memanfaatkan data agregat kerentanan bencana untuk keperluan kajian riset dan mitigasi non-komersial.'
-  },
-  {
-    id: 'layanan-darurat',
-    title: 'Kontak Darurat & Posko Pengaduan 117',
-    icon: PhoneCall,
-    content: 'Untuk laporan kejadian bencana darurat atau verifikasi informasi lapangan, silakan hubungi Call Center Bencana BNPB melalui nomor bebas pulsa 117 atau posko BPBD provinsi setempat yang siaga 24/7.'
-  }
-];
-
 const STATS_DATA = [
   { label: 'Instansi Mitra Terhubung', value: '12+', icon: Building2, color: 'text-sky-500' },
   { label: 'Cakupan Wilayah Spasial', value: '38 Provinsi', icon: Layers, color: 'text-emerald-500' },
@@ -113,8 +83,6 @@ const STATS_DATA = [
 ];
 
 export default function InformasiMitraSection() {
-  const [activeTab, setActiveTab] = useState(INFORMASI_PANDUAN[0].id);
-
   return (
     <div className="w-full min-h-screen pb-16 pt-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
       {/* 1. HERO BANNER HEADER */}
@@ -132,7 +100,7 @@ export default function InformasiMitraSection() {
           </h1>
 
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-            Pengumpulan, penggabungan, penyelarasan, dan penggunaan data bencana Kementerian/Lembaga dalam satu sistem manajemen data bencana nasional
+            Pengumpulan, penggabungan, dan penggunaan data bencana Kementerian/Lembaga dalam satu sistem manajemen data bencana nasional
           </p>
 
           <div className="pt-2 flex items-center gap-4 flex-wrap">
@@ -236,78 +204,120 @@ export default function InformasiMitraSection() {
         </div>
       </div>
 
-      {/* 4. INFORMASI PUBLIK & STANDAR PANDUAN */}
+      {/* 4. INFORMASI HUBUNGI KAMI */}
       <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 transition-colors">
-        <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-[rgb(25,79,112)] dark:text-sky-400" />
-            <span>Informasi Publik & Pedoman Data Kebencanaan</span>
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-            Panduan teknis, tata kelola data terbuka, dan saluran pengaduan resmi
-          </p>
+        <div className="border-b border-slate-200 dark:border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <PhoneCall className="w-5 h-5 text-[rgb(25,79,112)] dark:text-sky-400" />
+              <span>Hubungi Kami</span>
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              Sekretariat SatuBencana — Informasi koordinasi data dan layanan komunikasi resmi
+            </p>
+          </div>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 w-fit border border-slate-200 dark:border-slate-700">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Jam Layanan: Senin – Jumat (08.00 – 16.00 WIB)</span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Tab Navigation */}
-          <div className="lg:col-span-4 space-y-2">
-            {INFORMASI_PANDUAN.map((item) => {
-              const isActive = activeTab === item.id;
-              const IconComp = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full text-left p-4 rounded-2xl transition-all font-bold text-xs flex items-center justify-between border ${
-                    isActive
-                      ? 'bg-[rgb(25,79,112)] text-white border-[rgb(25,79,112)] shadow-md scale-[1.01]'
-                      : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700/60 hover:bg-slate-50 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <IconComp className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} />
-                    <span>{item.title}</span>
-                  </div>
-                  <ArrowRight className={`w-4 h-4 ${isActive ? 'opacity-100 text-white' : 'opacity-0'}`} />
-                </button>
-              );
-            })}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Card 1: Alamat */}
+          <div className="p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 flex flex-col justify-between space-y-4 hover:border-[rgb(25,79,112)]/40 dark:hover:border-sky-500/40 transition-all shadow-xs">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-xl bg-[rgb(25,79,112)]/10 dark:bg-sky-500/20 text-[rgb(25,79,112)] dark:text-sky-400 flex items-center justify-center">
+                <MapPin className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                  Lokasi Kantor
+                </span>
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                  Alamat
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed pt-1">
+                  Gedung Menara Bappenas Lantai 8, Jl. HR. Rasuna Said Kav. B-2 Kuningan, Jakarta Selatan
+                </p>
+              </div>
+            </div>
+            <a
+              href="https://maps.google.com/?q=Menara+Bappenas+Rasuna+Said+Jakarta"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[rgb(25,79,112)] dark:text-sky-400 hover:underline pt-3 border-t border-slate-200 dark:border-slate-700"
+            >
+              <span>Petunjuk Lokasi (Google Maps)</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
           </div>
 
-          {/* Active Tab Content Card */}
-          <div className="lg:col-span-8 p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-4 transition-colors">
-            {INFORMASI_PANDUAN.filter(i => i.id === activeTab).map((curr) => {
-              const IconComp = curr.icon;
-              return (
-                <div key={curr.id} className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[rgb(25,79,112)] dark:text-sky-400 shadow-sm">
-                      <IconComp className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
-                      {curr.title}
-                    </h3>
-                  </div>
-
-                  <p className="text-xs sm:text-sm leading-relaxed font-normal text-slate-600 dark:text-slate-300">
-                    {curr.content}
-                  </p>
+          {/* Card 2: Telepon / Fax */}
+          <div className="p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 flex flex-col justify-between space-y-4 hover:border-[rgb(25,79,112)]/40 dark:hover:border-sky-500/40 transition-all shadow-xs">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <PhoneCall className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                  Saluran Komunikasi
+                </span>
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                  Telepon / Fax
+                </h3>
+                <div className="pt-2 space-y-2">
+                  <a
+                    href="tel:02131936207"
+                    className="flex items-center gap-2.5 text-sm font-extrabold text-slate-800 dark:text-slate-200 hover:text-[rgb(25,79,112)] dark:hover:text-sky-400 transition-colors"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                    <span>021-3193-6207</span>
+                  </a>
+                  <a
+                    href="tel:0213145374"
+                    className="flex items-center gap-2.5 text-sm font-extrabold text-slate-800 dark:text-slate-200 hover:text-[rgb(25,79,112)] dark:hover:text-sky-400 transition-colors"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                    <span>021-3145-374</span>
+                  </a>
                 </div>
-              );
-            })}
-
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs">
-              <span className="font-medium text-slate-500 dark:text-slate-400">Dokumen Publikasi Resmi 2026</span>
-              <a
-                href="https://bnpb.go.id"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-bold text-[rgb(25,79,112)] dark:text-sky-400 hover:underline flex items-center gap-1"
-              >
-                <span>Unduh Pedoman PDF</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+              </div>
             </div>
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-200 dark:border-slate-700">
+              Layanan Sekretariat & Administrasi
+            </div>
+          </div>
+
+          {/* Card 3: Alamat Email */}
+          <div className="p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 flex flex-col justify-between space-y-4 hover:border-[rgb(25,79,112)]/40 dark:hover:border-sky-500/40 transition-all shadow-xs">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-xl bg-sky-500/10 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                <Mail className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                  Surat Elektronik Resmi
+                </span>
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                  Alamat Email
+                </h3>
+                <div className="pt-2">
+                  <a
+                    href="mailto:sekretariat.regional@bappenas.go.id"
+                    className="text-xs sm:text-sm font-extrabold text-[rgb(25,79,112)] dark:text-sky-400 hover:underline break-all"
+                  >
+                    sekretariat.regional@bappenas.go.id
+                  </a>
+                </div>
+              </div>
+            </div>
+            <a
+              href="mailto:sekretariat.regional@bappenas.go.id"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[rgb(25,79,112)] dark:text-sky-400 hover:underline pt-3 border-t border-slate-200 dark:border-slate-700"
+            >
+              <span>Kirim Email Langsung</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
           </div>
         </div>
       </div>
