@@ -28,11 +28,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={cn("font-sans", inter.variable)}>
-      <head>
-        <link rel="icon" href="/logo/logofavicon.png" type="image/png" sizes="any" />
-        <link rel="shortcut icon" href="/logo/logofavicon.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/logo/logofavicon.png" />
-      </head>
       <body className="antialiased">
         <ThemeProvider>
           {children}
