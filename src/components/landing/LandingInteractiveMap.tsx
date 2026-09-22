@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { 
-  ChevronLeft, ChevronRight, Play, Pause, Compass, Layers, Calendar
+  ChevronLeft, ChevronRight, Play, Pause, Compass, Layers, Calendar, X
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import disasterData from '../../../public/data/scbencana-code-1788147361819.json';
@@ -62,6 +62,34 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
   const [isPaused, setIsPaused] = useState<boolean>(true);
   const [basemapMode, setBasemapMode] = useState<'default' | 'satellite'>('default');
   const [tourProgress, setTourProgress] = useState<number>(0);
+  const [isDetailVisible, setIsDetailVisible] = useState<boolean>(true);
+
+  // Filter and sort disasters with useMemo so data is immediately available from initial render
+  const sortedDisasters = useMemo<DisasterItem[]>(() => {
+    const items = disasterData as unknown as DisasterItem[];
+    const isAllSelected = selectedFilters.includes('Semua');
+
+    const filtered = isAllSelected
+      ? items
+      : items.filter(d => {
+          const jenis = d.Jenis_Bencana?.toLowerCase() || '';
+          const nama = d.Nama_Bencana?.toLowerCase() || '';
+          return selectedFilters.some(filterId => {
+            if (filterId === 'Erupsi Gunung Api') return jenis.includes('erupsi') || jenis.includes('gunung');
+            if (filterId === 'Gempa Bumi') return jenis.includes('gempa');
+            if (filterId === 'Tsunami') return jenis.includes('tsunami');
+            if (filterId === 'Banjir / Bandang') return jenis.includes('banjir');
+            if (filterId === 'Tanah Longsor') return jenis.includes('longsor');
+            if (filterId === 'Kebakaran / Karhutla') return jenis.includes('kebakaran') || jenis.includes('karhutla') || jenis.includes('api');
+            if (filterId === 'Cuaca Ekstrem / Puting Beliung') return jenis.includes('cuaca') || jenis.includes('puting');
+            return jenis.includes(filterId.toLowerCase()) || nama.includes(filterId.toLowerCase());
+          });
+        });
+
+    return [...filtered]
+      .filter(d => d.Latitude != null && d.Longitude != null)
+      .sort((a, b) => (a.Tahun || 0) - (b.Tahun || 0));
+  }, [selectedFilters]);
 
   const markersRef = useRef<{ marker: L.Marker; item: DisasterItem }[]>([]);
   const isInitialMount = useRef(true);
@@ -170,29 +198,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
     });
     markersRef.current = [];
 
-    const items = disasterData as unknown as DisasterItem[];
-    const isAllSelected = selectedFilters.includes('Semua');
-
-    const filtered = isAllSelected
-      ? items
-      : items.filter(d => {
-          const jenis = d.Jenis_Bencana?.toLowerCase() || '';
-          const nama = d.Nama_Bencana?.toLowerCase() || '';
-          return selectedFilters.some(filterId => {
-            if (filterId === 'Erupsi Gunung Api') return jenis.includes('erupsi') || jenis.includes('gunung');
-            if (filterId === 'Gempa Bumi') return jenis.includes('gempa');
-            if (filterId === 'Tsunami') return jenis.includes('tsunami');
-            if (filterId === 'Banjir / Bandang') return jenis.includes('banjir');
-            if (filterId === 'Tanah Longsor') return jenis.includes('longsor');
-            if (filterId === 'Kebakaran / Karhutla') return jenis.includes('kebakaran') || jenis.includes('karhutla') || jenis.includes('api');
-            if (filterId === 'Cuaca Ekstrem / Puting Beliung') return jenis.includes('cuaca') || jenis.includes('puting');
-            return jenis.includes(filterId.toLowerCase()) || nama.includes(filterId.toLowerCase());
-          });
-        });
-
-    const sorted = [...filtered].sort((a, b) => (a.Tahun || 0) - (b.Tahun || 0));
-
-    sorted.forEach((d, index) => {
+    sortedDisasters.forEach((d, index) => {
       if (d.Latitude == null || d.Longitude == null) return;
 
       let color = '#00897b';
@@ -355,6 +361,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
 
       marker.on('click', () => {
         setIsPaused(true);
+        setIsDetailVisible(true);
         setActiveHighlightIndex(index);
         if (onSelectDisaster) {
           onSelectDisaster(d);
@@ -365,12 +372,12 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
       markersRef.current.push({ marker, item: d });
     });
 
-    setActiveHighlightIndex(0);
-  }, [selectedFilters]);
+    setActiveHighlightIndex((prev) => (prev >= sortedDisasters.length ? 0 : prev));
+  }, [sortedDisasters, onSelectDisaster]);
 
   // Auto-tour ticker & progress bar
   useEffect(() => {
-    if (markersRef.current.length === 0 || isPaused) {
+    if (sortedDisasters.length === 0 || isPaused) {
       setTourProgress(0);
       return;
     }
@@ -384,12 +391,12 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
       setTourProgress((elapsed / duration) * 100);
       if (elapsed >= duration) {
         elapsed = 0;
-        setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length);
+        setActiveHighlightIndex((prev) => (prev + 1) % sortedDisasters.length);
       }
     }, intervalMs);
 
     return () => clearInterval(timer);
-  }, [isPaused, activeHighlightIndex, selectedFilters]);
+  }, [isPaused, activeHighlightIndex, sortedDisasters.length]);
 
   // FlyTo Zoom & Pan when active item changes
   useEffect(() => {
@@ -418,18 +425,18 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
     }
   };
 
-  const activeDisaster = markersRef.current[activeHighlightIndex]?.item;
+  const totalMarkers = sortedDisasters.length;
+  const activeDisaster = sortedDisasters[activeHighlightIndex] || sortedDisasters[0];
   const activeColor = activeDisaster?.Jenis_Bencana 
     ? MATERIAL_COLORS[activeDisaster.Jenis_Bencana]?.main || '#00897b'
     : '#00897b';
 
-  const totalMarkers = markersRef.current.length;
-  const firstYear = markersRef.current[0]?.item?.Tahun ?? '-';
-  const lastYear = markersRef.current[totalMarkers - 1]?.item?.Tahun ?? '-';
+  const firstYear = sortedDisasters[0]?.Tahun ?? '-';
+  const lastYear = sortedDisasters[totalMarkers - 1]?.Tahun ?? '-';
   const sliderPercent = totalMarkers > 1 ? (activeHighlightIndex / (totalMarkers - 1)) * 100 : 0;
 
   // Selected landmark milestone years for quick jumps
-  const milestoneYears = (() => {
+  const milestoneYears = useMemo(() => {
     if (totalMarkers <= 1) return [];
     const stepCount = Math.min(5, totalMarkers);
     const indices = [0];
@@ -441,11 +448,11 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
     return unique
       .map((idx) => ({
         index: idx,
-        year: markersRef.current[idx]?.item?.Tahun,
-        name: markersRef.current[idx]?.item?.Nama_Bencana,
+        year: sortedDisasters[idx]?.Tahun,
+        name: sortedDisasters[idx]?.Nama_Bencana,
       }))
       .filter((m): m is { index: number; year: number; name: string | undefined } => typeof m.year === 'number');
-  })();
+  }, [sortedDisasters, totalMarkers]);
 
   return (
     <div className="relative w-full h-full flex flex-col bg-slate-950 overflow-hidden font-sans select-none landing-map-container">
@@ -488,7 +495,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
               className="px-2.5 py-1 rounded-full text-[10px] font-extrabold flex items-center gap-1.5 shrink-0 bg-teal-700 text-white shadow-xs"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
-              <span>{markersRef.current.length} Lokasi Peristiwa</span>
+              <span>{totalMarkers} Lokasi Peristiwa</span>
             </div>
           </div>
 
@@ -555,12 +562,14 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
       </div>
 
       {/* ============================================================
-          BOTTOM MATERIAL CARD (Persistent Chronology Player & Detail)
+          BOTTOM FLOATING CONTAINER: DETAIL CARD (TOP) + TIMELINE SLIDER (BOTTOM)
           ============================================================ */}
-      {activeDisaster && (
-        <div className="absolute bottom-4 left-3 right-3 sm:left-6 sm:right-auto sm:max-w-xl z-[400] pointer-events-auto">
+      <div className="absolute bottom-4 left-3 right-3 sm:left-6 sm:right-auto sm:max-w-xl z-[400] pointer-events-none flex flex-col gap-2">
+        
+        {/* 1. KOTAK DETAIL PERISTIWA BENCANA */}
+        {activeDisaster && isDetailVisible && (
           <div 
-            className="rounded-2xl border overflow-hidden transition-all duration-300"
+            className="pointer-events-auto rounded-2xl border overflow-hidden transition-all duration-300 shadow-xl"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-faint)',
@@ -602,10 +611,21 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
                   </h3>
                 </div>
 
-                {/* Counter index pill */}
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 shrink-0">
-                  {activeHighlightIndex + 1} / {markersRef.current.length}
-                </span>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {/* Counter index pill */}
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500">
+                    {activeHighlightIndex + 1} / {totalMarkers}
+                  </span>
+
+                  {/* Close / Minimize button */}
+                  <button
+                    onClick={() => setIsDetailVisible(false)}
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    title="Sembunyikan panel detail"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
 
               {/* Data Strip: Korban, Pengungsi, Parameter */}
@@ -643,9 +663,9 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
                   <button
                     onClick={() => {
                       setIsPaused(true);
-                      setActiveHighlightIndex((prev) => (prev - 1 + markersRef.current.length) % markersRef.current.length);
+                      setActiveHighlightIndex((prev) => (prev - 1 + totalMarkers) % totalMarkers);
                     }}
-                    className="p-1.5 rounded-xl border text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="p-1.5 rounded-xl border text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                     style={{ borderColor: 'var(--border-subtle)' }}
                     title="Peristiwa Sebelumnya"
                   >
@@ -675,9 +695,9 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
                   <button
                     onClick={() => {
                       setIsPaused(true);
-                      setActiveHighlightIndex((prev) => (prev + 1) % markersRef.current.length);
+                      setActiveHighlightIndex((prev) => (prev + 1) % totalMarkers);
                     }}
-                    className="p-1.5 rounded-xl border text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="p-1.5 rounded-xl border text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                     style={{ borderColor: 'var(--border-subtle)' }}
                     title="Peristiwa Berikutnya"
                   >
@@ -692,84 +712,115 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
                       onSelectDisaster(activeDisaster);
                     }
                   }}
-                  className="text-[11px] font-extrabold uppercase tracking-wider transition-colors hover:underline"
+                  className="text-[11px] font-extrabold uppercase tracking-wider transition-colors hover:underline cursor-pointer"
                   style={{ color: activeColor }}
                 >
                   Arsip Terkait ➔
                 </button>
               </div>
+            </div>
+          </div>
+        )}
 
-              {/* Year Timeline Slider (Linimasa Berdasarkan Tahun) */}
-              <div className="pt-2 border-t space-y-1.5" style={{ borderColor: 'var(--border-faint)' }}>
-                <div className="flex items-center justify-between text-[11px]">
-                  <div className="flex items-center gap-1.5 font-bold" style={{ color: 'var(--text-secondary)' }}>
-                    <Calendar className="w-3.5 h-3.5" style={{ color: activeColor }} />
-                    <span className="text-[10px] sm:text-[10.5px]">Linimasa Tahun:</span>
-                    <span 
-                      className="px-2 py-0.5 rounded-full font-black text-white text-[11px] shadow-xs"
-                      style={{ backgroundColor: activeColor }}
-                    >
-                      {activeDisaster.Tahun || '-'}
+        {/* 2. KOTAK LINI MASA & SLIDER (Terpisah di bawah kotak saat ini & Muncul dari Awal) */}
+        {totalMarkers > 0 && (
+          <div 
+            className="pointer-events-auto rounded-2xl border p-3 sm:px-4 sm:py-2.5 transition-all duration-300 shadow-xl"
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              borderColor: 'var(--border-faint)',
+              boxShadow: '0 10px 25px -5px rgba(0,0,0,0.2), 0 8px 10px -6px rgba(0,0,0,0.15)'
+            }}
+          >
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center gap-1.5 font-bold min-w-0" style={{ color: 'var(--text-secondary)' }}>
+                  <Calendar className="w-3.5 h-3.5 shrink-0" style={{ color: activeColor }} />
+                  <span className="text-[10px] sm:text-[10.5px] shrink-0">Linimasa Tahun:</span>
+                  <span 
+                    className="px-2 py-0.5 rounded-full font-black text-white text-[11px] shadow-xs shrink-0"
+                    style={{ backgroundColor: activeColor }}
+                  >
+                    {activeDisaster?.Tahun || '-'}
+                  </span>
+                  {activeDisaster?.Nama_Bencana && (
+                    <span className="text-[10.5px] font-semibold truncate hidden xs:inline sm:inline max-w-[140px] sm:max-w-[200px]" style={{ color: 'var(--text-primary)' }}>
+                      • {activeDisaster.Nama_Bencana}
                     </span>
-                  </div>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  {!isDetailVisible && (
+                    <button
+                      onClick={() => setIsDetailVisible(true)}
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-md border text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/40 transition-colors cursor-pointer"
+                      style={{ borderColor: 'var(--border-subtle)' }}
+                      title="Buka kembali kotak detail info bencana"
+                    >
+                      Buka Info
+                    </button>
+                  )}
                   <div className="text-[10px] font-mono font-bold" style={{ color: 'var(--text-secondary)' }}>
                     {firstYear} ➔ {lastYear}
                   </div>
                 </div>
-
-                <div className="relative flex items-center pt-0.5">
-                  <input
-                    type="range"
-                    min={0}
-                    max={Math.max(0, totalMarkers - 1)}
-                    step={1}
-                    value={activeHighlightIndex}
-                    onChange={(e) => {
-                      setIsPaused(true);
-                      setActiveHighlightIndex(Number(e.target.value));
-                    }}
-                    className="w-full h-2 rounded-lg appearance-none cursor-pointer transition-all"
-                    style={{
-                      accentColor: activeColor,
-                      background: `linear-gradient(to right, ${activeColor} 0%, ${activeColor} ${sliderPercent}%, var(--border-subtle) ${sliderPercent}%, var(--border-subtle) 100%)`,
-                    } as React.CSSProperties}
-                    title={`Geser peristiwa tahun (${activeDisaster.Tahun || ''})`}
-                  />
-                </div>
-
-                {/* Milestone Year Quick Buttons */}
-                {milestoneYears.length > 0 && (
-                  <div className="flex items-center justify-between text-[9px] font-mono px-0.5 pt-0.5">
-                    {milestoneYears.map((m) => {
-                      const isCurrent = m.index === activeHighlightIndex;
-                      return (
-                        <button
-                          key={m.index}
-                          onClick={() => {
-                            setIsPaused(true);
-                            setActiveHighlightIndex(m.index);
-                          }}
-                          className={`transition-all cursor-pointer ${
-                            isCurrent
-                              ? 'font-black underline scale-110'
-                              : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-                          }`}
-                          style={{
-                            color: isCurrent ? activeColor : undefined,
-                          }}
-                          title={`Lompat ke tahun ${m.year} (${m.name})`}
-                        >
-                          {m.year}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
+
+              <div className="relative flex items-center pt-0.5">
+                <input
+                  type="range"
+                  min={0}
+                  max={Math.max(0, totalMarkers - 1)}
+                  step={1}
+                  value={activeHighlightIndex}
+                  onChange={(e) => {
+                    setIsPaused(true);
+                    setIsDetailVisible(true);
+                    setActiveHighlightIndex(Number(e.target.value));
+                  }}
+                  className="w-full h-2 rounded-lg appearance-none cursor-pointer transition-all"
+                  style={{
+                    accentColor: activeColor,
+                    background: `linear-gradient(to right, ${activeColor} 0%, ${activeColor} ${sliderPercent}%, var(--border-subtle) ${sliderPercent}%, var(--border-subtle) 100%)`,
+                  } as React.CSSProperties}
+                  title={`Geser linimasa tahun peristiwa (${activeDisaster?.Tahun || ''})`}
+                />
+              </div>
+
+              {/* Milestone Year Quick Buttons */}
+              {milestoneYears.length > 0 && (
+                <div className="flex items-center justify-between text-[9px] font-mono px-0.5 pt-0.5">
+                  {milestoneYears.map((m) => {
+                    const isCurrent = m.index === activeHighlightIndex;
+                    return (
+                      <button
+                        key={m.index}
+                        onClick={() => {
+                          setIsPaused(true);
+                          setIsDetailVisible(true);
+                          setActiveHighlightIndex(m.index);
+                        }}
+                        className={`transition-all cursor-pointer ${
+                          isCurrent
+                            ? 'font-black underline scale-110'
+                            : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                        }`}
+                        style={{
+                          color: isCurrent ? activeColor : undefined,
+                        }}
+                        title={`Lompat ke tahun ${m.year} (${m.name})`}
+                      >
+                        {m.year}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Leaflet Map Canvas */}
       <div ref={containerRef} className="w-full h-full flex-1 z-0" />
