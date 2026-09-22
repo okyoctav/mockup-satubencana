@@ -27,6 +27,7 @@ import {
   SlidersHorizontal,
   Building,
   Users,
+  FileText,
 } from 'lucide-react';
 
 // Dynamically import Leaflet Map to avoid SSR window errors
@@ -299,6 +300,16 @@ export default function SimulasiModelingView({ embedded = false }: SimulasiModel
 
         {/* Right: Toggle Control Panel (Docked on Right) & Fullscreen */}
         <div className="flex items-center gap-2 shrink-0">
+          <a
+            href="/api/download-metodologi-docx"
+            download="DOKUMEN_METODOLOGI_SIMULASI_PEMODELAN_BENCANA.docx"
+            className="px-3 py-2 rounded-xl bg-teal-800 hover:bg-teal-700 text-teal-100 hover:text-white border border-teal-600 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+            title="Unduh Dokumen Metodologi & Spesifikasi Model (.docx)"
+          >
+            <FileText className="w-3.5 h-3.5 text-teal-300" />
+            <span className="hidden sm:inline font-semibold">Metodologi (.docx)</span>
+          </a>
+
           <button
             onClick={() => setIsPanelOpen(!isPanelOpen)}
             className={`px-3 py-2 rounded-xl border text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${

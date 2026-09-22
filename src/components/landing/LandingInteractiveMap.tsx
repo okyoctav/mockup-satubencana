@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { 
-  ChevronLeft, ChevronRight, Play, Pause, Compass, Layers
+  ChevronLeft, ChevronRight, Play, Pause, Compass, Layers, Calendar
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import disasterData from '../../../public/data/scbencana-code-1788147361819.json';
@@ -190,7 +190,9 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
           });
         });
 
-    filtered.forEach((d, index) => {
+    const sorted = [...filtered].sort((a, b) => (a.Tahun || 0) - (b.Tahun || 0));
+
+    sorted.forEach((d, index) => {
       if (d.Latitude == null || d.Longitude == null) return;
 
       let color = '#00897b';
@@ -420,6 +422,30 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
   const activeColor = activeDisaster?.Jenis_Bencana 
     ? MATERIAL_COLORS[activeDisaster.Jenis_Bencana]?.main || '#00897b'
     : '#00897b';
+
+  const totalMarkers = markersRef.current.length;
+  const firstYear = markersRef.current[0]?.item?.Tahun ?? '-';
+  const lastYear = markersRef.current[totalMarkers - 1]?.item?.Tahun ?? '-';
+  const sliderPercent = totalMarkers > 1 ? (activeHighlightIndex / (totalMarkers - 1)) * 100 : 0;
+
+  // Selected landmark milestone years for quick jumps
+  const milestoneYears = (() => {
+    if (totalMarkers <= 1) return [];
+    const stepCount = Math.min(5, totalMarkers);
+    const indices = [0];
+    for (let i = 1; i < stepCount - 1; i++) {
+      indices.push(Math.round((i / (stepCount - 1)) * (totalMarkers - 1)));
+    }
+    indices.push(totalMarkers - 1);
+    const unique = Array.from(new Set(indices));
+    return unique
+      .map((idx) => ({
+        index: idx,
+        year: markersRef.current[idx]?.item?.Tahun,
+        name: markersRef.current[idx]?.item?.Nama_Bencana,
+      }))
+      .filter((m) => m.year != null);
+  })();
 
   return (
     <div className="relative w-full h-full flex flex-col bg-slate-950 overflow-hidden font-sans select-none landing-map-container">
@@ -671,6 +697,74 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
                 >
                   Arsip Terkait ➔
                 </button>
+              </div>
+
+              {/* Year Timeline Slider (Linimasa Berdasarkan Tahun) */}
+              <div className="pt-2 border-t space-y-1.5" style={{ borderColor: 'var(--border-faint)' }}>
+                <div className="flex items-center justify-between text-[11px]">
+                  <div className="flex items-center gap-1.5 font-bold" style={{ color: 'var(--text-secondary)' }}>
+                    <Calendar className="w-3.5 h-3.5" style={{ color: activeColor }} />
+                    <span className="text-[10px] sm:text-[10.5px]">Linimasa Tahun:</span>
+                    <span 
+                      className="px-2 py-0.5 rounded-full font-black text-white text-[11px] shadow-xs"
+                      style={{ backgroundColor: activeColor }}
+                    >
+                      {activeDisaster.Tahun || '-'}
+                    </span>
+                  </div>
+                  <div className="text-[10px] font-mono font-bold" style={{ color: 'var(--text-secondary)' }}>
+                    {firstYear} ➔ {lastYear}
+                  </div>
+                </div>
+
+                <div className="relative flex items-center pt-0.5">
+                  <input
+                    type="range"
+                    min={0}
+                    max={Math.max(0, totalMarkers - 1)}
+                    step={1}
+                    value={activeHighlightIndex}
+                    onChange={(e) => {
+                      setIsPaused(true);
+                      setActiveHighlightIndex(Number(e.target.value));
+                    }}
+                    className="w-full h-2 rounded-lg appearance-none cursor-pointer transition-all"
+                    style={{
+                      accentColor: activeColor,
+                      background: `linear-gradient(to right, ${activeColor} 0%, ${activeColor} ${sliderPercent}%, var(--border-subtle) ${sliderPercent}%, var(--border-subtle) 100%)`,
+                    }}
+                    title={`Geser peristiwa tahun (${activeDisaster.Tahun || ''})`}
+                  />
+                </div>
+
+                {/* Milestone Year Quick Buttons */}
+                {milestoneYears.length > 0 && (
+                  <div className="flex items-center justify-between text-[9px] font-mono px-0.5 pt-0.5">
+                    {milestoneYears.map((m) => {
+                      const isCurrent = m.index === activeHighlightIndex;
+                      return (
+                        <button
+                          key={m.index}
+                          onClick={() => {
+                            setIsPaused(true);
+                            setActiveHighlightIndex(m.index);
+                          }}
+                          className={`transition-all cursor-pointer ${
+                            isCurrent
+                              ? 'font-black underline scale-110'
+                              : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                          }`}
+                          style={{
+                            color: isCurrent ? activeColor : undefined,
+                          }}
+                          title={`Lompat ke tahun ${m.year} (${m.name})`}
+                        >
+                          {m.year}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>

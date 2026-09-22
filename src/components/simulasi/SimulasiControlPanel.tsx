@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   FileDown,
   Activity,
+  FileText,
   X,
 } from 'lucide-react';
 
@@ -601,6 +602,15 @@ export default function SimulasiControlPanel({
                   <FileDown className="w-3.5 h-3.5" />
                   <span>Unduh Ringkasan Laporan (.json)</span>
                 </button>
+
+                <a
+                  href="/api/download-metodologi-docx"
+                  download="DOKUMEN_METODOLOGI_SIMULASI_PEMODELAN_BENCANA.docx"
+                  className="w-full py-2 px-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Unduh Dokumen Metodologi (.docx)</span>
+                </a>
               </div>
             </div>
           </div>

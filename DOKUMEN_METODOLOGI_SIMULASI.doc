@@ -1,0 +1,710 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?mso-application progid="Word.Document"?>
+<w:wordDocument xmlns:w="http://schemas.microsoft.com/office/word/2003/wordml"
+  xmlns:v="urn:schemas-microsoft-com:vml"
+  xmlns:w10="urn:schemas-microsoft-com:office:word"
+  xmlns:sl="http://schemas.microsoft.com/office/word/2003/wordml/statusLibrary"
+  xmlns:aml="http://schemas.microsoft.com/aml/2001/core"
+  xmlns:wx="http://schemas.microsoft.com/office/word/2003/auxHint"
+  xmlns:o="urn:schemas-microsoft-com:office:office"
+  xmlns:dt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882"
+  w:macrosPresent="no" w:embeddedObjPresent="no" w:ocxPresent="no" xml:space="preserve">
+  <w:styles>
+    <w:versionOfBuiltInStylenames w:val="4"/>
+    <w:latentStyles w:defLockedState="off" w:latentStyleCount="156"/>
+    <w:style w:type="paragraph" w:default="on" w:styleId="Normal">
+      <w:name w:val="Normal"/>
+      <w:rPr>
+        <w:rFonts w:ascii="Calibri" w:h-ansi="Calibri" w:cs="Calibri"/>
+        <wx:font wx:val="Calibri"/>
+        <w:sz w:val="22"/>
+        <w:sz-cs w:val="22"/>
+        <w:lang w:val="EN-US" w:fareast="EN-US" w:bidi="AR-SA"/>
+      </w:rPr>
+      <w:pPr>
+        <w:spacing w:after="160" w:line="276" w:line-rule="auto"/>
+      </w:pPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Heading1">
+      <w:name w:val="heading 1"/>
+      <w:basedOn w:val="Normal"/>
+      <w:next w:val="Normal"/>
+      <w:pPr>
+        <w:spacing w:before="360" w:after="160"/>
+      </w:pPr>
+      <w:rPr>
+        <w:rFonts w:ascii="Calibri" w:h-ansi="Calibri"/>
+        <w:b/>
+        <w:color w:val="0B3C5D"/>
+        <w:sz w:val="32"/>
+        <w:sz-cs w:val="32"/>
+      </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Heading2">
+      <w:name w:val="heading 2"/>
+      <w:basedOn w:val="Normal"/>
+      <w:next w:val="Normal"/>
+      <w:pPr>
+        <w:spacing w:before="240" w:after="120"/>
+      </w:pPr>
+      <w:rPr>
+        <w:rFonts w:ascii="Calibri" w:h-ansi="Calibri"/>
+        <w:b/>
+        <w:color w:val="1F8080"/>
+        <w:sz w:val="26"/>
+        <w:sz-cs w:val="26"/>
+      </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Heading3">
+      <w:name w:val="heading 3"/>
+      <w:basedOn w:val="Normal"/>
+      <w:next w:val="Normal"/>
+      <w:pPr>
+        <w:spacing w:before="160" w:after="80"/>
+      </w:pPr>
+      <w:rPr>
+        <w:rFonts w:ascii="Calibri" w:h-ansi="Calibri"/>
+        <w:b/>
+        <w:color w:val="333333"/>
+        <w:sz w:val="24"/>
+        <w:sz-cs w:val="24"/>
+      </w:rPr>
+    </w:style>
+  </w:styles>
+  <w:body>
+    <!-- TITLE PAGE / HEADER -->
+    <w:p>
+      <w:pPr>
+        <w:jc w:val="center"/>
+        <w:spacing w:before="400" w:after="80"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:b/>
+          <w:color w:val="1F8080"/>
+          <w:sz w:val="24"/>
+        </w:rPr>
+        <w:t>DOKUMEN METODOLOGI &amp; KERANGKA TEKNIS</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:jc w:val="center"/>
+        <w:spacing w:before="60" w:after="60"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:b/>
+          <w:color w:val="0B3C5D"/>
+          <w:sz w:val="36"/>
+        </w:rPr>
+        <w:t>SIMULASI PEMODELAN GENANGAN BENCANA</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:jc w:val="center"/>
+        <w:spacing w:before="40" w:after="160"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:b/>
+          <w:color w:val="0B3C5D"/>
+          <w:sz w:val="22"/>
+        </w:rPr>
+        <w:t>(FASTFLOOD 2D &amp; MULTI-SECTOR IMPACT ASSESSMENT ENGINE)</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:jc w:val="center"/>
+        <w:spacing w:after="60"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:i/>
+          <w:color w:val="64748B"/>
+          <w:sz w:val="20"/>
+        </w:rPr>
+        <w:t>Sistem Platform Terpadu Satu Data Kebencanaan (Dashboard K5)</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:jc w:val="center"/>
+        <w:spacing w:after="300"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:b/>
+          <w:color w:val="334155"/>
+          <w:sz w:val="20"/>
+        </w:rPr>
+        <w:t>Versi 1.0 — Tahun 2026</w:t>
+      </w:r>
+    </w:p>
+
+    <!-- EXECUTIVE SUMMARY CALLOUT -->
+    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="5000" w:type="pct"/>
+        <w:tblBorders>
+          <w:top w:val="none"/>
+          <w:left w:val="single" w:sz="24" w:space="0" w:color="1F8080"/>
+          <w:bottom w:val="none"/>
+          <w:right w:val="none"/>
+        </w:tblBorders>
+        <w:tblCellMar>
+          <w:top w:w="140" w:type="dxa"/>
+          <w:left w:w="200" w:type="dxa"/>
+          <w:bottom w:w="140" w:type="dxa"/>
+          <w:right w:w="200" w:type="dxa"/>
+        </w:tblCellMar>
+      </w:tblPr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="5000" w:type="pct"/>
+            <w:shd w:val="clear" w:color="auto" w:fill="F0F9F9"/>
+          </w:tcPr>
+          <w:p>
+            <w:pPr><w:spacing w:after="60"/></w:pPr>
+            <w:r>
+              <w:rPr><w:b/><w:color w:val="1F8080"/><w:sz w:val="22"/></w:rPr>
+              <w:t>RINGKASAN EKSEKUTIF MODEL</w:t>
+            </w:r>
+          </w:p>
+          <w:p>
+            <w:pPr><w:spacing w:after="40"/></w:pPr>
+            <w:r>
+              <w:rPr><w:i/><w:color w:val="222222"/><w:sz w:val="20"/></w:rPr>
+              <w:t>Dokumen ini menyajikan metodologi ilmiah, perumusan matematis-fisik hidrodinamika 2D, integrasi data geospasial real-time, dan standar kalkulasi estimasi dampak multi-sektor yang diimplementasikan pada modul Simulasi Modeling (/simulasi-modeling). Modul ini memanfaatkan pendekatan Super Fast Flood Simulation (SFFS) untuk menghasilkan analisis rambatan banjir dan proyeksi korban serta kerugian secara instan (&lt; 1 detik) guna mendukung pengambilan keputusan tanggap darurat dan mitigasi risiko bencana.</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>
+
+    <!-- BAB 1 -->
+    <w:p>
+      <w:pPr><w:pStyle w:val="Heading1"/></w:pPr>
+      <w:r><w:t>BAB I. PENDAHULUAN</w:t></w:r>
+    </w:p>
+    <w:p>
+      <w:pPr><w:pStyle w:val="Heading2"/></w:pPr>
+      <w:r><w:t>1.1 Latar Belakang &amp; Urgensi Pemodelan Cepat (Rapid Assessment)</w:t></w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:t>Bencana hidrometeorologi, khususnya banjir luapan sungai, banjir bandang, dan banjir pasang air laut (rob), merupakan bencana dengan frekuensi kejadian tertinggi di Indonesia. Pada masa pra-bencana (kesiapsiagaan peringatan dini) maupun saat tanggap darurat (golden hours), pengambil kebijakan di tingkat nasional (BNPB, Bappenas, Kementerian PUPR) dan daerah (BPBD) membutuhkan estimasi spasial mengenai luas genangan, kedalaman air, dan populasi terdampak secara cepat.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:t>Pemodelan hidrodinamika 2D konvensional (seperti HEC-RAS 2D atau MIKE 21) memerlukan waktu komputasi yang sangat panjang (beberapa jam hingga hari) serta spesifikasi perangkat keras komputasi tinggi. Oleh karena itu, modul ini mengimplementasikan algoritma Super Fast Flood Simulation (SFFS / FastFlood 2D Engine) yang mampu mensimulasikan dinamika genangan banjir dalam hitungan milidetik secara interaktif langsung pada web browser.</w:t>
+      </w:r>
+    </w:p>
+
+    <w:p>
+      <w:pPr><w:pStyle w:val="Heading2"/></w:pPr>
+      <w:r><w:t>1.2 Tujuan Modul Simulasi-Modeling</w:t></w:r>
+    </w:p>
+    <w:p><w:r><w:t>1. Memberikan visualisasi spasial rambatan banjir 2D interaktif pada berbagai skenario intensitas hujan (10 - 200 mm/jam) dan durasi (1 - 24 jam).</w:t></w:r></w:p>
+    <w:p><w:r><w:t>2. Mensimulasikan pengaruh kondisi tanggul (intact, overtopped, breached) dan kapasitas operasional pompa drainase.</w:t></w:r></w:p>
+    <w:p><w:r><w:t>3. Menghitung secara otomatis luas area terdampak (Ha/km²), volume akumulasi air (juta m³), dan tingkat keparahan risiko (hazard level).</w:t></w:r></w:p>
+    <w:p><w:r><w:t>4. Mengintegrasikan secara real-time data kependudukan mikro berbasis geospasial (Bappenas SEPAKAT Hexbin Res-9) untuk memetakan populasi rentan (balita, lansia, disabilitas).</w:t></w:r></w:p>
+    <w:p><w:r><w:t>5. Menghitung estimasi dampak kerusakan fisik (rumah, sekolah, faskes, jalan) dan estimasi kerugian ekonomi makro (Damage and Loss Assessment).</w:t></w:r></w:p>
+
+    <w:p>
+      <w:pPr><w:pStyle w:val="Heading2"/></w:pPr>
+      <w:r><w:t>1.3 Landasan Regulasi &amp; Standar Acuan</w:t></w:r>
+    </w:p>
+    <w:p><w:r><w:t>• Undang-Undang Republik Indonesia No. 24 Tahun 2007 tentang Penanggulangan Bencana.</w:t></w:r></w:p>
+    <w:p><w:r><w:t>• Peraturan Pemerintah No. 21 Tahun 2008 tentang Penyelenggaraan Penanggulangan Bencana.</w:t></w:r></w:p>
+    <w:p><w:r><w:t>• Peraturan Kepala BNPB No. 07 Tahun 2008 tentang Pedoman Tata Cara Penyusunan Rencana Penanggulangan Bencana.</w:t></w:r></w:p>
+    <w:p><w:r><w:t>• Peraturan Kepala BNPB No. 10 Tahun 2012 tentang Pengelolaan Logistik Bencana.</w:t></w:r></w:p>
+    <w:p><w:r><w:t>• Pedoman Penilaian Kerusakan dan Kerugian Akibat Bencana (DaLA / DINA BNPB &amp; Bappenas).</w:t></w:r></w:p>
+    <w:p><w:r><w:t>• Standar Paket Pelayanan Awal Minimum (PPAM) Kesehatan Reproduksi Bencana (Kemenkes RI &amp; UNFPA).</w:t></w:r></w:p>
+    <w:p><w:r><w:t>• Sphere Project: Humanitarian Charter and Minimum Standards in Disaster Response.</w:t></w:r></w:p>
+
+    <!-- BAB 2 -->
+    <w:p>
+      <w:pPr><w:pStyle w:val="Heading1"/></w:pPr>
+      <w:r><w:t>BAB II. METODOLOGI PEMODELAN FISIK HIDROLOGI &amp; HIDRAULIKA</w:t></w:r>
+    </w:p>
+    <w:p>
+      <w:pPr><w:pStyle w:val="Heading2"/></w:pPr>
+      <w:r><w:t>2.1 Prinsip Super Fast Flood Simulation (FastFlood 2D)</w:t></w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:t>Engine simulasi dibangun dengan sistem diskritisasi domain ruang menjadi jaringan sel grid raster terstruktur. Ukuran sel grid dikonfigurasi ke dalam 3 tingkat resolusi: High (32x32 sel), Medium (24x24 sel), dan Low (18x18 sel). Setiap sel merepresentasikan luas permukaan ~200 m x 200 m (40.000 m² atau 4 Hektar).</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:t>Setiap sel grid menyimpan atribut hidrodinamika: koordinat geografis (lat, lng), elevasi dasar tanah DEM (elevation, m dpl), kedalaman genangan air (waterDepth, m), elevasi muka air mutlak (waterElevation, m dpl), kecepatan aliran (velocity, m/s), dan tingkat bahaya (hazardLevel).</w:t>
+      </w:r>
+    </w:p>
+
+    <w:p>
+      <w:pPr><w:pStyle w:val="Heading2"/></w:pPr>
+      <w:r><w:t>2.2 Model Hidrologi: Presipitasi &amp; Limpasan Permukaan (Runoff)</w:t></w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:t>Presipitasi dihitung menggunakan adaptasi Metode Rasional yang dikombinasikan dengan fungsi penyerapan air tanah (infiltrasi). Rumus matematis yang digunakan adalah:</w:t>
+      </w:r>
+    </w:p>
+
+    <!-- FORMULA 1 -->
+    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="5000" w:type="pct"/>
+        <w:tblBorders>
+          <w:top w:val="single" w:sz="6" w:color="CCCCCC"/>
+          <w:left w:val="single" w:sz="18" w:color="0B3C5D"/>
+          <w:bottom w:val="single" w:sz="6" w:color="CCCCCC"/>
+          <w:right w:val="single" w:sz="6" w:color="CCCCCC"/>
+        </w:tblBorders>
+        <w:tblCellMar>
+          <w:top w:w="120" w:type="dxa"/><w:left w:w="180" w:type="dxa"/><w:bottom w:w="120" w:type="dxa"/><w:right w:w="180" w:type="dxa"/>
+        </w:tblCellMar>
+      </w:tblPr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr><w:tcW w:w="5000" w:type="pct"/><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr>
+          <w:p><w:pPr><w:spacing w:after="40"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="0B3C5D"/><w:sz w:val="20"/></w:rPr><w:t>FORMULA 1: Total Curah Hujan Akumulatif (Rainfall Depth)</w:t></w:r></w:p>
+          <w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="60"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="26"/><w:color w:val="0F172A"/></w:rPr><w:t>P_total = I × t</w:t></w:r></w:p>
+          <w:p><w:pPr><w:spacing w:after="20"/></w:pPr><w:r><w:rPr><w:i/><w:color w:val="475569"/><w:sz w:val="18"/></w:rPr><w:t>di mana P_total = kedalaman hujan (mm), I = intensitas hujan (mm/jam), t = durasi hujan (jam).</w:t></w:r></w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p><w:pPr><w:spacing w:after="120"/></w:pPr></w:p>
+
+    <!-- FORMULA 2 -->
+    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="5000" w:type="pct"/>
+        <w:tblBorders>
+          <w:top w:val="single" w:sz="6" w:color="CCCCCC"/>
+          <w:left w:val="single" w:sz="18" w:color="0B3C5D"/>
+          <w:bottom w:val="single" w:sz="6" w:color="CCCCCC"/>
+          <w:right w:val="single" w:sz="6" w:color="CCCCCC"/>
+        </w:tblBorders>
+        <w:tblCellMar>
+          <w:top w:w="120" w:type="dxa"/><w:left w:w="180" w:type="dxa"/><w:bottom w:w="120" w:type="dxa"/><w:right w:w="180" w:type="dxa"/>
+        </w:tblCellMar>
+      </w:tblPr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr><w:tcW w:w="5000" w:type="pct"/><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr>
+          <w:p><w:pPr><w:spacing w:after="40"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="0B3C5D"/><w:sz w:val="20"/></w:rPr><w:t>FORMULA 2: Infiltrasi Air ke Dalam Tanah</w:t></w:r></w:p>
+          <w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="60"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="26"/><w:color w:val="0F172A"/></w:rPr><w:t>F = min( f_rate × t, P_total × 0.7 )</w:t></w:r></w:p>
+          <w:p><w:pPr><w:spacing w:after="20"/></w:pPr><w:r><w:rPr><w:i/><w:color w:val="475569"/><w:sz w:val="18"/></w:rPr><w:t>di mana F = total peresapan tanah (mm), f_rate = laju infiltrasi tanah (mm/jam). Laju infiltrasi dibatasi maksimal 70% dari total curah hujan.</w:t></w:r></w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p><w:pPr><w:spacing w:after="120"/></w:pPr></w:p>
+
+    <!-- FORMULA 3 -->
+    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="5000" w:type="pct"/>
+        <w:tblBorders>
+          <w:top w:val="single" w:sz="6" w:color="CCCCCC"/>
+          <w:left w:val="single" w:sz="18" w:color="0B3C5D"/>
+          <w:bottom w:val="single" w:sz="6" w:color="CCCCCC"/>
+          <w:right w:val="single" w:sz="6" w:color="CCCCCC"/>
+        </w:tblBorders>
+        <w:tblCellMar>
+          <w:top w:w="120" w:type="dxa"/><w:left w:w="180" w:type="dxa"/><w:bottom w:w="120" w:type="dxa"/><w:right w:w="180" w:type="dxa"/>
+        </w:tblCellMar>
+      </w:tblPr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr><w:tcW w:w="5000" w:type="pct"/><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr>
+          <w:p><w:pPr><w:spacing w:after="40"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="0B3C5D"/><w:sz w:val="20"/></w:rPr><w:t>FORMULA 3: Curah Hujan Efektif (Effective Surface Runoff)</w:t></w:r></w:p>
+          <w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="60"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="26"/><w:color w:val="0F172A"/></w:rPr><w:t>P_eff = ((P_total - F) / 1000) × C</w:t></w:r></w:p>
+          <w:p><w:pPr><w:spacing w:after="20"/></w:pPr><w:r><w:rPr><w:i/><w:color w:val="475569"/><w:sz w:val="18"/></w:rPr><w:t>di mana P_eff = limpasan efektif (meter), C = koefisien limpasan tutupan lahan (Runoff Coefficient 0.15 - 0.90).</w:t></w:r></w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>
+
+    <!-- TABLE TUTUPAN LAHAN -->
+    <w:p>
+      <w:r><w:rPr><w:b/></w:rPr><w:t>Tabel 2.1 Parameter Tutupan Lahan &amp; Koefisien Limpasan Permukaan:</w:t></w:r>
+    </w:p>
+    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="5000" w:type="pct"/>
+        <w:tblBorders>
+          <w:top w:val="single" w:sz="4" w:color="CBD5E1"/>
+          <w:left w:val="single" w:sz="4" w:color="CBD5E1"/>
+          <w:bottom w:val="single" w:sz="4" w:color="CBD5E1"/>
+          <w:right w:val="single" w:sz="4" w:color="CBD5E1"/>
+          <w:insideH w:val="single" w:sz="4" w:color="E2E8F0"/>
+          <w:insideV w:val="single" w:sz="4" w:color="E2E8F0"/>
+        </w:tblBorders>
+        <w:tblCellMar>
+          <w:top w:w="120" w:type="dxa"/><w:left w:w="140" w:type="dxa"/><w:bottom w:w="120" w:type="dxa"/><w:right w:w="140" w:type="dxa"/>
+        </w:tblCellMar>
+      </w:tblPr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="0B3C5D"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="19"/></w:rPr><w:t>Tipologi Tutupan Lahan</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="0B3C5D"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="19"/></w:rPr><w:t>Koefisien Limpasan (C)</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="0B3C5D"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="19"/></w:rPr><w:t>Laju Infiltrasi</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="0B3C5D"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="19"/></w:rPr><w:t>Deskripsi Karakteristik Wilayah</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>Perkotaan (Urban)</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="19"/></w:rPr><w:t>0.85</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="19"/></w:rPr><w:t>4.0 mm/jam</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="19"/></w:rPr><w:t>Wilayah padat kedap air, aspal, atap beton, drainase terbatas.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>Penyangga (Suburban)</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="19"/></w:rPr><w:t>0.65</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="19"/></w:rPr><w:t>8.0 mm/jam</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="19"/></w:rPr><w:t>Pemukiman sedang, pekarangan terbuka, resapan moderat.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>Pertanian (Agriculture)</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="19"/></w:rPr><w:t>0.40</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="19"/></w:rPr><w:t>15.0 mm/jam</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="19"/></w:rPr><w:t>Lahan sawah, tegalan, perkebunan dengan daya serap baik.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>Hutan (Forest)</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="19"/></w:rPr><w:t>0.20</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="19"/></w:rPr><w:t>25.0 mm/jam</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="19"/></w:rPr><w:t>Hutan lindung/hutan kota dengan porositas dan infiltrasi tinggi.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>
+
+    <w:p>
+      <w:pPr><w:pStyle w:val="Heading2"/></w:pPr>
+      <w:r><w:t>2.3 Model Hidraulika Aliran 2D &amp; Elevasi Muka Air</w:t></w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:t>Elevasi muka air di setiap sel grid dihitung melalui superposisi 4 komponen dinamis:</w:t>
+      </w:r>
+    </w:p>
+    <w:p><w:r><w:t>1. Elevasi Topografi Dasar (Base DEM) yang membentuk lembah sungai alami di bagian tengah domain.</w:t></w:r></w:p>
+    <w:p><w:r><w:t>2. Limpasan Debit Hulu (River Inflow Factor): Kontribusi debit banjir kiriman hulu:</w:t></w:r></w:p>
+
+    <!-- FORMULA 4 -->
+    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="5000" w:type="pct"/>
+        <w:tblBorders>
+          <w:top w:val="single" w:sz="6" w:color="CCCCCC"/>
+          <w:left w:val="single" w:sz="18" w:color="0B3C5D"/>
+          <w:bottom w:val="single" w:sz="6" w:color="CCCCCC"/>
+          <w:right w:val="single" w:sz="6" w:color="CCCCCC"/>
+        </w:tblBorders>
+        <w:tblCellMar>
+          <w:top w:w="120" w:type="dxa"/><w:left w:w="180" w:type="dxa"/><w:bottom w:w="120" w:type="dxa"/><w:right w:w="180" w:type="dxa"/>
+        </w:tblCellMar>
+      </w:tblPr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr><w:tcW w:w="5000" w:type="pct"/><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr>
+          <w:p><w:pPr><w:spacing w:after="40"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="0B3C5D"/><w:sz w:val="20"/></w:rPr><w:t>FORMULA 4: Elevasi Muka Air Sungai Meluap</w:t></w:r></w:p>
+          <w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="60"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="24"/><w:color w:val="0F172A"/></w:rPr><w:t>Z_river = BaseDEM + 1.2 + ((Q_inflow / 1000) × 0.4 × F_tanggul) + (TidalSurge × (1 - d_river))</w:t></w:r></w:p>
+          <w:p><w:pPr><w:spacing w:after="20"/></w:pPr><w:r><w:rPr><w:i/><w:color w:val="475569"/><w:sz w:val="18"/></w:rPr><w:t>di mana Q_inflow = debit hulu (m³/s), F_tanggul = faktor kondisi tanggul (Normal: 1.0, Meluap: 1.25, Jebol: 1.60), TidalSurge = pasang rob (m), d_river = jarak relatif dari sungai.</w:t></w:r></w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>
+
+    <!-- FORMULA 5 MANNING -->
+    <w:p>
+      <w:pPr><w:pStyle w:val="Heading2"/></w:pPr>
+      <w:r><w:t>2.4 Kecepatan Aliran (Aproksimasi Rumus Manning)</w:t></w:r>
+    </w:p>
+    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="5000" w:type="pct"/>
+        <w:tblBorders>
+          <w:top w:val="single" w:sz="6" w:color="CCCCCC"/>
+          <w:left w:val="single" w:sz="18" w:color="0B3C5D"/>
+          <w:bottom w:val="single" w:sz="6" w:color="CCCCCC"/>
+          <w:right w:val="single" w:sz="6" w:color="CCCCCC"/>
+        </w:tblBorders>
+        <w:tblCellMar>
+          <w:top w:w="120" w:type="dxa"/><w:left w:w="180" w:type="dxa"/><w:bottom w:w="120" w:type="dxa"/><w:right w:w="180" w:type="dxa"/>
+        </w:tblCellMar>
+      </w:tblPr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr><w:tcW w:w="5000" w:type="pct"/><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr>
+          <w:p><w:pPr><w:spacing w:after="40"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="0B3C5D"/><w:sz w:val="20"/></w:rPr><w:t>FORMULA 5: Kecepatan Aliran Air Permukaan (Manning)</w:t></w:r></w:p>
+          <w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="60"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="26"/><w:color w:val="0F172A"/></w:rPr><w:t>V = (1 / n) × (R)^(2/3) × (S)^(1/2)</w:t></w:r></w:p>
+          <w:p><w:pPr><w:spacing w:after="20"/></w:pPr><w:r><w:rPr><w:i/><w:color w:val="475569"/><w:sz w:val="18"/></w:rPr><w:t>di mana V = kecepatan aliran (m/s), n = koefisien kekasaran Manning (0.015 - 0.060), R = radius hidrolis (diaproksimasi dengan kedalaman air d), S = kemiringan lereng permukaan (slope).</w:t></w:r></w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>
+
+    <!-- BAB 3 -->
+    <w:p>
+      <w:pPr><w:pStyle w:val="Heading1"/></w:pPr>
+      <w:r><w:t>BAB III. ESTIMASI DAMPAK SOSIO-EKONOMI &amp; FASILITAS UMUM</w:t></w:r>
+    </w:p>
+    <w:p>
+      <w:pPr><w:pStyle w:val="Heading2"/></w:pPr>
+      <w:r><w:t>3.1 Model Penilaian Kerusakan dan Kerugian (DINA / DaLA BNPB &amp; Bappenas)</w:t></w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:t>Kalkulasi dampak pada modul Simulasi Modeling mengadopsi metodologi baku Damage and Loss Assessment (DaLA) yang diterbitkan oleh BNPB dan Bappenas. Penghitungan dilakukan secara otomatis saat area genangan terhitung.</w:t>
+      </w:r>
+    </w:p>
+
+    <!-- FORMULA 6 & 7 -->
+    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="5000" w:type="pct"/>
+        <w:tblBorders>
+          <w:top w:val="single" w:sz="6" w:color="CCCCCC"/>
+          <w:left w:val="single" w:sz="18" w:color="0B3C5D"/>
+          <w:bottom w:val="single" w:sz="6" w:color="CCCCCC"/>
+          <w:right w:val="single" w:sz="6" w:color="CCCCCC"/>
+        </w:tblBorders>
+        <w:tblCellMar>
+          <w:top w:w="120" w:type="dxa"/><w:left w:w="180" w:type="dxa"/><w:bottom w:w="120" w:type="dxa"/><w:right w:w="180" w:type="dxa"/>
+        </w:tblCellMar>
+      </w:tblPr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr><w:tcW w:w="5000" w:type="pct"/><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr>
+          <w:p><w:pPr><w:spacing w:after="40"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="0B3C5D"/><w:sz w:val="20"/></w:rPr><w:t>FORMULA 6: Populasi Terdampak Berbasis Spasial</w:t></w:r></w:p>
+          <w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="60"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="24"/><w:color w:val="0F172A"/></w:rPr><w:t>Populasi = Luas_Ha × Kepadatan × Faktor_Kedalaman</w:t></w:r></w:p>
+          <w:p><w:pPr><w:spacing w:after="20"/></w:pPr><w:r><w:rPr><w:i/><w:color w:val="475569"/><w:sz w:val="18"/></w:rPr><w:t>di mana Kepadatan = 180 jiwa/Ha (Urban), 95 jiwa/Ha (Suburban), 30 jiwa/Ha (Rural). Faktor kedalaman = 1.0 jika d_avg &gt; 0.5m, atau 0.4 jika d_avg ≤ 0.5m.</w:t></w:r></w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p><w:pPr><w:spacing w:after="120"/></w:pPr></w:p>
+
+    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="5000" w:type="pct"/>
+        <w:tblBorders>
+          <w:top w:val="single" w:sz="6" w:color="CCCCCC"/>
+          <w:left w:val="single" w:sz="18" w:color="0B3C5D"/>
+          <w:bottom w:val="single" w:sz="6" w:color="CCCCCC"/>
+          <w:right w:val="single" w:sz="6" w:color="CCCCCC"/>
+        </w:tblBorders>
+        <w:tblCellMar>
+          <w:top w:w="120" w:type="dxa"/><w:left w:w="180" w:type="dxa"/><w:bottom w:w="120" w:type="dxa"/><w:right w:w="180" w:type="dxa"/>
+        </w:tblCellMar>
+      </w:tblPr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr><w:tcW w:w="5000" w:type="pct"/><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr>
+          <w:p><w:pPr><w:spacing w:after="40"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="0B3C5D"/><w:sz w:val="20"/></w:rPr><w:t>FORMULA 7: Estimasi Kerugian Finansial (Miliar Rupiah)</w:t></w:r></w:p>
+          <w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="60"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="24"/><w:color w:val="0F172A"/></w:rPr><w:t>Kerugian = (Bangunan × 0.045 M) + (Jalan_km × 0.850 M) + (Populasi × 0.005 M)</w:t></w:r></w:p>
+          <w:p><w:pPr><w:spacing w:after="20"/></w:pPr><w:r><w:rPr><w:i/><w:color w:val="475569"/><w:sz w:val="18"/></w:rPr><w:t>Mengacu pada nilai standar kerusakan rumah tinggal (Rp 45 juta/unit), rekonstruksi jalan (Rp 850 juta/km), dan biaya kedaruratan perorangan (Rp 5 juta/jiwa).</w:t></w:r></w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>
+
+    <!-- BAB 4 -->
+    <w:p>
+      <w:pPr><w:pStyle w:val="Heading1"/></w:pPr>
+      <w:r><w:t>BAB IV. SUMBER DATA &amp; ARSITEKTUR INTEGRASI DATA</w:t></w:r>
+    </w:p>
+    <w:p>
+      <w:r><w:t>Sistem ini mengintegrasikan data resmi dari berbagai kementerian/lembaga nasional:</w:t></w:r>
+    </w:p>
+
+    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="5000" w:type="pct"/>
+        <w:tblBorders>
+          <w:top w:val="single" w:sz="4" w:color="CBD5E1"/>
+          <w:left w:val="single" w:sz="4" w:color="CBD5E1"/>
+          <w:bottom w:val="single" w:sz="4" w:color="CBD5E1"/>
+          <w:right w:val="single" w:sz="4" w:color="CBD5E1"/>
+          <w:insideH w:val="single" w:sz="4" w:color="E2E8F0"/>
+          <w:insideV w:val="single" w:sz="4" w:color="E2E8F0"/>
+        </w:tblBorders>
+        <w:tblCellMar>
+          <w:top w:w="120" w:type="dxa"/><w:left w:w="140" w:type="dxa"/><w:bottom w:w="120" w:type="dxa"/><w:right w:w="140" w:type="dxa"/>
+        </w:tblCellMar>
+      </w:tblPr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="0B3C5D"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="19"/></w:rPr><w:t>Kategori Data</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="0B3C5D"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="19"/></w:rPr><w:t>Nama Dataset &amp; Endpoint</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="0B3C5D"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="19"/></w:rPr><w:t>Instansi Sumber</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="0B3C5D"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="19"/></w:rPr><w:t>Pemanfaatan dalam Simulasi</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>Demografi Mikro (Live AOI)</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>SEPAKAT DTSEN Hexbin Res-9 (H3) / MapServer/0/query</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>BAPPENAS</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Agregat populasi riil pria, wanita, balita, lansia, difabel PD1/PD2, dan jumlah keluarga terendam.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>Topografi &amp; Batas Wilayah</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>DEMNAS (Digital Elevation Model Nasional) &amp; RBI 5K</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>BIG</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Elevasi dasar daratan, palung sungai, lereng medan, dan batas administrasi desa/kelurahan.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>Bahaya &amp; Histori Bencana</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>InARISK Geoportal &amp; DIBI Tabular Record</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>BNPB</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Peta indeks bahaya banjir nasional, data histori dampak banjir, dan kalibrasi kerugian ekonomi.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>Curah Hujan &amp; Iklim</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Kurva IDF &amp; Kala Ulang Hujan (Return Period 2-100 Thn)</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>BMKG</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Parameter input intensitas hujan (mm/jam), durasi hujan, dan probabilitas kala ulang.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>Debit DAS &amp; Tanggul</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Data Debit Banjir Rencana DAS &amp; Pompa Polder</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>Kemen PUPR (BBWS)</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Parameter debit hulu sungai (m³/s), status tanggul sungai, dan kapasitas pompa drainase polder.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>Standar Logistik Medis</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Standar PPAM &amp; Minimum Standards in Health Action</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>Kemenkes &amp; WHO</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Rasio ibu hamil (3%), ibu menyusui (4%), balita (10%), lansia (8%), dan kebutuhan posko kesehatan.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>
+
+    <!-- BAB 5 -->
+    <w:p>
+      <w:pPr><w:pStyle w:val="Heading1"/></w:pPr>
+      <w:r><w:t>BAB V. PRESET ENAM WILAYAH DAS RAWAN BENCANA DI INDONESIA</w:t></w:r>
+    </w:p>
+    <w:p>
+      <w:r><w:t>Engine simulasi telah dilengkapi dengan 6 preset wilayah rawan banjir di Indonesia dengan kalibrasi topografi digital:</w:t></w:r>
+    </w:p>
+
+    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="5000" w:type="pct"/>
+        <w:tblBorders>
+          <w:top w:val="single" w:sz="4" w:color="CBD5E1"/>
+          <w:left w:val="single" w:sz="4" w:color="CBD5E1"/>
+          <w:bottom w:val="single" w:sz="4" w:color="CBD5E1"/>
+          <w:right w:val="single" w:sz="4" w:color="CBD5E1"/>
+          <w:insideH w:val="single" w:sz="4" w:color="E2E8F0"/>
+          <w:insideV w:val="single" w:sz="4" w:color="E2E8F0"/>
+        </w:tblBorders>
+        <w:tblCellMar>
+          <w:top w:w="120" w:type="dxa"/><w:left w:w="140" w:type="dxa"/><w:bottom w:w="120" w:type="dxa"/><w:right w:w="140" w:type="dxa"/>
+        </w:tblCellMar>
+      </w:tblPr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="0B3C5D"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="19"/></w:rPr><w:t>Wilayah Preset</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="0B3C5D"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="19"/></w:rPr><w:t>Provinsi / Lokasi</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="0B3C5D"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="19"/></w:rPr><w:t>Elevasi (DEM)</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="0B3C5D"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="19"/></w:rPr><w:t>Tipe Risiko</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="0B3C5D"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="FFFFFF"/><w:sz w:val="19"/></w:rPr><w:t>Karakteristik &amp; Ancaman</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>DAS Ciliwung - Manggarai</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>DKI Jakarta</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>8.5 m dpl</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Banjir Luapan Sungai</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Kawasan padat penduduk, pertemuan drainase kota dan luapan sungai Ciliwung hulu.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>Pesisir Kaligawe &amp; Genuk</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Jawa Tengah (Semarang)</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>1.2 m dpl</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Rob / Pasang Laut</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Dataran pantai utara rendah dengan ancaman kombinasi pasang rob dan cekungan polder.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>DAS Citarum - Dayeuhkolot</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Jawa Barat (Bandung)</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>652.0 m dpl</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Banjir Luapan Sungai</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Cekungan Bandung dengan kemiringan sangat landai yang menampung aliran Citarum hulu.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>DAS Bengawan Solo - Surakarta</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Jawa Tengah (Solo)</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>92.0 m dpl</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Banjir Luapan Sungai</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Lembah sungai terpanjang di Jawa dengan limpasan air kiriman saat hujan lebat di hulu.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>DAS Batang Kuranji</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Sumatera Barat (Padang)</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>18.0 m dpl</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Banjir Bandang</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>DAS curam dari lereng Bukit Barisan dengan waktu konsentrasi sangat cepat (debit kilat).</w:t></w:r></w:p></w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:b/><w:sz w:val="19"/></w:rPr><w:t>Delta Sungai Porong &amp; Brantas</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Jawa Timur (Sidoarjo)</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>4.8 m dpl</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Banjir Muara / Sungai</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:shd w:val="clear" w:fill="F8FAFC"/></w:tcPr><w:p><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t>Jalur pembuangan akhir sungai Brantas ke Selat Madura dengan tantangan sedimentasi &amp; tanggul.</w:t></w:r></w:p></w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p><w:pPr><w:spacing w:after="160"/></w:pPr></w:p>
+
+    <!-- BAB 6 -->
+    <w:p>
+      <w:pPr><w:pStyle w:val="Heading1"/></w:pPr>
+      <w:r><w:t>BAB VI. KESIMPULAN &amp; REKOMENDASI</w:t></w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:t>Modul Simulasi Modeling pada platform Satu Data Bencana berhasil menjembatani kesenjangan antara akurasi pemodelan ilmiah dan kecepatan pengambilan keputusan di lapangan. Dengan komputasi super cepat (&lt; 1 detik) dan integrasi data demografi mikro Bappenas, sistem ini siap mendukung operasional tanggap darurat, gladi lapang penanggulangan bencana, serta perencanaan tata ruang berbasis mitigasi bencana.</w:t>
+      </w:r>
+    </w:p>
+
+    <!-- SIGNATURE FOOTER -->
+    <w:p>
+      <w:pPr>
+        <w:jc w:val="center"/>
+        <w:spacing w:before="300" w:after="40"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr><w:color w:val="CBD5E1"/></w:rPr>
+        <w:t>------------------------------------------------------------------------------------------------------------------------</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:jc w:val="center"/>
+        <w:spacing w:after="40"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr><w:i/><w:color w:val="64748B"/><w:sz w:val="18"/></w:rPr>
+        <w:t>Dokumen ini digenerate secara resmi dari Antigravity Disaster Management Analytics Platform.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:jc w:val="center"/>
+        <w:spacing w:after="100"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr><w:b/><w:color w:val="0B3C5D"/><w:sz w:val="18"/></w:rPr>
+        <w:t>© 2026 Platform Satu Data Bencana Indonesia — Hak Cipta Dilindungi Undang-Undang.</w:t>
+      </w:r>
+    </w:p>
+    <w:sectPr>
+      <w:pgSz w:w="11906" w:h="16838"/>
+      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/>
+    </w:sectPr>
+  </w:body>
+</w:wordDocument>
