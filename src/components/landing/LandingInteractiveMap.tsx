@@ -444,7 +444,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
         year: markersRef.current[idx]?.item?.Tahun,
         name: markersRef.current[idx]?.item?.Nama_Bencana,
       }))
-      .filter((m): m is { index: number; year: number; name?: string } => typeof m.year === 'number');
+      .filter((m): m is { index: number; year: number; name: string | undefined } => typeof m.year === 'number');
   })();
 
   return (
