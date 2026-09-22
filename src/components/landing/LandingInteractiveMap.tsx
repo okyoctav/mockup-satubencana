@@ -564,12 +564,12 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
       {/* ============================================================
           BOTTOM FLOATING CONTAINER: DETAIL CARD (TOP) + TIMELINE SLIDER (BOTTOM)
           ============================================================ */}
-      <div className="absolute bottom-4 left-3 right-3 sm:left-6 sm:right-auto sm:max-w-xl z-[400] pointer-events-none flex flex-col gap-2">
+      <div className="absolute bottom-4 left-3 right-3 sm:left-6 sm:right-auto w-auto sm:w-[480px] md:w-[500px] z-[400] pointer-events-none flex flex-col gap-2">
         
         {/* 1. KOTAK DETAIL PERISTIWA BENCANA */}
         {activeDisaster && isDetailVisible && (
           <div 
-            className="pointer-events-auto rounded-2xl border overflow-hidden transition-all duration-300 shadow-xl"
+            className="w-full pointer-events-auto rounded-2xl border overflow-hidden transition-all duration-300 shadow-xl"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-faint)',
@@ -590,7 +590,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
             <div className="p-3.5 sm:p-4 space-y-2.5">
               {/* Top Row: Year, Category Badge & Title */}
               <div className="flex items-start justify-between gap-3">
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span 
                       className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide text-white shadow-xs"
@@ -598,15 +598,15 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
                     >
                       {activeDisaster.Jenis_Bencana || 'Bencana'}
                     </span>
-                    <span className="text-xs font-black" style={{ color: activeColor }}>
+                    <span className="text-xs font-black shrink-0" style={{ color: activeColor }}>
                       Tahun {activeDisaster.Tahun || '-'}
                     </span>
-                    <span className="text-[10px] font-medium" style={{ color: 'var(--text-secondary)' }}>
+                    <span className="text-[10px] font-medium truncate" style={{ color: 'var(--text-secondary)' }}>
                       • {activeDisaster.Lokasi_Utama}, {activeDisaster.Provinsi}
                     </span>
                   </div>
 
-                  <h3 className="text-sm sm:text-base font-black leading-tight" style={{ color: 'var(--text-primary)' }}>
+                  <h3 className="text-sm sm:text-base font-black leading-tight truncate" style={{ color: 'var(--text-primary)' }} title={activeDisaster.Nama_Bencana}>
                     {activeDisaster.Nama_Bencana}
                   </h3>
                 </div>
@@ -725,7 +725,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
         {/* 2. KOTAK LINI MASA & SLIDER (Terpisah di bawah kotak saat ini & Muncul dari Awal) */}
         {totalMarkers > 0 && (
           <div 
-            className="pointer-events-auto rounded-2xl border p-3 sm:px-4 sm:py-2.5 transition-all duration-300 shadow-xl"
+            className="w-full pointer-events-auto rounded-2xl border p-3 sm:px-4 sm:py-2.5 transition-all duration-300 shadow-xl"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-faint)',
@@ -733,8 +733,8 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
             }}
           >
             <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-[11px]">
-                <div className="flex items-center gap-1.5 font-bold min-w-0" style={{ color: 'var(--text-secondary)' }}>
+              <div className="flex items-center justify-between text-[11px] gap-2">
+                <div className="flex items-center gap-1.5 font-bold min-w-0 flex-1 overflow-hidden" style={{ color: 'var(--text-secondary)' }}>
                   <Calendar className="w-3.5 h-3.5 shrink-0" style={{ color: activeColor }} />
                   <span className="text-[10px] sm:text-[10.5px] shrink-0">Linimasa Tahun:</span>
                   <span 
@@ -744,7 +744,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
                     {activeDisaster?.Tahun || '-'}
                   </span>
                   {activeDisaster?.Nama_Bencana && (
-                    <span className="text-[10.5px] font-semibold truncate hidden xs:inline sm:inline max-w-[140px] sm:max-w-[200px]" style={{ color: 'var(--text-primary)' }}>
+                    <span className="text-[10.5px] font-semibold truncate" style={{ color: 'var(--text-primary)' }} title={activeDisaster.Nama_Bencana}>
                       • {activeDisaster.Nama_Bencana}
                     </span>
                   )}
