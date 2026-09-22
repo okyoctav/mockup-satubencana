@@ -11,13 +11,9 @@ export const metadata: Metadata = {
     "Platform analisis dan manajemen data bencana nasional. Pra-bencana, saat-bencana, dan pasca-bencana dalam satu ekosistem data.",
   keywords: ["bencana", "BNPB", "BPBD", "geospasial", "analisis bencana", "peta bencana Indonesia"],
   icons: {
-    icon: [
-      { url: "/logo/logofavicon.png", type: "image/png" },
-    ],
-    shortcut: ["/logo/logofavicon.png"],
-    apple: [
-      { url: "/logo/logofavicon.png" },
-    ],
+    icon: "/logo/logofavicon.png",
+    shortcut: "/logo/logofavicon.png",
+    apple: "/logo/logofavicon.png",
   },
 };
 
