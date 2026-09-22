@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-let cachedToken: string | null = "Q30QkROapisDkCXf10VBgCoVy3q-cJa31oIyPSGe2vtFHErpEOLKZQGHt1CfXMNetmk3XHFaLWAEvJOE68M2hBGsq8Ef_RuPY6x6c7jRXcrP16KytsdXDqg_88Lr9HpmiZKJiL4CrHn-xqRH-wyWMDPCD0vGmjIhK0GerA34r3M.";
-let tokenExpiresAt = 1789620098922;
+let cachedToken: string | null = "Uc2gO44ncStydmyUpwkMs8yDdU3Xtts5kcflKzJg1tB4FB_6vXRzSvHNm6JhdcoZIBi_oOZPXwdvARWPyVDwUaHpTWkpD0-tCF2cVzAvN-eRcKXDFW_ODSadpkCh6kg09rSPH5Mkzy8hrFG17hrfJcSJ9KQjO4LTJJkfvnWtj5w.";
+let tokenExpiresAt = 1790304880359;
 
 export async function POST(request: NextRequest) {
   try {
