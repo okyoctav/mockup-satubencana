@@ -5,10 +5,10 @@ import HeroSection from '@/components/landing/HeroSection';
 
 export default function Home() {
   return (
-    <main className="relative h-screen w-screen overflow-hidden flex flex-col font-sans" style={{ background: 'var(--bg-page)' }}>
+    <main className="relative min-h-screen w-full flex flex-col font-sans" style={{ background: 'var(--bg-page)' }}>
       <Navbar activePath="/" />
 
-      <div className="flex-1 relative pt-[58px] h-[calc(100vh-58px)] w-full overflow-hidden">
+      <div className="flex-1 relative pt-[60px] w-full flex items-center">
         <HeroSection />
       </div>
     </main>
