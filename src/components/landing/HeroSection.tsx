@@ -18,22 +18,16 @@ const HeroCanvas = dynamic(() => import('@/components/three/HeroCanvas'), {
 
 export default function HeroSection() {
   const [mounted, setMounted] = useState(false);
-  const [activePhase, setActivePhase] = useState<'pra' | 'saat' | 'pasca'>('pra');
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setMounted(true);
-    // Auto cycle through phases every 5 seconds for dynamic feel
-    const interval = setInterval(() => {
-      setActivePhase((prev) => (prev === 'pra' ? 'saat' : prev === 'saat' ? 'pasca' : 'pra'));
-    }, 5000);
-    return () => clearInterval(interval);
   }, []);
 
   return (
     <section
       ref={sectionRef}
-      className="relative w-full overflow-hidden select-none py-6 sm:py-8 lg:py-10 flex items-center justify-center"
+      className="relative flex-1 w-full min-h-[calc(100vh-58px)] overflow-hidden select-none flex items-center justify-center py-4 sm:py-6"
       style={{ background: 'var(--hero-bg)' }}
     >
       {/* Dynamic Three.js Particle Field */}
@@ -94,20 +88,15 @@ export default function HeroSection() {
               </span>
             </div>
 
-            {/* 3 Phase Cards Stacked Vertically */}
+            {/* 3 Phase Cards Stacked Vertically - Informational Only (No Button / Click Behavior) */}
             <div className="flex-1 flex flex-col justify-between gap-3 min-h-0">
               
               {/* FASE 1: PRA-BENCANA */}
               <div
-                onClick={() => setActivePhase('pra')}
-                className={`group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-300 cursor-pointer overflow-hidden flex items-start gap-3.5 ${
-                  activePhase === 'pra'
-                    ? 'ring-2 ring-emerald-500/50 shadow-md bg-emerald-500/[0.04]'
-                    : 'hover:border-slate-300 dark:hover:border-slate-700 opacity-90 hover:opacity-100'
-                }`}
+                className="group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-200 overflow-hidden flex items-start gap-3.5"
                 style={{
                   backgroundColor: 'var(--bg-page)',
-                  borderColor: activePhase === 'pra' ? 'rgba(16,185,129,0.5)' : 'var(--border-faint)',
+                  borderColor: 'var(--border-faint)',
                 }}
               >
                 {/* Number 01 */}
@@ -137,7 +126,7 @@ export default function HeroSection() {
 
                 {/* Right Icon */}
                 <div className="shrink-0 pt-1">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center transition-transform group-hover:scale-105">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
                     <ShieldCheck className="w-4 h-4" />
                   </div>
                 </div>
@@ -145,15 +134,10 @@ export default function HeroSection() {
 
               {/* FASE 2: SAAT BENCANA */}
               <div
-                onClick={() => setActivePhase('saat')}
-                className={`group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-300 cursor-pointer overflow-hidden flex items-start gap-3.5 ${
-                  activePhase === 'saat'
-                    ? 'ring-2 ring-amber-500/50 shadow-md bg-amber-500/[0.04]'
-                    : 'hover:border-slate-300 dark:hover:border-slate-700 opacity-90 hover:opacity-100'
-                }`}
+                className="group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-200 overflow-hidden flex items-start gap-3.5"
                 style={{
                   backgroundColor: 'var(--bg-page)',
-                  borderColor: activePhase === 'saat' ? 'rgba(245,158,11,0.5)' : 'var(--border-faint)',
+                  borderColor: 'var(--border-faint)',
                 }}
               >
                 {/* Number 02 */}
@@ -183,7 +167,7 @@ export default function HeroSection() {
 
                 {/* Right Icon */}
                 <div className="shrink-0 pt-1">
-                  <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center transition-transform group-hover:scale-105">
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
                     <AlertTriangle className="w-4 h-4" />
                   </div>
                 </div>
@@ -191,15 +175,10 @@ export default function HeroSection() {
 
               {/* FASE 3: PASCA-BENCANA */}
               <div
-                onClick={() => setActivePhase('pasca')}
-                className={`group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-300 cursor-pointer overflow-hidden flex items-start gap-3.5 ${
-                  activePhase === 'pasca'
-                    ? 'ring-2 ring-sky-500/50 shadow-md bg-sky-500/[0.04]'
-                    : 'hover:border-slate-300 dark:hover:border-slate-700 opacity-90 hover:opacity-100'
-                }`}
+                className="group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-200 overflow-hidden flex items-start gap-3.5"
                 style={{
                   backgroundColor: 'var(--bg-page)',
-                  borderColor: activePhase === 'pasca' ? 'rgba(14,165,233,0.5)' : 'var(--border-faint)',
+                  borderColor: 'var(--border-faint)',
                 }}
               >
                 {/* Number 03 */}
@@ -229,7 +208,7 @@ export default function HeroSection() {
 
                 {/* Right Icon */}
                 <div className="shrink-0 pt-1">
-                  <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 flex items-center justify-center transition-transform group-hover:scale-105">
+                  <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 flex items-center justify-center">
                     <BarChart3 className="w-4 h-4" />
                   </div>
                 </div>
