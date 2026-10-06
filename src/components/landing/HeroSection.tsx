@@ -59,7 +59,7 @@ export default function HeroSection() {
           {/* ============================================================
               LEFT PANEL (Col 1-6): Executive Title & 3 Phase Cards (Auto-stretching to match Right Panel height precisely)
               ============================================================ */}
-          <div className="lg:col-span-6 flex flex-col justify-between h-full space-y-3 sm:space-y-3.5">
+          <div className="lg:col-span-6 flex flex-col justify-between h-full gap-3 sm:gap-3.5">
             
             {/* Main Headline */}
             <div className="space-y-1.5 shrink-0">
@@ -93,12 +93,13 @@ export default function HeroSection() {
               {/* FASE 1: PRA-BENCANA */}
               <div
                 onClick={() => setActivePhase('pra')}
-                className={`flex-1 group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-300 cursor-pointer overflow-hidden flex items-center justify-between gap-3 ${
+                className={`flex-1 min-h-[115px] sm:min-h-[120px] group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-300 cursor-pointer overflow-hidden flex items-center justify-between gap-3 ${
                   activePhase === 'pra' ? 'ring-2 ring-emerald-500/50 shadow-md scale-[1.01]' : 'opacity-85 hover:opacity-100'
                 }`}
                 style={{
                   backgroundColor: 'var(--bg-card)',
                   borderColor: activePhase === 'pra' ? 'rgba(16,185,129,0.5)' : 'var(--border-faint)',
+                  minHeight: '120px',
                 }}
               >
                 <div className="flex-1 space-y-1">
@@ -146,12 +147,13 @@ export default function HeroSection() {
               {/* FASE 2: SAAT BENCANA */}
               <div
                 onClick={() => setActivePhase('saat')}
-                className={`flex-1 group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-300 cursor-pointer overflow-hidden flex items-center justify-between gap-3 ${
+                className={`flex-1 min-h-[115px] sm:min-h-[120px] group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-300 cursor-pointer overflow-hidden flex items-center justify-between gap-3 ${
                   activePhase === 'saat' ? 'ring-2 ring-amber-500/50 shadow-md scale-[1.01]' : 'opacity-85 hover:opacity-100'
                 }`}
                 style={{
                   backgroundColor: 'var(--bg-card)',
                   borderColor: activePhase === 'saat' ? 'rgba(245,158,11,0.5)' : 'var(--border-faint)',
+                  minHeight: '120px',
                 }}
               >
                 <div className="flex-1 space-y-1">
@@ -197,12 +199,13 @@ export default function HeroSection() {
               {/* FASE 3: PASCA-BENCANA */}
               <div
                 onClick={() => setActivePhase('pasca')}
-                className={`flex-1 group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-300 cursor-pointer overflow-hidden flex items-center justify-between gap-3 ${
+                className={`flex-1 min-h-[115px] sm:min-h-[120px] group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-300 cursor-pointer overflow-hidden flex items-center justify-between gap-3 ${
                   activePhase === 'pasca' ? 'ring-2 ring-sky-500/50 shadow-md scale-[1.01]' : 'opacity-85 hover:opacity-100'
                 }`}
                 style={{
                   backgroundColor: 'var(--bg-card)',
                   borderColor: activePhase === 'pasca' ? 'rgba(14,165,233,0.5)' : 'var(--border-faint)',
+                  minHeight: '120px',
                 }}
               >
                 <div className="flex-1 space-y-1">
@@ -250,7 +253,7 @@ export default function HeroSection() {
           {/* ============================================================
               RIGHT PANEL (Col 7-12): Akses Cepat, 2 Cards, and 300px Min-Height Dashboard Cover Card
               ============================================================ */}
-          <div className="lg:col-span-6 flex flex-col justify-between h-full space-y-3 sm:space-y-3.5">
+          <div className="lg:col-span-6 flex flex-col justify-between h-full gap-3 sm:gap-3.5">
             
             {/* Header: Akses Cepat */}
             <div className="space-y-0.5 shrink-0">
@@ -333,7 +336,7 @@ export default function HeroSection() {
 
             {/* Large Card Below: Buka Dashboard with min-height 300px and Cover /images/PETA2.png */}
             <div
-              className="group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-md transition-all duration-300 hover:shadow-xl hover:border-sky-500/50 flex flex-col justify-between flex-1"
+              className="group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-md transition-all duration-300 hover:shadow-xl hover:border-sky-500/50 flex flex-col justify-between flex-1 min-h-[300px]"
               style={{
                 minHeight: '300px',
               }}
