@@ -131,7 +131,7 @@ export default function Navbar({ activePath }: NavbarProps) {
             className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all duration-200 shadow-2xs hover:scale-102 ${
               currentPath === '/informasi-mitra'
                 ? 'border-rose-500 text-rose-600 bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/40'
-                : 'border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-slate-100/70 dark:bg-slate-800/70 hover:bg-slate-200/70 dark:hover:bg-slate-700/70'
+                : 'border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-slate-100/10 dark:bg-slate-800/70 hover:bg-slate-200/70 dark:hover:bg-slate-700/70'
             }`}
           >
             <Info className="w-3.5 h-3.5" />
