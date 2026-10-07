@@ -51,7 +51,7 @@ export default function HeroSection() {
               LEFT PANEL (30% Width - Col 1-3): Executive Title & Simplified Phases
               ============================================================ */}
           <div
-            className="lg:col-span-3 rounded-3xl border p-5 sm:p-6 shadow-xs flex flex-col justify-between gap-4 transition-all duration-300"
+            className="lg:col-span-3 rounded-3xl border p-5 sm:p-6 shadow-xs flex flex-col justify-start gap-4 transition-all duration-300"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-faint)',
@@ -78,8 +78,8 @@ export default function HeroSection() {
               </p>
             </div>
 
-            {/* Siklus Penanggulangan Bencana - Teks Informasi Terpadu (Tanpa Border Card) */}
-            <div className="flex-1 flex flex-col justify-between py-1 min-h-0 space-y-3.5 select-none">
+            {/* Siklus Penanggulangan Bencana - Teks Informasi Rapat ke Atas */}
+            <div className="space-y-3 pt-1 select-none">
               
               <div className="pt-0.5">
                 <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -179,15 +179,26 @@ export default function HeroSection() {
               {/* Card 1: Sejarah Kebencanaan */}
               <Link
                 href="/sejarah-kebencanaan"
-                className="group relative rounded-2xl p-4 border transition-all duration-200 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 flex flex-col justify-between"
+                className="group relative rounded-2xl p-4 border transition-all duration-200 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 flex flex-col justify-between overflow-hidden"
                 style={{
                   backgroundColor: 'var(--bg-page)',
                   borderColor: 'var(--border-faint)',
                   minHeight: '135px',
                 }}
               >
-                <div className="space-y-2">
-                  <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:text-emerald-500 transition-colors">
+                {/* Background Illustration from Disaster Data Monitoring Illustrations.png */}
+                <div
+                  className="absolute right-0 bottom-0 w-36 sm:w-44 h-24 sm:h-28 pointer-events-none transition-transform duration-300 group-hover:scale-105 opacity-30 dark:opacity-20"
+                  style={{
+                    backgroundImage: "url('/images/sejarah_illustration.png')",
+                    backgroundSize: 'contain',
+                    backgroundPosition: 'right bottom',
+                    backgroundRepeat: 'no-repeat',
+                  }}
+                />
+
+                <div className="relative z-10 space-y-2">
+                  <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:text-emerald-500 transition-colors shadow-2xs">
                     <Bookmark className="w-3.5 h-3.5" />
                   </div>
                   <div>
@@ -200,7 +211,7 @@ export default function HeroSection() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-dashed border-slate-200/80 dark:border-slate-800 mt-2">
+                <div className="relative z-10 flex items-center justify-between pt-3 border-t border-dashed border-slate-200/80 dark:border-slate-800 mt-2">
                   <span className="text-[9.5px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                     Eksplorasi Riwayat
                   </span>
@@ -213,15 +224,26 @@ export default function HeroSection() {
               {/* Card 2: Data Kebencanaan */}
               <Link
                 href="/analisis-data"
-                className="group relative rounded-2xl p-4 border transition-all duration-200 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 flex flex-col justify-between"
+                className="group relative rounded-2xl p-4 border transition-all duration-200 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 flex flex-col justify-between overflow-hidden"
                 style={{
                   backgroundColor: 'var(--bg-page)',
                   borderColor: 'var(--border-faint)',
                   minHeight: '135px',
                 }}
               >
-                <div className="space-y-2">
-                  <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:text-sky-500 transition-colors">
+                {/* Background Illustration from Disaster Data Monitoring Illustrations.png */}
+                <div
+                  className="absolute right-0 bottom-0 w-36 sm:w-44 h-24 sm:h-28 pointer-events-none transition-transform duration-300 group-hover:scale-105 opacity-30 dark:opacity-20"
+                  style={{
+                    backgroundImage: "url('/images/data_illustration.png')",
+                    backgroundSize: 'contain',
+                    backgroundPosition: 'right bottom',
+                    backgroundRepeat: 'no-repeat',
+                  }}
+                />
+
+                <div className="relative z-10 space-y-2">
+                  <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:text-sky-500 transition-colors shadow-2xs">
                     <Database className="w-3.5 h-3.5" />
                   </div>
                   <div>
@@ -234,7 +256,7 @@ export default function HeroSection() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-dashed border-slate-200/80 dark:border-slate-800 mt-2">
+                <div className="relative z-10 flex items-center justify-between pt-3 border-t border-dashed border-slate-200/80 dark:border-slate-800 mt-2">
                   <span className="text-[9.5px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
                     Buka Basis Data
                   </span>
@@ -246,7 +268,7 @@ export default function HeroSection() {
 
             </div>
 
-            {/* Large Card Below: Impact Assessment Dashboard with 300px Height & Cover /images/PETA2.png */}
+            {/* Large Card Below: Impact Assessment Dashboard with 300px Height & Cover /images/backgroundaseesment.png */}
             <div
               className="group relative rounded-2xl overflow-hidden border border-slate-800/80 shadow-lg transition-all duration-300 hover:shadow-2xl flex flex-col justify-between"
               style={{
@@ -254,16 +276,16 @@ export default function HeroSection() {
                 minHeight: '300px',
               }}
             >
-              {/* Background Image: /images/PETA2.png */}
+              {/* Background Image: /images/backgroundaseesment.png (with text removed from background image) */}
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                 style={{
-                  backgroundImage: 'url(/images/PETA2.png)',
+                  backgroundImage: 'url(/images/backgroundaseesment.png)',
                 }}
               />
               
-              {/* Dark Gradient Overlay for Maximum Readability */}
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-slate-950/40" />
+              {/* Soft Gradient Overlay for Text Readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-950/30 to-transparent pointer-events-none" />
 
               {/* Card Content */}
               <div className="relative z-10 p-5 sm:p-6 flex flex-col justify-between h-full space-y-4">
@@ -291,14 +313,6 @@ export default function HeroSection() {
                     <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-1" />
                   </Link>
                 </div>
-              </div>
-
-              {/* Decorative Bar Graphic in Right Area as in Wireframe */}
-              <div className="absolute right-6 bottom-7 hidden sm:flex items-end gap-2 pointer-events-none opacity-85 z-10">
-                <div className="w-3.5 h-14 rounded-t-md bg-white/60 backdrop-blur-xs shadow-xs" />
-                <div className="w-3.5 h-24 rounded-t-md bg-white/80 backdrop-blur-xs shadow-sm" />
-                <div className="w-3.5 h-32 rounded-t-md bg-white backdrop-blur-xs shadow-md" />
-                <div className="w-3.5 h-20 rounded-t-md bg-white/70 backdrop-blur-xs shadow-xs" />
               </div>
             </div>
 
