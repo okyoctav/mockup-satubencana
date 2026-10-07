@@ -48,22 +48,22 @@ export default function HeroSection() {
 
       {/* Main Container - Balanced Side-by-Side Wireframe Layout */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-10 gap-5 lg:gap-6 items-stretch">
           
           {/* ============================================================
-              LEFT PANEL (Col 1-6): Executive Title & 3 Phase Cards
+              LEFT PANEL (30% Width - Col 1-3): Executive Title & Simplified Phases
               ============================================================ */}
           <div
-            className="lg:col-span-6 rounded-3xl border p-5 sm:p-7 shadow-xs flex flex-col justify-between gap-5 transition-all duration-300"
+            className="lg:col-span-3 rounded-3xl border p-5 sm:p-6 shadow-xs flex flex-col justify-between gap-4 transition-all duration-300"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-faint)',
             }}
           >
             {/* Title & Description */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <h1
-                className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-[1.15]"
+                className="text-xl sm:text-2xl font-black tracking-tight leading-[1.2]"
                 style={{
                   background: 'linear-gradient(135deg, #E11D48 0%, #EA580C 100%)',
                   WebkitBackgroundClip: 'text',
@@ -74,143 +74,107 @@ export default function HeroSection() {
                 Manajemen Data Bencana
               </h1>
               <p
-                className="text-xs sm:text-sm font-medium leading-relaxed"
+                className="text-xs font-medium leading-relaxed"
                 style={{ color: 'var(--text-secondary)' }}
               >
-                Sistem informasi data bencana terintegrasi untuk mendukung perencanaan pembangunan nasional yang lebih tangguh dan responsif.
+                Sistem informasi data terintegrasi untuk perencanaan pembangunan yang tangguh dan responsif.
               </p>
             </div>
 
             {/* Sub-Header: Siklus Penanggulangan Bencana */}
-            <div className="pt-1">
-              <span className="text-[10.5px] sm:text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <div className="pt-0.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 Siklus Penanggulangan Bencana
               </span>
             </div>
 
-            {/* 3 Phase Cards Stacked Vertically - Informational Only (No Button / Click Behavior) */}
-            <div className="flex-1 flex flex-col justify-between gap-3 min-h-0">
+            {/* 3 Phase Items Stacked Vertically - Dibuat Sederhana & Informatif */}
+            <div className="flex-1 flex flex-col justify-between gap-2.5 min-h-0 pt-0.5">
               
-              {/* FASE 1: PRA-BENCANA */}
+              {/* FASE 01: PRABENCANA */}
               <div
-                className="group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-200 overflow-hidden flex items-start gap-3.5"
+                className="rounded-2xl p-3 border transition-all duration-200 flex items-center justify-between gap-2.5 select-none"
                 style={{
                   backgroundColor: 'var(--bg-page)',
                   borderColor: 'var(--border-faint)',
                 }}
               >
-                {/* Number 01 */}
-                <span className="text-xs sm:text-sm font-black text-slate-400 dark:text-slate-500 shrink-0 pt-0.5">
-                  01
-                </span>
-
-                {/* Content */}
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-md text-[9px] font-extrabold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 uppercase tracking-wide">
-                      FASE 01 · PRABENCANA
-                    </span>
-                    <span className="text-[9.5px] font-bold text-slate-400">
-                      Pra-Bencana
-                    </span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-black text-xs shrink-0">
+                    01
                   </div>
-
-                  <h3 className="text-xs sm:text-sm font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-                    Mitigasi, Kesiapsiagaan, dan Peringatan Dini
-                  </h3>
-                  
-                  <p className="text-[11px] leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
-                    Pemodelan ancaman dan risiko untuk mengurangi dampak serta mempercepat informasi potensi bahaya.
-                  </p>
+                  <div className="min-w-0">
+                    <div className="text-[9.5px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                      Fase 01 · Prabencana
+                    </div>
+                    <div className="text-xs font-bold truncate" style={{ color: 'var(--text-primary)' }}>
+                      Mitigasi & Kesiapsiagaan
+                    </div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                      Pemodelan risiko & peringatan dini
+                    </div>
+                  </div>
                 </div>
-
-                {/* Right Icon */}
-                <div className="shrink-0 pt-1">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
-                    <ShieldCheck className="w-4 h-4" />
-                  </div>
+                <div className="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-3.5 h-3.5" />
                 </div>
               </div>
 
-              {/* FASE 2: SAAT BENCANA */}
+              {/* FASE 02: TANGGAP DARURAT */}
               <div
-                className="group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-200 overflow-hidden flex items-start gap-3.5"
+                className="rounded-2xl p-3 border transition-all duration-200 flex items-center justify-between gap-2.5 select-none"
                 style={{
                   backgroundColor: 'var(--bg-page)',
                   borderColor: 'var(--border-faint)',
                 }}
               >
-                {/* Number 02 */}
-                <span className="text-xs sm:text-sm font-black text-slate-400 dark:text-slate-500 shrink-0 pt-0.5">
-                  02
-                </span>
-
-                {/* Content */}
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-md text-[9px] font-extrabold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 uppercase tracking-wide">
-                      FASE 02 · TANGGAP DARURAT
-                    </span>
-                    <span className="text-[9.5px] font-bold text-slate-400">
-                      Saat Bencana
-                    </span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center font-black text-xs shrink-0">
+                    02
                   </div>
-
-                  <h3 className="text-xs sm:text-sm font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-                    Kaji Cepat Dampak Bencana
-                  </h3>
-
-                  <p className="text-[11px] leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
-                    Pengkajian cepat dan tepat terhadap lokasi, kerusakan, dan sumber daya untuk mendukung respons.
-                  </p>
+                  <div className="min-w-0">
+                    <div className="text-[9.5px] font-extrabold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                      Fase 02 · Tanggap Darurat
+                    </div>
+                    <div className="text-xs font-bold truncate" style={{ color: 'var(--text-primary)' }}>
+                      Kaji Cepat Dampak
+                    </div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                      Penilaian kerusakan & tanggap darurat
+                    </div>
+                  </div>
                 </div>
-
-                {/* Right Icon */}
-                <div className="shrink-0 pt-1">
-                  <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
-                    <AlertTriangle className="w-4 h-4" />
-                  </div>
+                <div className="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-3.5 h-3.5" />
                 </div>
               </div>
 
-              {/* FASE 3: PASCA-BENCANA */}
+              {/* FASE 03: PASCABENCANA */}
               <div
-                className="group relative rounded-2xl p-3.5 sm:p-4 border transition-all duration-200 overflow-hidden flex items-start gap-3.5"
+                className="rounded-2xl p-3 border transition-all duration-200 flex items-center justify-between gap-2.5 select-none"
                 style={{
                   backgroundColor: 'var(--bg-page)',
                   borderColor: 'var(--border-faint)',
                 }}
               >
-                {/* Number 03 */}
-                <span className="text-xs sm:text-sm font-black text-slate-400 dark:text-slate-500 shrink-0 pt-0.5">
-                  03
-                </span>
-
-                {/* Content */}
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-md text-[9px] font-extrabold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 uppercase tracking-wide">
-                      FASE 03 · PASCABENCANA
-                    </span>
-                    <span className="text-[9.5px] font-bold text-slate-400">
-                      Pasca-Bencana
-                    </span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 flex items-center justify-center font-black text-xs shrink-0">
+                    03
                   </div>
-
-                  <h3 className="text-xs sm:text-sm font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-                    Perencanaan Rehabilitasi dan Rekonstruksi
-                  </h3>
-
-                  <p className="text-[11px] leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
-                    Perencanaan pemulihan pascabencana dengan prinsip &ldquo;Build Back Better, Safer, and Sustainable&rdquo;.
-                  </p>
+                  <div className="min-w-0">
+                    <div className="text-[9.5px] font-extrabold uppercase tracking-wider text-sky-600 dark:text-sky-400">
+                      Fase 03 · Pascabencana
+                    </div>
+                    <div className="text-xs font-bold truncate" style={{ color: 'var(--text-primary)' }}>
+                      Rehabilitasi & Rekonstruksi
+                    </div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                      Pemulihan & pembangunan kembali
+                    </div>
+                  </div>
                 </div>
-
-                {/* Right Icon */}
-                <div className="shrink-0 pt-1">
-                  <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 flex items-center justify-center">
-                    <BarChart3 className="w-4 h-4" />
-                  </div>
+                <div className="w-6 h-6 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
+                  <BarChart3 className="w-3.5 h-3.5" />
                 </div>
               </div>
 
@@ -219,10 +183,10 @@ export default function HeroSection() {
           </div>
 
           {/* ============================================================
-              RIGHT PANEL (Col 7-12): Akses Cepat, 2 Cards, and 300px Dashboard Cover Card
+              RIGHT PANEL (70% Width - Col 4-10): Akses Cepat, 2 Cards, and 300px Dashboard
               ============================================================ */}
           <div
-            className="lg:col-span-6 rounded-3xl border p-5 sm:p-7 shadow-xs flex flex-col justify-between gap-5 transition-all duration-300"
+            className="lg:col-span-7 rounded-3xl border p-5 sm:p-7 shadow-xs flex flex-col justify-between gap-5 transition-all duration-300"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-faint)',
