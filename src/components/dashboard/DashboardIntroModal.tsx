@@ -86,7 +86,7 @@ export default function DashboardIntroModal({
             </div>
             <div className="flex-1">
               <p className="text-xs sm:text-sm leading-relaxed text-[#1e293b] dark:text-[#f1f5f9]">
-                Dashboard <strong>Manajemen Data Bencana (MDB)</strong> adalah platform komando geospasial terintegrasi yang dikembangkan untuk mempercepat pengambilan keputusan, pemodelan skenario kontinjensi, dan orkestrasi respon tanggap darurat kebencanaan di seluruh Indonesia.
+                <strong>Disclaimer :</strong> Menganalisis potensi bahaya dampak dari sebuah bencana di lokasi tertentu. Sedangkan untuk perhitungan real kejadian bencana besarannya akan disimulasikan pada pengembangan model lebih lanjut.
               </p>
             </div>
           </div>

@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useTheme } from '@/contexts/ThemeContext';
 import AlertTicker from '@/components/dashboard/AlertTicker';
-import StatCards from '@/components/dashboard/StatCards';
+// import StatCards from '@/components/dashboard/StatCards';
 import DashboardMapK5 from '@/components/dashboard/DashboardMapK5';
 import FilterPanel, { JENIS_CONFIG, JENIS_LIST } from '@/components/dashboard/FilterPanel';
 import ChartSection from '@/components/dashboard/ChartSection';
@@ -178,9 +178,9 @@ export default function DashboardK5Page() {
     }
   };
 
-  const handleClearSearch = () => {
-    setActiveFilter(null);
-  };
+  // const handleClearSearch = () => {
+  //   setActiveFilter(null);
+  // };
 
   const handleDropdownFilter = (f: FilterWilayah | null) => {
     setActiveFilter(f);
@@ -593,7 +593,8 @@ export default function DashboardK5Page() {
             </div>
           </section>
 
-          {/* 2. Key Stat Cards */}
+          {/* 2. Key Stat Cards - Disembunyikan / di-comment sementara */}
+          {/*
           <section className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs">
             <StatCards
               status={filters.status}
@@ -614,6 +615,7 @@ export default function DashboardK5Page() {
               }
             />
           </section>
+          */}
 
           {/* 2. TAB NAVIGATION BAR LOCATED DIRECTLY BELOW CARDS (USER-FRIENDLY REDESIGN) */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-xs space-y-3">
