@@ -73,6 +73,7 @@ export default function Navbar({ activePath }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const currentPath = activePath || pathname || '/';
+  const isHome = currentPath === '/';
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 50);
@@ -99,30 +100,32 @@ export default function Navbar({ activePath }: NavbarProps) {
           />
         </Link>
 
-        {/* Clean Horizontal Desktop Navigation Links (Middle) */}
-        <nav className="hidden lg:flex items-center gap-7">
-          {NAV_ITEMS.map((item) => {
-            const isActive = currentPath === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-xs font-extrabold transition-colors whitespace-nowrap py-1 relative hover:text-slate-900 dark:hover:text-white"
-                style={{
-                  color: isActive ? '#E11D48' : 'var(--text-secondary)',
-                }}
-              >
-                <span>{item.label}</span>
-                {isActive && (
-                  <span
-                    className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                    style={{ backgroundColor: '#E11D48' }}
-                  />
-                )}
-              </Link>
-            );
-          })}
-        </nav>
+        {/* Clean Horizontal Desktop Navigation Links (Middle) - Hidden on Beranda, visible on other pages */}
+        {!isHome && (
+          <nav className="hidden lg:flex items-center gap-7">
+            {NAV_ITEMS.map((item) => {
+              const isActive = currentPath === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-xs font-extrabold transition-colors whitespace-nowrap py-1 relative hover:text-slate-900 dark:hover:text-white"
+                  style={{
+                    color: isActive ? '#E11D48' : 'var(--text-secondary)',
+                  }}
+                >
+                  <span>{item.label}</span>
+                  {isActive && (
+                    <span
+                      className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                      style={{ backgroundColor: '#E11D48' }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
 
         {/* Far Right: Informasi Pill Button + Theme Mode Switch */}
         <div className="hidden lg:flex items-center gap-3.5 shrink-0">
@@ -131,7 +134,7 @@ export default function Navbar({ activePath }: NavbarProps) {
             className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all duration-200 shadow-2xs hover:scale-102 ${
               currentPath === '/informasi-mitra'
                 ? 'border-rose-500 text-rose-600 bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/40'
-                : 'border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-slate-100/30 dark:bg-slate-800/70 hover:bg-slate-200/30 dark:hover:bg-slate-700/70'
+                : 'border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800/70 hover:bg-slate-50 dark:hover:bg-slate-700/70'
             }`}
           >
             <Info className="w-3.5 h-3.5" />
@@ -143,19 +146,34 @@ export default function Navbar({ activePath }: NavbarProps) {
 
         {/* Mobile Controls (Far Right) */}
         <div className="lg:hidden flex items-center gap-2">
-          <ThemeToggle />
-          <button
-            className="p-2 rounded-xl bg-slate-800/20 border border-slate-700/40 text-slate-900 dark:text-slate-200"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
+          <Link
+            href="/informasi-mitra"
+            className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold border transition-all duration-200 shadow-2xs ${
+              currentPath === '/informasi-mitra'
+                ? 'border-rose-500 text-rose-600 bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/40'
+                : 'border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800/70'
+            }`}
           >
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+            <Info className="w-3.5 h-3.5" />
+            <span>INFORMASI</span>
+          </Link>
+
+          <ThemeToggle />
+
+          {!isHome && (
+            <button
+              className="p-2 rounded-xl bg-slate-800/20 border border-slate-700/40 text-slate-900 dark:text-slate-200"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Toggle menu"
+            >
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
-      {menuOpen && (
+      {/* Mobile Drawer Menu - Only on other pages */}
+      {!isHome && menuOpen && (
         <div
           className="lg:hidden px-6 pb-6 pt-3 space-y-2 max-h-[85vh] overflow-y-auto"
           style={{
@@ -180,21 +198,6 @@ export default function Navbar({ activePath }: NavbarProps) {
               </Link>
             );
           })}
-
-          <div className="pt-2 border-t border-slate-700/20">
-            <Link
-              href="/informasi-mitra"
-              onClick={() => setMenuOpen(false)}
-              className={`flex items-center justify-center gap-2 w-full p-3 rounded-xl text-xs font-bold border transition-colors ${
-                currentPath === '/informasi-mitra'
-                  ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30'
-                  : 'bg-slate-100/30 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
-              }`}
-            >
-              <Info className="w-4 h-4" />
-              <span>INFORMASI</span>
-            </Link>
-          </div>
         </div>
       )}
     </header>
