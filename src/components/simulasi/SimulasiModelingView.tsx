@@ -16,6 +16,8 @@ import {
   querySepakatStatsForFloodAOI,
   GridCell,
   SimulationOutput,
+  fetchGirianModelData,
+  GirianModelData,
 } from './SimulasiEngine';
 import SimulasiControlPanel from './SimulasiControlPanel';
 import {
@@ -86,7 +88,11 @@ export default function SimulasiModelingView({ embedded = false }: SimulasiModel
       setIsSimulating(true);
 
       setTimeout(async () => {
-        const output: SimulationOutput = runFastFloodSimulation(regionToUse, paramsToUse, stepIndex);
+        let realData: GirianModelData | null = null;
+        if (regionToUse.id === 'girian_bitung') {
+          realData = await fetchGirianModelData();
+        }
+        const output: SimulationOutput = runFastFloodSimulation(regionToUse, paramsToUse, stepIndex, realData);
         setGridCells(output.grid);
         setGeoJsonData(output.geoJson);
         setResults(output.results);

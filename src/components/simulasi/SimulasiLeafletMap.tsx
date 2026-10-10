@@ -61,10 +61,16 @@ export default function SimulasiLeafletMap({
   const baseTileLayerRef = useRef<L.TileLayer | null>(null);
   const currentBasemapIdRef = useRef<string>(basemapId);
   const floodLayerRef = useRef<L.GeoJSON | null>(null);
+  const dasLayerRef = useRef<L.GeoJSON | null>(null);
+  const riverLayerRef = useRef<L.GeoJSON | null>(null);
+  const riverMarkersRef = useRef<L.LayerGroup | null>(null);
   const inspectMarkerRef = useRef<L.Marker | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [showBasemapMenu, setShowBasemapMenu] = useState(false);
+  const [showDasBoundary, setShowDasBoundary] = useState(true);
+  const [showRiverLine, setShowRiverLine] = useState(true);
+  const [showInundationGrid, setShowInundationGrid] = useState(true);
 
   // 1. Initialize Leaflet Map
   useEffect(() => {
@@ -158,6 +164,119 @@ export default function SimulasiLeafletMap({
     }
   }, [basemapId]);
 
+  // 3a. Render Batas DAS Girian Layer
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+
+    if (dasLayerRef.current) {
+      mapInstanceRef.current.removeLayer(dasLayerRef.current);
+      dasLayerRef.current = null;
+    }
+
+    if (!showDasBoundary) return;
+
+    const dasUrl = region.dasGeoJsonUrl || (region.id === 'girian_bitung' ? '/modeling/das_girian_bitung_wgs84.json' : null);
+    if (dasUrl) {
+      fetch(dasUrl)
+        .then((res) => res.json())
+        .then((dasData) => {
+          if (!mapInstanceRef.current) return;
+          const dasLayer = L.geoJSON(dasData, {
+            style: {
+              color: '#059669',
+              weight: 2,
+              dashArray: '6, 6',
+              fillColor: '#10b981',
+              fillOpacity: 0.05,
+            },
+            onEachFeature: (_, layer) => {
+              layer.bindTooltip(
+                '<div style="font-size:11px;"><b>Batas DAS Girian</b><br>Wilayah: Kota Bitung<br>Luas: ~10.910 Ha (BPDAS Tondano)</div>',
+                { sticky: true, className: 'simulasi-tooltip' }
+              );
+            },
+          }).addTo(mapInstanceRef.current);
+          dasLayerRef.current = dasLayer;
+        })
+        .catch((err) => console.warn('Could not load DAS GeoJSON:', err));
+    }
+  }, [region.id, region.dasGeoJsonUrl, showDasBoundary]);
+
+  // 3b. Render Alur Sungai Girian & Titik Hulu/Muara
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+
+    if (riverLayerRef.current) {
+      mapInstanceRef.current.removeLayer(riverLayerRef.current);
+      riverLayerRef.current = null;
+    }
+    if (riverMarkersRef.current) {
+      mapInstanceRef.current.removeLayer(riverMarkersRef.current);
+      riverMarkersRef.current = null;
+    }
+
+    if (!showRiverLine) return;
+
+    const riverUrl = region.riverGeoJsonUrl || (region.id === 'girian_bitung' ? '/modeling/sungai_girian_kota_bitung_Fe1.json' : null);
+    if (riverUrl) {
+      fetch(riverUrl)
+        .then((res) => res.json())
+        .then((riverData) => {
+          if (!mapInstanceRef.current) return;
+          const riverLayer = L.geoJSON(riverData, {
+            style: {
+              color: '#0284c7',
+              weight: 3.5,
+              opacity: 0.95,
+            },
+            onEachFeature: (_, layer) => {
+              layer.bindTooltip(
+                '<div style="font-size:11px;"><b>Alur Sungai Girian</b><br>Panjang: ~14.7 km<br>Sumber: BAKOSURTANAL<br>Hulu: 480m dpl → Muara: 0m dpl</div>',
+                { sticky: true, className: 'simulasi-tooltip' }
+              );
+            },
+          }).addTo(mapInstanceRef.current);
+          riverLayerRef.current = riverLayer;
+
+          const markerGroup = L.layerGroup();
+
+          // Hulu Marker
+          const huluIcon = L.divIcon({
+            className: '',
+            html: `
+              <div style="background:#0f172a; color:#38bdf8; padding:3px 7px; border-radius:8px; font-size:10px; font-weight:800; border:1px solid #38bdf8; box-shadow:0 2px 8px rgba(0,0,0,0.5); white-space:nowrap; display:flex; align-items:center; gap:4px;">
+                <span>⛰️</span>
+                <span>Hulu S. Girian (480m)</span>
+              </div>
+            `,
+            iconAnchor: [65, 14],
+          });
+          L.marker([1.527608, 125.048347], { icon: huluIcon })
+            .bindPopup('<b>Hulu Sungai Girian</b><br>Elevasi: 480 m dpl<br>Puncak DAS Pegunungan Bitung')
+            .addTo(markerGroup);
+
+          // Muara Marker
+          const muaraIcon = L.divIcon({
+            className: '',
+            html: `
+              <div style="background:#0f172a; color:#34d399; padding:3px 7px; border-radius:8px; font-size:10px; font-weight:800; border:1px solid #34d399; box-shadow:0 2px 8px rgba(0,0,0,0.5); white-space:nowrap; display:flex; align-items:center; gap:4px;">
+                <span>🌊</span>
+                <span>Muara Girian (0m)</span>
+              </div>
+            `,
+            iconAnchor: [55, 14],
+          });
+          L.marker([1.429887, 125.129408], { icon: muaraIcon })
+            .bindPopup('<b>Muara Sungai Girian</b><br>Elevasi: 0 m dpl<br>Outlet ke Selat Lembeh / Teluk Bitung')
+            .addTo(markerGroup);
+
+          markerGroup.addTo(mapInstanceRef.current);
+          riverMarkersRef.current = markerGroup;
+        })
+        .catch((err) => console.warn('Could not load River GeoJSON:', err));
+    }
+  }, [region.id, region.riverGeoJsonUrl, showRiverLine]);
+
   // 4. Render Flood Inundation Layer
   useEffect(() => {
     if (!mapInstanceRef.current) return;
@@ -167,7 +286,7 @@ export default function SimulasiLeafletMap({
       floodLayerRef.current = null;
     }
 
-    if (geoJsonData && geoJsonData.features.length > 0) {
+    if (showInundationGrid && geoJsonData && geoJsonData.features.length > 0) {
       const canvasRenderer = L.canvas({ padding: 0.5 });
       const geoLayer = L.geoJSON(geoJsonData, {
         style: (feature) => {
@@ -196,7 +315,7 @@ export default function SimulasiLeafletMap({
       geoLayer.addTo(mapInstanceRef.current);
       floodLayerRef.current = geoLayer;
     }
-  }, [geoJsonData]);
+  }, [geoJsonData, showInundationGrid]);
 
   // 5. Render Inspection Pin
   useEffect(() => {
@@ -319,68 +438,127 @@ export default function SimulasiLeafletMap({
         </div>
       </div>
 
-      {/* FLOATING INSPECTION CARD (When user clicks anywhere on map) */}
-      {inspectionPoint && (
-        <div className="absolute top-4 left-4 z-[400] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 shadow-md max-w-xs w-72 text-xs space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-1.5">
-            <span className="font-extrabold text-[#0a1e36] dark:text-white flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-rose-500" />
-              <span>Titik Inspeksi Spasial</span>
+      {/* FLOATING TOP-LEFT: GIS Layer Visibility Toggles (DAS, Sungai, Genangan) & Inspection Point */}
+      <div className="absolute top-4 left-4 z-[400] flex flex-col gap-2 max-w-xs">
+        {/* Layer Visibility Card */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-md text-xs space-y-2">
+          <div className="font-extrabold text-[#0a1e36] dark:text-white text-[11px] flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-1.5">
+            <span className="flex items-center gap-1.5">
+              <span>🗺️</span>
+              <span>Layer Geospasial Modeling</span>
             </span>
-            <span
-              className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full ${
-                inspectionPoint.hazardLevel === 'Ekstrem'
-                  ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300'
-                  : inspectionPoint.hazardLevel === 'Tinggi'
-                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
-                  : inspectionPoint.hazardLevel === 'Sedang'
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
-                  : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
-              }`}
-            >
-              {inspectionPoint.hazardLevel}
-            </span>
+            {region.id === 'girian_bitung' && (
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                Data Riil
+              </span>
+            )}
           </div>
 
-          <table className="w-full text-[11px] space-y-1">
-            <tbody>
-              <tr>
-                <td className="text-slate-500 py-0.5">Kedalaman Air:</td>
-                <td className="font-extrabold text-sky-600 dark:text-sky-400 text-right">
-                  {inspectionPoint.waterDepth} m
-                </td>
-              </tr>
-              <tr>
-                <td className="text-slate-500 py-0.5">Elevasi Tanah (DEM):</td>
-                <td className="font-bold text-slate-800 dark:text-slate-200 text-right">
-                  {inspectionPoint.elevation} m dpl
-                </td>
-              </tr>
-              <tr>
-                <td className="text-slate-500 py-0.5">Muka Air Total (WSE):</td>
-                <td className="font-bold text-slate-800 dark:text-slate-200 text-right">
-                  {inspectionPoint.waterElevation} m dpl
-                </td>
-              </tr>
-              <tr>
-                <td className="text-slate-500 py-0.5">Kecepatan Arus:</td>
-                <td className="font-bold text-slate-800 dark:text-slate-200 text-right">
-                  {inspectionPoint.velocity} m/s
-                </td>
-              </tr>
-              <tr>
-                <td className="text-slate-500 py-0.5">Koordinat:</td>
-                <td className="font-mono text-[10px] text-slate-600 dark:text-slate-400 text-right">
-                  {inspectionPoint.lat.toFixed(4)}, {inspectionPoint.lng.toFixed(4)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <p className="text-[9.5px] text-slate-400 italic text-center pt-1 border-t border-slate-100 dark:border-slate-800">
-            Klik lokasi lain di peta untuk memeriksa elevasi dan kedalaman air.
-          </p>
+          <div className="flex flex-col gap-1.5 text-[11px]">
+            <label className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-slate-900">
+              <input
+                type="checkbox"
+                checked={showDasBoundary}
+                onChange={(e) => setShowDasBoundary(e.target.checked)}
+                className="w-3.5 h-3.5 rounded text-emerald-600 cursor-pointer"
+              />
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm border border-emerald-500 bg-emerald-500/20" />
+                <span>Batas DAS Girian (10.910 Ha)</span>
+              </span>
+            </label>
+
+            <label className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-slate-900">
+              <input
+                type="checkbox"
+                checked={showRiverLine}
+                onChange={(e) => setShowRiverLine(e.target.checked)}
+                className="w-3.5 h-3.5 rounded text-sky-600 cursor-pointer"
+              />
+              <span className="flex items-center gap-1.5">
+                <span className="w-3 h-0.5 bg-[#0284c7]" />
+                <span>Alur Sungai Girian (130 Titik)</span>
+              </span>
+            </label>
+
+            <label className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-300 hover:text-slate-900">
+              <input
+                type="checkbox"
+                checked={showInundationGrid}
+                onChange={(e) => setShowInundationGrid(e.target.checked)}
+                className="w-3.5 h-3.5 rounded text-blue-600 cursor-pointer"
+              />
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm bg-gradient-to-r from-sky-400 via-amber-400 to-rose-500" />
+                <span>Genangan 2D FastFlood (DEM 30m)</span>
+              </span>
+            </label>
+          </div>
         </div>
-      )}
+
+        {/* FLOATING INSPECTION CARD (When user clicks anywhere on map) */}
+        {inspectionPoint && (
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-md w-full text-xs space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-1.5">
+              <span className="font-extrabold text-[#0a1e36] dark:text-white flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                <span>Titik Inspeksi Spasial</span>
+              </span>
+              <span
+                className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full ${
+                  inspectionPoint.hazardLevel === 'Ekstrem'
+                    ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300'
+                    : inspectionPoint.hazardLevel === 'Tinggi'
+                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
+                    : inspectionPoint.hazardLevel === 'Sedang'
+                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
+                    : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                }`}
+              >
+                {inspectionPoint.hazardLevel}
+              </span>
+            </div>
+
+            <table className="w-full text-[11px] space-y-1">
+              <tbody>
+                <tr>
+                  <td className="text-slate-500 py-0.5">Kedalaman Air:</td>
+                  <td className="font-extrabold text-sky-600 dark:text-sky-400 text-right">
+                    {inspectionPoint.waterDepth} m
+                  </td>
+                </tr>
+                <tr>
+                  <td className="text-slate-500 py-0.5">Elevasi Tanah (DEM):</td>
+                  <td className="font-bold text-slate-800 dark:text-slate-200 text-right">
+                    {inspectionPoint.elevation} m dpl
+                  </td>
+                </tr>
+                <tr>
+                  <td className="text-slate-500 py-0.5">Muka Air Total (WSE):</td>
+                  <td className="font-bold text-slate-800 dark:text-slate-200 text-right">
+                    {inspectionPoint.waterElevation} m dpl
+                  </td>
+                </tr>
+                <tr>
+                  <td className="text-slate-500 py-0.5">Kecepatan Arus:</td>
+                  <td className="font-bold text-slate-800 dark:text-slate-200 text-right">
+                    {inspectionPoint.velocity} m/s
+                  </td>
+                </tr>
+                <tr>
+                  <td className="text-slate-500 py-0.5">Koordinat:</td>
+                  <td className="font-mono text-[10px] text-slate-600 dark:text-slate-400 text-right">
+                    {inspectionPoint.lat.toFixed(4)}, {inspectionPoint.lng.toFixed(4)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p className="text-[9.5px] text-slate-400 italic text-center pt-1 border-t border-slate-100 dark:border-slate-800">
+              Klik lokasi lain di peta untuk memeriksa elevasi dan kedalaman air.
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* FLOATING BOTTOM: Interactive FastFlood Timeline Scrubber Bar */}
       {results && results.timelineSteps.length > 0 && (

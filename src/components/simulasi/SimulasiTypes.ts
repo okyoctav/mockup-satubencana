@@ -17,6 +17,9 @@ export interface RegionPreset {
   defaultDemBase: number; // Base elevation in meters
   riskType: 'Sungai' | 'Rob / Pesisir' | 'Banjir Bandang' | 'Drainase Perkotaan';
   riverConfig?: RiverPathConfig;
+  riverGeoJsonUrl?: string;
+  dasGeoJsonUrl?: string;
+  modelDataUrl?: string;
 }
 
 export interface SimulationParams {
@@ -93,6 +96,20 @@ export interface SimulationResults {
 }
 
 export const REGION_PRESETS: RegionPreset[] = [
+  {
+    id: 'girian_bitung',
+    name: 'DAS Girian - Kota Bitung (Data Riil)',
+    province: 'Sulawesi Utara (Kota Bitung)',
+    lat: 1.4820,
+    lng: 125.0910,
+    zoom: 13,
+    description: 'Pemodelan hidrodinamika 2D riil: Alur Sungai Girian (BAKOSURTANAL 130 titik), Batas DAS Girian (10.910 Ha), dan topografi DEM SRTM 30m.',
+    defaultDemBase: 42.0,
+    riskType: 'Sungai',
+    riverGeoJsonUrl: '/modeling/sungai_girian_kota_bitung_Fe1.json',
+    dasGeoJsonUrl: '/modeling/das_girian_bitung_wgs84.json',
+    modelDataUrl: '/modeling/girian_bitung_model_data.json',
+  },
   {
     id: 'ciliwung_jkt',
     name: 'DAS Ciliwung - Manggarai',

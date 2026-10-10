@@ -12,30 +12,272 @@ export interface GridCell {
   isRiverChannel?: boolean;
 }
 
+export interface GirianModelCell {
+  lat: number;
+  lng: number;
+  elev: number;
+  dist: number;
+  rElev: number;
+  segIdx: number;
+  das: boolean;
+  poly: [number, number][];
+}
+
+export interface GirianModelData {
+  case_id: string;
+  name: string;
+  province: string;
+  bbox: [number, number, number, number];
+  rows: number;
+  cols: number;
+  dLng: number;
+  dLat: number;
+  cellCount: number;
+  riverPointsCount: number;
+  riverElevation: {
+    upstream: number;
+    midstream: number;
+    downstream: number;
+  };
+  cells: GirianModelCell[];
+}
+
 export interface SimulationOutput {
   grid: GridCell[];
   results: SimulationResults;
   geoJson: GeoJSON.FeatureCollection;
 }
 
+let cachedGirianData: GirianModelData | null = null;
+
+export async function fetchGirianModelData(): Promise<GirianModelData | null> {
+  if (cachedGirianData) return cachedGirianData;
+  if (typeof window === 'undefined') return null;
+  try {
+    const res = await fetch('/modeling/girian_bitung_model_data.json');
+    if (!res.ok) return null;
+    cachedGirianData = await res.json();
+    return cachedGirianData;
+  } catch (err) {
+    console.warn('Failed to load girian_bitung_model_data.json:', err);
+    return null;
+  }
+}
+
 /**
  * FastFlood Hydrodynamic River Spreading Engine
- * Menggunakan prinsip hidrodinamika 2D beresolusi tinggi (grid sel halus ~35m-50m)
- * yang difokuskan pada koridor alur sungai:
- * - Menghitung elevasi palung sungai, bantaran, tanggul, dan dataran banjir
- * - Jam 00:00 (baseline): Aliran air hanya berada di palung sungai normal
- * - Jam demi jam: Ketika curah hujan akumulatif naik menuju puncak (Jam 08:00),
- *   muka air sungai meluap melebihi bibir tanggul dan melebar secara lateral
- *   ke kiri dan kanan bantaran/pemukiman warga.
- * - Semakin tinggi intensitas curah hujan (mm/jam), semakin lebar dan dalam
- *   luapan aliran sungai yang terjadi.
+ * Menggunakan prinsip hidrodinamika 2D:
+ * - Jika region adalah 'girian_bitung' dan data riil tersedia, menggunakan data riil
+ *   Batas DAS Girian, alur Sungai Girian 130 titik, dan DEM SRTM 30m.
+ * - Untuk preset lain, menggunakan model hidrodinamika FastFlood semi-analitis.
  */
 export function runFastFloodSimulation(
   region: RegionPreset,
   params: SimulationParams,
-  currentHourIndex = 4 // default to peak (index 4 = hour 8)
+  currentHourIndex = 4, // default to peak (index 4 = hour 8)
+  realData?: GirianModelData | null
 ): SimulationOutput {
-  // Grid resolution: Finer resolution (~35m - 50m per cell)
+  // 0. Cabang Khusus: DAS Girian - Kota Bitung (Berdasarkan File Geospasial Riil)
+  const girianData = realData || cachedGirianData;
+  if (region.id === 'girian_bitung' && girianData && girianData.cells && girianData.cells.length > 0) {
+    const totalRainfallMm = params.rainfallIntensity * params.durationHours;
+    const totalInfiltrationMm = Math.min(params.infiltrationRate * params.durationHours, totalRainfallMm * 0.55);
+    const netRainfallMm = Math.max(0, totalRainfallMm - totalInfiltrationMm);
+    const effectiveRainfallM = (netRainfallMm / 1000) * params.runoffCoefficient;
+
+    const inflowFactor = ((params.riverInflow - 50) / 600) * 1.5;
+    const tideFactor = params.tidalSurge * 0.95;
+    const leveeMultiplier = params.leveeStatus === 'breached' ? 1.75 : params.leveeStatus === 'overtopped' ? 1.3 : 1.0;
+    const pumpReduction = Math.min(0.4, (params.pumpCapacity / 50) * 0.35);
+
+    const timelineMultipliers = [0.0, 0.25, 0.58, 0.85, 1.0, 0.85, 0.45, 0.15];
+    const activeFloodMul = timelineMultipliers[currentHourIndex] ?? 1.0;
+
+    const peakStageRise = ((effectiveRainfallM * 4.8) + inflowFactor + (tideFactor * 0.3)) * leveeMultiplier;
+    const currentStageRise = Math.max(0, (peakStageRise * activeFloodMul) - (pumpReduction * activeFloodMul));
+
+    const rainIntensityRatio = Math.pow(Math.max(10, params.rainfallIntensity) / 50, 1.15);
+    const halfRiverWidth = 25; // lebar palung sungai ~50m
+    const maxSpreadDistance = halfRiverWidth + 30 + (Math.pow(Math.max(0, currentStageRise - 0.7), 1.25) * 420 * rainIntensityRatio);
+
+    const cells: GridCell[] = [];
+    const features: GeoJSON.Feature[] = [];
+
+    let totalFloodedAreaM2 = 0;
+    let totalVolumeM3 = 0;
+    let maxDepth = 0;
+    let sumDepth = 0;
+    let floodedCellCount = 0;
+
+    const cellAreaM2 = (girianData.dLat * 111320) * (girianData.dLng * 111320 * Math.cos(1.48 * Math.PI / 180));
+
+    for (const c of girianData.cells) {
+      const isRiverChannel = c.dist <= 35;
+      let depth = 0;
+      let velocity = 0;
+
+      const riverWaterSurface = c.rElev + (isRiverChannel ? 1.1 + currentStageRise : currentStageRise);
+      const bankHeight = params.leveeStatus === 'breached' ? 0.3 : 1.2;
+      const bankElevation = c.rElev + bankHeight;
+      const overflowHead = Math.max(0, riverWaterSurface - bankElevation);
+
+      if (isRiverChannel) {
+        depth = Math.max(0.8, 1.1 + currentStageRise);
+        const slope = Math.max(0.005, (c.rElev + 5) / 14000);
+        velocity = Math.min(5.2, Math.max(1.5, Math.sqrt(2 * 9.81 * slope * depth)));
+      } else if (overflowHead > 0 && c.dist <= maxSpreadDistance) {
+        const headAtCell = (c.rElev + currentStageRise) - c.elev;
+        if (headAtCell > 0) {
+          const lateralFactor = Math.max(0, 1 - Math.pow(c.dist / maxSpreadDistance, 1.4));
+          depth = headAtCell * (0.35 + lateralFactor * 0.65);
+          velocity = Math.min(2.5, Math.max(0.2, (depth * 0.6) * lateralFactor));
+        }
+      }
+
+      if (params.tidalSurge > 0 && c.elev <= 3.5 && c.segIdx >= 110) {
+        const coastalTideDepth = Math.max(0, (params.tidalSurge * activeFloodMul) - (c.elev * 0.4));
+        if (coastalTideDepth > depth) {
+          depth = coastalTideDepth;
+          velocity = Math.max(velocity, 0.3);
+        }
+      }
+
+      depth = Math.round(depth * 100) / 100;
+      velocity = Math.round(velocity * 100) / 100;
+
+      if (depth > 0.05) {
+        floodedCellCount++;
+        totalFloodedAreaM2 += cellAreaM2;
+        totalVolumeM3 += depth * cellAreaM2;
+        sumDepth += depth;
+        if (depth > maxDepth) maxDepth = depth;
+      }
+
+      let hazardLevel: 'Aman' | 'Rendah' | 'Sedang' | 'Tinggi' | 'Ekstrem' = 'Aman';
+      if (depth <= 0.05) {
+        hazardLevel = 'Aman';
+      } else if (depth <= 0.75 && velocity < 0.6) {
+        hazardLevel = 'Rendah';
+      } else if (depth <= 1.5 || (depth <= 0.75 && velocity >= 0.6)) {
+        hazardLevel = 'Sedang';
+      } else if (depth <= 2.5) {
+        hazardLevel = 'Tinggi';
+      } else {
+        hazardLevel = 'Ekstrem';
+      }
+
+      let fillColor = '#0ea5e9';
+      let fillOpacity = 0.55;
+
+      if (isRiverChannel) {
+        fillColor = '#0284c7';
+        fillOpacity = 0.85;
+      } else if (hazardLevel === 'Rendah') {
+        fillColor = '#38bdf8';
+        fillOpacity = 0.6;
+      } else if (hazardLevel === 'Sedang') {
+        fillColor = '#eab308';
+        fillOpacity = 0.7;
+      } else if (hazardLevel === 'Tinggi') {
+        fillColor = '#f97316';
+        fillOpacity = 0.75;
+      } else if (hazardLevel === 'Ekstrem') {
+        fillColor = '#ef4444';
+        fillOpacity = 0.85;
+      }
+
+      const gridCell: GridCell = {
+        lat: c.lat,
+        lng: c.lng,
+        elevation: c.elev,
+        waterDepth: depth,
+        waterElevation: Math.round((c.elev + depth) * 100) / 100,
+        velocity,
+        hazardLevel,
+        polygonCoords: c.poly,
+        isRiverChannel,
+      };
+
+      cells.push(gridCell);
+
+      if (depth > 0.05 || isRiverChannel) {
+        features.push({
+          type: 'Feature',
+          geometry: {
+            type: 'Polygon',
+            coordinates: [c.poly],
+          },
+          properties: {
+            depth,
+            elevation: c.elev,
+            waterElevation: Math.round((c.elev + depth) * 100) / 100,
+            velocity,
+            hazardLevel,
+            fillColor,
+            fillOpacity,
+            isRiverChannel,
+            distToRiver: c.dist,
+            isInsideDAS: c.das,
+          },
+        });
+      }
+    }
+
+    const floodedAreaHa = Math.round(totalFloodedAreaM2 / 10000);
+    const floodedAreaKm2 = Math.round((totalFloodedAreaM2 / 1000000) * 100) / 100;
+    const avgDepth = floodedCellCount > 0 ? Math.round((sumDepth / floodedCellCount) * 100) / 100 : 0;
+    const waterVolumeM3 = Math.round((totalVolumeM3 / 1000000) * 100) / 100;
+
+    const affectedPopulation = Math.round(floodedAreaHa * 28);
+    const affectedBuildings = Math.round(affectedPopulation / 4.1);
+    const affectedSchools = Math.min(18, Math.round(floodedAreaKm2 * 1.8));
+    const affectedHospitals = Math.min(4, Math.round(floodedAreaKm2 * 0.4));
+    const inundatedRoadKm = Math.round(floodedAreaKm2 * 3.4 * 10) / 10;
+    const economicLossBillion = Math.round(floodedAreaKm2 * 18.5 * 10) / 10;
+
+    let overallHazard: 'Rendah' | 'Sedang' | 'Tinggi' | 'Ekstrem' = 'Rendah';
+    if (maxDepth >= 2.5 || floodedAreaHa > 600) overallHazard = 'Ekstrem';
+    else if (maxDepth >= 1.5 || floodedAreaHa > 300) overallHazard = 'Tinggi';
+    else if (maxDepth >= 0.75 || floodedAreaHa > 100) overallHazard = 'Sedang';
+
+    const timelineSteps = [
+      { hour: 0, label: '00:00 - Baseline Aliran Sungai Girian', totalAreaHa: Math.round(floodedAreaHa * 0.08), avgDepth: 0.9, waterVolumePct: 8 },
+      { hour: 2, label: '02:00 - Hujan Mulai Mengisi Hulu DAS', totalAreaHa: Math.round(floodedAreaHa * 0.28), avgDepth: Math.round(avgDepth * 0.35 * 100) / 100, waterVolumePct: 25 },
+      { hour: 4, label: '04:00 - Debit Hulu Girian Meningkat', totalAreaHa: Math.round(floodedAreaHa * 0.62), avgDepth: Math.round(avgDepth * 0.65 * 100) / 100, waterVolumePct: 58 },
+      { hour: 6, label: '06:00 - Aliran Mendekati Tanggul Kritis', totalAreaHa: Math.round(floodedAreaHa * 0.88), avgDepth: Math.round(avgDepth * 0.88 * 100) / 100, waterVolumePct: 85 },
+      { hour: 8, label: '08:00 - Puncak Luapan DAS Girian & Genangan', totalAreaHa: floodedAreaHa, avgDepth, waterVolumePct: 100 },
+      { hour: 10, label: '10:00 - Hujan Mereda, Genangan Meluas', totalAreaHa: Math.round(floodedAreaHa * 0.92), avgDepth: Math.round(avgDepth * 0.9 * 100) / 100, waterVolumePct: 88 },
+      { hour: 12, label: '12:00 - Aliran Mulai Surut ke Muara', totalAreaHa: Math.round(floodedAreaHa * 0.58), avgDepth: Math.round(avgDepth * 0.55 * 100) / 100, waterVolumePct: 48 },
+      { hour: 14, label: '14:00 - Pasca Banjir / Aliran Normal', totalAreaHa: Math.round(floodedAreaHa * 0.2), avgDepth: Math.round(avgDepth * 0.25 * 100) / 100, waterVolumePct: 18 },
+    ];
+
+    const results: SimulationResults = {
+      maxDepth,
+      avgDepth,
+      floodedAreaHa,
+      floodedAreaKm2,
+      waterVolumeM3,
+      affectedPopulation,
+      affectedBuildings,
+      affectedSchools,
+      affectedHospitals,
+      inundatedRoadKm,
+      economicLossBillion,
+      hazardCategory: overallHazard,
+      timelineSteps,
+    };
+
+    return {
+      grid: cells,
+      results,
+      geoJson: {
+        type: 'FeatureCollection',
+        features,
+      },
+    };
+  }
+
+  // Grid resolution default: Finer resolution (~35m - 50m per cell)
   const gridSize = params.gridResolution === 'high' ? 56 : params.gridResolution === 'medium' ? 44 : 34;
   const stepDegree = params.gridResolution === 'high' ? 0.00035 : params.gridResolution === 'medium' ? 0.00045 : 0.00062;
   const half = Math.floor(gridSize / 2);
