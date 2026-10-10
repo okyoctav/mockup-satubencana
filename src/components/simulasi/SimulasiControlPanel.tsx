@@ -56,7 +56,7 @@ export default function SimulasiControlPanel({
       <div className="p-4 border-b border-slate-200 dark:border-slate-800 space-y-3 shrink-0 bg-slate-50 dark:bg-slate-900">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="p-1.5 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 shrink-0">
+            <div className="p-1.5 rounded-xl bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 shrink-0">
               <Waves className="w-4 h-4" />
             </div>
             <div className="truncate">
@@ -95,7 +95,7 @@ export default function SimulasiControlPanel({
         </div>
 
         {/* Card Wilayah Pemodelan (Fokus Data Riil) */}
-        <div className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 space-y-1.5">
+        <div className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950 border border-teal-200 dark:border-teal-800 space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-extrabold text-teal-800 dark:text-teal-200 uppercase tracking-wider">
               Wilayah Pemodelan Riil
@@ -107,14 +107,14 @@ export default function SimulasiControlPanel({
           <div className="font-extrabold text-[#0a1e36] dark:text-white text-xs">
             {selectedRegion.name}
           </div>
-          <p className="text-[10.5px] text-teal-900/80 dark:text-teal-300/80 leading-relaxed">
+          <p className="text-[10.5px] text-teal-900 dark:text-teal-200 leading-relaxed">
             {selectedRegion.description}
           </p>
         </div>
       </div>
 
       {/* 2. TAB NAVIGATION */}
-      <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-800/40 p-1 gap-1 shrink-0 text-xs font-bold">
+      <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 p-1 gap-1 shrink-0 text-xs font-bold">
         <button
           onClick={() => setActiveTab('rain')}
           className={`flex-1 py-1.5 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
@@ -245,7 +245,7 @@ export default function SimulasiControlPanel({
             </div>
 
             {/* Total Akumulasi Curah Hujan Card */}
-            <div className="p-3 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/60 flex items-center justify-between">
+            <div className="p-3 rounded-2xl bg-sky-50 dark:bg-sky-950 border border-sky-200 dark:border-sky-800 flex items-center justify-between">
               <div>
                 <div className="text-[10px] text-sky-800 dark:text-sky-300 font-bold uppercase">Total Akumulasi Hujan</div>
                 <div className="text-base font-black text-sky-900 dark:text-sky-200">
@@ -457,10 +457,10 @@ export default function SimulasiControlPanel({
                 <div
                   className={`p-3 rounded-2xl border flex items-center justify-between ${
                     results.hazardCategory === 'Ekstrem'
-                      ? 'bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950/40 dark:border-rose-900 dark:text-rose-200'
+                      ? 'bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950 dark:border-rose-900 dark:text-rose-200'
                       : results.hazardCategory === 'Tinggi'
-                      ? 'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950/40 dark:border-amber-900 dark:text-amber-200'
-                      : 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950/40 dark:border-blue-900 dark:text-blue-200'
+                      ? 'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-900 dark:text-amber-200'
+                      : 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-900 dark:text-blue-200'
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -470,7 +470,7 @@ export default function SimulasiControlPanel({
                       <div className="text-sm font-black">Status {results.hazardCategory}</div>
                     </div>
                   </div>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-white/80 dark:bg-black/40 border">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700">
                     Kedalaman Maks: {results.maxDepth} m
                   </span>
                 </div>
@@ -529,7 +529,7 @@ export default function SimulasiControlPanel({
                 {/* SEPAKAT Bappenas Demographic Card */}
                 {results.sepakatStats ? (
                   <div className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950 border border-teal-200 dark:border-teal-800 space-y-2">
-                    <div className="flex items-center justify-between border-b border-teal-200/80 dark:border-teal-800/80 pb-1.5">
+                    <div className="flex items-center justify-between border-b border-teal-200 dark:border-teal-800 pb-1.5">
                       <div className="font-bold text-[#0a1e36] dark:text-white flex items-center gap-1.5 text-xs">
                         <span>🏛️</span>
                         <span>Demografi Riil SEPAKAT Bappenas</span>
@@ -580,7 +580,7 @@ export default function SimulasiControlPanel({
                 )}
 
                 {/* Kesimpulan Simulasi untuk Orang Awam Box */}
-                <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 space-y-2 shadow-xs">
+                <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2 shadow-xs">
                   <div className="font-extrabold text-[#0a1e36] dark:text-white flex items-center gap-1.5 text-xs border-b border-slate-100 dark:border-slate-700 pb-1.5">
                     <span>📋</span>
                     <span>Kesimpulan Hasil Simulasi (Untuk Orang Awam)</span>
@@ -621,7 +621,7 @@ export default function SimulasiControlPanel({
                 </div>
 
                 {/* Mitigasi & Rekomendasi Box */}
-                <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 space-y-1.5">
+                <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 space-y-1.5">
                   <div className="font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5 text-xs">
                     <span>💡</span>
                     <span>Rekomendasi Respons Lapangan</span>

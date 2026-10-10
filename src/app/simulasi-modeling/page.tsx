@@ -264,7 +264,7 @@ export default function SimulasiModelingPage() {
 
         {/* Sidebar Footer */}
         <div
-          className={`p-3 border-t border-white/10 bg-[#0a1e36]/90 flex items-center ${
+          className={`p-3 border-t border-white/10 bg-[#0a1e36] flex items-center ${
             isSidebarOpen ? 'justify-between' : 'justify-center flex-col gap-2'
           } text-xs`}
         >
@@ -296,7 +296,7 @@ export default function SimulasiModelingPage() {
         {/* Top Header Wrapper with Integrated Early Warning Ticker (Identik dengan Dashboard K5) */}
         <header className="sticky top-0 z-[700] bg-white border-b border-slate-200 shadow-2xs shrink-0">
           {/* Integrated Early Warning Alert Ticker */}
-          <div className="border-b border-[#1f8080]/30 text-white">
+          <div className="border-b border-teal-800 text-white">
             <AlertTicker onAlertClick={() => {}} />
           </div>
 
@@ -318,7 +318,7 @@ export default function SimulasiModelingPage() {
 
               {/* Title & Badge */}
               <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-teal-500/10 text-[#1f8080]">
+                <div className="p-1.5 rounded-lg bg-teal-100 text-[#1f8080]">
                   <Waves className="w-4 h-4" />
                 </div>
                 <div className="flex items-center gap-2">

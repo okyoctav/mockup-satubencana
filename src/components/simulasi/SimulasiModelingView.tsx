@@ -257,7 +257,7 @@ export default function SimulasiModelingView({ embedded = false }: SimulasiModel
                 <span className="text-xs sm:text-sm font-black text-white tracking-wide">
                   FastFlood 2D Engine
                 </span>
-                <span className="text-[9px] px-1.5 py-0.5 rounded font-extrabold bg-emerald-900/80 text-emerald-300 border border-emerald-700">
+                <span className="text-[9px] px-1.5 py-0.5 rounded font-extrabold bg-emerald-900 text-emerald-300 border border-emerald-700">
                   Data Spasial Riil
                 </span>
               </div>

@@ -377,14 +377,14 @@ export default function SimulasiLeafletMap({
               ? 'bg-rose-500 hover:bg-rose-600 text-white border-rose-400 animate-pulse'
               : results?.hazardCategory === 'Tinggi'
               ? 'bg-amber-500 hover:bg-amber-600 text-white border-amber-400'
-              : 'bg-[#1f8080] hover:bg-[#1f8080]/90 text-white border-teal-600'
+              : 'bg-[#1f8080] hover:bg-[#155a5a] text-white border-teal-600'
           }`}
           title="Buka Kesimpulan Hasil Simulasi untuk Orang Awam"
         >
           <AlertTriangle className="w-4 h-4 shrink-0" />
           <span>📋 Kesimpulan Simulasi</span>
           {results && (
-            <span className="hidden md:inline text-[10px] px-1.5 py-0.2 rounded-md bg-black/20 font-mono">
+            <span className="hidden md:inline text-[10px] px-1.5 py-0.2 rounded-md bg-[#0a1e36] text-white font-mono">
               Status {results.hazardCategory}
             </span>
           )}
@@ -434,7 +434,7 @@ export default function SimulasiLeafletMap({
           </span>
           <button
             onClick={() => setShowSummaryModal(true)}
-            className="text-[9.5px] font-bold px-2 py-0.5 rounded-lg bg-sky-100 hover:bg-sky-200 dark:bg-sky-900/60 dark:hover:bg-sky-800 text-sky-800 dark:text-sky-200 transition-colors flex items-center gap-1 cursor-pointer"
+            className="text-[9.5px] font-bold px-2 py-0.5 rounded-lg bg-sky-100 hover:bg-sky-200 dark:bg-sky-900 dark:hover:bg-sky-800 text-sky-800 dark:text-sky-200 transition-colors flex items-center gap-1 cursor-pointer"
             title="Buka Kesimpulan & Panduan Awam"
           >
             <Info className="w-3 h-3" />
@@ -446,7 +446,7 @@ export default function SimulasiLeafletMap({
         <div className="space-y-1.5 text-[10.5px]">
           {/* Merah - Ekstrem */}
           <div className="flex items-start gap-2">
-            <span className="w-3.5 h-3.5 rounded bg-[#ef4444] shrink-0 mt-0.5 border border-red-700/30 shadow-2xs" />
+            <span className="w-3.5 h-3.5 rounded bg-[#ef4444] shrink-0 mt-0.5 border border-red-700 shadow-2xs" />
             <div className="leading-tight">
               <span className="font-bold text-red-600 dark:text-red-400">&gt; 2.50 m · Ekstrem</span>
               <span className="text-slate-500 dark:text-slate-400 block text-[9.5px]">Rumah tenggelam total, arus deras</span>
@@ -455,7 +455,7 @@ export default function SimulasiLeafletMap({
 
           {/* Orange - Tinggi */}
           <div className="flex items-start gap-2">
-            <span className="w-3.5 h-3.5 rounded bg-[#f97316] shrink-0 mt-0.5 border border-orange-700/30 shadow-2xs" />
+            <span className="w-3.5 h-3.5 rounded bg-[#f97316] shrink-0 mt-0.5 border border-orange-700 shadow-2xs" />
             <div className="leading-tight">
               <span className="font-bold text-orange-600 dark:text-orange-400">1.50 - 2.50 m · Tinggi</span>
               <span className="text-slate-500 dark:text-slate-400 block text-[9.5px]">Seleher dewasa, mobil hanyut</span>
@@ -464,7 +464,7 @@ export default function SimulasiLeafletMap({
 
           {/* Kuning - Sedang */}
           <div className="flex items-start gap-2">
-            <span className="w-3.5 h-3.5 rounded bg-[#eab308] shrink-0 mt-0.5 border border-amber-700/30 shadow-2xs" />
+            <span className="w-3.5 h-3.5 rounded bg-[#eab308] shrink-0 mt-0.5 border border-amber-700 shadow-2xs" />
             <div className="leading-tight">
               <span className="font-bold text-amber-600 dark:text-amber-400">0.75 - 1.50 m · Sedang</span>
               <span className="text-slate-500 dark:text-slate-400 block text-[9.5px]">Sepinggang dewasa, air masuk rumah</span>
@@ -473,7 +473,7 @@ export default function SimulasiLeafletMap({
 
           {/* Biru Muda - Rendah */}
           <div className="flex items-start gap-2">
-            <span className="w-3.5 h-3.5 rounded bg-[#38bdf8] shrink-0 mt-0.5 border border-sky-700/30 shadow-2xs" />
+            <span className="w-3.5 h-3.5 rounded bg-[#38bdf8] shrink-0 mt-0.5 border border-sky-700 shadow-2xs" />
             <div className="leading-tight">
               <span className="font-bold text-sky-600 dark:text-sky-400">&lt; 0.75 m · Rendah</span>
               <span className="text-slate-500 dark:text-slate-400 block text-[9.5px]">Selutut / semata kaki, jalan tergenang</span>
@@ -482,7 +482,7 @@ export default function SimulasiLeafletMap({
 
           {/* Biru Tua - Alur Sungai */}
           <div className="flex items-start gap-2 border-t border-slate-100 dark:border-slate-800 pt-1">
-            <span className="w-3.5 h-3.5 rounded bg-[#0284c7] shrink-0 mt-0.5 border border-sky-800/40 shadow-2xs" />
+            <span className="w-3.5 h-3.5 rounded bg-[#0284c7] shrink-0 mt-0.5 border border-sky-800 shadow-2xs" />
             <div className="leading-tight">
               <span className="font-bold text-sky-800 dark:text-sky-300">Alur Palung Sungai Girian</span>
               <span className="text-slate-500 dark:text-slate-400 block text-[9.5px]">Palung air normal mengalir ke laut</span>
@@ -525,7 +525,7 @@ export default function SimulasiLeafletMap({
                 className="w-3.5 h-3.5 rounded text-emerald-600 cursor-pointer"
               />
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm border border-emerald-500 bg-emerald-500/20" />
+                <span className="w-2.5 h-2.5 rounded-sm border border-emerald-500 bg-emerald-500" />
                 <span>Batas DAS Girian (10.910 Ha)</span>
               </span>
             </label>
@@ -650,7 +650,7 @@ export default function SimulasiLeafletMap({
                 <RotateCcw className="w-4 h-4" />
               </button>
 
-              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 px-2.5 py-1 rounded-xl">
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-xl">
                 <Gauge className="w-3.5 h-3.5 text-sky-500" />
                 <span className="text-xs font-extrabold text-[#0a1e36] dark:text-white">
                   {currentStep?.label || '00:00'}
@@ -704,7 +704,7 @@ export default function SimulasiLeafletMap({
         <div className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
           <div className="relative w-full max-w-3xl max-h-[90vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden text-[#0a1e36] dark:text-white">
             {/* Header Modal */}
-            <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/60">
+            <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-teal-500 text-white flex items-center justify-center shrink-0 shadow-md">
                   <ShieldAlert className="w-5 h-5" />
@@ -733,29 +733,29 @@ export default function SimulasiLeafletMap({
               <div
                 className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                   results?.hazardCategory === 'Ekstrem'
-                    ? 'bg-rose-50 border-rose-200 dark:bg-rose-950/60 dark:border-rose-900 text-rose-900 dark:text-rose-100'
+                    ? 'bg-rose-50 border-rose-200 dark:bg-rose-950 dark:border-rose-900 text-rose-900 dark:text-rose-100'
                     : results?.hazardCategory === 'Tinggi'
-                    ? 'bg-amber-50 border-amber-200 dark:bg-amber-950/60 dark:border-amber-900 text-amber-900 dark:text-amber-100'
-                    : 'bg-teal-50 border-teal-200 dark:bg-teal-950/60 dark:border-teal-900 text-teal-900 dark:text-teal-100'
+                    ? 'bg-amber-50 border-amber-200 dark:bg-amber-950 dark:border-amber-900 text-amber-900 dark:text-amber-100'
+                    : 'bg-teal-50 border-teal-200 dark:bg-teal-950 dark:border-teal-900 text-teal-900 dark:text-teal-100'
                 }`}
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-white dark:bg-black/30 border border-current">
+                    <span className="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-white dark:bg-slate-900 border border-current">
                       Status Keseluruhan
                     </span>
                     <span className="text-sm font-black">
                       Tingkat Bahaya: {results?.hazardCategory || 'Sedang'}
                     </span>
                   </div>
-                  <p className="text-xs opacity-90 leading-relaxed">
+                  <p className="text-xs leading-relaxed text-slate-800 dark:text-slate-200">
                     Banjir luapan Sungai Girian mencapai puncak genangan terluas pada{' '}
                     <b className="font-extrabold">Pukul 08:00 WITA</b> dengan ketinggian air maksimal{' '}
                     <b className="font-extrabold">{results?.maxDepth || 2.1} meter</b> di titik bantaran sungai terendah.
                   </p>
                 </div>
 
-                <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 border-current/20 pt-2 sm:pt-0 shrink-0">
+                <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 border-current pt-2 sm:pt-0 shrink-0">
                   <span className="text-[10px] opacity-75">Luas Tergenang:</span>
                   <span className="text-base sm:text-lg font-black">
                     {results?.floodedAreaHa.toLocaleString('id-ID') || 0} Hektar
@@ -777,63 +777,63 @@ export default function SimulasiLeafletMap({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {/* Swatch Merah */}
-                  <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 space-y-1">
+                  <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950 border border-rose-200 dark:border-rose-900 space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="w-3.5 h-3.5 rounded bg-[#ef4444] shrink-0 border border-red-700" />
                       <b className="text-rose-800 dark:text-rose-200 text-xs">
                         Merah: &gt; 2,5 Meter (Bahaya Ekstrem)
                       </b>
                     </div>
-                    <p className="text-[11px] text-rose-900/80 dark:text-rose-300/90 leading-relaxed">
+                    <p className="text-[11px] text-rose-900 dark:text-rose-200 leading-relaxed">
                       <b>Kondisi:</b> Air menenggelamkan rumah 1 lantai sampai ke plafon/atap. Arus air sangat kuat dan deras.<br />
                       <b>Tindakan:</b> <span className="font-bold underline">WAJIB EVAKUASI SEGERA!</span> Jangan bertahan di dalam rumah, segera menuju tempat tinggi sebelum jam 08:00.
                     </p>
                   </div>
 
                   {/* Swatch Orange */}
-                  <div className="p-3 rounded-2xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900 space-y-1">
+                  <div className="p-3 rounded-2xl bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-900 space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="w-3.5 h-3.5 rounded bg-[#f97316] shrink-0 border border-orange-700" />
                       <b className="text-orange-800 dark:text-orange-200 text-xs">
                         Orange: 1,5 - 2,5 Meter (Bahaya Tinggi)
                       </b>
                     </div>
-                    <p className="text-[11px] text-orange-900/80 dark:text-orange-300/90 leading-relaxed">
+                    <p className="text-[11px] text-orange-900 dark:text-orange-200 leading-relaxed">
                       <b>Kondisi:</b> Air setinggi dada hingga seleher orang dewasa. Kendaraan motor dan mobil terseret arus.<br />
                       <b>Tindakan:</b> Segera putus aliran listrik PLN, amankan anak-anak dan lansia ke titik kumpul evakuasi.
                     </p>
                   </div>
 
                   {/* Swatch Kuning */}
-                  <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 space-y-1">
+                  <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-900 space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="w-3.5 h-3.5 rounded bg-[#eab308] shrink-0 border border-amber-700" />
                       <b className="text-amber-800 dark:text-amber-200 text-xs">
                         Kuning: 0,75 - 1,5 Meter (Bahaya Sedang)
                       </b>
                     </div>
-                    <p className="text-[11px] text-amber-900/80 dark:text-amber-300/90 leading-relaxed">
+                    <p className="text-[11px] text-amber-900 dark:text-amber-200 leading-relaxed">
                       <b>Kondisi:</b> Air setinggi pinggang. Air mulai masuk merendam seluruh ruangan rumah dan perabotan.<br />
                       <b>Tindakan:</b> Pindahkan barang berharga dan dokumen penting ke lantai atas atau meja tinggi.
                     </p>
                   </div>
 
                   {/* Swatch Biru Muda */}
-                  <div className="p-3 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900 space-y-1">
+                  <div className="p-3 rounded-2xl bg-sky-50 dark:bg-sky-950 border border-sky-200 dark:border-sky-900 space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="w-3.5 h-3.5 rounded bg-[#38bdf8] shrink-0 border border-sky-600" />
                       <b className="text-sky-800 dark:text-sky-200 text-xs">
                         Biru Muda: &lt; 0,75 Meter (Bahaya Rendah)
                       </b>
                     </div>
-                    <p className="text-[11px] text-sky-900/80 dark:text-sky-300/90 leading-relaxed">
+                    <p className="text-[11px] text-sky-900 dark:text-sky-200 leading-relaxed">
                       <b>Kondisi:</b> Genangan setinggi mata kaki hingga lutut. Halaman rumah dan jalan gang tergenang.<br />
                       <b>Tindakan:</b> Tetap waspada kenaikan air susulan, hindari melintasi jembatan sempit atau saluran air got.
                     </p>
                   </div>
                 </div>
 
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-800 flex items-center gap-2.5 text-[11px]">
+                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 flex items-center gap-2.5 text-[11px]">
                   <span className="w-4 h-4 rounded bg-[#0284c7] shrink-0 border border-sky-800" />
                   <span className="text-slate-600 dark:text-slate-300">
                     <b>Garis Biru Tua:</b> Alur Palung Sungai Girian (130 titik koordinat) tempat air alami mengalir menuju muara laut Selat Lembeh.
@@ -844,7 +844,7 @@ export default function SimulasiLeafletMap({
               {/* 3. Wilayah Paling Rawan & Titik Aman Evakuasi */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Wilayah Terdampak */}
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 space-y-2">
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 space-y-2">
                   <div className="font-extrabold text-[#0a1e36] dark:text-white flex items-center gap-1.5 text-xs">
                     <span>📍</span>
                     <span>Wilayah &amp; Pemukiman Paling Rawan</span>
@@ -860,12 +860,12 @@ export default function SimulasiLeafletMap({
                 </div>
 
                 {/* Titik Evakuasi Aman */}
-                <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 space-y-2">
+                <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-900 space-y-2">
                   <div className="font-extrabold text-emerald-900 dark:text-emerald-200 flex items-center gap-1.5 text-xs">
                     <span>🏃</span>
                     <span>Rekomendasi Jalur &amp; Titik Aman Evakuasi</span>
                   </div>
-                  <p className="text-[11px] text-emerald-900/80 dark:text-emerald-300/90 leading-relaxed">
+                  <p className="text-[11px] text-emerald-900 dark:text-emerald-200 leading-relaxed">
                     Berdasarkan kontur topografi DEM 30m, area aman bebas genangan banjir adalah:
                   </p>
                   <ul className="list-disc pl-4 text-[11px] text-emerald-900 dark:text-emerald-300 space-y-1">
@@ -878,8 +878,8 @@ export default function SimulasiLeafletMap({
 
               {/* 4. Rekapitulasi Jiwa & Dampak Sosial (SEPAKAT Bappenas) */}
               {results && (
-                <div className="p-4 rounded-2xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-900 space-y-2.5">
-                  <div className="flex items-center justify-between border-b border-teal-200/60 dark:border-teal-800/60 pb-1.5">
+                <div className="p-4 rounded-2xl bg-teal-50 dark:bg-teal-950 border border-teal-200 dark:border-teal-900 space-y-2.5">
+                  <div className="flex items-center justify-between border-b border-teal-200 dark:border-teal-800 pb-1.5">
                     <span className="font-extrabold text-teal-950 dark:text-teal-100 text-xs flex items-center gap-1.5">
                       <span>👥</span>
                       <span>Estimasi Jiwa &amp; Kelompok Rentan yang Wajib Didahulukan</span>
@@ -890,7 +890,7 @@ export default function SimulasiLeafletMap({
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-teal-200/80 dark:border-teal-800">
+                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-teal-200 dark:border-teal-800">
                       <span className="text-[10px] text-slate-400 block font-bold">Total Warga Terdampak</span>
                       <b className="text-sm font-black text-rose-600 dark:text-rose-400">
                         {results.affectedPopulation.toLocaleString('id-ID')}
@@ -898,7 +898,7 @@ export default function SimulasiLeafletMap({
                       <span className="text-[9px] text-slate-500 block">Jiwa</span>
                     </div>
 
-                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-teal-200/80 dark:border-teal-800">
+                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-teal-200 dark:border-teal-800">
                       <span className="text-[10px] text-slate-400 block font-bold">Warga Lansia</span>
                       <b className="text-sm font-black text-amber-600 dark:text-amber-400">
                         {results.sepakatStats?.totalLansia.toLocaleString('id-ID') || Math.round(results.affectedPopulation * 0.11)}
@@ -906,7 +906,7 @@ export default function SimulasiLeafletMap({
                       <span className="text-[9px] text-slate-500 block">Orang Tua (&gt; 60 thn)</span>
                     </div>
 
-                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-teal-200/80 dark:border-teal-800">
+                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-teal-200 dark:border-teal-800">
                       <span className="text-[10px] text-slate-400 block font-bold">Balita &amp; Anak-Anak</span>
                       <b className="text-sm font-black text-sky-600 dark:text-sky-400">
                         {results.sepakatStats?.totalBalita.toLocaleString('id-ID') || Math.round(results.affectedPopulation * 0.08)}
@@ -914,7 +914,7 @@ export default function SimulasiLeafletMap({
                       <span className="text-[9px] text-slate-500 block">Balita (&lt; 5 thn)</span>
                     </div>
 
-                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-teal-200/80 dark:border-teal-800">
+                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-teal-200 dark:border-teal-800">
                       <span className="text-[10px] text-slate-400 block font-bold">Rumah Terendam</span>
                       <b className="text-sm font-black text-teal-700 dark:text-teal-300">
                         {results.affectedBuildings.toLocaleString('id-ID')}
@@ -927,13 +927,13 @@ export default function SimulasiLeafletMap({
             </div>
 
             {/* Footer Modal */}
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80 flex items-center justify-between gap-3">
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 flex items-center justify-between gap-3">
               <span className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">
                 Data modeling terintegrasi: DEM SRTM 30m, Alur Sungai Girian, &amp; Batas DAS Bitung.
               </span>
               <button
                 onClick={() => setShowSummaryModal(false)}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#1f8080] hover:bg-[#1f8080]/90 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#1f8080] hover:bg-[#155a5a] text-white font-bold text-xs shadow-md transition-all cursor-pointer"
               >
                 Tutup &amp; Kembali ke Peta
               </button>
