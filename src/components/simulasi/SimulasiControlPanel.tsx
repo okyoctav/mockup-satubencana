@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { SimulationParams, SimulationResults, RegionPreset } from './SimulasiTypes';
+import { SimulationParams, SimulationResults, RegionPreset, REGION_PRESETS } from './SimulasiTypes';
 import {
   CloudRain,
   Sliders,
@@ -33,6 +33,7 @@ interface Props {
 
 export default function SimulasiControlPanel({
   selectedRegion,
+  onSelectRegion,
   params,
   onParamsChange,
   results,
@@ -94,20 +95,38 @@ export default function SimulasiControlPanel({
           </div>
         </div>
 
-        {/* Card Wilayah Pemodelan (Fokus Data Riil) */}
-        <div className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950 border border-teal-200 dark:border-teal-800 space-y-1.5">
+        {/* Card Wilayah Pemodelan (Background Putih Tulisan Hitam + Dropdown Lokasi) */}
+        <div className="p-3.5 rounded-2xl bg-white border border-slate-300 shadow-xs space-y-2 text-slate-900">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold text-teal-800 dark:text-teal-200 uppercase tracking-wider">
+            <span className="text-[10px] font-black text-slate-900 uppercase tracking-wider">
               Wilayah Pemodelan Riil
             </span>
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-teal-200 dark:bg-teal-800 text-teal-900 dark:text-teal-100">
+            <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
               Data Nyata
             </span>
           </div>
-          <div className="font-extrabold text-[#0a1e36] dark:text-white text-xs">
-            {selectedRegion.name}
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-extrabold text-slate-700 uppercase tracking-wider block">
+              Pilihan Lokasi Wilayah:
+            </label>
+            <select
+              value={selectedRegion.id}
+              onChange={(e) => {
+                const r = REGION_PRESETS.find((p) => p.id === e.target.value);
+                if (r && onSelectRegion) onSelectRegion(r);
+              }}
+              className="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs font-bold text-slate-900 outline-none cursor-pointer shadow-xs focus:border-teal-600 focus:ring-1 focus:ring-teal-600"
+            >
+              {REGION_PRESETS.map((r) => (
+                <option key={r.id} value={r.id} className="text-slate-900 bg-white">
+                  {r.name} · {r.province}
+                </option>
+              ))}
+            </select>
           </div>
-          <p className="text-[10.5px] text-teal-900 dark:text-teal-200 leading-relaxed">
+
+          <p className="text-[11px] text-slate-700 leading-relaxed font-medium">
             {selectedRegion.description}
           </p>
         </div>
@@ -579,14 +598,14 @@ export default function SimulasiControlPanel({
                   </div>
                 )}
 
-                {/* Kesimpulan Simulasi untuk Orang Awam Box */}
-                <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2 shadow-xs">
-                  <div className="font-extrabold text-[#0a1e36] dark:text-white flex items-center gap-1.5 text-xs border-b border-slate-100 dark:border-slate-700 pb-1.5">
+                {/* Kesimpulan Simulasi untuk Orang Awam Box (Putih Tulisan Hitam) */}
+                <div className="p-3.5 rounded-2xl bg-white border border-slate-300 space-y-2 shadow-xs text-slate-900">
+                  <div className="font-extrabold text-slate-900 flex items-center gap-1.5 text-xs border-b border-slate-200 pb-1.5">
                     <span>📋</span>
                     <span>Kesimpulan Hasil Simulasi (Untuk Orang Awam)</span>
                   </div>
 
-                  <div className="space-y-1.5 text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
+                  <div className="space-y-1.5 text-[11px] leading-relaxed text-slate-800 font-medium">
                     <p>
                       • <b>Waktu Puncak Banjir:</b> Luapan terbesar terjadi pada <b>Pukul 08:00 WITA</b> dengan luas genangan <b>{results.floodedAreaHa} Ha</b>.
                     </p>
@@ -596,25 +615,25 @@ export default function SimulasiControlPanel({
                     <p>
                       • <b>Arti Warna Grid di Peta:</b>
                     </p>
-                    <div className="grid grid-cols-2 gap-1.5 text-[10px] pl-1 font-medium">
+                    <div className="grid grid-cols-2 gap-1.5 text-[10px] pl-1 font-bold text-slate-900">
                       <div className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded bg-[#ef4444] shrink-0" />
+                        <span className="w-2.5 h-2.5 rounded bg-[#ef4444] shrink-0 border border-red-700" />
                         <span><b>Merah:</b> &gt;2,5m (Tenggelam)</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded bg-[#f97316] shrink-0" />
+                        <span className="w-2.5 h-2.5 rounded bg-[#f97316] shrink-0 border border-orange-700" />
                         <span><b>Orange:</b> 1,5-2,5m (Seleher)</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded bg-[#eab308] shrink-0" />
+                        <span className="w-2.5 h-2.5 rounded bg-[#eab308] shrink-0 border border-amber-700" />
                         <span><b>Kuning:</b> 0,75-1,5m (Sepinggang)</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded bg-[#38bdf8] shrink-0" />
+                        <span className="w-2.5 h-2.5 rounded bg-[#38bdf8] shrink-0 border border-sky-600" />
                         <span><b>Biru:</b> &lt;0,75m (Selutut)</span>
                       </div>
                     </div>
-                    <p className="pt-1 border-t border-slate-100 dark:border-slate-700">
+                    <p className="pt-1 border-t border-slate-200">
                       • <b>Titik Aman Evakuasi:</b> Warga disarankan segera mengungsi ke <b>perbukitan DAS Girian (ketinggian &gt; 35m dpl)</b> di sisi barat laut sebelum jam puncak.
                     </p>
                   </div>

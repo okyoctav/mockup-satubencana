@@ -699,236 +699,229 @@ export default function SimulasiLeafletMap({
           </div>
         </div>
       )}
-      {/* MODAL / POPUP: Kesimpulan Informasi Hasil Simulasi untuk Orang Awam */}
+      {/* MODAL / POPUP: Kesimpulan Informasi Hasil Simulasi untuk Orang Awam (Background Putih Tulisan Hitam) */}
       {showSummaryModal && (
         <div className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200">
-          <div className="relative w-full max-w-3xl max-h-[90vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden text-[#0a1e36] dark:text-white">
-            {/* Header Modal */}
-            <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800">
+          <div className="relative w-full max-w-3xl max-h-[90vh] bg-white border border-slate-300 rounded-3xl shadow-2xl flex flex-col overflow-hidden text-slate-900">
+            {/* Header Modal (Putih Tulisan Hitam) */}
+            <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-white">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-teal-500 text-white flex items-center justify-center shrink-0 shadow-md">
+                <div className="w-10 h-10 rounded-2xl bg-teal-600 text-white flex items-center justify-center shrink-0 shadow-md">
                   <ShieldAlert className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-black leading-tight text-[#0a1e36] dark:text-white">
+                  <h2 className="text-base sm:text-lg font-black leading-tight text-slate-900">
                     Kesimpulan Hasil Pemodelan Simulasi Banjir
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-slate-600 font-medium">
                     Studi Kasus Data Riil: DAS Girian – Kota Bitung, Sulawesi Utara
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowSummaryModal(false)}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 transition-colors cursor-pointer border border-slate-200"
                 title="Tutup Modal"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Scrollable Modal Content */}
-            <div className="p-4 sm:p-6 overflow-y-auto space-y-5 text-xs">
-              {/* 1. Status Utama Bencana Banner */}
-              <div
-                className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                  results?.hazardCategory === 'Ekstrem'
-                    ? 'bg-rose-50 border-rose-200 dark:bg-rose-950 dark:border-rose-900 text-rose-900 dark:text-rose-100'
-                    : results?.hazardCategory === 'Tinggi'
-                    ? 'bg-amber-50 border-amber-200 dark:bg-amber-950 dark:border-amber-900 text-amber-900 dark:text-amber-100'
-                    : 'bg-teal-50 border-teal-200 dark:bg-teal-950 dark:border-teal-900 text-teal-900 dark:text-teal-100'
-                }`}
-              >
-                <div className="space-y-1">
+            {/* Scrollable Modal Content (Latar Abu-abu Sangat Muda agar Card Putih Berdiri Jelas) */}
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs bg-slate-50">
+              {/* 1. Status Utama Bencana Banner (Card Putih Tulisan Hitam) */}
+              <div className="p-4 rounded-2xl bg-white border-2 border-slate-300 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-slate-900">
+                <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-white dark:bg-slate-900 border border-current">
+                    <span className="text-[10px] uppercase tracking-wider font-black px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-900 border border-slate-300">
                       Status Keseluruhan
                     </span>
-                    <span className="text-sm font-black">
+                    <span className="text-sm font-black text-slate-900">
                       Tingkat Bahaya: {results?.hazardCategory || 'Sedang'}
                     </span>
                   </div>
-                  <p className="text-xs leading-relaxed text-slate-800 dark:text-slate-200">
+                  <p className="text-xs leading-relaxed text-slate-800 font-medium">
                     Banjir luapan Sungai Girian mencapai puncak genangan terluas pada{' '}
-                    <b className="font-extrabold">Pukul 08:00 WITA</b> dengan ketinggian air maksimal{' '}
-                    <b className="font-extrabold">{results?.maxDepth || 2.1} meter</b> di titik bantaran sungai terendah.
+                    <b className="font-black text-slate-900">Pukul 08:00 WITA</b> dengan ketinggian air maksimal{' '}
+                    <b className="font-black text-slate-900">{results?.maxDepth || 2.1} meter</b> di titik bantaran sungai terendah.
                   </p>
                 </div>
 
-                <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 border-current pt-2 sm:pt-0 shrink-0">
-                  <span className="text-[10px] opacity-75">Luas Tergenang:</span>
-                  <span className="text-base sm:text-lg font-black">
+                <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 border-slate-200 pt-2 sm:pt-0 shrink-0">
+                  <span className="text-[10px] text-slate-600 font-bold">Luas Tergenang:</span>
+                  <span className="text-base sm:text-lg font-black text-slate-900">
                     {results?.floodedAreaHa.toLocaleString('id-ID') || 0} Hektar
                   </span>
                 </div>
               </div>
 
-              {/* 2. Cara Membaca Warna Grid Peta (Panduan Orang Awam) */}
+              {/* 2. Cara Membaca Warna Grid Peta (Panduan Orang Awam - Card Putih Tulisan Hitam) */}
               <div className="space-y-2.5">
-                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-1.5">
-                  <h3 className="font-extrabold text-[#0a1e36] dark:text-white text-xs sm:text-sm flex items-center gap-1.5">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-1.5">
+                  <h3 className="font-black text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
                     <span>🎨</span>
                     <span>Arti Warna Grid Bagi Keselamatan Warga (Cara Membaca Peta)</span>
                   </h3>
-                  <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400">
+                  <span className="text-[10px] font-extrabold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200">
                     Ketinggian Air &amp; Bahaya
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {/* Swatch Merah */}
-                  <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950 border border-rose-200 dark:border-rose-900 space-y-1">
+                  {/* Swatch Merah (Card Putih Tulisan Hitam) */}
+                  <div className="p-3.5 rounded-2xl bg-white border border-slate-300 shadow-xs space-y-1.5 text-slate-900">
                     <div className="flex items-center gap-2">
-                      <span className="w-3.5 h-3.5 rounded bg-[#ef4444] shrink-0 border border-red-700" />
-                      <b className="text-rose-800 dark:text-rose-200 text-xs">
+                      <span className="w-3.5 h-3.5 rounded bg-[#ef4444] shrink-0 border border-red-700 shadow-2xs" />
+                      <b className="text-slate-900 text-xs sm:text-[13px] font-black">
                         Merah: &gt; 2,5 Meter (Bahaya Ekstrem)
                       </b>
                     </div>
-                    <p className="text-[11px] text-rose-900 dark:text-rose-200 leading-relaxed">
+                    <p className="text-[11px] text-slate-800 leading-relaxed font-medium">
                       <b>Kondisi:</b> Air menenggelamkan rumah 1 lantai sampai ke plafon/atap. Arus air sangat kuat dan deras.<br />
-                      <b>Tindakan:</b> <span className="font-bold underline">WAJIB EVAKUASI SEGERA!</span> Jangan bertahan di dalam rumah, segera menuju tempat tinggi sebelum jam 08:00.
+                      <b>Tindakan:</b> <span className="font-black underline text-red-700">WAJIB EVAKUASI SEGERA!</span> Jangan bertahan di dalam rumah, segera menuju tempat tinggi sebelum jam 08:00.
                     </p>
                   </div>
 
-                  {/* Swatch Orange */}
-                  <div className="p-3 rounded-2xl bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-900 space-y-1">
+                  {/* Swatch Orange (Card Putih Tulisan Hitam) */}
+                  <div className="p-3.5 rounded-2xl bg-white border border-slate-300 shadow-xs space-y-1.5 text-slate-900">
                     <div className="flex items-center gap-2">
-                      <span className="w-3.5 h-3.5 rounded bg-[#f97316] shrink-0 border border-orange-700" />
-                      <b className="text-orange-800 dark:text-orange-200 text-xs">
+                      <span className="w-3.5 h-3.5 rounded bg-[#f97316] shrink-0 border border-orange-700 shadow-2xs" />
+                      <b className="text-slate-900 text-xs sm:text-[13px] font-black">
                         Orange: 1,5 - 2,5 Meter (Bahaya Tinggi)
                       </b>
                     </div>
-                    <p className="text-[11px] text-orange-900 dark:text-orange-200 leading-relaxed">
+                    <p className="text-[11px] text-slate-800 leading-relaxed font-medium">
                       <b>Kondisi:</b> Air setinggi dada hingga seleher orang dewasa. Kendaraan motor dan mobil terseret arus.<br />
                       <b>Tindakan:</b> Segera putus aliran listrik PLN, amankan anak-anak dan lansia ke titik kumpul evakuasi.
                     </p>
                   </div>
 
-                  {/* Swatch Kuning */}
-                  <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-900 space-y-1">
+                  {/* Swatch Kuning (Card Putih Tulisan Hitam) */}
+                  <div className="p-3.5 rounded-2xl bg-white border border-slate-300 shadow-xs space-y-1.5 text-slate-900">
                     <div className="flex items-center gap-2">
-                      <span className="w-3.5 h-3.5 rounded bg-[#eab308] shrink-0 border border-amber-700" />
-                      <b className="text-amber-800 dark:text-amber-200 text-xs">
+                      <span className="w-3.5 h-3.5 rounded bg-[#eab308] shrink-0 border border-amber-700 shadow-2xs" />
+                      <b className="text-slate-900 text-xs sm:text-[13px] font-black">
                         Kuning: 0,75 - 1,5 Meter (Bahaya Sedang)
                       </b>
                     </div>
-                    <p className="text-[11px] text-amber-900 dark:text-amber-200 leading-relaxed">
+                    <p className="text-[11px] text-slate-800 leading-relaxed font-medium">
                       <b>Kondisi:</b> Air setinggi pinggang. Air mulai masuk merendam seluruh ruangan rumah dan perabotan.<br />
                       <b>Tindakan:</b> Pindahkan barang berharga dan dokumen penting ke lantai atas atau meja tinggi.
                     </p>
                   </div>
 
-                  {/* Swatch Biru Muda */}
-                  <div className="p-3 rounded-2xl bg-sky-50 dark:bg-sky-950 border border-sky-200 dark:border-sky-900 space-y-1">
+                  {/* Swatch Biru Muda (Card Putih Tulisan Hitam) */}
+                  <div className="p-3.5 rounded-2xl bg-white border border-slate-300 shadow-xs space-y-1.5 text-slate-900">
                     <div className="flex items-center gap-2">
-                      <span className="w-3.5 h-3.5 rounded bg-[#38bdf8] shrink-0 border border-sky-600" />
-                      <b className="text-sky-800 dark:text-sky-200 text-xs">
+                      <span className="w-3.5 h-3.5 rounded bg-[#38bdf8] shrink-0 border border-sky-600 shadow-2xs" />
+                      <b className="text-slate-900 text-xs sm:text-[13px] font-black">
                         Biru Muda: &lt; 0,75 Meter (Bahaya Rendah)
                       </b>
                     </div>
-                    <p className="text-[11px] text-sky-900 dark:text-sky-200 leading-relaxed">
+                    <p className="text-[11px] text-slate-800 leading-relaxed font-medium">
                       <b>Kondisi:</b> Genangan setinggi mata kaki hingga lutut. Halaman rumah dan jalan gang tergenang.<br />
                       <b>Tindakan:</b> Tetap waspada kenaikan air susulan, hindari melintasi jembatan sempit atau saluran air got.
                     </p>
                   </div>
                 </div>
 
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 flex items-center gap-2.5 text-[11px]">
-                  <span className="w-4 h-4 rounded bg-[#0284c7] shrink-0 border border-sky-800" />
-                  <span className="text-slate-600 dark:text-slate-300">
-                    <b>Garis Biru Tua:</b> Alur Palung Sungai Girian (130 titik koordinat) tempat air alami mengalir menuju muara laut Selat Lembeh.
+                {/* Swatch Alur Sungai (Card Putih Tulisan Hitam) */}
+                <div className="p-3 rounded-xl bg-white border border-slate-300 flex items-center gap-2.5 text-[11px] shadow-xs text-slate-900">
+                  <span className="w-4 h-4 rounded bg-[#0284c7] shrink-0 border border-sky-800 shadow-2xs" />
+                  <span className="text-slate-800 font-medium">
+                    <b className="text-slate-900">Garis Biru Tua:</b> Alur Palung Sungai Girian (130 titik koordinat) tempat air alami mengalir menuju muara laut Selat Lembeh.
                   </span>
                 </div>
               </div>
 
-              {/* 3. Wilayah Paling Rawan & Titik Aman Evakuasi */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* 3. Wilayah Paling Rawan & Titik Aman Evakuasi (Card Putih Tulisan Hitam) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                 {/* Wilayah Terdampak */}
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 space-y-2">
-                  <div className="font-extrabold text-[#0a1e36] dark:text-white flex items-center gap-1.5 text-xs">
+                <div className="p-4 rounded-2xl bg-white border border-slate-300 space-y-2 shadow-xs text-slate-900">
+                  <div className="font-black text-slate-900 flex items-center gap-1.5 text-xs">
                     <span>📍</span>
                     <span>Wilayah &amp; Pemukiman Paling Rawan</span>
                   </div>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                  <p className="text-[11px] text-slate-800 leading-relaxed font-medium">
                     Berdasarkan elevasi DEM SRTM 30m, kawasan paling rawan banjir luapan berada di dataran rendah bantaran sungai:
                   </p>
-                  <ul className="list-disc pl-4 text-[11px] text-slate-700 dark:text-slate-300 space-y-1">
-                    <li><b>Kelurahan Girian Bawah:</b> Daerah hilir terendah (0–5 m dpl) dekat muara.</li>
-                    <li><b>Kelurahan Wangurer Barat:</b> Bantaran sempit dengan risiko luapan cepat.</li>
-                    <li><b>Kelurahan Girian Atas &amp; Girian Indah:</b> Pemukiman padat di dataran aluvial.</li>
+                  <ul className="list-disc pl-4 text-[11px] text-slate-800 space-y-1 font-medium">
+                    <li><b className="text-slate-900">Kelurahan Girian Bawah:</b> Daerah hilir terendah (0–5 m dpl) dekat muara.</li>
+                    <li><b className="text-slate-900">Kelurahan Wangurer Barat:</b> Bantaran sempit dengan risiko luapan cepat.</li>
+                    <li><b className="text-slate-900">Kelurahan Girian Atas &amp; Girian Indah:</b> Pemukiman padat di dataran aluvial.</li>
                   </ul>
                 </div>
 
                 {/* Titik Evakuasi Aman */}
-                <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-900 space-y-2">
-                  <div className="font-extrabold text-emerald-900 dark:text-emerald-200 flex items-center gap-1.5 text-xs">
+                <div className="p-4 rounded-2xl bg-white border border-slate-300 space-y-2 shadow-xs text-slate-900">
+                  <div className="font-black text-slate-900 flex items-center gap-1.5 text-xs">
                     <span>🏃</span>
                     <span>Rekomendasi Jalur &amp; Titik Aman Evakuasi</span>
                   </div>
-                  <p className="text-[11px] text-emerald-900 dark:text-emerald-200 leading-relaxed">
+                  <p className="text-[11px] text-slate-800 leading-relaxed font-medium">
                     Berdasarkan kontur topografi DEM 30m, area aman bebas genangan banjir adalah:
                   </p>
-                  <ul className="list-disc pl-4 text-[11px] text-emerald-900 dark:text-emerald-300 space-y-1">
-                    <li><b>Zona Perbukitan Sisi Barat Laut DAS Girian:</b> Daerah berketinggian tanah <b>&gt; 35 meter dpl</b>.</li>
-                    <li><b>Gedung Bertingkat / Posko Sekolah:</b> Bangunan permanen di luar radius genangan kuning/merah.</li>
-                    <li><b>Jalur Akses:</b> Hindari jalan poros Girian Bawah yang diproyeksikan tergenang air lebih dari 1 meter.</li>
+                  <ul className="list-disc pl-4 text-[11px] text-slate-800 space-y-1 font-medium">
+                    <li><b className="text-slate-900">Zona Perbukitan Sisi Barat Laut DAS Girian:</b> Daerah berketinggian tanah <b className="text-slate-900">&gt; 35 meter dpl</b>.</li>
+                    <li><b className="text-slate-900">Gedung Bertingkat / Posko Sekolah:</b> Bangunan permanen di luar radius genangan kuning/merah.</li>
+                    <li><b className="text-slate-900">Jalur Akses:</b> Hindari jalan poros Girian Bawah yang diproyeksikan tergenang air lebih dari 1 meter.</li>
                   </ul>
                 </div>
               </div>
 
-              {/* 4. Rekapitulasi Jiwa & Dampak Sosial (SEPAKAT Bappenas) */}
+              {/* 4. Rekapitulasi Jiwa & Dampak Sosial (Card Putih Tulisan Hitam) */}
               {results && (
-                <div className="p-4 rounded-2xl bg-teal-50 dark:bg-teal-950 border border-teal-200 dark:border-teal-900 space-y-2.5">
-                  <div className="flex items-center justify-between border-b border-teal-200 dark:border-teal-800 pb-1.5">
-                    <span className="font-extrabold text-teal-950 dark:text-teal-100 text-xs flex items-center gap-1.5">
+                <div className="p-4 rounded-2xl bg-white border border-slate-300 space-y-3 shadow-xs text-slate-900">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-1.5">
+                    <span className="font-black text-slate-900 text-xs flex items-center gap-1.5">
                       <span>👥</span>
                       <span>Estimasi Jiwa &amp; Kelompok Rentan yang Wajib Didahulukan</span>
                     </span>
-                    <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-teal-200 dark:bg-teal-800 text-teal-900 dark:text-teal-100">
+                    <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 border border-slate-300">
                       Basis Data SEPAKAT Bappenas
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-teal-200 dark:border-teal-800">
-                      <span className="text-[10px] text-slate-400 block font-bold">Total Warga Terdampak</span>
-                      <b className="text-sm font-black text-rose-600 dark:text-rose-400">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-300">
+                      <span className="text-[10px] text-slate-600 block font-bold">Total Warga Terdampak</span>
+                      <b className="text-sm sm:text-base font-black text-slate-900">
                         {results.affectedPopulation.toLocaleString('id-ID')}
                       </b>
-                      <span className="text-[9px] text-slate-500 block">Jiwa</span>
+                      <span className="text-[9px] text-slate-600 block font-semibold">Jiwa</span>
                     </div>
 
-                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-teal-200 dark:border-teal-800">
-                      <span className="text-[10px] text-slate-400 block font-bold">Warga Lansia</span>
-                      <b className="text-sm font-black text-amber-600 dark:text-amber-400">
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-300">
+                      <span className="text-[10px] text-slate-600 block font-bold">Warga Lansia</span>
+                      <b className="text-sm sm:text-base font-black text-slate-900">
                         {results.sepakatStats?.totalLansia.toLocaleString('id-ID') || Math.round(results.affectedPopulation * 0.11)}
                       </b>
-                      <span className="text-[9px] text-slate-500 block">Orang Tua (&gt; 60 thn)</span>
+                      <span className="text-[9px] text-slate-600 block font-semibold">Orang Tua (&gt; 60 thn)</span>
                     </div>
 
-                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-teal-200 dark:border-teal-800">
-                      <span className="text-[10px] text-slate-400 block font-bold">Balita &amp; Anak-Anak</span>
-                      <b className="text-sm font-black text-sky-600 dark:text-sky-400">
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-300">
+                      <span className="text-[10px] text-slate-600 block font-bold">Balita &amp; Anak-Anak</span>
+                      <b className="text-sm sm:text-base font-black text-slate-900">
                         {results.sepakatStats?.totalBalita.toLocaleString('id-ID') || Math.round(results.affectedPopulation * 0.08)}
                       </b>
-                      <span className="text-[9px] text-slate-500 block">Balita (&lt; 5 thn)</span>
+                      <span className="text-[9px] text-slate-600 block font-semibold">Balita (&lt; 5 thn)</span>
                     </div>
 
-                    <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-teal-200 dark:border-teal-800">
-                      <span className="text-[10px] text-slate-400 block font-bold">Rumah Terendam</span>
-                      <b className="text-sm font-black text-teal-700 dark:text-teal-300">
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-300">
+                      <span className="text-[10px] text-slate-600 block font-bold">Rumah Terendam</span>
+                      <b className="text-sm sm:text-base font-black text-slate-900">
                         {results.affectedBuildings.toLocaleString('id-ID')}
                       </b>
-                      <span className="text-[9px] text-slate-500 block">Unit Rumah</span>
+                      <span className="text-[9px] text-slate-600 block font-semibold">Unit Rumah</span>
                     </div>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Footer Modal */}
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 flex items-center justify-between gap-3">
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">
+            {/* Footer Modal (Putih Tulisan Hitam) */}
+            <div className="p-4 border-t border-slate-200 bg-white flex items-center justify-between gap-3 text-slate-900">
+              <span className="text-[11px] text-slate-600 font-medium hidden sm:inline">
                 Data modeling terintegrasi: DEM SRTM 30m, Alur Sungai Girian, &amp; Batas DAS Bitung.
               </span>
               <button
