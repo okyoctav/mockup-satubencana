@@ -257,12 +257,12 @@ export default function SimulasiModelingView({ embedded = false }: SimulasiModel
                 <span className="text-xs sm:text-sm font-black text-white tracking-wide">
                   FastFlood 2D Engine
                 </span>
-                <span className="text-[9px] px-1.5 py-0.5 rounded font-extrabold bg-sky-950 text-sky-400 border border-sky-800">
-                  SFFS Hydrodynamic
+                <span className="text-[9px] px-1.5 py-0.5 rounded font-extrabold bg-emerald-900/80 text-emerald-300 border border-emerald-700">
+                  Data Spasial Riil
                 </span>
               </div>
               <p className="text-[10px] text-slate-400 hidden sm:block">
-                {selectedRegion.name} · {selectedRegion.province}
+                {selectedRegion.name} · DEM SRTM 30m &amp; Batas DAS
               </p>
             </div>
           </div>
@@ -294,7 +294,7 @@ export default function SimulasiModelingView({ embedded = false }: SimulasiModel
           <div className="relative w-48 lg:w-56">
             <input
               type="text"
-              placeholder="Cari lokasi/sungai..."
+              placeholder="Fokus: DAS Girian Bitung..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearchLocation()}

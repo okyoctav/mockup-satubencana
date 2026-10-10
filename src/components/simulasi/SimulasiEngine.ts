@@ -481,19 +481,19 @@ export function runFastFloodSimulation(
         sumDepth += depth;
         if (depth > maxDepth) maxDepth = depth;
 
-        // Color coding FastFlood SFFS 2D
+        // Color coding FastFlood SFFS 2D (Sesuai Legenda BNPB & Standar Risiko)
         const fillColor =
-          isRiverChannel && depth > 1.5
-            ? '#1e3a8a' // palung sungai dalam (navy)
+          isRiverChannel
+            ? '#0284c7' // Palung alur sungai (biru tua)
+            : depth > 2.5
+            ? '#ef4444' // Genangan ekstrem > 2.5m (merah)
             : depth > 1.5
-            ? '#1e40af' // genangan ekstrem > 1.5m (royal blue)
-            : depth > 0.8
-            ? '#2563eb' // genangan tinggi 0.8 - 1.5m (blue)
-            : depth > 0.3
-            ? '#0284c7' // genangan sedang 0.3 - 0.8m (sky blue)
-            : '#38bdf8'; // genangan rendah 0.08 - 0.3m (cyan)
+            ? '#f97316' // Genangan tinggi 1.5 - 2.5m (orange)
+            : depth > 0.75
+            ? '#eab308' // Genangan sedang 0.75 - 1.5m (kuning)
+            : '#38bdf8'; // Genangan rendah < 0.75m (biru muda)
 
-        const fillOpacity = isRiverChannel ? 0.8 : Math.min(0.72, 0.42 + (depth / 2.0) * 0.3);
+        const fillOpacity = isRiverChannel ? 0.85 : Math.min(0.85, 0.55 + (depth / 3.0) * 0.3);
 
         features.push({
           type: 'Feature',

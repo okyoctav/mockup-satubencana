@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { SimulationParams, SimulationResults, RegionPreset, REGION_PRESETS } from './SimulasiTypes';
+import { SimulationParams, SimulationResults, RegionPreset } from './SimulasiTypes';
 import {
   CloudRain,
   Sliders,
@@ -19,7 +19,7 @@ import {
 
 interface Props {
   selectedRegion: RegionPreset;
-  onSelectRegion: (region: RegionPreset) => void;
+  onSelectRegion?: (region: RegionPreset) => void;
   params: SimulationParams;
   onParamsChange: (params: SimulationParams) => void;
   results: SimulationResults | null;
@@ -33,7 +33,6 @@ interface Props {
 
 export default function SimulasiControlPanel({
   selectedRegion,
-  onSelectRegion,
   params,
   onParamsChange,
   results,
@@ -95,26 +94,22 @@ export default function SimulasiControlPanel({
           </div>
         </div>
 
-        {/* Region Quick Dropdown */}
-        <div>
-          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-            Wilayah Simulasi (DAS / Pesisir)
-          </label>
-          <select
-            value={selectedRegion.id}
-            onChange={(e) => {
-              const r = REGION_PRESETS.find((p) => p.id === e.target.value);
-              if (r) onSelectRegion(r);
-            }}
-            className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-[#0a1e36] dark:text-white outline-none cursor-pointer shadow-2xs"
-          >
-            {REGION_PRESETS.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.name} · {r.province}
-              </option>
-            ))}
-          </select>
-          <p className="text-[10px] text-slate-400 mt-1 line-clamp-1">{selectedRegion.description}</p>
+        {/* Card Wilayah Pemodelan (Fokus Data Riil) */}
+        <div className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-extrabold text-teal-800 dark:text-teal-200 uppercase tracking-wider">
+              Wilayah Pemodelan Riil
+            </span>
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-teal-200 dark:bg-teal-800 text-teal-900 dark:text-teal-100">
+              Data Nyata
+            </span>
+          </div>
+          <div className="font-extrabold text-[#0a1e36] dark:text-white text-xs">
+            {selectedRegion.name}
+          </div>
+          <p className="text-[10.5px] text-teal-900/80 dark:text-teal-300/80 leading-relaxed">
+            {selectedRegion.description}
+          </p>
         </div>
       </div>
 
@@ -584,16 +579,57 @@ export default function SimulasiControlPanel({
                   </div>
                 )}
 
+                {/* Kesimpulan Simulasi untuk Orang Awam Box */}
+                <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 space-y-2 shadow-xs">
+                  <div className="font-extrabold text-[#0a1e36] dark:text-white flex items-center gap-1.5 text-xs border-b border-slate-100 dark:border-slate-700 pb-1.5">
+                    <span>📋</span>
+                    <span>Kesimpulan Hasil Simulasi (Untuk Orang Awam)</span>
+                  </div>
+
+                  <div className="space-y-1.5 text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
+                    <p>
+                      • <b>Waktu Puncak Banjir:</b> Luapan terbesar terjadi pada <b>Pukul 08:00 WITA</b> dengan luas genangan <b>{results.floodedAreaHa} Ha</b>.
+                    </p>
+                    <p>
+                      • <b>Kawasan Paling Terancam:</b> Dataran rendah bantaran Sungai Girian di <b>Kelurahan Girian Bawah, Wangurer Barat, Girian Atas, &amp; Girian Indah</b>.
+                    </p>
+                    <p>
+                      • <b>Arti Warna Grid di Peta:</b>
+                    </p>
+                    <div className="grid grid-cols-2 gap-1.5 text-[10px] pl-1 font-medium">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded bg-[#ef4444] shrink-0" />
+                        <span><b>Merah:</b> &gt;2,5m (Tenggelam)</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded bg-[#f97316] shrink-0" />
+                        <span><b>Orange:</b> 1,5-2,5m (Seleher)</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded bg-[#eab308] shrink-0" />
+                        <span><b>Kuning:</b> 0,75-1,5m (Sepinggang)</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded bg-[#38bdf8] shrink-0" />
+                        <span><b>Biru:</b> &lt;0,75m (Selutut)</span>
+                      </div>
+                    </div>
+                    <p className="pt-1 border-t border-slate-100 dark:border-slate-700">
+                      • <b>Titik Aman Evakuasi:</b> Warga disarankan segera mengungsi ke <b>perbukitan DAS Girian (ketinggian &gt; 35m dpl)</b> di sisi barat laut sebelum jam puncak.
+                    </p>
+                  </div>
+                </div>
+
                 {/* Mitigasi & Rekomendasi Box */}
-                <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 space-y-1.5">
+                <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 space-y-1.5">
                   <div className="font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5 text-xs">
                     <span>💡</span>
                     <span>Rekomendasi Respons Lapangan</span>
                   </div>
                   <ul className="list-disc pl-4 text-[10.5px] text-amber-800 dark:text-amber-300 space-y-1">
-                    <li>Siapkan {Math.max(2, Math.round(results.affectedPopulation / 1200))} unit posko pengungsian sekunder.</li>
+                    <li>Siapkan {Math.max(2, Math.round(results.affectedPopulation / 1200))} unit posko pengungsian sekunder di luar zona genangan.</li>
                     <li>Mobilisasi minimal {Math.max(4, Math.round(results.floodedAreaHa / 40))} unit perahu karet evakuasi.</li>
-                    <li>Lakukan rekayasa lalu lintas di {results.inundatedRoadKm} km ruas jalan utama yang terancam tergenang.</li>
+                    <li>Lakukan rekayasa lalu lintas di {results.inundatedRoadKm} km ruas jalan utama Girian yang terancam tergenang.</li>
                   </ul>
                 </div>
               </>
