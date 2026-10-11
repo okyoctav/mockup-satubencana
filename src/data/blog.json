@@ -421,5 +421,36 @@
         "content": "- [Rencana Aksi Rehabilitasi dan Rekonstruksi Pascabencana Kepulauan Mentawai (PDF)](https://drive.google.com/file/d/15BwVPTPk-3EPEWLwCsh2im81bZZCReHU/view?usp=sharing)"
       }
     ]
+  },
+  {
+    "id": "13",
+    "disasterId": [35, 11],
+    "disasterNames": [
+      "Gempa, Tsunami dan Likuifaksi Sulawesi Tengah",
+      "Sulawesi Tengah 2018",
+      "Palu 2018",
+      "Gempa Palu",
+      "Likuifaksi Sulawesi Tengah",
+      "Gempabumi Kota Palu",
+      "Sulawesi Tengah"
+    ],
+    "category": "Rencana Aksi & Kebijakan",
+    "tagColor": "#ea580c",
+    "title": "Rencana Induk Pemulihan dan Pembangunan Kembali Wilayah Pascabencana Provinsi Sulawesi Tengah",
+    "excerpt": "Dokumen resmi Rencana Induk Pemulihan dan Pembangunan Kembali Wilayah Pascabencana Provinsi Sulawesi Tengah yang disusun oleh Kementerian PPN/Bappenas.",
+    "author": "PPN/ BAPPENAS",
+    "authorRole": "Kementerian PPN / Bappenas",
+    "date": "2018",
+    "readTime": "15 menit baca",
+    "image": "/images/blog/berita7.png",
+    "externalUrl": "https://drive.google.com/file/d/1l8Xj1SO9PlKQ01syxT_s3KvROZFMHZJ7/view?usp=sharing",
+    "isBappenas": true,
+    "sections": [
+      {
+        "id": "download",
+        "title": "Unduh Dokumen Rencana Induk",
+        "content": "- [Rencana Induk Pemulihan dan Pembangunan Kembali Wilayah Pascabencana Provinsi Sulawesi Tengah (PDF)](https://drive.google.com/file/d/1l8Xj1SO9PlKQ01syxT_s3KvROZFMHZJ7/view?usp=sharing)"
+      }
+    ]
   }
 ]

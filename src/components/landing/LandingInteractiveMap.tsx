@@ -330,22 +330,6 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
               font-size: 10px;
             ">
               <span style="color: #94a3b8;">Sumber: <b>${d.Sumber || 'BNPB / BMKG'}</b></span>
-              ${d.URL_Sumber ? `
-                <a 
-                  href="${d.URL_Sumber}" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  style="
-                    color: ${color};
-                    font-weight: 800;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                    text-decoration: none;
-                  "
-                >
-                  Detail ↗
-                </a>
-              ` : ''}
             </div>
           </div>
         </div>
