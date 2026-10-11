@@ -507,13 +507,6 @@ export default function MapSection() {
                               {art.title}
                             </a>
 
-                            {/* Article Snippet */}
-                            {art.snippet && (
-                              <p className="text-[11px] leading-relaxed line-clamp-2 text-slate-500 dark:text-slate-400">
-                                {art.snippet}
-                              </p>
-                            )}
-
                             {/* Card Action Bar Footer */}
                             <div className="pt-2 border-t flex items-center justify-between" style={{ borderColor: 'var(--border-faint)' }}>
                               <span className="text-[10px] text-slate-400 font-semibold flex items-center gap-1 truncate">
@@ -525,10 +518,11 @@ export default function MapSection() {
                                 href={art.link}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10.5px] font-black uppercase tracking-wider text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/40 transition-colors cursor-pointer"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10.5px] font-bold uppercase tracking-wider text-white hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-xs shrink-0"
+                                style={{ backgroundColor: 'rgb(15, 118, 110)', color: '#ffffff' }}
                               >
                                 <span>Buka Berita</span>
-                                <ExternalLink className="w-3 h-3" />
+                                <ExternalLink className="w-3 h-3 text-white" />
                               </a>
                             </div>
                           </article>
