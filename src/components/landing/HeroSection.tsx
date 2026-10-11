@@ -168,52 +168,54 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {/* 2 Cards: Sejarah Kebencanaan & Data Kebencanaan (Sesuai Revisi Desain Screenshot 2026-10-11 at 16.36.40.png) */}
+            {/* 2 Cards: Sejarah Kebencanaan & Data Kebencanaan (Sesuai Referensi Screenshot 2026-10-11 at 21.17.55.png) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-5">
               
               {/* Card 1: Sejarah Kebencanaan */}
               <Link
                 href="/sejarah-kebencanaan"
-                className="group relative border border-slate-200/90 rounded-[30px] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                className="group relative border border-slate-200/90 rounded-[30px] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden min-h-[220px] sm:min-h-[240px]"
                 style={{
-                  background: 'linear-gradient(to top, #e9f4fd 0%, #ffffff 70%)',
+                  background: 'linear-gradient(to top, #eafaf1 0%, #ffffff 70%)',
                 }}
               >
-                {/* Header Row: Icon Badge di Kiri, Ilustrasi Gambar 200px di Kanan Atas */}
-                <div className="relative flex items-start justify-between min-h-[120px] sm:min-h-[130px]">
-                  {/* Icon Badge Green */}
-                  <div className="relative z-10 w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-[#eafaf1] border border-[#d2f4e2] flex items-center justify-center text-emerald-500 shrink-0 shadow-2xs group-hover:bg-[#dff6e8] transition-colors">
-                    <BookOpen className="w-6.5 h-6.5 sm:w-7 sm:h-7 stroke-[2.2]" />
-                  </div>
-
-                  {/* Ilustrasi Gambar Sejarah di Kanan Atas (Height 200px) */}
-                  <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-[65%] sm:w-[70%] h-[200px] pointer-events-none flex items-start justify-end overflow-hidden">
-                    <img
-                      src="/sejarah.png"
-                      alt="Sejarah Kebencanaan"
-                      className="h-[200px] w-auto max-w-full object-contain object-right-top group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
+                {/* Bagian Kanan: Ilustrasi Sejarah Kebencanaan */}
+                <div className="absolute right-0 top-0 bottom-0 w-[48%] sm:w-[50%] pointer-events-none flex items-center justify-end overflow-hidden pr-2 sm:pr-4">
+                  <img
+                    src="/sejarah.png"
+                    alt="Sejarah Kebencanaan"
+                    className="max-h-[175px] sm:max-h-[195px] w-auto max-w-full object-contain object-right group-hover:scale-105 transition-transform duration-500"
+                  />
                 </div>
 
-                {/* Middle Content: Judul & Deskripsi */}
-                <div className="relative z-10 space-y-1.5 pt-2">
-                  <h3 className="text-xl sm:text-2xl font-black tracking-tight text-[#0a2540]">
-                    Sejarah Kebencanaan
-                  </h3>
-                  <p className="text-xs sm:text-sm font-medium text-slate-500 leading-relaxed max-w-[280px]">
-                    Telusuri kronologi dan rekam jejak<br className="hidden sm:inline" /> kejadian bencana.
-                  </p>
-                </div>
+                {/* Bagian Kiri: Teks & Tombol Aksi */}
+                <div className="relative z-10 flex flex-col justify-between h-full max-w-[52%] sm:max-w-[50%] space-y-4">
+                  <div className="space-y-3">
+                    {/* Sudut kiri atas: Ikon Badge */}
+                    <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-[#eafaf1] border border-[#d2f4e2] flex items-center justify-center text-emerald-600 shrink-0 shadow-2xs group-hover:bg-[#dff6e8] transition-colors">
+                      <BookOpen className="w-6.5 h-6.5 sm:w-7 sm:h-7 stroke-[2.2]" />
+                    </div>
 
-                {/* Dashed Divider & CTA Footer */}
-                <div className="relative z-10 pt-4 sm:pt-5">
-                  <div className="border-t border-dashed border-slate-200/90 pt-4 flex items-center justify-between">
-                    <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-[#0a2540] group-hover:text-emerald-700 transition-colors">
-                      Eksplorasi Riwayat
-                    </span>
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-[#0a2540] group-hover:border-[#0a2540] group-hover:translate-x-1 transition-all">
-                      <ChevronRight className="w-4.5 h-4.5 sm:w-5 sm:h-5 stroke-[2.5]" />
+                    {/* Judul utama & deskripsi singkat */}
+                    <div className="space-y-1">
+                      <h3 className="text-lg sm:text-xl font-black tracking-tight text-[#0a2540] leading-tight">
+                        Sejarah Kebencanaan
+                      </h3>
+                      <p className="text-xs sm:text-[13px] font-medium text-slate-500 leading-relaxed">
+                        Telusuri kronologi dan rekam jejak<br className="hidden sm:inline" /> kejadian bencana.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Paling bawah (dipisahkan garis tipis): Teks biru dongker diikuti lingkaran hijau muda berisi panah ke kanan */}
+                  <div className="pt-3 border-t border-slate-200/80">
+                    <div className="inline-flex items-center gap-2">
+                      <span className="text-xs sm:text-[13px] font-black tracking-tight text-[#0a2540] group-hover:text-emerald-700 transition-colors">
+                        Eksplorasi Riwayat
+                      </span>
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#e2f7ed] text-[#0b7f55] flex items-center justify-center shadow-2xs group-hover:bg-[#d2f4e2] group-hover:translate-x-1 transition-all">
+                        <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.8]" />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -222,46 +224,48 @@ export default function HeroSection() {
               {/* Card 2: Data Kebencanaan */}
               <Link
                 href="/analisis-data"
-                className="group relative border border-slate-200/90 rounded-[30px] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                className="group relative border border-slate-200/90 rounded-[30px] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden min-h-[220px] sm:min-h-[240px]"
                 style={{
                   background: 'linear-gradient(to top, #e9f4fd 0%, #ffffff 70%)',
                 }}
               >
-                {/* Header Row: Icon Badge di Kiri, Ilustrasi Gambar 200px di Kanan Atas */}
-                <div className="relative flex items-start justify-between min-h-[120px] sm:min-h-[130px]">
-                  {/* Icon Badge Blue */}
-                  <div className="relative z-10 w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-[#eef6ff] border border-[#d9ebff] flex items-center justify-center text-blue-500 shrink-0 shadow-2xs group-hover:bg-[#e2efff] transition-colors">
-                    <Database className="w-6.5 h-6.5 sm:w-7 sm:h-7 stroke-[2.2]" />
-                  </div>
-
-                  {/* Ilustrasi Gambar Data Kebencanaan di Kanan Atas (Height 200px) */}
-                  <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-[65%] sm:w-[70%] h-[200px] pointer-events-none flex items-start justify-end overflow-hidden">
-                    <img
-                      src="/datakebencanaan.png"
-                      alt="Data Kebencanaan"
-                      className="h-[200px] w-auto max-w-full object-contain object-right-top group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
+                {/* Bagian Kanan: Ilustrasi Data Kebencanaan */}
+                <div className="absolute right-0 top-0 bottom-0 w-[48%] sm:w-[50%] pointer-events-none flex items-center justify-end overflow-hidden pr-2 sm:pr-4">
+                  <img
+                    src="/datakebencanaan.png"
+                    alt="Data Kebencanaan"
+                    className="max-h-[175px] sm:max-h-[195px] w-auto max-w-full object-contain object-right group-hover:scale-105 transition-transform duration-500"
+                  />
                 </div>
 
-                {/* Middle Content: Judul & Deskripsi */}
-                <div className="relative z-10 space-y-1.5 pt-2">
-                  <h3 className="text-xl sm:text-2xl font-black tracking-tight text-[#0a2540]">
-                    Data Kebencanaan
-                  </h3>
-                  <p className="text-xs sm:text-sm font-medium text-slate-500 leading-relaxed max-w-[280px]">
-                    Akses data, indikator, dan informasi<br className="hidden sm:inline" /> kebencanaan terintegrasi.
-                  </p>
-                </div>
+                {/* Bagian Kiri: Teks & Tombol Aksi */}
+                <div className="relative z-10 flex flex-col justify-between h-full max-w-[52%] sm:max-w-[50%] space-y-4">
+                  <div className="space-y-3">
+                    {/* Sudut kiri atas: Ikon Badge */}
+                    <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-[#eef6ff] border border-[#d9ebff] flex items-center justify-center text-blue-600 shrink-0 shadow-2xs group-hover:bg-[#e2efff] transition-colors">
+                      <Database className="w-6.5 h-6.5 sm:w-7 sm:h-7 stroke-[2.2]" />
+                    </div>
 
-                {/* Dashed Divider & CTA Footer */}
-                <div className="relative z-10 pt-4 sm:pt-5">
-                  <div className="border-t border-dashed border-slate-200/90 pt-4 flex items-center justify-between">
-                    <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-[#0a2540] group-hover:text-blue-700 transition-colors">
-                      Buka Basis Data
-                    </span>
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-[#0a2540] group-hover:border-[#0a2540] group-hover:translate-x-1 transition-all">
-                      <ChevronRight className="w-4.5 h-4.5 sm:w-5 sm:h-5 stroke-[2.5]" />
+                    {/* Judul utama & deskripsi singkat */}
+                    <div className="space-y-1">
+                      <h3 className="text-lg sm:text-xl font-black tracking-tight text-[#0a2540] leading-tight">
+                        Data Kebencanaan
+                      </h3>
+                      <p className="text-xs sm:text-[13px] font-medium text-slate-500 leading-relaxed">
+                        Akses data, indikator, dan informasi<br className="hidden sm:inline" /> kebencanaan terintegrasi.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Paling bawah (dipisahkan garis tipis): Teks biru dongker diikuti lingkaran biru muda berisi panah ke kanan */}
+                  <div className="pt-3 border-t border-slate-200/80">
+                    <div className="inline-flex items-center gap-2">
+                      <span className="text-xs sm:text-[13px] font-black tracking-tight text-[#0a2540] group-hover:text-blue-700 transition-colors">
+                        Buka Basis Data
+                      </span>
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#dee8fb] text-[#1d70f5] flex items-center justify-center shadow-2xs group-hover:bg-[#d0e0fb] group-hover:translate-x-1 transition-all">
+                        <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.8]" />
+                      </div>
                     </div>
                   </div>
                 </div>
