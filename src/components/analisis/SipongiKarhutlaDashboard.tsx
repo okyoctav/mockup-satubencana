@@ -983,111 +983,139 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {/* Card 1: Total Hotspot Hari Ini (24 Jam) */}
               <div
-                className="p-3.5 rounded-2xl border flex flex-col justify-between shadow-xs transition-all hover:shadow-md"
+                className="group relative overflow-hidden p-3.5 rounded-2xl border flex flex-col justify-between shadow-xs transition-all hover:shadow-md min-h-[122px]"
                 style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
               >
-                <div className="flex items-center justify-between gap-2 mb-2">
+                {/* 3D Illustration Graphic from SIPONGI Reference */}
+                <img
+                  src="/images/sipongi/card_hotspot_today.png"
+                  alt="Satelit Hotspot NASA Realtime"
+                  className="absolute right-0 bottom-0 top-0 h-full max-h-[135px] w-auto max-w-[50%] object-contain object-right-bottom pointer-events-none select-none z-0 opacity-95 dark:opacity-85 transition-transform duration-500 group-hover:scale-105"
+                />
+
+                <div className="relative z-10 flex items-center justify-between gap-2 mb-2">
                   <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                     <Flame className="w-4 h-4 text-orange-600 shrink-0" />
                     <span>Total Hotspot Hari Ini</span>
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800">
+                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800 shrink-0 shadow-2xs">
                     24 Jam
                   </span>
                 </div>
-                <div className="my-1">
-                  <div className="text-2xl font-black text-orange-600">
+                <div className="relative z-10 my-1 max-w-[60%]">
+                  <div className="text-2xl font-black text-orange-600 tracking-tight">
                     {(hotspot24Total != null ? hotspot24Total : totalHotspotCount).toLocaleString('id-ID')}
                     <span className="text-xs font-bold text-slate-400 ml-1.5">Titik</span>
                   </div>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                <div className="relative z-10 text-[10px] text-slate-400 mt-1 flex items-center justify-between">
                   <span>Sensor MODIS / VIIRS NASA</span>
-                  <span className="text-orange-600 font-bold">Realtime</span>
+                  <span className="text-orange-600 font-bold bg-orange-50/80 dark:bg-orange-950/40 px-1.5 py-0.5 rounded-md">Realtime</span>
                 </div>
               </div>
 
               {/* Card 2: Akumulasi Hotspot 48 Jam */}
               <div
-                className="p-3.5 rounded-2xl border flex flex-col justify-between shadow-xs transition-all hover:shadow-md"
+                className="group relative overflow-hidden p-3.5 rounded-2xl border flex flex-col justify-between shadow-xs transition-all hover:shadow-md min-h-[122px]"
                 style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
               >
-                <div className="flex items-center justify-between gap-2 mb-2">
+                {/* 3D Illustration Graphic from SIPONGI Reference */}
+                <img
+                  src="/images/sipongi/card_hotspot_48h.png"
+                  alt="Layer Peta & Grafik Sebaran Nasional"
+                  className="absolute right-0 bottom-0 top-0 h-full max-h-[135px] w-auto max-w-[52%] object-contain object-right-bottom pointer-events-none select-none z-0 opacity-95 dark:opacity-85 transition-transform duration-500 group-hover:scale-105"
+                />
+
+                <div className="relative z-10 flex items-center justify-between gap-2 mb-2">
                   <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                     <TrendingUp className="w-4 h-4 text-amber-600 shrink-0" />
                     <span>Akumulasi 48 Jam</span>
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shrink-0 shadow-2xs">
                     2 Hari
                   </span>
                 </div>
-                <div className="my-1">
-                  <div className="text-2xl font-black text-amber-600">
+                <div className="relative z-10 my-1 max-w-[60%]">
+                  <div className="text-2xl font-black text-amber-600 tracking-tight">
                     {(hotspot48Total != null ? hotspot48Total : Math.round(totalHotspotCount * 1.8)).toLocaleString('id-ID')}
                     <span className="text-xs font-bold text-slate-400 ml-1.5">Titik</span>
                   </div>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                <div className="relative z-10 text-[10px] text-slate-400 mt-1 flex items-center justify-between">
                   <span>Tren Sebaran Nasional</span>
-                  <span className="text-amber-600 font-bold">Kumulatif</span>
+                  <span className="text-amber-600 font-bold bg-amber-50/80 dark:bg-amber-950/40 px-1.5 py-0.5 rounded-md">Kumulatif</span>
                 </div>
               </div>
 
               {/* Card 3: Kepercayaan Tinggi (High Confidence) */}
               <div
-                className="p-3.5 rounded-2xl border flex flex-col justify-between shadow-xs transition-all hover:shadow-md"
+                className="group relative overflow-hidden p-3.5 rounded-2xl border flex flex-col justify-between shadow-xs transition-all hover:shadow-md min-h-[122px]"
                 style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
               >
-                <div className="flex items-center justify-between gap-2 mb-2">
+                {/* 3D Illustration Graphic from SIPONGI Reference */}
+                <img
+                  src="/images/sipongi/card_high_confidence.png"
+                  alt="Radar & Perisai Prioritas Ground Check"
+                  className="absolute right-0 bottom-0 top-0 h-full max-h-[135px] w-auto max-w-[50%] object-contain object-right-bottom pointer-events-none select-none z-0 opacity-95 dark:opacity-85 transition-transform duration-500 group-hover:scale-105"
+                />
+
+                <div className="relative z-10 flex items-center justify-between gap-2 mb-2">
                   <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                     <ShieldAlert className="w-4 h-4 text-red-600 shrink-0" />
                     <span>Kepercayaan Tinggi</span>
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800">
+                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 shrink-0 shadow-2xs">
                     High Conf
                   </span>
                 </div>
-                <div className="my-1">
-                  <div className="text-2xl font-black text-red-600">
+                <div className="relative z-10 my-1 max-w-[60%]">
+                  <div className="text-2xl font-black text-red-600 tracking-tight">
                     {(highConfidenceTotal > 0 ? highConfidenceTotal : Math.round(totalHotspotCount * 0.12)).toLocaleString('id-ID')}
                     <span className="text-xs font-bold text-slate-400 ml-1.5">Titik</span>
                   </div>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
+                <div className="relative z-10 text-[10px] text-slate-400 mt-1 flex items-center justify-between">
                   <span>Prioritas Ground Check Patroli</span>
-                  <span className="text-red-600 font-bold">Kritis</span>
+                  <span className="text-red-600 font-bold bg-red-50/80 dark:bg-red-950/40 px-1.5 py-0.5 rounded-md">Kritis</span>
                 </div>
               </div>
 
               {/* Card 4: Top Wilayah Paling Rawan (#1) */}
               <div
                 onClick={() => top10KabHotspot[0] && setSelectedMapKabupaten(top10KabHotspot[0].kabupaten)}
-                className={`p-3.5 rounded-2xl border flex flex-col justify-between shadow-xs transition-all hover:shadow-md ${
+                className={`group relative overflow-hidden p-3.5 rounded-2xl border flex flex-col justify-between shadow-xs transition-all hover:shadow-md min-h-[122px] ${
                   top10KabHotspot[0] ? 'cursor-pointer hover:border-orange-500 hover:scale-[1.01]' : ''
                 }`}
                 style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
                 title="Klik untuk menyorot wilayah ini di peta"
               >
-                <div className="flex items-center justify-between gap-2 mb-2">
+                {/* 3D Illustration Graphic from SIPONGI Reference */}
+                <img
+                  src="/images/sipongi/card_critical_region.png"
+                  alt="Epicenter Hotspot Merauke Papua"
+                  className="absolute right-0 bottom-0 top-0 h-full max-h-[135px] w-auto max-w-[50%] object-contain object-right-bottom pointer-events-none select-none z-0 opacity-95 dark:opacity-85 transition-transform duration-500 group-hover:scale-105"
+                />
+
+                <div className="relative z-10 flex items-center justify-between gap-2 mb-2">
                   <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 truncate">
                     <MapPin className="w-4 h-4 text-rose-600 shrink-0" />
                     <span className="truncate">Wilayah Paling Kritis</span>
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 shrink-0">
+                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 shrink-0 shadow-2xs">
                     Top 1
                   </span>
                 </div>
-                <div className="my-1">
-                  <div className="text-base font-black text-rose-600 truncate" title={top10KabHotspot[0]?.kabupaten || '-'}>
+                <div className="relative z-10 my-1 max-w-[60%]">
+                  <div className="text-base font-black text-rose-600 truncate tracking-tight uppercase" title={top10KabHotspot[0]?.kabupaten || '-'}>
                     {top10KabHotspot[0]?.kabupaten || 'Sedang memuat...'}
                   </div>
                   <div className="text-[11px] font-extrabold text-slate-600 dark:text-slate-300 mt-0.5">
                     {top10KabHotspot[0]?.count ? `${top10KabHotspot[0].count.toLocaleString('id-ID')} Titik Panas` : '-'}
                   </div>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-1 flex items-center justify-between truncate">
+                <div className="relative z-10 text-[10px] text-slate-400 mt-1 flex items-center justify-between truncate">
                   <span className="truncate">{top10KabHotspot[0]?.provinsi || 'Indonesia'}</span>
-                  <span className="text-rose-600 font-bold shrink-0">Fokus Utama ↗</span>
+                  <span className="text-rose-600 font-bold shrink-0 bg-rose-50/80 dark:bg-rose-950/40 px-1.5 py-0.5 rounded-md">Fokus Utama ↗</span>
                 </div>
               </div>
             </div>
