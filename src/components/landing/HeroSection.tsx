@@ -60,13 +60,8 @@ export default function HeroSection() {
             {/* Title & Description */}
             <div className="space-y-1.5">
               <h1
-                className="text-xl sm:text-2xl font-black tracking-tight leading-[1.2]"
-                style={{
-                  background: 'linear-gradient(135deg, #E11D48 0%, #EA580C 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
+                className="text-xl sm:text-2xl font-black tracking-tight leading-[1.2] text-black"
+                style={{ color: '#000000' }}
               >
                 Manajemen Data Bencana
               </h1>
@@ -90,8 +85,8 @@ export default function HeroSection() {
               {/* FASE 01: PRABENCANA */}
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                  <span className="text-[10.5px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: 'rgb(11, 127, 85)' }} />
+                  <span className="text-[10.5px] font-black uppercase tracking-wider" style={{ color: 'rgb(11, 127, 85)' }}>
                     Fase 01 · Prabencana
                   </span>
                 </div>
@@ -108,8 +103,8 @@ export default function HeroSection() {
               {/* FASE 02: TANGGAP DARURAT */}
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
-                  <span className="text-[10.5px] font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: 'rgb(205, 130, 3)' }} />
+                  <span className="text-[10.5px] font-black uppercase tracking-wider" style={{ color: 'rgb(205, 130, 3)' }}>
                     Fase 02 · Tanggap Darurat
                   </span>
                 </div>
@@ -126,8 +121,8 @@ export default function HeroSection() {
               {/* FASE 03: PASCABENCANA */}
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-sky-500 shrink-0" />
-                  <span className="text-[10.5px] font-black uppercase tracking-wider text-sky-600 dark:text-sky-400">
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: 'rgb(9, 153, 216)' }} />
+                  <span className="text-[10.5px] font-black uppercase tracking-wider" style={{ color: 'rgb(9, 153, 216)' }}>
                     Fase 03 · Pascabencana
                   </span>
                 </div>
