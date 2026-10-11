@@ -59,11 +59,13 @@ const BULAN_LABELS = [
   'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'
 ];
 
+const ALL_YEARS = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
+
 export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKarhutlaDashboardProps) {
   // Main subtab
   const [activeTab, setActiveTab] = useState<'hotspot' | 'grafik' | 'luas_provinsi' | 'luas_kabupaten'>('hotspot');
 
-  // Hotspot states
+  // Hotspot states (Tab 1)
   const [timeframe, setTimeframe] = useState<'24' | '48'>('48');
   const [selectedConfidence, setSelectedConfidence] = useState<string>('all');
   const [selectedSatelit, setSelectedSatelit] = useState<string>('all-nasa');
@@ -71,19 +73,23 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
   const [loadingHotspot, setLoadingHotspot] = useState<boolean>(true);
   const [selectedMapKabupaten, setSelectedMapKabupaten] = useState<string | null>(null);
 
-  // Grafik hotspot states
-  const [selectedGrafikTahun, setSelectedGrafikTahun] = useState<string>('2026');
-  const [grafikHotspotData, setGrafikHotspotData] = useState<number[]>([]);
+  // Grafik hotspot states with year range (Tab 2)
+  const [startGrafikTahun, setStartGrafikTahun] = useState<number>(2015);
+  const [endGrafikTahun, setEndGrafikTahun] = useState<number>(2026);
+  const [hotspotYearsMap, setHotspotYearsMap] = useState<Record<number, number[]>>({});
   const [loadingGrafik, setLoadingGrafik] = useState<boolean>(false);
 
-  // Luas Provinsi states
+  // Luas Provinsi states with year range (Tab 3)
+  const [startTahunProv, setStartTahunProv] = useState<number>(2015);
+  const [endTahunProv, setEndTahunProv] = useState<number>(2026);
   const [provinsiList, setProvinsiList] = useState<ProvinsiLuasItem[]>([]);
   const [totalLuasNasional, setTotalLuasNasional] = useState<{ tahun: string | number; total: string }[]>([]);
   const [loadingProvinsi, setLoadingProvinsi] = useState<boolean>(true);
-  const [selectedTahunLuas, setSelectedTahunLuas] = useState<string>('2026');
   const [searchProvinsi, setSearchProvinsi] = useState<string>('');
 
-  // Luas Kabupaten states
+  // Luas Kabupaten states with year range (Tab 4)
+  const [startTahunKab, setStartTahunKab] = useState<number>(2015);
+  const [endTahunKab, setEndTahunKab] = useState<number>(2026);
   const [kabupatenList, setKabupatenList] = useState<KabupatenLuasItem[]>([]);
   const [loadingKabupaten, setLoadingKabupaten] = useState<boolean>(false);
   const [searchKabupaten, setSearchKabupaten] = useState<string>('');
@@ -108,26 +114,44 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
     return () => { isMounted = false; };
   }, [timeframe, selectedSatelit, selectedConfidence]);
 
-  // 2. Fetch Grafik Hotspot Bulanan
+  // 2. Fetch Hotspot Data for all years in selected range (Tab 2)
   useEffect(() => {
+    if (activeTab !== 'grafik') return;
+
+    const minTahun = Math.min(startGrafikTahun, endGrafikTahun);
+    const maxTahun = Math.max(startGrafikTahun, endGrafikTahun);
+    const neededYears = ALL_YEARS.filter((y) => y >= minTahun && y <= maxTahun && !hotspotYearsMap[y]);
+
+    if (neededYears.length === 0) return;
+
     let isMounted = true;
     setLoadingGrafik(true);
-    fetch(`/api/sipongi?action=grafik_hotspot&text=NASA-TERRA%2FAQUA&satelit=NASA-MODIS&tahun=${selectedGrafikTahun}`)
-      .then((res) => res.json())
-      .then((json) => {
-        if (!isMounted) return;
-        setGrafikHotspotData(json.data || []);
-        setLoadingGrafik(false);
+
+    Promise.all(
+      neededYears.map(async (y) => {
+        try {
+          const res = await fetch(`/api/sipongi?action=grafik_hotspot&text=NASA-TERRA%2FAQUA&satelit=NASA-MODIS&tahun=${y}`);
+          const json = await res.json();
+          return { year: y, data: (json.data || []) as number[] };
+        } catch (err) {
+          console.error(`Error fetching hotspot for year ${y}:`, err);
+          return { year: y, data: [] as number[] };
+        }
       })
-      .catch((err) => {
-        console.error('Error fetching grafik hotspot:', err);
-        if (isMounted) setLoadingGrafik(false);
+    ).then((results) => {
+      if (!isMounted) return;
+      setHotspotYearsMap((prev) => {
+        const next = { ...prev };
+        results.forEach((r) => { next[r.year] = r.data; });
+        return next;
       });
+      setLoadingGrafik(false);
+    });
 
     return () => { isMounted = false; };
-  }, [selectedGrafikTahun]);
+  }, [activeTab, startGrafikTahun, endGrafikTahun, hotspotYearsMap]);
 
-  // 3. Fetch Luas Kebakaran Provinsi (sekaligus data total nasional)
+  // 3. Fetch Luas Kebakaran Provinsi (Tab 3)
   useEffect(() => {
     let isMounted = true;
     setLoadingProvinsi(true);
@@ -147,7 +171,7 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
     return () => { isMounted = false; };
   }, []);
 
-  // 4. Fetch Luas Kebakaran Kabupaten
+  // 4. Fetch Luas Kebakaran Kabupaten (Tab 4)
   useEffect(() => {
     if (activeTab !== 'luas_kabupaten' || kabupatenList.length > 0) return;
     let isMounted = true;
@@ -183,12 +207,11 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
     }).format(num);
   };
 
-  // Hotspot summary calculations
+  // Hotspot summary calculations (Tab 1)
   const totalHotspotCount = useMemo(() => {
     return hotspotData.reduce((acc, h) => acc + (h.counter || 0), 0);
   }, [hotspotData]);
 
-  // Hotspot Top 10 Kabupaten
   const top10KabHotspot = useMemo(() => {
     const map: Record<string, { kabupaten: string; provinsi: string; count: number }> = {};
     hotspotData.forEach((h) => {
@@ -201,7 +224,6 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
     return Object.values(map).sort((a, b) => b.count - a.count).slice(0, 10);
   }, [hotspotData]);
 
-  // Hotspot Top 10 Provinsi
   const top10ProvHotspot = useMemo(() => {
     const map: Record<string, { provinsi: string; count: number }> = {};
     hotspotData.forEach((h) => {
@@ -214,54 +236,139 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
     return Object.values(map).sort((a, b) => b.count - a.count).slice(0, 10);
   }, [hotspotData]);
 
-  // Grafik data format for Recharts
-  const monthlyChartData = useMemo(() => {
-    return BULAN_LABELS.map((month, idx) => ({
-      bulan: month,
-      hotspot: grafikHotspotData[idx] || 0,
-    }));
-  }, [grafikHotspotData]);
+  // ----------------------------------------------------------------------
+  // TAB 2: HOTSPOT CHART LOGIC (Single Year -> Bulan, Multi Year -> Tahun)
+  // ----------------------------------------------------------------------
+  const minGrafikTahun = Math.min(startGrafikTahun, endGrafikTahun);
+  const maxGrafikTahun = Math.max(startGrafikTahun, endGrafikTahun);
+  const isSingleYearHotspot = minGrafikTahun === maxGrafikTahun;
 
-  // Historical National Fire Area for Recharts (2015-2026)
+  const hotspotChartData = useMemo(() => {
+    if (isSingleYearHotspot) {
+      // Single Year: Sumbu X adalah BULAN (Jan, Feb, ..., Des)
+      const months = hotspotYearsMap[minGrafikTahun] || [];
+      return BULAN_LABELS.map((month, idx) => ({
+        label: month,
+        hotspot: months[idx] || 0,
+      }));
+    } else {
+      // Multi Year Range: Sumbu X adalah TAHUN (2015, 2016, ...)
+      const yearsList = ALL_YEARS.filter((y) => y >= minGrafikTahun && y <= maxGrafikTahun);
+      return yearsList.map((y) => {
+        const months = hotspotYearsMap[y] || [];
+        const sumYear = months.reduce((a, b) => a + b, 0);
+        return {
+          label: String(y),
+          hotspot: sumYear,
+        };
+      });
+    }
+  }, [isSingleYearHotspot, minGrafikTahun, maxGrafikTahun, hotspotYearsMap]);
+
+  const totalHotspotInRange = useMemo(() => {
+    return hotspotChartData.reduce((acc, item) => acc + (item.hotspot || 0), 0);
+  }, [hotspotChartData]);
+
+  // ----------------------------------------------------------------------
+  // TAB 3: LUAS PROVINSI LOGIC (Year Range)
+  // ----------------------------------------------------------------------
+  const minProvYear = Math.min(startTahunProv, endTahunProv);
+  const maxProvYear = Math.max(startTahunProv, endTahunProv);
+  const yearsInProvRange = useMemo(() => {
+    return ALL_YEARS.filter((y) => y >= minProvYear && y <= maxProvYear);
+  }, [minProvYear, maxProvYear]);
+
+  // Historical National Fire Area filtered by range
   const historicalTotalChartData = useMemo(() => {
-    return totalLuasNasional.map((item) => ({
-      tahun: String(item.tahun),
-      luasHa: parseIndoNumber(item.total),
-      displayLuas: item.total,
-    }));
-  }, [totalLuasNasional]);
+    return totalLuasNasional
+      .filter((item) => {
+        const y = parseInt(String(item.tahun), 10);
+        return y >= minProvYear && y <= maxProvYear;
+      })
+      .map((item) => ({
+        tahun: String(item.tahun),
+        luasHa: parseIndoNumber(item.total),
+        displayLuas: item.total,
+      }));
+  }, [totalLuasNasional, minProvYear, maxProvYear]);
 
-  // Top Provinsi by Fire Area in selected year
+  const totalNasionalInRange = useMemo(() => {
+    const sum = historicalTotalChartData.reduce((acc, cur) => acc + cur.luasHa, 0);
+    return formatIndoNumber(sum);
+  }, [historicalTotalChartData]);
+
+  // Top Provinsi by accumulated fire area in selected range
   const topProvinsiLuasData = useMemo(() => {
     const list = provinsiList.map((p) => {
-      const entry = p.data_luas?.find((d) => String(d.tahun) === selectedTahunLuas);
-      const valStr = entry?.luas || entry?.total || '0';
-      const num = parseIndoNumber(valStr);
+      let sumRange = 0;
+      yearsInProvRange.forEach((y) => {
+        const entry = p.data_luas?.find((d) => String(d.tahun) === String(y));
+        const valStr = entry?.luas || entry?.total || '0';
+        sumRange += parseIndoNumber(valStr);
+      });
       return {
         nama: p.nama_provinsi,
-        luasHa: num,
-        displayLuas: valStr,
+        luasHa: sumRange,
+        displayLuas: formatIndoNumber(sumRange),
       };
     });
     return list.sort((a, b) => b.luasHa - a.luasHa);
-  }, [provinsiList, selectedTahunLuas]);
+  }, [provinsiList, yearsInProvRange]);
 
-  // Filtered Provinsi Table
+  // Filtered and sorted Provinsi Table
   const filteredProvinsiTable = useMemo(() => {
-    if (!searchProvinsi) return provinsiList;
-    const q = searchProvinsi.toLowerCase();
-    return provinsiList.filter((p) => p.nama_provinsi.toLowerCase().includes(q));
-  }, [provinsiList, searchProvinsi]);
+    let list = provinsiList.map((p) => {
+      let sumRange = 0;
+      yearsInProvRange.forEach((y) => {
+        const entry = p.data_luas?.find((d) => String(d.tahun) === String(y));
+        const valStr = entry?.luas || entry?.total || '0';
+        sumRange += parseIndoNumber(valStr);
+      });
+      return {
+        ...p,
+        totalRange: sumRange,
+      };
+    });
 
-  // Filtered Kabupaten Table with Pagination
+    if (searchProvinsi) {
+      const q = searchProvinsi.toLowerCase();
+      list = list.filter((p) => p.nama_provinsi.toLowerCase().includes(q));
+    }
+
+    return list.sort((a, b) => b.totalRange - a.totalRange);
+  }, [provinsiList, yearsInProvRange, searchProvinsi]);
+
+  // ----------------------------------------------------------------------
+  // TAB 4: LUAS KABUPATEN LOGIC (Year Range)
+  // ----------------------------------------------------------------------
+  const minKabYear = Math.min(startTahunKab, endTahunKab);
+  const maxKabYear = Math.max(startTahunKab, endTahunKab);
+  const yearsInKabRange = useMemo(() => {
+    return ALL_YEARS.filter((y) => y >= minKabYear && y <= maxKabYear);
+  }, [minKabYear, maxKabYear]);
+
+  // Filtered and sorted Kabupaten Table
   const filteredKabupatenTable = useMemo(() => {
-    let list = kabupatenList;
+    let list = kabupatenList.map((kab) => {
+      let sumRange = 0;
+      yearsInKabRange.forEach((y) => {
+        const entry = kab.data_luas?.find((d) => String(d.tahun) === String(y));
+        const valStr = entry?.luas || entry?.total || '0';
+        sumRange += parseIndoNumber(valStr);
+      });
+      return {
+        ...kab,
+        totalRange: sumRange,
+      };
+    });
+
     if (searchKabupaten) {
       const q = searchKabupaten.toLowerCase();
       list = list.filter((k) => k.nama.toLowerCase().includes(q));
     }
-    return list;
-  }, [kabupatenList, searchKabupaten]);
+
+    return list.sort((a, b) => b.totalRange - a.totalRange);
+  }, [kabupatenList, yearsInKabRange, searchKabupaten]);
 
   const itemsPerPage = 12;
   const totalKabupatenPages = Math.max(1, Math.ceil(filteredKabupatenTable.length / itemsPerPage));
@@ -344,7 +451,7 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
             }`}
           >
             <TrendingUp className="w-3.5 h-3.5" />
-            <span>Tren Hotspot Bulanan (2015-2026)</span>
+            <span>Tren Hotspot ({minGrafikTahun === maxGrafikTahun ? `Bulan Tahun ${minGrafikTahun}` : `${minGrafikTahun} - ${maxGrafikTahun}`})</span>
           </button>
 
           <button
@@ -356,7 +463,7 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
             }`}
           >
             <MapPin className="w-3.5 h-3.5" />
-            <span>Luas Karhutla per Provinsi</span>
+            <span>Luas Karhutla per Provinsi ({minProvYear} - {maxProvYear})</span>
           </button>
 
           <button
@@ -368,13 +475,13 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span>Luas Karhutla per Kab/Kota</span>
+            <span>Luas Karhutla per Kab/Kota ({minKabYear} - {maxKabYear})</span>
           </button>
         </div>
       </div>
 
       {/* ============================================================
-          2. OFFICIAL NOTICE & INSIGHT BANNER (Sesuai Arahan User)
+          2. OFFICIAL NOTICE & INSIGHT BANNER
           ============================================================ */}
       <div className="flex-none p-3 pb-0">
         <div
@@ -575,32 +682,84 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
           </div>
         )}
 
-        {/* ==================== SUBTAB 2: GRAFIK HOTSPOT (2015-2026) ==================== */}
+        {/* ==================== SUBTAB 2: GRAFIK HOTSPOT (Rentang Tahun / Bulanan) ==================== */}
         {activeTab === 'grafik' && (
           <div className="space-y-3">
-            {/* Filter Bar */}
+            {/* Filter Bar with Year Range */}
             <div
               className="p-2.5 rounded-2xl border flex flex-wrap items-center justify-between gap-2 shadow-2xs"
               style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
             >
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-[11px] text-slate-500 uppercase tracking-wide">Pilih Tahun Analisis:</span>
-                <select
-                  value={selectedGrafikTahun}
-                  onChange={(e) => setSelectedGrafikTahun(e.target.value)}
-                  className="p-1.5 px-3 rounded-xl text-xs font-black border outline-none cursor-pointer bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-800"
-                >
-                  {Array.from({ length: 12 }, (_, i) => 2015 + i).reverse().map((thn) => (
-                    <option key={thn} value={String(thn)}>Tahun {thn}</option>
-                  ))}
-                </select>
-                <span className="text-[10.5px] text-slate-400">Sensor: NASA-TERRA / AQUA MODIS</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-bold text-[11px] text-slate-500 uppercase tracking-wide">Rentang Tahun Analisis:</span>
+                
+                {/* Dari Tahun */}
+                <div className="flex items-center gap-1">
+                  <span className="text-[10.5px] text-slate-400">Dari:</span>
+                  <select
+                    value={startGrafikTahun}
+                    onChange={(e) => setStartGrafikTahun(parseInt(e.target.value, 10))}
+                    className="p-1 px-2.5 rounded-xl text-xs font-black border outline-none cursor-pointer bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-800"
+                  >
+                    {ALL_YEARS.map((thn) => (
+                      <option key={`start-${thn}`} value={thn}>{thn}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <span className="text-slate-400 font-bold">-</span>
+
+                {/* Sampai Tahun */}
+                <div className="flex items-center gap-1">
+                  <span className="text-[10.5px] text-slate-400">Sampai:</span>
+                  <select
+                    value={endGrafikTahun}
+                    onChange={(e) => setEndGrafikTahun(parseInt(e.target.value, 10))}
+                    className="p-1 px-2.5 rounded-xl text-xs font-black border outline-none cursor-pointer bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-800"
+                  >
+                    {ALL_YEARS.map((thn) => (
+                      <option key={`end-${thn}`} value={thn}>{thn}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Quick Preset Buttons */}
+                <div className="flex items-center gap-1 ml-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl text-[10px]">
+                  <button
+                    onClick={() => { setStartGrafikTahun(2015); setEndGrafikTahun(2026); }}
+                    className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      minGrafikTahun === 2015 && maxGrafikTahun === 2026 ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-300'
+                    }`}
+                  >
+                    Semua (2015-2026)
+                  </button>
+                  <button
+                    onClick={() => { setStartGrafikTahun(2022); setEndGrafikTahun(2026); }}
+                    className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      minGrafikTahun === 2022 && maxGrafikTahun === 2026 ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-300'
+                    }`}
+                  >
+                    5 Thn Terakhir
+                  </button>
+                  <button
+                    onClick={() => { setStartGrafikTahun(2026); setEndGrafikTahun(2026); }}
+                    className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      isSingleYearHotspot && minGrafikTahun === 2026 ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-300'
+                    }`}
+                    title="Pilih 1 tahun untuk melihat rincian bulan"
+                  >
+                    2026 Saja (Bulanan)
+                  </button>
+                </div>
               </div>
 
+              {/* Total KPI Badge */}
               <div className="flex items-center gap-2">
-                <span className="text-[11px] text-slate-500">Total Hotspot Tahun {selectedGrafikTahun}:</span>
+                <span className="text-[11px] text-slate-500">
+                  {isSingleYearHotspot ? `Total Tahun ${minGrafikTahun}:` : `Total Rentang (${minGrafikTahun} - ${maxGrafikTahun}):`}
+                </span>
                 <span className="px-3 py-1 rounded-xl bg-orange-600 text-white font-black text-xs shadow-xs">
-                  {grafikHotspotData.reduce((a, b) => a + b, 0).toLocaleString('id-ID')} Titik
+                  {totalHotspotInRange.toLocaleString('id-ID')} Titik
                 </span>
               </div>
             </div>
@@ -614,21 +773,32 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5 text-orange-600">
                     <BarChart3 className="w-4 h-4" />
-                    <span>Tren Titik Panas Bulanan Tahun {selectedGrafikTahun} (Januari - Desember)</span>
+                    <span>
+                      {isSingleYearHotspot
+                        ? `Tren Titik Panas Bulanan Tahun ${minGrafikTahun} (Januari - Desember)`
+                        : `Tren Titik Panas Tahunan Periode ${minGrafikTahun} - ${maxGrafikTahun}`}
+                    </span>
                   </h3>
-                  <p className="text-[10.5px] text-slate-400">Puncak sebaran hotspot karhutla umumnya terjadi pada periode musim kemarau (Juli - Oktober)</p>
+                  <p className="text-[10.5px] text-slate-400">
+                    {isSingleYearHotspot
+                      ? 'Distribusi sebaran per bulan untuk 1 tahun terpilih (Puncak karhutla terjadi pada Juli - Oktober)'
+                      : `Akumulasi tahunan (Pilih 1 tahun yang sama jika ingin melihat rincian bulanan)`}
+                  </p>
                 </div>
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800">
+                  {isSingleYearHotspot ? '📅 Sumbu X: Bulan' : '📆 Sumbu X: Tahun'}
+                </span>
               </div>
 
               <div className="h-72 w-full">
                 {loadingGrafik ? (
                   <div className="h-full w-full flex flex-col items-center justify-center gap-2 text-slate-400">
                     <div className="w-8 h-8 border-3 border-orange-500 border-t-transparent rounded-full animate-spin" />
-                    <span className="text-xs font-bold">Memuat Grafik Hotspot...</span>
+                    <span className="text-xs font-bold">Mengunduh Data Hotspot dari SIPONGI...</span>
                   </div>
                 ) : (
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={monthlyChartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                    <AreaChart data={hotspotChartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                       <defs>
                         <linearGradient id="hotspotGrad" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#ea580c" stopOpacity={0.8} />
@@ -636,8 +806,8 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                      <XAxis dataKey="bulan" tick={{ fontSize: 11 }} />
-                      <YAxis tick={{ fontSize: 11 }} />
+                      <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+                      <YAxis tick={{ fontSize: 11 }} tickFormatter={(val) => val >= 1000 ? `${(val / 1000).toFixed(0)}k` : String(val)} />
                       <Tooltip
                         contentStyle={{
                           backgroundColor: 'var(--bg-card)',
@@ -654,12 +824,12 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                 )}
               </div>
 
-              {/* Monthly Stat Cards */}
+              {/* Stat Cards Breakdown (Months or Years) */}
               <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-1.5 pt-2 border-t" style={{ borderColor: 'var(--border-faint)' }}>
-                {monthlyChartData.map((m) => (
-                  <div key={m.bulan} className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-center border border-slate-100 dark:border-slate-800">
-                    <div className="text-[10px] font-bold text-slate-500">{m.bulan}</div>
-                    <div className={`text-xs font-black ${m.hotspot > 1000 ? 'text-red-600' : m.hotspot > 200 ? 'text-orange-500' : 'text-slate-700 dark:text-slate-300'}`}>
+                {hotspotChartData.map((m) => (
+                  <div key={m.label} className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-center border border-slate-100 dark:border-slate-800">
+                    <div className="text-[10px] font-bold text-slate-500">{m.label}</div>
+                    <div className={`text-xs font-black ${m.hotspot > 10000 ? 'text-red-600' : m.hotspot > 2000 ? 'text-orange-500' : 'text-slate-700 dark:text-slate-300'}`}>
                       {m.hotspot.toLocaleString('id-ID')}
                     </div>
                   </div>
@@ -669,26 +839,74 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
           </div>
         )}
 
-        {/* ==================== SUBTAB 3: LUAS KEBAKARAN PER PROVINSI ==================== */}
+        {/* ==================== SUBTAB 3: LUAS KEBAKARAN PER PROVINSI (Rentang Tahun) ==================== */}
         {activeTab === 'luas_provinsi' && (
           <div className="space-y-3">
-            {/* Filter Bar */}
+            {/* Filter Bar with Year Range */}
             <div
               className="p-2.5 rounded-2xl border flex flex-wrap items-center justify-between gap-2 shadow-2xs"
               style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
             >
               <div className="flex flex-wrap items-center gap-2">
-                <span className="font-bold text-[11px] text-slate-500 uppercase tracking-wide">Tahun Pemeringkatan:</span>
-                <select
-                  value={selectedTahunLuas}
-                  onChange={(e) => setSelectedTahunLuas(e.target.value)}
-                  className="p-1.5 px-3 rounded-xl text-xs font-black border outline-none cursor-pointer bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-300 dark:border-red-800"
-                >
-                  {Array.from({ length: 12 }, (_, i) => 2015 + i).reverse().map((thn) => (
-                    <option key={thn} value={String(thn)}>Tahun {thn}</option>
-                  ))}
-                </select>
+                <span className="font-bold text-[11px] text-slate-500 uppercase tracking-wide">Rentang Tahun:</span>
 
+                <div className="flex items-center gap-1">
+                  <span className="text-[10.5px] text-slate-400">Dari:</span>
+                  <select
+                    value={startTahunProv}
+                    onChange={(e) => setStartTahunProv(parseInt(e.target.value, 10))}
+                    className="p-1 px-2.5 rounded-xl text-xs font-black border outline-none cursor-pointer bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-300 dark:border-red-800"
+                  >
+                    {ALL_YEARS.map((thn) => (
+                      <option key={`p-start-${thn}`} value={thn}>{thn}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <span className="text-slate-400 font-bold">-</span>
+
+                <div className="flex items-center gap-1">
+                  <span className="text-[10.5px] text-slate-400">Sampai:</span>
+                  <select
+                    value={endTahunProv}
+                    onChange={(e) => setEndTahunProv(parseInt(e.target.value, 10))}
+                    className="p-1 px-2.5 rounded-xl text-xs font-black border outline-none cursor-pointer bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-300 dark:border-red-800"
+                  >
+                    {ALL_YEARS.map((thn) => (
+                      <option key={`p-end-${thn}`} value={thn}>{thn}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="flex items-center gap-1 ml-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl text-[10px]">
+                  <button
+                    onClick={() => { setStartTahunProv(2015); setEndTahunProv(2026); }}
+                    className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      minProvYear === 2015 && maxProvYear === 2026 ? 'bg-red-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-300'
+                    }`}
+                  >
+                    Semua (2015-2026)
+                  </button>
+                  <button
+                    onClick={() => { setStartTahunProv(2022); setEndTahunProv(2026); }}
+                    className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      minProvYear === 2022 && maxProvYear === 2026 ? 'bg-red-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-300'
+                    }`}
+                  >
+                    5 Thn Terakhir
+                  </button>
+                  <button
+                    onClick={() => { setStartTahunProv(2026); setEndTahunProv(2026); }}
+                    className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      minProvYear === 2026 && maxProvYear === 2026 ? 'bg-red-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-300'
+                    }`}
+                  >
+                    2026 Saja
+                  </button>
+                </div>
+
+                {/* Search Input */}
                 <div className="relative ml-2">
                   <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
@@ -696,7 +914,7 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                     placeholder="Cari provinsi..."
                     value={searchProvinsi}
                     onChange={(e) => setSearchProvinsi(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 rounded-xl text-xs border outline-none w-48"
+                    className="pl-8 pr-3 py-1.5 rounded-xl text-xs border outline-none w-44"
                     style={{ backgroundColor: 'var(--bg-page)', borderColor: 'var(--border-subtle)' }}
                   />
                 </div>
@@ -704,16 +922,18 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
 
               {/* National Total Pill */}
               <div className="flex items-center gap-2">
-                <span className="text-[11px] text-slate-500">Total Karhutla Nasional {selectedTahunLuas}:</span>
+                <span className="text-[11px] text-slate-500">
+                  Total Karhutla Nasional ({minProvYear} - {maxProvYear}):
+                </span>
                 <span className="px-3 py-1 rounded-xl bg-red-600 text-white font-black text-xs shadow-xs">
-                  {totalLuasNasional.find((t) => String(t.tahun) === selectedTahunLuas)?.total || '0'} ha
+                  {totalNasionalInRange} ha
                 </span>
               </div>
             </div>
 
-            {/* Visual Charts: Historical Trend + Top 10 Provinces */}
+            {/* Visual Charts: Historical Trend in Range + Top 10 Provinces */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              {/* Historical Trend 2015-2026 */}
+              {/* Historical Trend in Selected Range */}
               <div
                 className="p-3.5 rounded-2xl border space-y-2 shadow-xs"
                 style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
@@ -721,7 +941,7 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                 <div className="flex items-center justify-between">
                   <h3 className="font-black text-xs uppercase tracking-wider text-red-600 flex items-center gap-1.5">
                     <TrendingUp className="w-3.5 h-3.5" />
-                    <span>Tren Luas Karhutla Nasional (2015 - 2026)</span>
+                    <span>Tren Luas Karhutla Nasional ({minProvYear} - {maxProvYear})</span>
                   </h3>
                   <span className="text-[10px] text-slate-400">Satuan: Hektar (ha)</span>
                 </div>
@@ -746,7 +966,7 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                         {historicalTotalChartData.map((entry) => (
                           <Cell
                             key={entry.tahun}
-                            fill={entry.tahun === selectedTahunLuas ? '#dc2626' : '#f97316'}
+                            fill={entry.tahun === String(maxProvYear) ? '#dc2626' : '#f97316'}
                           />
                         ))}
                       </Bar>
@@ -755,7 +975,7 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                 </div>
               </div>
 
-              {/* Top 10 Provinces Bar Chart */}
+              {/* Top 10 Provinces Bar Chart (Accumulated in Range) */}
               <div
                 className="p-3.5 rounded-2xl border space-y-2 shadow-xs"
                 style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
@@ -763,9 +983,9 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                 <div className="flex items-center justify-between">
                   <h3 className="font-black text-xs uppercase tracking-wider text-red-600 flex items-center gap-1.5">
                     <Award className="w-3.5 h-3.5" />
-                    <span>Top 10 Provinsi Terluas Tahun {selectedTahunLuas}</span>
+                    <span>Top 8 Provinsi Terluas ({minProvYear} - {maxProvYear})</span>
                   </h3>
-                  <span className="text-[10px] text-slate-400">Satuan: Hektar (ha)</span>
+                  <span className="text-[10px] text-slate-400">Total Akumulasi Periode</span>
                 </div>
 
                 <div className="h-60 w-full">
@@ -795,16 +1015,16 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
               </div>
             </div>
 
-            {/* Full Table */}
+            {/* Dynamic Table based on Year Range */}
             <div
               className="rounded-2xl border overflow-hidden shadow-xs"
               style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
             >
               <div className="p-3 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-faint)' }}>
                 <h4 className="font-black text-xs uppercase tracking-wider">
-                  Daftar Luas Karhutla Seluruh Provinsi ({filteredProvinsiTable.length} Provinsi)
+                  Daftar Luas Karhutla Provinsi ({filteredProvinsiTable.length} Provinsi) · Rentang {minProvYear} - {maxProvYear}
                 </h4>
-                <span className="text-[10.5px] text-slate-400">Kolom tahun 2015 s.d. 2026 (hektar)</span>
+                <span className="text-[10.5px] text-slate-400">Satuan hektar (ha) · Urutan akumulasi terbesar</span>
               </div>
 
               <div className="overflow-x-auto max-h-80">
@@ -819,22 +1039,21 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                       <tr>
                         <th className="p-2.5 pl-4">No</th>
                         <th className="p-2.5">Provinsi</th>
-                        <th className="p-2.5 text-right font-black text-red-600 bg-red-50 dark:bg-red-950/30">
-                          {selectedTahunLuas} (ha)
+                        <th className="p-2.5 text-right font-black text-red-600 bg-red-50 dark:bg-red-950/40">
+                          Total ({minProvYear}-{maxProvYear})
                         </th>
-                        <th className="p-2.5 text-right">2025</th>
-                        <th className="p-2.5 text-right">2024</th>
-                        <th className="p-2.5 text-right">2023</th>
-                        <th className="p-2.5 text-right">2022</th>
-                        <th className="p-2.5 text-right">2021</th>
-                        <th className="p-2.5 text-right">2020</th>
-                        <th className="p-2.5 text-right">2019</th>
+                        {/* Dynamic columns from max to min */}
+                        {[...yearsInProvRange].reverse().map((y) => (
+                          <th key={`th-${y}`} className="p-2.5 text-right">
+                            {y}
+                          </th>
+                        ))}
                       </tr>
                     </thead>
                     <tbody className="divide-y" style={{ borderColor: 'var(--border-faint)' }}>
                       {filteredProvinsiTable.map((prov, idx) => {
-                        const getLuas = (thn: string) => {
-                          const itm = prov.data_luas?.find((d) => String(d.tahun) === thn);
+                        const getLuas = (thn: string | number) => {
+                          const itm = prov.data_luas?.find((d) => String(d.tahun) === String(thn));
                           return itm?.luas || itm?.total || '-';
                         };
 
@@ -843,15 +1062,13 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                             <td className="p-2.5 pl-4 text-slate-400 font-bold">{idx + 1}</td>
                             <td className="p-2.5 font-bold">{prov.nama_provinsi}</td>
                             <td className="p-2.5 text-right font-extrabold text-red-600 bg-red-50/50 dark:bg-red-950/20">
-                              {getLuas(selectedTahunLuas)}
+                              {formatIndoNumber(prov.totalRange)}
                             </td>
-                            <td className="p-2.5 text-right text-slate-600 dark:text-slate-300">{getLuas('2025')}</td>
-                            <td className="p-2.5 text-right text-slate-600 dark:text-slate-300">{getLuas('2024')}</td>
-                            <td className="p-2.5 text-right text-slate-600 dark:text-slate-300">{getLuas('2023')}</td>
-                            <td className="p-2.5 text-right text-slate-600 dark:text-slate-300">{getLuas('2022')}</td>
-                            <td className="p-2.5 text-right text-slate-600 dark:text-slate-300">{getLuas('2021')}</td>
-                            <td className="p-2.5 text-right text-slate-600 dark:text-slate-300">{getLuas('2020')}</td>
-                            <td className="p-2.5 text-right text-slate-600 dark:text-slate-300">{getLuas('2019')}</td>
+                            {[...yearsInProvRange].reverse().map((y) => (
+                              <td key={`td-${prov.nama_provinsi}-${y}`} className="p-2.5 text-right text-slate-600 dark:text-slate-300">
+                                {getLuas(y)}
+                              </td>
+                            ))}
                           </tr>
                         );
                       })}
@@ -863,40 +1080,90 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
           </div>
         )}
 
-        {/* ==================== SUBTAB 4: LUAS KEBAKARAN PER KAB/KOTA ==================== */}
+        {/* ==================== SUBTAB 4: LUAS KEBAKARAN PER KAB/KOTA (Rentang Tahun) ==================== */}
         {activeTab === 'luas_kabupaten' && (
           <div className="space-y-3">
-            {/* Filter Bar */}
+            {/* Filter Bar with Year Range */}
             <div
               className="p-2.5 rounded-2xl border flex flex-wrap items-center justify-between gap-2 shadow-2xs"
               style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
             >
               <div className="flex flex-wrap items-center gap-2">
-                <span className="font-bold text-[11px] text-slate-500 uppercase tracking-wide">Pencarian & Tahun:</span>
+                <span className="font-bold text-[11px] text-slate-500 uppercase tracking-wide">Pencarian & Rentang Tahun:</span>
+                
+                {/* Search Input */}
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
-                    placeholder="Cari nama kabupaten/kota..."
+                    placeholder="Cari nama kab/kota..."
                     value={searchKabupaten}
                     onChange={(e) => {
                       setSearchKabupaten(e.target.value);
                       setKabupatenPage(1);
                     }}
-                    className="pl-8 pr-3 py-1.5 rounded-xl text-xs border outline-none w-56"
+                    className="pl-8 pr-3 py-1.5 rounded-xl text-xs border outline-none w-48"
                     style={{ backgroundColor: 'var(--bg-page)', borderColor: 'var(--border-subtle)' }}
                   />
                 </div>
 
-                <select
-                  value={selectedTahunLuas}
-                  onChange={(e) => setSelectedTahunLuas(e.target.value)}
-                  className="p-1.5 px-3 rounded-xl text-xs font-black border outline-none cursor-pointer bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-300 dark:border-red-800"
-                >
-                  {Array.from({ length: 12 }, (_, i) => 2015 + i).reverse().map((thn) => (
-                    <option key={thn} value={String(thn)}>Tahun {thn}</option>
-                  ))}
-                </select>
+                {/* Dari Tahun */}
+                <div className="flex items-center gap-1">
+                  <span className="text-[10.5px] text-slate-400">Dari:</span>
+                  <select
+                    value={startTahunKab}
+                    onChange={(e) => { setStartTahunKab(parseInt(e.target.value, 10)); setKabupatenPage(1); }}
+                    className="p-1 px-2.5 rounded-xl text-xs font-black border outline-none cursor-pointer bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-300 dark:border-red-800"
+                  >
+                    {ALL_YEARS.map((thn) => (
+                      <option key={`k-start-${thn}`} value={thn}>{thn}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <span className="text-slate-400 font-bold">-</span>
+
+                {/* Sampai Tahun */}
+                <div className="flex items-center gap-1">
+                  <span className="text-[10.5px] text-slate-400">Sampai:</span>
+                  <select
+                    value={endTahunKab}
+                    onChange={(e) => { setEndTahunKab(parseInt(e.target.value, 10)); setKabupatenPage(1); }}
+                    className="p-1 px-2.5 rounded-xl text-xs font-black border outline-none cursor-pointer bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-300 dark:border-red-800"
+                  >
+                    {ALL_YEARS.map((thn) => (
+                      <option key={`k-end-${thn}`} value={thn}>{thn}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="flex items-center gap-1 ml-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl text-[10px]">
+                  <button
+                    onClick={() => { setStartTahunKab(2015); setEndTahunKab(2026); setKabupatenPage(1); }}
+                    className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      minKabYear === 2015 && maxKabYear === 2026 ? 'bg-red-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-300'
+                    }`}
+                  >
+                    Semua (2015-2026)
+                  </button>
+                  <button
+                    onClick={() => { setStartTahunKab(2022); setEndTahunKab(2026); setKabupatenPage(1); }}
+                    className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      minKabYear === 2022 && maxKabYear === 2026 ? 'bg-red-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-300'
+                    }`}
+                  >
+                    5 Thn Terakhir
+                  </button>
+                  <button
+                    onClick={() => { setStartTahunKab(2026); setEndTahunKab(2026); setKabupatenPage(1); }}
+                    className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      minKabYear === 2026 && maxKabYear === 2026 ? 'bg-red-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-300'
+                    }`}
+                  >
+                    2026 Saja
+                  </button>
+                </div>
               </div>
 
               <div className="text-[11px] text-slate-500">
@@ -921,21 +1188,21 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                       <tr>
                         <th className="p-2.5 pl-4">No</th>
                         <th className="p-2.5">Kabupaten / Kota</th>
-                        <th className="p-2.5 text-right font-black text-red-600 bg-red-50 dark:bg-red-950/30">
-                          {selectedTahunLuas} (ha)
+                        <th className="p-2.5 text-right font-black text-red-600 bg-red-50 dark:bg-red-950/40">
+                          Total ({minKabYear}-{maxKabYear}) (ha)
                         </th>
-                        <th className="p-2.5 text-right">2025</th>
-                        <th className="p-2.5 text-right">2024</th>
-                        <th className="p-2.5 text-right">2023</th>
-                        <th className="p-2.5 text-right">2022</th>
-                        <th className="p-2.5 text-right">2021</th>
-                        <th className="p-2.5 text-right">2020</th>
+                        {/* Dynamic columns from max to min */}
+                        {[...yearsInKabRange].reverse().map((y) => (
+                          <th key={`k-th-${y}`} className="p-2.5 text-right">
+                            {y}
+                          </th>
+                        ))}
                       </tr>
                     </thead>
                     <tbody className="divide-y" style={{ borderColor: 'var(--border-faint)' }}>
                       {currentKabupatenRows.map((kab, idx) => {
-                        const getLuas = (thn: string) => {
-                          const itm = kab.data_luas?.find((d) => String(d.tahun) === thn);
+                        const getLuas = (thn: string | number) => {
+                          const itm = kab.data_luas?.find((d) => String(d.tahun) === String(thn));
                           return itm?.luas || itm?.total || '-';
                         };
 
@@ -946,20 +1213,19 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                             <td className="p-2.5 pl-4 text-slate-400 font-bold">{actualIndex}</td>
                             <td className="p-2.5 font-bold">{kab.nama}</td>
                             <td className="p-2.5 text-right font-extrabold text-red-600 bg-red-50/50 dark:bg-red-950/20">
-                              {getLuas(selectedTahunLuas)}
+                              {formatIndoNumber(kab.totalRange)}
                             </td>
-                            <td className="p-2.5 text-right text-slate-600 dark:text-slate-300">{getLuas('2025')}</td>
-                            <td className="p-2.5 text-right text-slate-600 dark:text-slate-300">{getLuas('2024')}</td>
-                            <td className="p-2.5 text-right text-slate-600 dark:text-slate-300">{getLuas('2023')}</td>
-                            <td className="p-2.5 text-right text-slate-600 dark:text-slate-300">{getLuas('2022')}</td>
-                            <td className="p-2.5 text-right text-slate-600 dark:text-slate-300">{getLuas('2021')}</td>
-                            <td className="p-2.5 text-right text-slate-600 dark:text-slate-300">{getLuas('2020')}</td>
+                            {[...yearsInKabRange].reverse().map((y) => (
+                              <td key={`k-td-${kab.nama}-${y}`} className="p-2.5 text-right text-slate-600 dark:text-slate-300">
+                                {getLuas(y)}
+                              </td>
+                            ))}
                           </tr>
                         );
                       })}
                       {currentKabupatenRows.length === 0 && !loadingKabupaten && (
                         <tr>
-                          <td colSpan={9} className="p-8 text-center text-slate-400 text-xs">
+                          <td colSpan={3 + yearsInKabRange.length} className="p-8 text-center text-slate-400 text-xs">
                             Tidak ditemukan kabupaten/kota dengan pencarian &quot;{searchKabupaten}&quot;
                           </td>
                         </tr>

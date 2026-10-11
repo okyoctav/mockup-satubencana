@@ -82,9 +82,8 @@ export default function SipongiHotspotMap({
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    const tile = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      subdomains: 'abcd',
+    const tile = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 18,
     }).addTo(map);
 
     baseTileRef.current = tile;
@@ -102,14 +101,17 @@ export default function SipongiHotspotMap({
     if (!mapRef.current || !baseTileRef.current) return;
     mapRef.current.removeLayer(baseTileRef.current);
 
-    let url = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    let url = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+    let maxZoom = 18;
     if (basemapType === 'streets') {
       url = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      maxZoom = 19;
     } else if (basemapType === 'satellite') {
       url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+      maxZoom = 18;
     }
 
-    baseTileRef.current = L.tileLayer(url, { maxZoom: 19, subdomains: 'abcd' }).addTo(mapRef.current);
+    baseTileRef.current = L.tileLayer(url, { maxZoom, subdomains: 'abc' }).addTo(mapRef.current);
   }, [basemapType]);
 
   // Render Hotspot Markers
