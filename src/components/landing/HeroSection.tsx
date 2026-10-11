@@ -173,47 +173,50 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {/* 2 Cards: Sejarah Kebencanaan & Data Kebencanaan (Sesuai Referensi Screenshot 2026-10-11 at 15.53.44.png) */}
+            {/* 2 Cards: Sejarah Kebencanaan & Data Kebencanaan (Sesuai Revisi Desain Screenshot 2026-10-11 at 16.36.40.png) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-5">
               
               {/* Card 1: Sejarah Kebencanaan */}
               <Link
                 href="/sejarah-kebencanaan"
-                className="group relative bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden min-h-[220px] sm:min-h-[240px]"
+                className="group relative bg-white border border-slate-200/90 rounded-[30px] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden"
               >
-                {/* Ilustrasi Gambar Sejarah di Sisi Kanan */}
-                <div className="absolute -right-2 -bottom-2 top-0 w-[55%] sm:w-[58%] pointer-events-none flex items-end justify-end overflow-hidden">
-                  <img
-                    src="/sejarah.png"
-                    alt="Sejarah Kebencanaan"
-                    className="w-full h-full object-contain object-right-bottom group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-
-                {/* Konten Sisi Kiri */}
-                <div className="relative z-10 space-y-3 max-w-[55%] sm:max-w-[58%]">
+                {/* Header Row: Icon Badge di Kiri, Ilustrasi Gambar di Kanan Atas */}
+                <div className="relative flex items-start justify-between min-h-[115px] sm:min-h-[125px]">
                   {/* Icon Badge Green */}
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100/90 flex items-center justify-center text-emerald-600 shadow-2xs group-hover:bg-emerald-100/80 transition-colors">
-                    <BookOpen className="w-6 h-6 stroke-[2.2]" />
+                  <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-[#eafaf1] border border-[#d2f4e2] flex items-center justify-center text-emerald-500 shrink-0 shadow-2xs group-hover:bg-[#dff6e8] transition-colors">
+                    <BookOpen className="w-6.5 h-6.5 sm:w-7 sm:h-7 stroke-[2.2]" />
                   </div>
 
-                  <div>
-                    <h3 className="text-2xl sm:text-[26px] font-black tracking-tight text-[#0a2540] leading-[1.15]">
-                      Sejarah<br />Kebencanaan
-                    </h3>
-                    <p className="text-xs sm:text-sm font-medium text-slate-500 mt-2 leading-relaxed">
-                      Telusuri kronologi dan rekam jejak kejadian bencana.
-                    </p>
+                  {/* Ilustrasi Gambar Sejarah di Kanan Atas */}
+                  <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-[62%] sm:w-[68%] h-[120px] sm:h-[135px] pointer-events-none flex items-start justify-end overflow-hidden">
+                    <img
+                      src="/sejarah.png"
+                      alt="Sejarah Kebencanaan"
+                      className="h-full w-auto max-w-full object-contain object-right-top group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
                 </div>
 
-                {/* CTA Action: Link teks underline + Panah lingkaran */}
-                <div className="relative z-10 flex items-center gap-3 pt-4 mt-2">
-                  <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-[#0a2540] border-b-2 border-[#0a2540] pb-0.5 group-hover:text-emerald-700 group-hover:border-emerald-700 transition-colors">
-                    Eksplorasi Riwayat
-                  </span>
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-[#0a2540] group-hover:border-[#0a2540] group-hover:translate-x-1 transition-all">
-                    <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.5]" />
+                {/* Middle Content: Judul & Deskripsi */}
+                <div className="relative z-10 space-y-1.5 pt-2">
+                  <h3 className="text-xl sm:text-2xl font-black tracking-tight text-[#0a2540]">
+                    Sejarah Kebencanaan
+                  </h3>
+                  <p className="text-xs sm:text-sm font-medium text-slate-500 leading-relaxed max-w-[280px]">
+                    Telusuri kronologi dan rekam jejak<br className="hidden sm:inline" /> kejadian bencana.
+                  </p>
+                </div>
+
+                {/* Dashed Divider & CTA Footer */}
+                <div className="relative z-10 pt-4 sm:pt-5">
+                  <div className="border-t border-dashed border-slate-200/90 pt-4 flex items-center justify-between">
+                    <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-[#0a2540] group-hover:text-emerald-700 transition-colors">
+                      Eksplorasi Riwayat
+                    </span>
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-[#0a2540] group-hover:border-[#0a2540] group-hover:translate-x-1 transition-all">
+                      <ChevronRight className="w-4.5 h-4.5 sm:w-5 sm:h-5 stroke-[2.5]" />
+                    </div>
                   </div>
                 </div>
               </Link>
@@ -221,41 +224,44 @@ export default function HeroSection() {
               {/* Card 2: Data Kebencanaan */}
               <Link
                 href="/analisis-data"
-                className="group relative bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden min-h-[220px] sm:min-h-[240px]"
+                className="group relative bg-white border border-slate-200/90 rounded-[30px] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden"
               >
-                {/* Ilustrasi Gambar Data Kebencanaan di Sisi Kanan */}
-                <div className="absolute -right-2 -bottom-2 top-0 w-[55%] sm:w-[58%] pointer-events-none flex items-end justify-end overflow-hidden">
-                  <img
-                    src="/datakebencanaan.png"
-                    alt="Data Kebencanaan"
-                    className="w-full h-full object-contain object-right-bottom group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-
-                {/* Konten Sisi Kiri */}
-                <div className="relative z-10 space-y-3 max-w-[55%] sm:max-w-[58%]">
+                {/* Header Row: Icon Badge di Kiri, Ilustrasi Gambar di Kanan Atas */}
+                <div className="relative flex items-start justify-between min-h-[115px] sm:min-h-[125px]">
                   {/* Icon Badge Blue */}
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100/90 flex items-center justify-center text-blue-600 shadow-2xs group-hover:bg-blue-100/80 transition-colors">
-                    <Database className="w-6 h-6 stroke-[2.2]" />
+                  <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-[#eef6ff] border border-[#d9ebff] flex items-center justify-center text-blue-500 shrink-0 shadow-2xs group-hover:bg-[#e2efff] transition-colors">
+                    <Database className="w-6.5 h-6.5 sm:w-7 sm:h-7 stroke-[2.2]" />
                   </div>
 
-                  <div>
-                    <h3 className="text-2xl sm:text-[26px] font-black tracking-tight text-[#0a2540] leading-[1.15]">
-                      Data<br />Kebencanaan
-                    </h3>
-                    <p className="text-xs sm:text-sm font-medium text-slate-500 mt-2 leading-relaxed">
-                      Akses data, indikator, dan informasi kebencanaan terintegrasi.
-                    </p>
+                  {/* Ilustrasi Gambar Data Kebencanaan di Kanan Atas */}
+                  <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-[62%] sm:w-[68%] h-[120px] sm:h-[135px] pointer-events-none flex items-start justify-end overflow-hidden">
+                    <img
+                      src="/datakebencanaan.png"
+                      alt="Data Kebencanaan"
+                      className="h-full w-auto max-w-full object-contain object-right-top group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
                 </div>
 
-                {/* CTA Action: Link teks underline + Panah lingkaran */}
-                <div className="relative z-10 flex items-center gap-3 pt-4 mt-2">
-                  <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-[#0a2540] border-b-2 border-[#0a2540] pb-0.5 group-hover:text-blue-700 group-hover:border-blue-700 transition-colors">
-                    Buka Basis Data
-                  </span>
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-[#0a2540] group-hover:border-[#0a2540] group-hover:translate-x-1 transition-all">
-                    <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.5]" />
+                {/* Middle Content: Judul & Deskripsi */}
+                <div className="relative z-10 space-y-1.5 pt-2">
+                  <h3 className="text-xl sm:text-2xl font-black tracking-tight text-[#0a2540]">
+                    Data Kebencanaan
+                  </h3>
+                  <p className="text-xs sm:text-sm font-medium text-slate-500 leading-relaxed max-w-[280px]">
+                    Akses data, indikator, dan informasi<br className="hidden sm:inline" /> kebencanaan terintegrasi.
+                  </p>
+                </div>
+
+                {/* Dashed Divider & CTA Footer */}
+                <div className="relative z-10 pt-4 sm:pt-5">
+                  <div className="border-t border-dashed border-slate-200/90 pt-4 flex items-center justify-between">
+                    <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-[#0a2540] group-hover:text-blue-700 transition-colors">
+                      Buka Basis Data
+                    </span>
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center text-[#0a2540] group-hover:border-[#0a2540] group-hover:translate-x-1 transition-all">
+                      <ChevronRight className="w-4.5 h-4.5 sm:w-5 sm:h-5 stroke-[2.5]" />
+                    </div>
                   </div>
                 </div>
               </Link>
