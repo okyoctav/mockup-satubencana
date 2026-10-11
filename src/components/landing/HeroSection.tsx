@@ -179,21 +179,24 @@ export default function HeroSection() {
               {/* Card 1: Sejarah Kebencanaan */}
               <Link
                 href="/sejarah-kebencanaan"
-                className="group relative bg-white border border-slate-200/90 rounded-[30px] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                className="group relative border border-slate-200/90 rounded-[30px] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                style={{
+                  background: 'linear-gradient(to top, #e9f4fd 0%, #ffffff 70%)',
+                }}
               >
-                {/* Header Row: Icon Badge di Kiri, Ilustrasi Gambar di Kanan Atas */}
-                <div className="relative flex items-start justify-between min-h-[115px] sm:min-h-[125px]">
+                {/* Header Row: Icon Badge di Kiri, Ilustrasi Gambar 200px di Kanan Atas */}
+                <div className="relative flex items-start justify-between min-h-[120px] sm:min-h-[130px]">
                   {/* Icon Badge Green */}
-                  <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-[#eafaf1] border border-[#d2f4e2] flex items-center justify-center text-emerald-500 shrink-0 shadow-2xs group-hover:bg-[#dff6e8] transition-colors">
+                  <div className="relative z-10 w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-[#eafaf1] border border-[#d2f4e2] flex items-center justify-center text-emerald-500 shrink-0 shadow-2xs group-hover:bg-[#dff6e8] transition-colors">
                     <BookOpen className="w-6.5 h-6.5 sm:w-7 sm:h-7 stroke-[2.2]" />
                   </div>
 
-                  {/* Ilustrasi Gambar Sejarah di Kanan Atas */}
-                  <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-[62%] sm:w-[68%] h-[120px] sm:h-[135px] pointer-events-none flex items-start justify-end overflow-hidden">
+                  {/* Ilustrasi Gambar Sejarah di Kanan Atas (Height 200px) */}
+                  <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-[65%] sm:w-[70%] h-[200px] pointer-events-none flex items-start justify-end overflow-hidden">
                     <img
                       src="/sejarah.png"
                       alt="Sejarah Kebencanaan"
-                      className="h-full w-auto max-w-full object-contain object-right-top group-hover:scale-105 transition-transform duration-500"
+                      className="h-[200px] w-auto max-w-full object-contain object-right-top group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
                 </div>
@@ -224,21 +227,24 @@ export default function HeroSection() {
               {/* Card 2: Data Kebencanaan */}
               <Link
                 href="/analisis-data"
-                className="group relative bg-white border border-slate-200/90 rounded-[30px] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                className="group relative border border-slate-200/90 rounded-[30px] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                style={{
+                  background: 'linear-gradient(to top, #e9f4fd 0%, #ffffff 70%)',
+                }}
               >
-                {/* Header Row: Icon Badge di Kiri, Ilustrasi Gambar di Kanan Atas */}
-                <div className="relative flex items-start justify-between min-h-[115px] sm:min-h-[125px]">
+                {/* Header Row: Icon Badge di Kiri, Ilustrasi Gambar 200px di Kanan Atas */}
+                <div className="relative flex items-start justify-between min-h-[120px] sm:min-h-[130px]">
                   {/* Icon Badge Blue */}
-                  <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-[#eef6ff] border border-[#d9ebff] flex items-center justify-center text-blue-500 shrink-0 shadow-2xs group-hover:bg-[#e2efff] transition-colors">
+                  <div className="relative z-10 w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-[#eef6ff] border border-[#d9ebff] flex items-center justify-center text-blue-500 shrink-0 shadow-2xs group-hover:bg-[#e2efff] transition-colors">
                     <Database className="w-6.5 h-6.5 sm:w-7 sm:h-7 stroke-[2.2]" />
                   </div>
 
-                  {/* Ilustrasi Gambar Data Kebencanaan di Kanan Atas */}
-                  <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-[62%] sm:w-[68%] h-[120px] sm:h-[135px] pointer-events-none flex items-start justify-end overflow-hidden">
+                  {/* Ilustrasi Gambar Data Kebencanaan di Kanan Atas (Height 200px) */}
+                  <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-[65%] sm:w-[70%] h-[200px] pointer-events-none flex items-start justify-end overflow-hidden">
                     <img
                       src="/datakebencanaan.png"
                       alt="Data Kebencanaan"
-                      className="h-full w-auto max-w-full object-contain object-right-top group-hover:scale-105 transition-transform duration-500"
+                      className="h-[200px] w-auto max-w-full object-contain object-right-top group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
                 </div>
