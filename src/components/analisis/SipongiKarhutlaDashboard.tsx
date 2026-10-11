@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import {
   Flame, Radio, TrendingUp, MapPin, ArrowLeft,
   Search, BarChart3, Layers, Info, ExternalLink, ChevronRight,
-  ChevronLeft, Award
+  ChevronLeft, Award, X
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -235,6 +235,34 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
     });
     return Object.values(map).sort((a, b) => b.count - a.count).slice(0, 10);
   }, [hotspotData]);
+
+  // Tabular detail data for selected kabupaten in Tab 1
+  const selectedKabupatenDetails = useMemo(() => {
+    if (!selectedMapKabupaten) return null;
+    const target = selectedMapKabupaten.trim().toLowerCase();
+    const items = hotspotData.filter((h) => (h.kabupaten || '').trim().toLowerCase() === target);
+    if (items.length === 0) return null;
+
+    const total = items.reduce((acc, it) => acc + (it.counter || 0), 0);
+    const byConfidence: Record<string, number> = { High: 0, Medium: 0, Low: 0 };
+    const bySource: Record<string, number> = {};
+
+    items.forEach((it) => {
+      const c = it.confidence || 'Medium';
+      byConfidence[c] = (byConfidence[c] || 0) + (it.counter || 0);
+      const s = it.sumber || 'Unknown';
+      bySource[s] = (bySource[s] || 0) + (it.counter || 0);
+    });
+
+    return {
+      kabupaten: items[0].kabupaten,
+      provinsi: items[0].provinsi,
+      total,
+      byConfidence,
+      bySource,
+      items: [...items].sort((a, b) => (b.counter || 0) - (a.counter || 0)),
+    };
+  }, [selectedMapKabupaten, hotspotData]);
 
   // ----------------------------------------------------------------------
   // TAB 2: HOTSPOT CHART LOGIC (Single Year -> Bulan, Multi Year -> Tahun)
@@ -618,65 +646,177 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                 )}
               </div>
 
-              {/* Sidebar Ranking Lists (Col 1) */}
+              {/* Sidebar Ranking Lists or Selected Kabupaten Tabular Details (Col 1) */}
               <div
                 className="h-full rounded-2xl border p-3 flex flex-col justify-between overflow-hidden shadow-xs"
                 style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
               >
-                <div className="space-y-2 flex-1 min-h-0 flex flex-col">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-black text-xs uppercase tracking-wider flex items-center gap-1.5 text-orange-600">
-                      <Flame className="w-3.5 h-3.5" />
-                      <span>Top 10 Kab/Kota Hotspot</span>
-                    </h3>
-                    <span className="text-[10px] text-slate-400 font-bold">{timeframe} Jam</span>
-                  </div>
-
-                  <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
-                    {top10KabHotspot.map((item, idx) => (
-                      <div
-                        key={item.kabupaten}
-                        onClick={() => setSelectedMapKabupaten(item.kabupaten)}
-                        className={`p-2 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
-                          selectedMapKabupaten === item.kabupaten
-                            ? 'bg-orange-50 dark:bg-orange-950/40 border-orange-500'
-                            : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 border-transparent'
-                        }`}
-                      >
-                        <div className="truncate mr-2">
-                          <div className="font-extrabold text-[11px] truncate flex items-center gap-1.5">
-                            <span className="w-4 h-4 rounded-full bg-orange-100 dark:bg-orange-900/60 text-orange-700 dark:text-orange-300 text-[9.5px] font-black flex items-center justify-center shrink-0">
-                              {idx + 1}
-                            </span>
-                            <span className="truncate">{item.kabupaten}</span>
-                          </div>
-                          <div className="text-[9.5px] text-slate-400 truncate pl-5">{item.provinsi}</div>
-                        </div>
-                        <span className="px-2 py-0.5 rounded-lg bg-orange-600 text-white font-black text-[10.5px] shrink-0">
-                          {item.count}
+                {selectedKabupatenDetails ? (
+                  /* ================= DETAIL TABULAR KABUPATEN ================= */
+                  <div className="flex-1 min-h-0 flex flex-col space-y-2">
+                    {/* Header with Title and Close 'X' Button */}
+                    <div className="flex items-center justify-between gap-1 pb-1.5 border-b shrink-0" style={{ borderColor: 'var(--border-faint)' }}>
+                      <div className="flex items-center gap-1.5 truncate">
+                        <Flame className="w-3.5 h-3.5 text-orange-600 shrink-0" />
+                        <span className="font-black text-xs uppercase tracking-wider text-orange-600 truncate">
+                          Detail Hotspot Wilayah
                         </span>
                       </div>
-                    ))}
-                    {top10KabHotspot.length === 0 && !loadingHotspot && (
-                      <div className="text-center py-10 text-slate-400 text-xs">
-                        Tidak ada titik panas terdeteksi pada parameter filter ini.
-                      </div>
-                    )}
-                  </div>
-                </div>
+                      <button
+                        onClick={() => setSelectedMapKabupaten(null)}
+                        className="p-1 rounded-lg text-slate-400 hover:text-red-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                        title="Tutup & Kembali ke Top 10 (X)"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
 
-                {/* Bottom Prov Summary */}
-                <div className="pt-2 border-t mt-2 shrink-0 space-y-1.5" style={{ borderColor: 'var(--border-faint)' }}>
-                  <div className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider">Top 3 Provinsi Terdampak:</div>
-                  <div className="grid grid-cols-3 gap-1">
-                    {top10ProvHotspot.slice(0, 3).map((p) => (
-                      <div key={p.provinsi} className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/60 text-center">
-                        <div className="text-[9.5px] font-bold text-slate-600 dark:text-slate-300 truncate" title={p.provinsi}>{p.provinsi}</div>
-                        <div className="text-[11px] font-black text-orange-600">{p.count}</div>
+                    {/* Region Heading */}
+                    <div className="bg-orange-50/70 dark:bg-orange-950/30 p-2 rounded-xl border border-orange-200 dark:border-orange-900/50 shrink-0">
+                      <div className="font-black text-xs text-orange-800 dark:text-orange-300 truncate">
+                        {selectedKabupatenDetails.kabupaten}
                       </div>
-                    ))}
+                      <div className="text-[10px] text-slate-500 flex items-center justify-between mt-0.5">
+                        <span className="truncate">{selectedKabupatenDetails.provinsi}</span>
+                        <span className="font-bold text-orange-600 shrink-0">{timeframe} Jam Terakhir</span>
+                      </div>
+                    </div>
+
+                    {/* Confidence Chips */}
+                    <div className="grid grid-cols-4 gap-1 text-center shrink-0">
+                      <div className="p-1 rounded-lg bg-orange-600 text-white shadow-2xs">
+                        <div className="text-[8px] font-bold uppercase opacity-90">Total</div>
+                        <div className="text-[11px] font-black">{selectedKabupatenDetails.total}</div>
+                      </div>
+                      <div className="p-1 rounded-lg bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900/60">
+                        <div className="text-[8px] font-bold uppercase">High</div>
+                        <div className="text-[11px] font-black">{selectedKabupatenDetails.byConfidence.High || 0}</div>
+                      </div>
+                      <div className="p-1 rounded-lg bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/60">
+                        <div className="text-[8px] font-bold uppercase">Medium</div>
+                        <div className="text-[11px] font-black">{selectedKabupatenDetails.byConfidence.Medium || 0}</div>
+                      </div>
+                      <div className="p-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                        <div className="text-[8px] font-bold uppercase">Low</div>
+                        <div className="text-[11px] font-black">{selectedKabupatenDetails.byConfidence.Low || 0}</div>
+                      </div>
+                    </div>
+
+                    {/* Tabular Table */}
+                    <div className="flex-1 overflow-y-auto min-h-0 border rounded-xl overflow-hidden" style={{ borderColor: 'var(--border-subtle)' }}>
+                      <table className="w-full text-left border-collapse text-[10.5px]">
+                        <thead className="bg-slate-50 dark:bg-slate-800/90 text-[9.5px] font-black uppercase text-slate-500 sticky top-0 z-10 border-b" style={{ borderColor: 'var(--border-faint)' }}>
+                          <tr>
+                            <th className="p-1.5 pl-2">No</th>
+                            <th className="p-1.5">Sensor Satelit</th>
+                            <th className="p-1.5 text-center">Confidence</th>
+                            <th className="p-1.5 text-right pr-2">Titik</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y" style={{ borderColor: 'var(--border-faint)' }}>
+                          {selectedKabupatenDetails.items.map((it, idx) => (
+                            <tr key={`${it.sumber}-${it.confidence}-${idx}`} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                              <td className="p-1.5 pl-2 text-slate-400 font-bold">{idx + 1}</td>
+                              <td className="p-1.5 font-bold truncate max-w-[90px]">{it.sumber}</td>
+                              <td className="p-1.5 text-center">
+                                <span
+                                  className={`px-1.5 py-0.5 rounded text-[8.5px] font-black uppercase ${
+                                    it.confidence?.toLowerCase() === 'high'
+                                      ? 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300'
+                                      : it.confidence?.toLowerCase() === 'medium'
+                                      ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300'
+                                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                                  }`}
+                                >
+                                  {it.confidence}
+                                </span>
+                              </td>
+                              <td className="p-1.5 text-right pr-2 font-black text-orange-600">
+                                {it.counter}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot className="bg-slate-100/70 dark:bg-slate-800/80 font-bold border-t text-[10px]" style={{ borderColor: 'var(--border-faint)' }}>
+                          <tr>
+                            <td colSpan={3} className="p-1.5 pl-2 uppercase font-black text-slate-500">Total:</td>
+                            <td className="p-1.5 text-right pr-2 font-black text-red-600">
+                              {selectedKabupatenDetails.total} Titik
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+
+                    {/* Bottom Return Button */}
+                    <button
+                      onClick={() => setSelectedMapKabupaten(null)}
+                      className="w-full py-1.5 px-3 rounded-xl border text-[10.5px] font-extrabold flex items-center justify-center gap-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                      style={{ borderColor: 'var(--border-subtle)' }}
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" />
+                      <span>Kembali ke Top 10 Kab/Kota</span>
+                    </button>
                   </div>
-                </div>
+                ) : (
+                  /* ================= DAFTAR TOP 10 KABUPATEN SEMULA ================= */
+                  <>
+                    <div className="space-y-2 flex-1 min-h-0 flex flex-col">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-black text-xs uppercase tracking-wider flex items-center gap-1.5 text-orange-600">
+                          <Flame className="w-3.5 h-3.5" />
+                          <span>Top 10 Kab/Kota Hotspot</span>
+                        </h3>
+                        <span className="text-[10px] text-slate-400 font-bold">{timeframe} Jam</span>
+                      </div>
+
+                      <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
+                        {top10KabHotspot.map((item, idx) => (
+                          <div
+                            key={item.kabupaten}
+                            onClick={() => setSelectedMapKabupaten(item.kabupaten)}
+                            className={`p-2 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                              selectedMapKabupaten === item.kabupaten
+                                ? 'bg-orange-50 dark:bg-orange-950/40 border-orange-500'
+                                : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 border-transparent'
+                            }`}
+                          >
+                            <div className="truncate mr-2">
+                              <div className="font-extrabold text-[11px] truncate flex items-center gap-1.5">
+                                <span className="w-4 h-4 rounded-full bg-orange-100 dark:bg-orange-900/60 text-orange-700 dark:text-orange-300 text-[9.5px] font-black flex items-center justify-center shrink-0">
+                                  {idx + 1}
+                                </span>
+                                <span className="truncate">{item.kabupaten}</span>
+                              </div>
+                              <div className="text-[9.5px] text-slate-400 truncate pl-5">{item.provinsi}</div>
+                            </div>
+                            <span className="px-2 py-0.5 rounded-lg bg-orange-600 text-white font-black text-[10.5px] shrink-0">
+                              {item.count}
+                            </span>
+                          </div>
+                        ))}
+                        {top10KabHotspot.length === 0 && !loadingHotspot && (
+                          <div className="text-center py-10 text-slate-400 text-xs">
+                            Tidak ada titik panas terdeteksi pada parameter filter ini.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Bottom Prov Summary */}
+                    <div className="pt-2 border-t mt-2 shrink-0 space-y-1.5" style={{ borderColor: 'var(--border-faint)' }}>
+                      <div className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider">Top 3 Provinsi Terdampak:</div>
+                      <div className="grid grid-cols-3 gap-1">
+                        {top10ProvHotspot.slice(0, 3).map((p) => (
+                          <div key={p.provinsi} className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/60 text-center">
+                            <div className="text-[9.5px] font-bold text-slate-600 dark:text-slate-300 truncate" title={p.provinsi}>{p.provinsi}</div>
+                            <div className="text-[11px] font-black text-orange-600">{p.count}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

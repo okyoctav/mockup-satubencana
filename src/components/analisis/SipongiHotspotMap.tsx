@@ -17,7 +17,7 @@ export interface HotspotItem {
 interface SipongiHotspotMapProps {
   hotspots: HotspotItem[];
   selectedKabupaten?: string | null;
-  onSelectKabupaten?: (kab: string) => void;
+  onSelectKabupaten?: (kab: string | null) => void;
   timeframe: '24' | '48';
 }
 
@@ -31,6 +31,7 @@ export default function SipongiHotspotMap({
   const mapRef = useRef<L.Map | null>(null);
   const markersLayerGroupRef = useRef<L.LayerGroup | null>(null);
   const baseTileRef = useRef<L.TileLayer | null>(null);
+  const markerMapRef = useRef<Record<string, { marker: L.CircleMarker; lat: number; lng: number }>>({});
   const [basemapType, setBasemapType] = useState<'dark' | 'streets' | 'satellite'>('dark');
 
   // Aggregated hotspots by kabupaten
@@ -195,12 +196,50 @@ export default function SipongiHotspotMap({
       });
 
       circle.addTo(markersLayerGroupRef.current!);
+      markerMapRef.current[item.kabupaten.toUpperCase().trim()] = { marker: circle, lat: coord.lat, lng: coord.lng };
     });
   }, [aggregatedByKab, maxCount, selectedKabupaten, onSelectKabupaten, timeframe]);
 
+  // Zoom & Pan to selected kabupaten when selectedKabupaten changes
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    if (!selectedKabupaten) {
+      mapRef.current.flyTo([-2.5, 118.0], 5, { duration: 1.2 });
+      mapRef.current.closePopup();
+      return;
+    }
+
+    const targetKey = selectedKabupaten.toUpperCase().trim();
+    const entry = markerMapRef.current[targetKey];
+    if (entry) {
+      mapRef.current.flyTo([entry.lat, entry.lng], 9, { duration: 1.2 });
+      setTimeout(() => {
+        if (mapRef.current) {
+          entry.marker.openPopup();
+        }
+      }, 700);
+    } else {
+      const foundIdx = aggregatedByKab.findIndex(
+        (k) => k.kabupaten.toLowerCase() === selectedKabupaten.toLowerCase()
+      );
+      if (foundIdx !== -1) {
+        const item = aggregatedByKab[foundIdx];
+        const coord = getKabupatenCoord(item.provinsi, item.kabupaten, foundIdx, aggregatedByKab.length);
+        if (coord) {
+          mapRef.current.flyTo([coord.lat, coord.lng], 9, { duration: 1.2 });
+        }
+      }
+    }
+  }, [selectedKabupaten, aggregatedByKab]);
+
   const handleResetView = () => {
     if (mapRef.current) {
-      mapRef.current.setView([-2.5, 118.0], 5);
+      mapRef.current.flyTo([-2.5, 118.0], 5, { duration: 1.2 });
+      mapRef.current.closePopup();
+    }
+    if (onSelectKabupaten) {
+      onSelectKabupaten(null);
     }
   };
 
