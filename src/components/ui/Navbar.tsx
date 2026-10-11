@@ -100,27 +100,25 @@ export default function Navbar({ activePath }: NavbarProps) {
           />
         </Link>
 
-        {/* Clean Horizontal Desktop Navigation Links (Middle) - Hidden on Beranda, visible on other pages */}
+        {/* Clean Modern Capsule Desktop Navigation Links (Middle) - Hidden on Beranda, visible on other pages */}
         {!isHome && (
-          <nav className="hidden lg:flex items-center gap-7">
+          <nav className="hidden lg:flex items-center gap-1.5 p-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xs">
             {NAV_ITEMS.map((item) => {
               const isActive = currentPath === item.href;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="text-xs font-extrabold transition-colors whitespace-nowrap py-1 relative hover:text-slate-900 dark:hover:text-white"
-                  style={{
-                    color: isActive ? '#E11D48' : 'var(--text-secondary)',
-                  }}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all duration-200 whitespace-nowrap flex items-center gap-1.5 select-none ${
+                    isActive
+                      ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-xs border border-slate-200/90 dark:border-slate-700'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-700/80 hover:shadow-2xs active:scale-98'
+                  }`}
                 >
-                  <span>{item.label}</span>
                   {isActive && (
-                    <span
-                      className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                      style={{ backgroundColor: '#E11D48' }}
-                    />
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
                   )}
+                  <span>{item.label}</span>
                 </Link>
               );
             })}
