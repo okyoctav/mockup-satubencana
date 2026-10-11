@@ -8,9 +8,10 @@ import {
 import { 
   TrendingUp, Users, Home, Building2, School, HeartPulse, 
   Filter, RotateCcw, Activity, Calendar, MapPin, Table as TableIcon,
-  ShieldAlert, Layers, Search, Sparkles
+  ShieldAlert, Layers, Search, Sparkles, Flame
 } from 'lucide-react';
 import ProvinceDetailModal from './ProvinceDetailModal';
+import SipongiKarhutlaDashboard from './SipongiKarhutlaDashboard';
 
 interface BencanaData {
   Tahun: number;
@@ -73,6 +74,7 @@ export default function AnalysisDashboard() {
   const [trendMetric, setTrendMetric] = useState<'kejadian' | 'meninggal' | 'pengungsi' | 'rumah'>('kejadian');
   const [searchTable, setSearchTable] = useState<string>('');
   const [selectedModalProvince, setSelectedModalProvince] = useState<string | null>(null);
+  const [isKarhutlaMode, setIsKarhutlaMode] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('/20260505_072732.json')
@@ -453,48 +455,80 @@ export default function AnalysisDashboard() {
 
           {/* Chips Horizontal Scrollable (Materialize Chip Style) */}
           <div className="flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-            {Object.entries(MATERIAL_COLORS).map(([jenis, cfg]) => {
-              const isSelected = selectedJenis === jenis;
-              return (
-                <button
-                  key={jenis}
-                  onClick={() => setSelectedJenis(jenis)}
-                  className="px-3 py-1 rounded-full font-bold text-[10.5px] whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
-                  style={{
-                    backgroundColor: isSelected ? cfg.main : 'var(--bg-page)',
-                    color: isSelected ? '#ffffff' : 'var(--text-secondary)',
-                    boxShadow: isSelected 
-                      ? '0 3px 6px -1px rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.12)' 
-                      : 'none',
-                    border: isSelected ? 'none' : '1px solid var(--border-subtle)',
-                    transform: isSelected ? 'translateY(-1px)' : 'none'
-                  }}
-                >
-                  <span className="text-xs">{cfg.icon}</span>
-                  <span>{jenis}</span>
-                </button>
-              );
-            })}
+            {Object.entries(MATERIAL_COLORS)
+              .filter(([jenis]) => jenis !== 'Kebakaran hutan dan lahan')
+              .map(([jenis, cfg]) => {
+                const isSelected = !isKarhutlaMode && selectedJenis === jenis;
+                return (
+                  <button
+                    key={jenis}
+                    onClick={() => {
+                      setIsKarhutlaMode(false);
+                      setSelectedJenis(jenis);
+                    }}
+                    className="px-3 py-1 rounded-full font-bold text-[10.5px] whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                    style={{
+                      backgroundColor: isSelected ? cfg.main : 'var(--bg-page)',
+                      color: isSelected ? '#ffffff' : 'var(--text-secondary)',
+                      boxShadow: isSelected 
+                        ? '0 3px 6px -1px rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.12)' 
+                        : 'none',
+                      border: isSelected ? 'none' : '1px solid var(--border-subtle)',
+                      transform: isSelected ? 'translateY(-1px)' : 'none'
+                    }}
+                  >
+                    <span className="text-xs">{cfg.icon}</span>
+                    <span>{jenis}</span>
+                  </button>
+                );
+              })}
           </div>
 
-          {/* Reset Button (Material Flat Raised) */}
-          <button
-            onClick={handleResetFilters}
-            className="flex items-center gap-1 px-3 py-1 rounded-lg text-[10.5px] font-extrabold uppercase tracking-wider transition-all shrink-0 cursor-pointer"
-            style={{
-              backgroundColor: 'rgba(229,57,53,0.1)',
-              color: '#e53935',
-              border: '1px solid rgba(229,57,53,0.25)'
-            }}
-            title="Reset semua filter"
-          >
-            <RotateCcw className="w-3 h-3" />
-            <span>Reset</span>
-          </button>
+          {/* Action Group: Highlighted Karhutla Button & Reset Button */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Highlighted Button Kebakaran Hutan dan Lahan (SIPONGI) */}
+            <button
+              onClick={() => setIsKarhutlaMode(!isKarhutlaMode)}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[10.5px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md ${
+                isKarhutlaMode
+                  ? 'bg-gradient-to-r from-red-600 to-orange-600 text-white ring-2 ring-red-400 shadow-red-500/40'
+                  : 'bg-gradient-to-r from-red-600 via-orange-600 to-amber-500 text-white hover:brightness-110 active:scale-95 shadow-orange-500/20'
+              }`}
+              style={{
+                border: '1px solid rgba(255,255,255,0.25)'
+              }}
+              title="Buka Data Khusus Kebakaran Hutan & Lahan (SIPONGI - KLHK)"
+            >
+              <Flame className="w-3.5 h-3.5 text-amber-200 animate-pulse" />
+              <span>Kebakaran Hutan dan Lahan</span>
+              <span className="px-1.5 py-0.5 rounded-md bg-black/20 text-white text-[8.5px] font-black tracking-widest">
+                SIPONGI
+              </span>
+            </button>
+
+            {/* Reset Button (Material Flat Raised) */}
+            <button
+              onClick={() => {
+                setIsKarhutlaMode(false);
+                handleResetFilters();
+              }}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[10.5px] font-extrabold uppercase tracking-wider transition-all shrink-0 cursor-pointer border"
+              style={{
+                backgroundColor: 'rgba(229,57,53,0.08)',
+                color: '#e53935',
+                borderColor: 'rgba(229,57,53,0.25)'
+              }}
+              title="Reset semua filter"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Reset</span>
+            </button>
+          </div>
         </div>
 
         {/* Row 2: Secondary Dropdown Filters (Material Select Field) */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t" style={{ borderColor: 'var(--border-faint)' }}>
+        {!isKarhutlaMode && (
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t" style={{ borderColor: 'var(--border-faint)' }}>
           <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500 uppercase tracking-wide">
             <Filter className="w-3.5 h-3.5 text-teal-800 dark:text-white" />
             <span>Dimensi Wilayah & Waktu:</span>
@@ -600,11 +634,18 @@ export default function AnalysisDashboard() {
             <span>{filteredData.length.toLocaleString()} Data Terfilter</span>
           </div>
         </div>
+        )}
       </div>
 
-      {/* ============================================================
-          2. MATERIAL 6 KPI CARD PANELS (z-depth-1, hoverable)
-          ============================================================ */}
+      {isKarhutlaMode ? (
+        <div className="flex-1 min-h-0 w-full overflow-hidden">
+          <SipongiKarhutlaDashboard onBackToGeneral={() => setIsKarhutlaMode(false)} />
+        </div>
+      ) : (
+        <>
+          {/* ============================================================
+              2. MATERIAL 6 KPI CARD PANELS (z-depth-1, hoverable)
+              ============================================================ */}
       <div className="flex-none px-4 pt-3 pb-2 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         
         {/* KPI 1: Total Kejadian */}
@@ -1442,6 +1483,8 @@ export default function AnalysisDashboard() {
         )}
 
       </div>
+        </>
+      )}
 
       {/* Detail Modal Spasial & Grafik BAPPENAS Level Kabupaten/Kota */}
       {selectedModalProvince && (
