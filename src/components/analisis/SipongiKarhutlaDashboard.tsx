@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import {
   Flame, Radio, TrendingUp, MapPin, ArrowLeft,
   Search, BarChart3, Layers, Info, ExternalLink, ChevronRight,
-  ChevronLeft, Award, X, ShieldAlert, Globe
+  ChevronLeft, Award, X, ShieldAlert, Globe, ArrowDown, ArrowUp, ArrowUpDown
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -93,6 +93,8 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
   const [totalLuasNasional, setTotalLuasNasional] = useState<{ tahun: string | number; total: string }[]>([]);
   const [loadingProvinsi, setLoadingProvinsi] = useState<boolean>(true);
   const [searchProvinsi, setSearchProvinsi] = useState<string>('');
+  const [sortKeyProv, setSortKeyProv] = useState<string | number>('total');
+  const [sortOrderProv, setSortOrderProv] = useState<'asc' | 'desc'>('desc');
 
   // Luas Kabupaten states with year range (Tab 4)
   const [startTahunKab, setStartTahunKab] = useState<number>(2015);
@@ -101,6 +103,27 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
   const [loadingKabupaten, setLoadingKabupaten] = useState<boolean>(false);
   const [searchKabupaten, setSearchKabupaten] = useState<string>('');
   const [kabupatenPage, setKabupatenPage] = useState<number>(1);
+  const [sortKeyKab, setSortKeyKab] = useState<string | number>('total');
+  const [sortOrderKab, setSortOrderKab] = useState<'asc' | 'desc'>('desc');
+
+  const handleSortProv = (key: string | number) => {
+    if (String(sortKeyProv) === String(key)) {
+      setSortOrderProv((prev) => (prev === 'desc' ? 'asc' : 'desc'));
+    } else {
+      setSortKeyProv(key);
+      setSortOrderProv('desc');
+    }
+  };
+
+  const handleSortKab = (key: string | number) => {
+    if (String(sortKeyKab) === String(key)) {
+      setSortOrderKab((prev) => (prev === 'desc' ? 'asc' : 'desc'));
+    } else {
+      setSortKeyKab(key);
+      setSortOrderKab('desc');
+    }
+    setKabupatenPage(1);
+  };
 
   // 1. Fetch Hotspot Realtime
   useEffect(() => {
@@ -408,8 +431,23 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
       list = list.filter((p) => p.nama_provinsi.toLowerCase().includes(q));
     }
 
-    return list.sort((a, b) => b.totalRange - a.totalRange);
-  }, [provinsiList, yearsInProvRange, searchProvinsi]);
+    return list.sort((a, b) => {
+      if (sortKeyProv === 'total') {
+        return sortOrderProv === 'desc' ? b.totalRange - a.totalRange : a.totalRange - b.totalRange;
+      }
+      if (sortKeyProv === 'nama') {
+        return sortOrderProv === 'desc'
+          ? b.nama_provinsi.localeCompare(a.nama_provinsi)
+          : a.nama_provinsi.localeCompare(b.nama_provinsi);
+      }
+      // Specific year (e.g. 2026, 2025...)
+      const entryA = a.data_luas?.find((d) => String(d.tahun) === String(sortKeyProv));
+      const valA = parseIndoNumber(entryA?.luas || entryA?.total || '0');
+      const entryB = b.data_luas?.find((d) => String(d.tahun) === String(sortKeyProv));
+      const valB = parseIndoNumber(entryB?.luas || entryB?.total || '0');
+      return sortOrderProv === 'desc' ? valB - valA : valA - valB;
+    });
+  }, [provinsiList, yearsInProvRange, searchProvinsi, sortKeyProv, sortOrderProv]);
 
   // ----------------------------------------------------------------------
   // TAB 4: LUAS KABUPATEN LOGIC (Year Range)
@@ -440,8 +478,23 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
       list = list.filter((k) => k.nama.toLowerCase().includes(q));
     }
 
-    return list.sort((a, b) => b.totalRange - a.totalRange);
-  }, [kabupatenList, yearsInKabRange, searchKabupaten]);
+    return list.sort((a, b) => {
+      if (sortKeyKab === 'total') {
+        return sortOrderKab === 'desc' ? b.totalRange - a.totalRange : a.totalRange - b.totalRange;
+      }
+      if (sortKeyKab === 'nama') {
+        return sortOrderKab === 'desc'
+          ? b.nama.localeCompare(a.nama)
+          : a.nama.localeCompare(b.nama);
+      }
+      // Specific year
+      const entryA = a.data_luas?.find((d) => String(d.tahun) === String(sortKeyKab));
+      const valA = parseIndoNumber(entryA?.luas || entryA?.total || '0');
+      const entryB = b.data_luas?.find((d) => String(d.tahun) === String(sortKeyKab));
+      const valB = parseIndoNumber(entryB?.luas || entryB?.total || '0');
+      return sortOrderKab === 'desc' ? valB - valA : valA - valB;
+    });
+  }, [kabupatenList, yearsInKabRange, searchKabupaten, sortKeyKab, sortOrderKab]);
 
   const itemsPerPage = 12;
   const totalKabupatenPages = Math.max(1, Math.ceil(filteredKabupatenTable.length / itemsPerPage));
@@ -449,6 +502,19 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
     const start = (kabupatenPage - 1) * itemsPerPage;
     return filteredKabupatenTable.slice(start, start + itemsPerPage);
   }, [filteredKabupatenTable, kabupatenPage]);
+
+  // Helper untuk merender ikon panah pengurutan kolom tabel
+  const renderSortIcon = (currentKey: string | number, activeKey: string | number, activeOrder: 'asc' | 'desc') => {
+    const isActive = String(currentKey) === String(activeKey);
+    if (isActive) {
+      return activeOrder === 'desc' ? (
+        <ArrowDown className="w-3 h-3 text-red-600 dark:text-red-400 font-black inline shrink-0" />
+      ) : (
+        <ArrowUp className="w-3 h-3 text-red-600 dark:text-red-400 font-black inline shrink-0" />
+      );
+    }
+    return <ArrowUpDown className="w-2.5 h-2.5 text-slate-400 opacity-40 group-hover:opacity-90 inline shrink-0" />;
+  };
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden text-xs font-sans" style={{ color: 'var(--text-primary)' }}>
@@ -1366,11 +1432,17 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
               className="rounded-2xl border overflow-hidden shadow-xs"
               style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-subtle)' }}
             >
-              <div className="p-3 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-faint)' }}>
+              <div className="p-3 border-b flex flex-wrap items-center justify-between gap-2" style={{ borderColor: 'var(--border-faint)' }}>
                 <h4 className="font-black text-xs uppercase tracking-wider">
                   Daftar Luas Karhutla Provinsi ({filteredProvinsiTable.length} Provinsi) · Rentang {minProvYear} - {maxProvYear}
                 </h4>
-                <span className="text-[10.5px] text-slate-400">Satuan hektar (ha) · Urutan akumulasi terbesar</span>
+                <div className="flex items-center gap-2 text-[10.5px]">
+                  <span className="text-slate-400">Satuan: hektar (ha)</span>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-slate-500">
+                    Urutan: <strong className="text-red-600">{sortKeyProv === 'total' ? `Total (${minProvYear}-${maxProvYear})` : sortKeyProv === 'nama' ? 'Nama Provinsi' : `Tahun ${sortKeyProv}`}</strong> ({sortOrderProv === 'desc' ? 'Tertinggi ↓' : 'Terendah ↑'})
+                  </span>
+                </div>
               </div>
 
               <div className="overflow-x-auto max-h-80">
@@ -1383,15 +1455,47 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                   <table className="w-full text-left text-[11px] border-collapse">
                     <thead className="bg-slate-50 dark:bg-slate-800/80 sticky top-0 z-10 text-[10px] font-black uppercase tracking-wider text-slate-500">
                       <tr>
-                        <th className="p-2.5 pl-4">No</th>
-                        <th className="p-2.5">Provinsi</th>
-                        <th className="p-2.5 text-right font-black text-red-600 bg-red-50 dark:bg-red-950/40">
-                          Total ({minProvYear}-{maxProvYear})
+                        <th className="p-2.5 pl-4 w-12">No</th>
+                        <th
+                          onClick={() => handleSortProv('nama')}
+                          className="p-2.5 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors select-none group"
+                          title="Klik untuk mengurutkan berdasarkan nama provinsi"
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span>Provinsi</span>
+                            {renderSortIcon('nama', sortKeyProv, sortOrderProv)}
+                          </div>
+                        </th>
+                        <th
+                          onClick={() => handleSortProv('total')}
+                          className={`p-2.5 text-right font-black cursor-pointer transition-colors select-none group ${
+                            sortKeyProv === 'total'
+                              ? 'bg-red-100/80 dark:bg-red-950/60 text-red-700 dark:text-red-300'
+                              : 'bg-red-50 dark:bg-red-950/40 text-red-600 hover:bg-red-100/50'
+                          }`}
+                          title="Klik untuk mengurutkan berdasarkan Total Akumulasi Luas Karhutla"
+                        >
+                          <div className="flex items-center justify-end gap-1.5">
+                            <span>Total ({minProvYear}-{maxProvYear})</span>
+                            {renderSortIcon('total', sortKeyProv, sortOrderProv)}
+                          </div>
                         </th>
                         {/* Dynamic columns from max to min */}
                         {[...yearsInProvRange].reverse().map((y) => (
-                          <th key={`th-${y}`} className="p-2.5 text-right">
-                            {y}
+                          <th
+                            key={`th-${y}`}
+                            onClick={() => handleSortProv(y)}
+                            className={`p-2.5 text-right cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors select-none group ${
+                              String(sortKeyProv) === String(y)
+                                ? 'bg-orange-100/80 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 font-black'
+                                : ''
+                            }`}
+                            title={`Klik untuk mengurutkan berdasarkan luas karhutla tahun ${y}`}
+                          >
+                            <div className="flex items-center justify-end gap-1">
+                              <span>{y}</span>
+                              {renderSortIcon(y, sortKeyProv, sortOrderProv)}
+                            </div>
                           </th>
                         ))}
                       </tr>
@@ -1410,11 +1514,21 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                             <td className="p-2.5 text-right font-extrabold text-red-600 bg-red-50/50 dark:bg-red-950/20">
                               {formatIndoNumber(prov.totalRange)}
                             </td>
-                            {[...yearsInProvRange].reverse().map((y) => (
-                              <td key={`td-${prov.nama_provinsi}-${y}`} className="p-2.5 text-right text-slate-600 dark:text-slate-300">
-                                {getLuas(y)}
-                              </td>
-                            ))}
+                            {[...yearsInProvRange].reverse().map((y) => {
+                              const isSortedCol = String(sortKeyProv) === String(y);
+                              return (
+                                <td
+                                  key={`td-${prov.nama_provinsi}-${y}`}
+                                  className={`p-2.5 text-right transition-colors ${
+                                    isSortedCol
+                                      ? 'font-bold bg-orange-50/40 dark:bg-orange-950/20 text-orange-700 dark:text-orange-300'
+                                      : 'text-slate-600 dark:text-slate-300'
+                                  }`}
+                                >
+                                  {getLuas(y)}
+                                </td>
+                              );
+                            })}
                           </tr>
                         );
                       })}
@@ -1512,8 +1626,12 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                 </div>
               </div>
 
-              <div className="text-[11px] text-slate-500">
-                Total: <strong className="text-red-600">{filteredKabupatenTable.length}</strong> Kabupaten / Kota
+              <div className="text-[11px] text-slate-500 flex flex-wrap items-center gap-2">
+                <span>Total: <strong className="text-red-600">{filteredKabupatenTable.length}</strong> Kabupaten / Kota</span>
+                <span className="text-slate-300">•</span>
+                <span>
+                  Urutan: <strong className="text-red-600">{sortKeyKab === 'total' ? `Total (${minKabYear}-${maxKabYear})` : sortKeyKab === 'nama' ? 'Nama Kab/Kota' : `Tahun ${sortKeyKab}`}</strong> ({sortOrderKab === 'desc' ? 'Tertinggi ↓' : 'Terendah ↑'})
+                </span>
               </div>
             </div>
 
@@ -1532,15 +1650,47 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                   <table className="w-full text-left text-[11px] border-collapse">
                     <thead className="bg-slate-50 dark:bg-slate-800/80 sticky top-0 z-10 text-[10px] font-black uppercase tracking-wider text-slate-500">
                       <tr>
-                        <th className="p-2.5 pl-4">No</th>
-                        <th className="p-2.5">Kabupaten / Kota</th>
-                        <th className="p-2.5 text-right font-black text-red-600 bg-red-50 dark:bg-red-950/40">
-                          Total ({minKabYear}-{maxKabYear}) (ha)
+                        <th className="p-2.5 pl-4 w-12">No</th>
+                        <th
+                          onClick={() => handleSortKab('nama')}
+                          className="p-2.5 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors select-none group"
+                          title="Klik untuk mengurutkan berdasarkan nama kabupaten/kota"
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span>Kabupaten / Kota</span>
+                            {renderSortIcon('nama', sortKeyKab, sortOrderKab)}
+                          </div>
+                        </th>
+                        <th
+                          onClick={() => handleSortKab('total')}
+                          className={`p-2.5 text-right font-black cursor-pointer transition-colors select-none group ${
+                            sortKeyKab === 'total'
+                              ? 'bg-red-100/80 dark:bg-red-950/60 text-red-700 dark:text-red-300'
+                              : 'bg-red-50 dark:bg-red-950/40 text-red-600 hover:bg-red-100/50'
+                          }`}
+                          title="Klik untuk mengurutkan berdasarkan Total Akumulasi Luas Karhutla"
+                        >
+                          <div className="flex items-center justify-end gap-1.5">
+                            <span>Total ({minKabYear}-{maxKabYear}) (ha)</span>
+                            {renderSortIcon('total', sortKeyKab, sortOrderKab)}
+                          </div>
                         </th>
                         {/* Dynamic columns from max to min */}
                         {[...yearsInKabRange].reverse().map((y) => (
-                          <th key={`k-th-${y}`} className="p-2.5 text-right">
-                            {y}
+                          <th
+                            key={`k-th-${y}`}
+                            onClick={() => handleSortKab(y)}
+                            className={`p-2.5 text-right cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors select-none group ${
+                              String(sortKeyKab) === String(y)
+                                ? 'bg-orange-100/80 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 font-black'
+                                : ''
+                            }`}
+                            title={`Klik untuk mengurutkan berdasarkan luas karhutla tahun ${y}`}
+                          >
+                            <div className="flex items-center justify-end gap-1">
+                              <span>{y}</span>
+                              {renderSortIcon(y, sortKeyKab, sortOrderKab)}
+                            </div>
                           </th>
                         ))}
                       </tr>
@@ -1561,11 +1711,21 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                             <td className="p-2.5 text-right font-extrabold text-red-600 bg-red-50/50 dark:bg-red-950/20">
                               {formatIndoNumber(kab.totalRange)}
                             </td>
-                            {[...yearsInKabRange].reverse().map((y) => (
-                              <td key={`k-td-${kab.nama}-${y}`} className="p-2.5 text-right text-slate-600 dark:text-slate-300">
-                                {getLuas(y)}
-                              </td>
-                            ))}
+                            {[...yearsInKabRange].reverse().map((y) => {
+                              const isSortedCol = String(sortKeyKab) === String(y);
+                              return (
+                                <td
+                                  key={`k-td-${kab.nama}-${y}`}
+                                  className={`p-2.5 text-right transition-colors ${
+                                    isSortedCol
+                                      ? 'font-bold bg-orange-50/40 dark:bg-orange-950/20 text-orange-700 dark:text-orange-300'
+                                      : 'text-slate-600 dark:text-slate-300'
+                                  }`}
+                                >
+                                  {getLuas(y)}
+                                </td>
+                              );
+                            })}
                           </tr>
                         );
                       })}
