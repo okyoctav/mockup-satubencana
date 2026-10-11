@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { 
@@ -36,6 +36,8 @@ export default function MapSection() {
     date: string;
     readTime: string;
     image: string;
+    externalUrl?: string;
+    isBappenas?: boolean;
     sections: Array<{ id: string; title: string; content: string }>;
   }>;
 
@@ -102,29 +104,61 @@ export default function MapSection() {
     };
   }, [isPanelOpen, selectedDisaster, searchQuery, mediaFilter]);
 
-  // Filter internal posts based on search query AND active tabs/selected disaster
-  const filteredPosts = allGridPosts.filter((post) => {
-    const matchesSearch =
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (post.excerpt && post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Filter and sort internal posts based on search query, active tabs, and selected disaster
+  const filteredPosts = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    const matches = allGridPosts.filter((post) => {
+      const matchesSearch =
+        !q ||
+        post.title.toLowerCase().includes(q) ||
+        post.category.toLowerCase().includes(q) ||
+        (post.author && post.author.toLowerCase().includes(q)) ||
+        (post.excerpt && post.excerpt.toLowerCase().includes(q));
 
-    if (!matchesSearch) return false;
+      if (!matchesSearch) return false;
 
-    if (activeInternalTab === 'terfilter' || selectedDisaster) {
-      if (!selectedDisaster) return true;
-      const matchById = selectedDisaster.ID != null && post.disasterId?.includes(selectedDisaster.ID);
-      const matchByName = selectedDisaster.Nama_Bencana && post.disasterNames?.some(name =>
-        selectedDisaster.Nama_Bencana?.toLowerCase().includes(name.toLowerCase()) ||
-        name.toLowerCase().includes(selectedDisaster.Nama_Bencana?.toLowerCase() || '')
-      );
-      const matchByJenis = selectedDisaster.Jenis_Bencana && post.excerpt.toLowerCase().includes(selectedDisaster.Jenis_Bencana.toLowerCase());
+      if (activeInternalTab === 'terfilter') {
+        if (!selectedDisaster) return true;
+        const matchById = selectedDisaster.ID != null && post.disasterId?.includes(selectedDisaster.ID);
+        const matchByName = selectedDisaster.Nama_Bencana && post.disasterNames?.some(name =>
+          selectedDisaster.Nama_Bencana?.toLowerCase().includes(name.toLowerCase()) ||
+          name.toLowerCase().includes(selectedDisaster.Nama_Bencana?.toLowerCase() || '')
+        );
+        const matchByJenis = selectedDisaster.Jenis_Bencana && post.excerpt.toLowerCase().includes(selectedDisaster.Jenis_Bencana.toLowerCase());
 
-      return Boolean(matchById || matchByName || matchByJenis);
-    }
+        return Boolean(matchById || matchByName || matchByJenis);
+      }
 
-    return true;
-  });
+      return true;
+    });
+
+    return [...matches].sort((a, b) => {
+      if (selectedDisaster) {
+        const aMatchesDisaster = (selectedDisaster.ID != null && a.disasterId?.includes(selectedDisaster.ID)) ||
+          (selectedDisaster.Nama_Bencana && a.disasterNames?.some(name =>
+            selectedDisaster.Nama_Bencana?.toLowerCase().includes(name.toLowerCase()) ||
+            name.toLowerCase().includes(selectedDisaster.Nama_Bencana?.toLowerCase() || '')
+          ));
+        const bMatchesDisaster = (selectedDisaster.ID != null && b.disasterId?.includes(selectedDisaster.ID)) ||
+          (selectedDisaster.Nama_Bencana && b.disasterNames?.some(name =>
+            selectedDisaster.Nama_Bencana?.toLowerCase().includes(name.toLowerCase()) ||
+            name.toLowerCase().includes(selectedDisaster.Nama_Bencana?.toLowerCase() || '')
+          ));
+
+        if (aMatchesDisaster && !bMatchesDisaster) return -1;
+        if (!aMatchesDisaster && bMatchesDisaster) return 1;
+
+        if (aMatchesDisaster && bMatchesDisaster) {
+          if (a.isBappenas && !b.isBappenas) return -1;
+          if (!a.isBappenas && b.isBappenas) return 1;
+        }
+      } else {
+        if (a.isBappenas && !b.isBappenas) return -1;
+        if (!a.isBappenas && b.isBappenas) return 1;
+      }
+      return 0;
+    });
+  }, [allGridPosts, searchQuery, activeInternalTab, selectedDisaster]);
 
   // Internal posts pagination
   const postsPerPage = 5;
@@ -151,7 +185,23 @@ export default function MapSection() {
   const handleSelectDisasterFromMap = (disaster: DisasterItem | null) => {
     setSelectedDisaster(disaster);
     setIsPanelOpen(true);
-    setMainTab('berita');
+
+    const hasInternalDoc = disaster && allGridPosts.some(p => {
+      const matchById = disaster.ID != null && p.disasterId?.includes(disaster.ID);
+      const matchByName = disaster.Nama_Bencana && p.disasterNames?.some(name =>
+        disaster.Nama_Bencana?.toLowerCase().includes(name.toLowerCase()) ||
+        name.toLowerCase().includes(disaster.Nama_Bencana?.toLowerCase() || '')
+      );
+      return Boolean(matchById || matchByName);
+    });
+
+    if (hasInternalDoc) {
+      setMainTab('internal');
+      setActiveInternalTab('semua');
+    } else {
+      setMainTab('berita');
+    }
+
     setMediaFilter('all');
     setBeritaPage(1);
     setCurrentPage(1);
@@ -554,62 +604,104 @@ export default function MapSection() {
                   {mainTab === 'internal' && (
                     <>
                       {currentGridPosts.length > 0 ? (
-                        currentGridPosts.map((post) => (
-                          <article
-                            key={post.id}
-                            className="group rounded-2xl border p-3.5 transition-all duration-300 hover:shadow-md flex flex-col justify-between space-y-2"
-                            style={{
-                              backgroundColor: 'var(--bg-card)',
-                              borderColor: 'var(--border-faint)',
-                              boxShadow: '0 2px 4px rgba(0,0,0,0.04)'
-                            }}
-                          >
-                            {/* Top Metadata: Category Pill & Date */}
-                            <div className="flex items-center justify-between gap-2">
-                              <span
-                                className="px-2.5 py-0.5 rounded-full text-[9.5px] font-extrabold uppercase tracking-wide text-white shadow-xs"
-                                style={{ backgroundColor: post.tagColor || '#00897b' }}
-                              >
-                                {post.category}
-                              </span>
+                        currentGridPosts.map((post) => {
+                          const isHighlighted = Boolean(post.isBappenas);
 
-                              <div className="flex items-center gap-1 text-[10.5px] text-slate-400 font-medium">
-                                <Calendar className="w-3 h-3 text-teal-600 dark:text-teal-400" />
-                                <span>{post.date}</span>
+                          return (
+                            <article
+                              key={post.id}
+                              className={`group rounded-2xl p-3.5 transition-all duration-300 hover:shadow-md flex flex-col justify-between space-y-2 relative ${
+                                isHighlighted ? 'border-2 shadow-sm' : 'border'
+                              }`}
+                              style={{
+                                backgroundColor: 'var(--bg-card)',
+                                borderColor: isHighlighted ? '#f97316' : 'var(--border-faint)',
+                                boxShadow: isHighlighted ? '0 4px 12px rgba(249, 115, 22, 0.12)' : '0 2px 4px rgba(0,0,0,0.04)'
+                              }}
+                            >
+                              {/* Top Metadata: Category Pill & Date */}
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span
+                                    className="px-2.5 py-0.5 rounded-full text-[9.5px] font-extrabold uppercase tracking-wide text-white shadow-xs"
+                                    style={{ backgroundColor: isHighlighted ? '#ea580c' : (post.tagColor || '#00897b') }}
+                                  >
+                                    {post.category}
+                                  </span>
+                                  {isHighlighted && (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border border-orange-300 dark:border-orange-800">
+                                      <ShieldCheck className="w-2.5 h-2.5 text-orange-600 dark:text-orange-400" />
+                                      Dokumen Khusus
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center gap-1 text-[10.5px] text-slate-400 font-medium">
+                                  <Calendar className="w-3 h-3 text-teal-600 dark:text-teal-400" />
+                                  <span>{post.date}</span>
+                                </div>
                               </div>
-                            </div>
 
-                            {/* Article Title */}
-                            <Link href={`/blog/${post.id}`}>
-                              <h4
-                                className="text-xs sm:text-sm font-black leading-snug line-clamp-2 transition-colors cursor-pointer group-hover:text-teal-600"
-                                style={{ color: 'var(--text-primary)' }}
+                              {/* Article Title */}
+                              {post.externalUrl ? (
+                                <a
+                                  href={post.externalUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs sm:text-sm font-black leading-snug line-clamp-2 transition-colors cursor-pointer group-hover:text-orange-600 dark:group-hover:text-orange-400"
+                                  style={{ color: 'var(--text-primary)' }}
+                                >
+                                  {post.title}
+                                </a>
+                              ) : (
+                                <Link href={`/blog/${post.id}`}>
+                                  <h4
+                                    className="text-xs sm:text-sm font-black leading-snug line-clamp-2 transition-colors cursor-pointer group-hover:text-teal-600"
+                                    style={{ color: 'var(--text-primary)' }}
+                                  >
+                                    {post.title}
+                                  </h4>
+                                </Link>
+                              )}
+
+                              {/* Article Excerpt */}
+                              <p className="text-[11px] leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
+                                {post.excerpt}
+                              </p>
+
+                              {/* Card Action Bar Footer */}
+                              <div
+                                className="pt-2 border-t flex items-center justify-between"
+                                style={{ borderColor: isHighlighted ? 'rgba(249, 115, 22, 0.3)' : 'var(--border-faint)' }}
                               >
-                                {post.title}
-                              </h4>
-                            </Link>
+                                <span className={`text-[10px] font-bold ${isHighlighted ? 'text-orange-700 dark:text-orange-400' : 'text-slate-400'}`}>
+                                  Oleh {post.author}
+                                </span>
 
-                            {/* Article Excerpt */}
-                            <p className="text-[11px] leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
-                              {post.excerpt}
-                            </p>
-
-                            {/* Card Action Bar Footer */}
-                            <div className="pt-2 border-t flex items-center justify-between" style={{ borderColor: 'var(--border-faint)' }}>
-                              <span className="text-[10px] text-slate-400 font-semibold">
-                                Oleh {post.author}
-                              </span>
-
-                              <Link
-                                href={`/blog/${post.id}`}
-                                className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1 transition-colors hover:underline text-teal-700 dark:text-white cursor-pointer"
-                              >
-                                <span>Baca Artikel</span>
-                                <ArrowRight className="w-3.5 h-3.5" />
-                              </Link>
-                            </div>
-                          </article>
-                        ))
+                                {post.externalUrl ? (
+                                  <a
+                                    href={post.externalUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10.5px] font-bold uppercase tracking-wider text-white hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-xs shrink-0"
+                                    style={{ backgroundColor: '#ea580c', color: '#ffffff' }}
+                                  >
+                                    <span>BACA ARTIKEL</span>
+                                    <ExternalLink className="w-3 h-3 text-white" />
+                                  </a>
+                                ) : (
+                                  <Link
+                                    href={`/blog/${post.id}`}
+                                    className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1 transition-colors hover:underline text-teal-700 dark:text-white cursor-pointer"
+                                  >
+                                    <span>Baca Artikel</span>
+                                    <ArrowRight className="w-3.5 h-3.5" />
+                                  </Link>
+                                )}
+                              </div>
+                            </article>
+                          );
+                        })
                       ) : (
                         <div className="flex flex-col items-center justify-center h-48 text-center text-xs space-y-2 text-slate-400">
                           <BookOpen className="w-8 h-8 opacity-40 text-teal-600" />

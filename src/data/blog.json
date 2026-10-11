@@ -352,5 +352,74 @@
         "content": "- [Laporan Mengenang 100 Tahun Meletusnya Krakatau 1883-1983 (PDF)](https://drive.google.com/file/d/1TM5Q4qdNPigUM8FuVj-tjEv_498OASHL/view?usp=sharing)"
       }
     ]
+  },
+  {
+    "id": "10",
+    "disasterId": [30],
+    "disasterNames": ["Erupsi Merapi 2010", "Merapi 2010", "Erupsi Gunung Merapi 2010"],
+    "category": "Rencana Aksi & Kebijakan",
+    "tagColor": "#ea580c",
+    "title": "Rencana Aksi Rehabilitasi dan Rekonstruksi Wilayah Pascabencana Erupsi Gunung Merapi di Prov DIY dan Prov Jateng Tahun 2011-2013",
+    "excerpt": "Dokumen resmi Rencana Aksi Rehabilitasi dan Rekonstruksi wilayah pascabencana erupsi Gunung Merapi di Provinsi D.I. Yogyakarta dan Provinsi Jawa Tengah tahun 2011-2013 yang disusun oleh Kementerian PPN/Bappenas.",
+    "author": "PPN/ BAPPENAS",
+    "authorRole": "Kementerian PPN / Bappenas",
+    "date": "2011",
+    "readTime": "15 menit baca",
+    "image": "/images/blog/berita8.png",
+    "externalUrl": "https://drive.google.com/file/d/1aGwEdFkFJ8CexvmiTyXjAdp9zcT_K9VW/view?usp=sharing",
+    "isBappenas": true,
+    "sections": [
+      {
+        "id": "download",
+        "title": "Unduh Dokumen Rencana Aksi",
+        "content": "- [Rencana Aksi Rehabilitasi dan Rekonstruksi Wilayah Pascabencana Erupsi Gunung Merapi (PDF)](https://drive.google.com/file/d/1aGwEdFkFJ8CexvmiTyXjAdp9zcT_K9VW/view?usp=sharing)"
+      }
+    ]
+  },
+  {
+    "id": "11",
+    "disasterId": [31],
+    "disasterNames": ["Banjir Bandang Wasior", "Wasior 2010", "Banjir Wasior"],
+    "category": "Rencana Aksi & Kebijakan",
+    "tagColor": "#ea580c",
+    "title": "Rencana Aksi Rehabilitasi dan Rekontruksi Pasca Bencana Banjir Bandang Wasior",
+    "excerpt": "Dokumen resmi Rencana Aksi Rehabilitasi dan Rekonstruksi pascabencana banjir bandang Wasior di Kabupaten Teluk Wondama, Papua Barat yang disusun oleh Kementerian PPN/Bappenas.",
+    "author": "PPN/ BAPPENAS",
+    "authorRole": "Kementerian PPN / Bappenas",
+    "date": "2010",
+    "readTime": "12 menit baca",
+    "image": "/images/blog/berita5.png",
+    "externalUrl": "https://drive.google.com/file/d/1GSbFmAfQ--9lyRt29zC_KxPBgiouJDuS/view?usp=sharing",
+    "isBappenas": true,
+    "sections": [
+      {
+        "id": "download",
+        "title": "Unduh Dokumen Rencana Aksi",
+        "content": "- [Rencana Aksi Rehabilitasi dan Rekontruksi Pasca Bencana Banjir Bandang Wasior (PDF)](https://drive.google.com/file/d/1GSbFmAfQ--9lyRt29zC_KxPBgiouJDuS/view?usp=sharing)"
+      }
+    ]
+  },
+  {
+    "id": "12",
+    "disasterId": [29],
+    "disasterNames": ["Tsunami Mentawai", "Mentawai 2010", "Gempa dan Tsunami Mentawai"],
+    "category": "Rencana Aksi & Kebijakan",
+    "tagColor": "#ea580c",
+    "title": "Rencana Aksi Rehabilitasi dan Rekonstruksi Pascabencana serta Percepatan Pembangunan Wilayah Kepulauan Mentawai Provinsi Sumatera Barat Tahun 2011-2013",
+    "excerpt": "Dokumen resmi Rencana Aksi Rehabilitasi dan Rekonstruksi pascabencana serta percepatan pembangunan wilayah Kepulauan Mentawai, Provinsi Sumatera Barat tahun 2011-2013 yang disusun oleh Kementerian PPN/Bappenas.",
+    "author": "PPN/ BAPPENAS",
+    "authorRole": "Kementerian PPN / Bappenas",
+    "date": "2011",
+    "readTime": "15 menit baca",
+    "image": "/images/blog/berita6.png",
+    "externalUrl": "https://drive.google.com/file/d/15BwVPTPk-3EPEWLwCsh2im81bZZCReHU/view?usp=sharing",
+    "isBappenas": true,
+    "sections": [
+      {
+        "id": "download",
+        "title": "Unduh Dokumen Rencana Aksi",
+        "content": "- [Rencana Aksi Rehabilitasi dan Rekonstruksi Pascabencana Kepulauan Mentawai (PDF)](https://drive.google.com/file/d/15BwVPTPk-3EPEWLwCsh2im81bZZCReHU/view?usp=sharing)"
+      }
+    ]
   }
 ]
