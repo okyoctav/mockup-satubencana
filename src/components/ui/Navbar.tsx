@@ -133,8 +133,8 @@ export default function Navbar({ activePath }: NavbarProps) {
             href="/informasi-mitra"
             className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all duration-200 shadow-2xs hover:scale-102 ${
               currentPath === '/informasi-mitra'
-                ? 'border-rose-500 text-rose-600 bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/40'
-                : 'border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800/70 hover:bg-slate-50 dark:hover:bg-slate-700/70'
+                ? 'border-rose-500 text-rose-600 bg-rose-50 dark:text-rose-400 dark:bg-rose-950 dark:border-rose-500'
+                : 'border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700'
             }`}
           >
             <Info className="w-3.5 h-3.5" />
@@ -150,8 +150,8 @@ export default function Navbar({ activePath }: NavbarProps) {
             href="/informasi-mitra"
             className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold border transition-all duration-200 shadow-2xs ${
               currentPath === '/informasi-mitra'
-                ? 'border-rose-500 text-rose-600 bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/40'
-                : 'border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800/70'
+                ? 'border-rose-500 text-rose-600 bg-rose-50 dark:text-rose-400 dark:bg-rose-950 dark:border-rose-500'
+                : 'border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800'
             }`}
           >
             <Info className="w-3.5 h-3.5" />
@@ -162,7 +162,7 @@ export default function Navbar({ activePath }: NavbarProps) {
 
           {!isHome && (
             <button
-              className="p-2 rounded-xl bg-slate-800/20 border border-slate-700/40 text-slate-900 dark:text-slate-200"
+              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-200"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label="Toggle menu"
             >
@@ -190,8 +190,8 @@ export default function Navbar({ activePath }: NavbarProps) {
                 onClick={() => setMenuOpen(false)}
                 className={`block p-3 rounded-xl text-xs font-bold transition-colors ${
                   isActive
-                    ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
-                    : 'text-slate-900 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50'
+                    ? 'bg-rose-50 text-rose-600 dark:bg-rose-950 dark:text-rose-400'
+                    : 'text-slate-900 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 {item.label}
