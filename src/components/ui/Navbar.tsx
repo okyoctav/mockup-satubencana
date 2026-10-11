@@ -92,11 +92,17 @@ export default function Navbar({ activePath }: NavbarProps) {
     >
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-6">
         {/* Brand Logo (Left) */}
-        <Link href="/" className="flex items-center gap-3 text-left shrink-0">
+        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 text-left shrink-0">
           <img
             src="/logo/logo_mdb.png"
             alt="Logo MDB"
             style={{ height: 38, width: 'auto', objectFit: 'contain' }}
+          />
+          <div className="h-6 w-px bg-slate-300 dark:bg-slate-700" />
+          <img
+            src="/logo/Logo_kewilayahan.png"
+            alt="Logo Kedeputian Pembangunan Kewilayahan"
+            style={{ height: 32, width: 'auto', objectFit: 'contain' }}
           />
         </Link>
 
@@ -111,8 +117,8 @@ export default function Navbar({ activePath }: NavbarProps) {
                   href={item.href}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all duration-200 whitespace-nowrap flex items-center gap-1.5 select-none ${
                     isActive
-                      ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-xs border border-slate-200/90 dark:border-slate-700'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-700/80 hover:shadow-2xs active:scale-98'
+                      ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-xs border border-slate-200 dark:border-slate-700'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 hover:shadow-xs active:scale-98'
                   }`}
                 >
                   {isActive && (
