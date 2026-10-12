@@ -42,6 +42,7 @@ interface BnpbLayer {
   group?: string;
   useLngLat?: boolean;               // use WGS84 (4326) bbox instead of Web Mercator
   layersParam?: string;              // override default 'show:0' layers param
+  requiresToken?: boolean;
   extent?: [number, number, number, number]; // [minLng, minLat, maxLng, maxLat] for auto-fly
 }
 
@@ -123,7 +124,7 @@ const BNPB_LAYERS: BnpbLayer[] = [
   { id: 'big_rbi_sulawesi_lot1',       label: 'RBI Sulawesi 2024 Lot 1',      color: '#A855F7', emoji: '🗺️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI_5K_Sulawesi_2024_Lot_1_Jul/VectorTileServer',         type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_penutup_lahan_sulawesi',  label: 'Penutup Lahan Sulawesi 2024',  color: '#22C55E', emoji: '🌿', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_PENUTUP_LAHAN_SULAWESI_2024/VectorTileServer',    type: 'VectorTileServer', group: 'BIG' },
   { id: 'big_bangunan_fasum_sulawesi', label: 'Bangunan Fasum Sulawesi 2024', color: '#F59E0B', emoji: '🏛️', url: 'https://geoservices.big.go.id/rbi/rest/services/Hosted/RBI5K_BANGUNAN_FASUM_SULAWESI_2024/VectorTileServer', type: 'VectorTileServer', group: 'BIG' },
-  { id: 'petadasar_bitung', label: 'Peta Dasar Bitung 2024', color: '#F472B6', emoji: '🏢', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/PETADASAR_SULAWESI_BITUNG_2024_5K/MapServer', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:all', extent: [125.088, 1.375, 125.229, 1.476] },
+  { id: 'petadasar_bitung', label: 'Peta Dasar Bitung 2024 (Token BIG Required)', color: '#F472B6', emoji: '🏢', url: 'https://geoservices.big.go.id/rbi/rest/services/BASEMAP/PETADASAR_SULAWESI_BITUNG_2024_5K/MapServer/18', type: 'MapServer', group: 'BIG', useLngLat: true, layersParam: 'show:18', requiresToken: true, extent: [125.088, 1.375, 125.229, 1.476] },
   // BNPB InARISK
   { id: 'cuaca_ekstrim_img', label: 'Cuaca Ekstrim',      color: '#06B6D4', emoji: '🌪️', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/layer_bahaya_cuaca_ekstrim/ImageServer', type: 'ImageServer', group: 'BNPB' },
   { id: 'banjir',        label: 'Bahaya Banjir',      color: '#0EA5E9', emoji: '🌊', url: 'https://gis.bnpb.go.id/server/rest/services/inarisk/INDEKS_BAHAYA_BANJIR/ImageServer', type: 'ImageServer',group: 'BNPB' },
@@ -206,13 +207,15 @@ function tileToBbox4326(x: number, y: number, z: number): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, isImageServer = false, useLngLat = false, layersParam = 'show:0'): any {
+function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, isImageServer = false, useLngLat = false, layersParam = 'show:0', token?: string): any {
   let cleanUrl = serviceUrl;
   let localLayersParam = layersParam;
   const match = serviceUrl.match(/\/MapServer\/(\d+)$/);
   if (match && match.index !== undefined) {
     cleanUrl = serviceUrl.substring(0, match.index + 10);
     localLayersParam = `show:${match[1]}`;
+  } else if (!serviceUrl.includes('/export')) {
+    cleanUrl = serviceUrl.replace(/\/+$/, '');
   }
 
   const ArcLayer = L.GridLayer.extend({
@@ -224,16 +227,20 @@ function createArcGISExportLayer(L: any, serviceUrl: string, opacity: number, is
       const bboxSR = useLngLat ? '4326' : '3857';
       const imgSR  = useLngLat ? '4326' : '3857';
       if (isImageServer) {
-        const params = new URLSearchParams({
+        const queryParams: Record<string, string> = {
           bbox, bboxSR, imageSR: imgSR, size: '256,256',
           format: 'png', transparent: 'true', f: 'image',
-        });
+        };
+        if (token) queryParams.token = token;
+        const params = new URLSearchParams(queryParams);
         img.src = `${cleanUrl}/exportImage?${params}`;
       } else {
-        const params = new URLSearchParams({
+        const queryParams: Record<string, string> = {
           bbox, bboxSR, imageSR: imgSR, size: '256,256',
-          layers: localLayersParam, format: 'png32', transparent: 'true', f: 'image',
-        });
+          layers: localLayersParam, format: 'png32', transparent: 'true', f: 'image', ignoreScale: 'true',
+        };
+        if (token) queryParams.token = token;
+        const params = new URLSearchParams(queryParams);
         img.src = `${cleanUrl}/export?${params}`;
       }
       img.onload = () => done(null, img);
@@ -359,39 +366,52 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
       if (fetchedLegendsRef.current.has(layer.id)) return;
       fetchedLegendsRef.current.add(layer.id);
 
-      let cleanLegendUrl = layer.url;
-      let targetLayerId: number | null = null;
-      const match = layer.url.match(/\/MapServer\/(\d+)$/);
-      if (match && match.index !== undefined) {
-        cleanLegendUrl = layer.url.substring(0, match.index + 10);
-        targetLayerId = parseInt(match[1], 10);
-      }
+      const fetchLegendWithToken = (tok?: string) => {
+        let cleanLegendUrl = layer.url;
+        let targetLayerId: number | null = null;
+        const match = layer.url.match(/\/MapServer\/(\d+)$/);
+        if (match && match.index !== undefined) {
+          cleanLegendUrl = layer.url.substring(0, match.index + 10);
+          targetLayerId = parseInt(match[1], 10);
+        }
 
-      fetch(`${cleanLegendUrl}/legend?f=pjson`)
-        .then((r) => r.json())
-        .then((json) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const items: MapServerLegendItem[] = [];
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (json?.layers ?? []).forEach((lyr: any) => {
-            if (targetLayerId !== null && lyr.layerId !== targetLayerId) return;
+        const tokenParam = tok ? `&token=${tok}` : '';
+        fetch(`${cleanLegendUrl}/legend?f=pjson${tokenParam}`)
+          .then((r) => r.json())
+          .then((json) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (lyr.legend ?? []).forEach((item: any) => {
-              if (item.imageData) {
-                items.push({
-                  label: item.label || lyr.layerName || '—',
-                  imageData: item.imageData,
-                  layerName: lyr.layerName ?? '',
-                });
-              }
+            const items: MapServerLegendItem[] = [];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (json?.layers ?? []).forEach((lyr: any) => {
+              if (targetLayerId !== null && lyr.layerId !== targetLayerId) return;
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (lyr.legend ?? []).forEach((item: any) => {
+                if (item.imageData) {
+                  items.push({
+                    label: item.label || lyr.layerName || '—',
+                    imageData: item.imageData,
+                    layerName: lyr.layerName ?? '',
+                  });
+                }
+              });
             });
+            setMapserverLegends((p) => ({ ...p, [layer.id]: items }));
+          })
+          .catch(() => {
+            // allow retry on next activation
+            fetchedLegendsRef.current.delete(layer.id);
           });
-          setMapserverLegends((p) => ({ ...p, [layer.id]: items }));
-        })
-        .catch(() => {
-          // allow retry on next activation
-          fetchedLegendsRef.current.delete(layer.id);
-        });
+      };
+
+      const needsToken = layer.requiresToken || layer.url.includes('geoservices.big.go.id');
+      if (needsToken) {
+        fetch('/api/big-token')
+          .then((r) => r.json())
+          .then((res) => fetchLegendWithToken(res?.token))
+          .catch(() => fetchLegendWithToken());
+      } else {
+        fetchLegendWithToken();
+      }
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeOverlays]);
@@ -680,17 +700,37 @@ export default function DashboardLeaflet({ data, flyTo, theme }: Props) {
         };
         tryAddVector();
       } else {
-        bnpbLayersRef.current[id] = createArcGISExportLayer(
-          L, def.url, 0.72,
-          def.type === 'ImageServer',
-          def.useLngLat ?? false,
-          def.layersParam ?? 'show:0',
-        );
-        bnpbLayersRef.current[id].addTo(map);
-        // Auto-fly to extent when layer first activated and extent is defined
-        if (def.extent && mapRef.current) {
-          const [minLng, minLat, maxLng, maxLat] = def.extent;
-          mapRef.current.flyToBounds([[minLat, minLng], [maxLat, maxLng]], { duration: 1.5, padding: [20, 20] });
+        const addLayer = (tok?: string) => {
+          if (!mapRef.current || bnpbLayersRef.current[id]) return;
+          bnpbLayersRef.current[id] = createArcGISExportLayer(
+            L, def.url, 0.72,
+            def.type === 'ImageServer',
+            def.useLngLat ?? false,
+            def.layersParam ?? 'show:0',
+            tok
+          );
+          bnpbLayersRef.current[id].addTo(map);
+          // Auto-fly to extent when layer first activated and extent is defined
+          if (def.extent && mapRef.current) {
+            const [minLng, minLat, maxLng, maxLat] = def.extent;
+            mapRef.current.flyToBounds([[minLat, minLng], [maxLat, maxLng]], { duration: 1.5, padding: [20, 20] });
+          }
+        };
+
+        const needsToken = def.requiresToken || def.url.includes('geoservices.big.go.id');
+        if (needsToken) {
+          fetch('/api/big-token')
+            .then((r) => r.json())
+            .then((res) => {
+              if (res?.token) {
+                addLayer(res.token);
+              } else {
+                addLayer();
+              }
+            })
+            .catch(() => addLayer());
+        } else {
+          addLayer();
         }
       }
     });

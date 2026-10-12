@@ -1502,13 +1502,23 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
   useEffect(() => {
     layersList.filter((l) => l.type === 'MapServer' && !l.url.endsWith('.json') && activeOverlays.includes(l.id)).forEach((layer) => {
       const fetchLegendWithToken = (tok?: string) => {
-        const legendUrl = tok ? `${layer.url}/legend?f=pjson&token=${tok}` : `${layer.url}/legend?f=pjson`;
+        let cleanLegendUrl = layer.url;
+        let targetLayerId: number | null = null;
+        const match = layer.url.match(/\/MapServer\/(\d+)$/);
+        if (match && match.index !== undefined) {
+          cleanLegendUrl = layer.url.substring(0, match.index + 10);
+          targetLayerId = parseInt(match[1], 10);
+        }
+
+        const tokenParam = tok ? `&token=${tok}` : '';
+        const legendUrl = `${cleanLegendUrl}/legend?f=pjson${tokenParam}`;
         fetch(legendUrl)
           .then((r) => r.json())
           .then((json) => {
             const items: MapServerLegendItem[] = [];
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (json?.layers ?? []).forEach((lyr: any) => {
+              if (targetLayerId !== null && lyr.layerId !== targetLayerId) return;
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (lyr.legend ?? []).forEach((item: any) => {
                 if (item.imageData) items.push({ label: item.label || lyr.layerName || '—', imageData: item.imageData, layerName: lyr.layerName ?? '' });
@@ -1519,7 +1529,8 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
           .catch(() => null);
       };
 
-      if (layer.requiresToken) {
+      const needsToken = layer.requiresToken || (layer as unknown as { requires_token?: boolean }).requires_token || layer.url.includes('geoservices.big.go.id');
+      if (needsToken) {
         fetch('/api/big-token')
           .then((r) => r.json())
           .then((res) => fetchLegendWithToken(res?.token))
@@ -1528,7 +1539,7 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
         fetchLegendWithToken();
       }
     });
-  }, [activeOverlays]);
+  }, [activeOverlays, layersList]);
 
   // Load Leaflet.draw CDN
   useEffect(() => {
@@ -2590,7 +2601,8 @@ export default function DashboardLeafletK5({ data, flyTo, kodeKemendagri, select
           overlayLayersRef.current[id].addTo(mapRef.current);
         };
 
-        if (def.requiresToken) {
+        const needsToken = def.requiresToken || (def as unknown as { requires_token?: boolean }).requires_token || def.url.includes('geoservices.big.go.id');
+        if (needsToken) {
           fetch('/api/big-token')
             .then((r) => r.json())
             .then((res) => {
