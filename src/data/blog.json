@@ -452,5 +452,92 @@
         "content": "- [Rencana Induk Pemulihan dan Pembangunan Kembali Wilayah Pascabencana Provinsi Sulawesi Tengah (PDF)](https://drive.google.com/file/d/1l8Xj1SO9PlKQ01syxT_s3KvROZFMHZJ7/view?usp=sharing)"
       }
     ]
+  },
+  {
+    "id": "14",
+    "disasterId": [23],
+    "disasterNames": [
+      "Gempa dan Tsunami Aceh",
+      "Tsunami Aceh 2004",
+      "Aceh 2004",
+      "Gempa Aceh 2004",
+      "Tsunami Aceh"
+    ],
+    "category": "Rencana Induk & Kebijakan",
+    "tagColor": "#ea580c",
+    "title": "Rencana Induk Rehabilitasi dan Rekonstruksi Wilayah dan Kehidupan Masyarakat Provinsi Nanggroe Aceh Darussalam dan Kepulauan Nias Provinsi Sumatera Utara",
+    "excerpt": "Dokumen resmi Rencana Induk Rehabilitasi dan Rekonstruksi Wilayah dan Kehidupan Masyarakat Provinsi Nanggroe Aceh Darussalam dan Kepulauan Nias Provinsi Sumatera Utara yang disusun oleh Kementerian PPN/Bappenas.",
+    "author": "PPN/ BAPPENAS",
+    "authorRole": "Kementerian PPN / Bappenas",
+    "date": "2005",
+    "readTime": "20 menit baca",
+    "image": "/images/blog/berita1.png",
+    "externalUrl": "https://drive.google.com/file/d/1k3hsKMHVC3b1PhlMFrj140ZbAXYHxzXi/view?usp=sharing",
+    "isBappenas": true,
+    "sections": [
+      {
+        "id": "download",
+        "title": "Unduh Dokumen Rencana Induk",
+        "content": "- [Rencana Induk Rehabilitasi dan Rekonstruksi Wilayah dan Kehidupan Masyarakat Provinsi NAD dan Kepulauan Nias (PDF)](https://drive.google.com/file/d/1k3hsKMHVC3b1PhlMFrj140ZbAXYHxzXi/view?usp=sharing)"
+      }
+    ]
+  },
+  {
+    "id": "15",
+    "disasterId": [25],
+    "disasterNames": [
+      "Gempa Yogyakarta 2006",
+      "Gempa Bumi Yogyakarta 2006",
+      "Gempa Jogja 2006",
+      "Gempa Yogyakarta",
+      "Yogyakarta 2006"
+    ],
+    "category": "Rencana Aksi & Kebijakan",
+    "tagColor": "#ea580c",
+    "title": "Rencana Aksi Rehabilitasi dan Rekonstruksi Wilayah Pascabencana Gempa Bumi di Provinsi Daerah Istimewa Yogyakarta dan Provinsi Jawa Tengah",
+    "excerpt": "Dokumen resmi Rencana Aksi Rehabilitasi dan Rekonstruksi Wilayah Pascabencana Gempa Bumi di Provinsi Daerah Istimewa Yogyakarta dan Provinsi Jawa Tengah yang disusun oleh Kementerian PPN/Bappenas.",
+    "author": "PPN/ BAPPENAS",
+    "authorRole": "Kementerian PPN / Bappenas",
+    "date": "2006",
+    "readTime": "15 menit baca",
+    "image": "/images/blog/berita2.png",
+    "externalUrl": "https://drive.google.com/file/d/1r-4nzt4Sg7hUjiFVE8JX1byWIRVu9pCO/view?usp=sharing",
+    "isBappenas": true,
+    "sections": [
+      {
+        "id": "download",
+        "title": "Unduh Dokumen Rencana Aksi",
+        "content": "- [Rencana Aksi Rehabilitasi dan Rekonstruksi Wilayah Pascabencana Gempa Bumi di Provinsi DIY dan Jawa Tengah (PDF)](https://drive.google.com/file/d/1r-4nzt4Sg7hUjiFVE8JX1byWIRVu9pCO/view?usp=sharing)"
+      }
+    ]
+  },
+  {
+    "id": "16",
+    "disasterId": [28],
+    "disasterNames": [
+      "Gempa Sumatera Barat",
+      "Gempa Sumatera Barat 2009",
+      "Gempa Padang 2009",
+      "Gempa Sumbar 2009",
+      "Sumatera Barat 2009"
+    ],
+    "category": "Rencana Aksi & Kebijakan",
+    "tagColor": "#ea580c",
+    "title": "Rencana Aksi Rehabilitasi dan Rekonstruksi Wilayah Pascabencana Gempa Bumi di Provinsi Sumatera Barat Tahun 2009-2011",
+    "excerpt": "Dokumen resmi Rencana Aksi Rehabilitasi dan Rekonstruksi Wilayah Pascabencana Gempa Bumi di Provinsi Sumatera Barat Tahun 2009-2011 yang disusun oleh Kementerian PPN/Bappenas.",
+    "author": "PPN/ BAPPENAS",
+    "authorRole": "Kementerian PPN / Bappenas",
+    "date": "2009",
+    "readTime": "15 menit baca",
+    "image": "/images/blog/berita3.png",
+    "externalUrl": "https://drive.google.com/file/d/1at9EjpC1OkShaXbf97wNgtWC_wllSFhm/view?usp=sharing",
+    "isBappenas": true,
+    "sections": [
+      {
+        "id": "download",
+        "title": "Unduh Dokumen Rencana Aksi",
+        "content": "- [Rencana Aksi Rehabilitasi dan Rekonstruksi Wilayah Pascabencana Gempa Bumi di Provinsi Sumatera Barat Tahun 2009-2011 (PDF)](https://drive.google.com/file/d/1at9EjpC1OkShaXbf97wNgtWC_wllSFhm/view?usp=sharing)"
+      }
+    ]
   }
 ]
