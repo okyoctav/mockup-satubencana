@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { 
   Calendar, ArrowRight, ChevronLeft, ChevronRight, Search,
   X, BookOpen, ExternalLink, ShieldCheck, Globe,
-  Newspaper, CheckCircle2
+  Newspaper, CheckCircle2, Share2, Code, Copy, Check
 } from 'lucide-react';
 import blogData from '@/data/blog.json';
 import { DisasterItem } from './LandingInteractiveMap';
@@ -58,6 +58,18 @@ export default function MapSection() {
   // Internal documents state
   const [currentPage, setCurrentPage] = useState(1);
   const [activeInternalTab, setActiveInternalTab] = useState<'semua' | 'terfilter'>('semua');
+
+  // Share API modal state
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const handleCopyApiUrl = (text: string, key: string) => {
+    if (typeof window !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey(null), 2500);
+    }
+  };
 
   // Trigger Google News search whenever drawer is open, selected disaster changes, search query changes, or media filter changes
   useEffect(() => {
@@ -237,33 +249,46 @@ export default function MapSection() {
             <LandingInteractiveMap
               onSelectDisaster={handleSelectDisasterFromMap}
               rightExtraControls={
-                /* Material Floating Action Button (FAB) for Archive & Articles */
-                <button
-                  onClick={() => setIsPanelOpen(!isPanelOpen)}
-                  className="px-3.5 py-2 rounded-full font-bold text-xs flex items-center gap-2 cursor-pointer transition-all duration-300 shadow-lg text-white"
-                  style={{
-                    backgroundColor: isPanelOpen ? '#e53935' : '#0f766e',
-                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.2), 0 2px 4px -1px rgba(0,0,0,0.1)'
-                  }}
-                  title={isPanelOpen ? "Tutup SideNav Artikel" : "Buka Arsip & Berita Terverifikasi"}
-                >
-                  {isPanelOpen ? (
-                    <>
-                      <X className="w-4 h-4" />
-                      <span>Tutup Arsip</span>
-                    </>
-                  ) : (
-                    <>
-                      <Newspaper className="w-4 h-4" />
-                      <span>Arsip & Berita</span>
-                      {(verifiedArticles.length > 0 || filteredPosts.length > 0) && (
-                        <span className="w-5 h-5 rounded-full bg-amber-400 text-slate-900 font-extrabold text-[10px] flex items-center justify-center shrink-0 shadow-xs">
-                          {verifiedArticles.length > 0 ? verifiedArticles.length : filteredPosts.length}
-                        </span>
-                      )}
-                    </>
-                  )}
-                </button>
+                <div className="flex items-center gap-2">
+                  {/* Share API Button */}
+                  <button
+                    onClick={() => setIsShareModalOpen(true)}
+                    className="px-3.5 py-2 rounded-full font-bold text-xs flex items-center gap-2 cursor-pointer transition-all duration-300 shadow-md bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-slate-800 border border-teal-200 dark:border-teal-800"
+                    title="Buka & Share REST API Sejarah Kebencanaan (/api/sejarah)"
+                  >
+                    <Code className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                    <span className="hidden sm:inline">Share API</span>
+                    <Share2 className="w-3.5 h-3.5 text-slate-400" />
+                  </button>
+
+                  {/* Material Floating Action Button (FAB) for Archive & Articles */}
+                  <button
+                    onClick={() => setIsPanelOpen(!isPanelOpen)}
+                    className="px-3.5 py-2 rounded-full font-bold text-xs flex items-center gap-2 cursor-pointer transition-all duration-300 shadow-lg text-white"
+                    style={{
+                      backgroundColor: isPanelOpen ? '#e53935' : '#0f766e',
+                      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.2), 0 2px 4px -1px rgba(0,0,0,0.1)'
+                    }}
+                    title={isPanelOpen ? "Tutup SideNav Artikel" : "Buka Arsip & Berita Terverifikasi"}
+                  >
+                    {isPanelOpen ? (
+                      <>
+                        <X className="w-4 h-4" />
+                        <span>Tutup Arsip</span>
+                      </>
+                    ) : (
+                      <>
+                        <Newspaper className="w-4 h-4" />
+                        <span>Arsip & Berita</span>
+                        {(verifiedArticles.length > 0 || filteredPosts.length > 0) && (
+                          <span className="w-5 h-5 rounded-full bg-amber-400 text-slate-900 font-extrabold text-[10px] flex items-center justify-center shrink-0 shadow-xs">
+                            {verifiedArticles.length > 0 ? verifiedArticles.length : filteredPosts.length}
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </button>
+                </div>
               }
             />
           </div>
@@ -820,6 +845,208 @@ export default function MapSection() {
 
         </div>
       </div>
+
+      {/* ============================================================
+          SHARE REST API MODAL DIALOG
+          ============================================================ */}
+      {isShareModalOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+          onClick={() => setIsShareModalOpen(false)}
+        >
+          <div 
+            className="w-full max-w-xl rounded-2xl p-6 shadow-2xl border space-y-4 max-h-[90vh] overflow-y-auto"
+            style={{ 
+              backgroundColor: 'var(--bg-card)', 
+              borderColor: 'var(--border-subtle)',
+              color: 'var(--text-primary)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--border-faint)' }}>
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-teal-600/10 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold">
+                  <Code className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black flex items-center gap-2">
+                    <span>REST API Sejarah Kebencanaan</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-extrabold border border-emerald-500/20">
+                      CORS: *
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                    Data sejarah bencana & arsip dokumen Bappenas terbuka untuk dishare & diintegrasikan
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsShareModalOpen(false)}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title="Tutup Modal"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Endpoints List */}
+            <div className="space-y-3 text-xs">
+              
+              {/* Endpoint 1: Main JSON API */}
+              <div className="p-3 rounded-xl border space-y-1.5" style={{ backgroundColor: 'var(--bg-page)', borderColor: 'var(--border-faint)' }}>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-teal-700 dark:text-teal-400 flex items-center gap-1.5">
+                    <span className="px-1.5 py-0.5 rounded bg-teal-700 text-white font-mono text-[10px] font-extrabold">GET</span>
+                    <span>Semua Data Sejarah (JSON)</span>
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleCopyApiUrl(`${typeof window !== 'undefined' ? window.location.origin : ''}/api/sejarah`, 'main')}
+                      className="px-2.5 py-1 rounded-md border text-[11px] font-bold flex items-center gap-1 hover:bg-teal-50 dark:hover:bg-teal-950/40 transition-colors cursor-pointer"
+                      style={{ borderColor: 'var(--border-subtle)' }}
+                    >
+                      {copiedKey === 'main' ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          <span className="text-emerald-600">Tersalin!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3 text-slate-500" />
+                          <span>Salin Link</span>
+                        </>
+                      )}
+                    </button>
+                    <a
+                      href="/api/sejarah"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1 text-slate-400 hover:text-teal-600"
+                      title="Buka endpoint di tab baru"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                </div>
+                <code className="block p-2 rounded-lg bg-slate-900 text-teal-300 font-mono text-[11px] break-all select-all">
+                  {typeof window !== 'undefined' ? window.location.origin : ''}/api/sejarah
+                </code>
+              </div>
+
+              {/* Endpoint 2: GeoJSON FeatureCollection */}
+              <div className="p-3 rounded-xl border space-y-1.5" style={{ backgroundColor: 'var(--bg-page)', borderColor: 'var(--border-faint)' }}>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                    <span className="px-1.5 py-0.5 rounded bg-sky-700 text-white font-mono text-[10px] font-extrabold">GIS</span>
+                    <span>Format GeoJSON (Leaflet, QGIS, ArcGIS)</span>
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleCopyApiUrl(`${typeof window !== 'undefined' ? window.location.origin : ''}/api/sejarah?format=geojson`, 'geojson')}
+                      className="px-2.5 py-1 rounded-md border text-[11px] font-bold flex items-center gap-1 hover:bg-sky-50 dark:hover:bg-sky-950/40 transition-colors cursor-pointer"
+                      style={{ borderColor: 'var(--border-subtle)' }}
+                    >
+                      {copiedKey === 'geojson' ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          <span className="text-emerald-600">Tersalin!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3 text-slate-500" />
+                          <span>Salin Link</span>
+                        </>
+                      )}
+                    </button>
+                    <a
+                      href="/api/sejarah?format=geojson"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1 text-slate-400 hover:text-sky-600"
+                      title="Buka GeoJSON"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                </div>
+                <code className="block p-2 rounded-lg bg-slate-900 text-sky-300 font-mono text-[11px] break-all select-all">
+                  {typeof window !== 'undefined' ? window.location.origin : ''}/api/sejarah?format=geojson
+                </code>
+              </div>
+
+              {/* Endpoint 3: Arsip Dokumen Kebijakan & Bappenas */}
+              <div className="p-3 rounded-xl border space-y-1.5" style={{ backgroundColor: 'var(--bg-page)', borderColor: 'var(--border-faint)' }}>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                    <span className="px-1.5 py-0.5 rounded bg-amber-600 text-white font-mono text-[10px] font-extrabold">DOCS</span>
+                    <span>Arsip Dokumen Bappenas & Riset Sejarah</span>
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleCopyApiUrl(`${typeof window !== 'undefined' ? window.location.origin : ''}/api/sejarah/dokumen`, 'docs')}
+                      className="px-2.5 py-1 rounded-md border text-[11px] font-bold flex items-center gap-1 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors cursor-pointer"
+                      style={{ borderColor: 'var(--border-subtle)' }}
+                    >
+                      {copiedKey === 'docs' ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          <span className="text-emerald-600">Tersalin!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3 text-slate-500" />
+                          <span>Salin Link</span>
+                        </>
+                      )}
+                    </button>
+                    <a
+                      href="/api/sejarah/dokumen"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1 text-slate-400 hover:text-amber-600"
+                      title="Buka Dokumen API"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                </div>
+                <code className="block p-2 rounded-lg bg-slate-900 text-amber-300 font-mono text-[11px] break-all select-all">
+                  {typeof window !== 'undefined' ? window.location.origin : ''}/api/sejarah/dokumen
+                </code>
+              </div>
+
+            </div>
+
+            {/* Parameter & Filter Guide */}
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border space-y-1.5 text-[11px]" style={{ borderColor: 'var(--border-faint)' }}>
+              <div className="font-bold text-slate-700 dark:text-slate-300">💡 Parameter Query URL yang Didukung:</div>
+              <ul className="list-disc pl-4 space-y-0.5 text-slate-600 dark:text-slate-400 font-medium">
+                <li><code className="font-mono text-teal-600 dark:text-teal-400">?q=aceh</code> : Pencarian kata kunci</li>
+                <li><code className="font-mono text-teal-600 dark:text-teal-400">?year=2004</code> : Filter tahun spesifik</li>
+                <li><code className="font-mono text-teal-600 dark:text-teal-400">?from=1900&to=2024</code> : Rentang tahun kejadian</li>
+                <li><code className="font-mono text-teal-600 dark:text-teal-400">?jenis=tsunami</code> : Filter jenis bencana</li>
+                <li><code className="font-mono text-teal-600 dark:text-teal-400">?provinsi=jawa barat</code> : Filter wilayah provinsi</li>
+                <li><code className="font-mono text-teal-600 dark:text-teal-400">?is_bappenas=true</code> : Hanya peristiwa dengan dokumen Bappenas</li>
+                <li><code className="font-mono text-teal-600 dark:text-teal-400">?page=1&limit=20</code> : Paginasi data</li>
+              </ul>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="flex items-center justify-between pt-2 border-t text-xs" style={{ borderColor: 'var(--border-faint)' }}>
+              <span className="text-[10px] text-slate-400 font-medium">Platform Satu Data Bencana © 2026</span>
+              <button
+                onClick={() => setIsShareModalOpen(false)}
+                className="px-4 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 font-bold transition-colors cursor-pointer"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </section>
   );
 }
