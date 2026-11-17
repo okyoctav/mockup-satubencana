@@ -5,52 +5,9 @@
 @import "shadcn/tailwind.css";
 
 /* ============================================================
-   DARK THEME (default)
+   LIGHT THEME (default)
    ============================================================ */
 :root,
-html[data-theme="dark"] {
-  --bg-primary: #061a24;
-  --bg-secondary: #0a2535;
-  --bg-page: #061a24;
-  --bg-section: #051520;
-  --bg-section-alt: #072030;
-  --bg-card: rgba(0, 50, 73, 0.85);
-  --bg-navbar: rgba(6, 26, 36, 0.92);
-  --bg-navbar-solid: rgba(6, 26, 36, 0.97);
-  --text-primary: #ccdbdc;
-  --text-secondary: #35a7ff;
-  --text-muted: #5a8a9c;
-  --text-feature: #b8cfd0;
-  --border-subtle: rgba(53, 167, 255, 0.2);
-  --border-faint: rgba(53, 167, 255, 0.1);
-  --card-border-red: rgba(255, 127, 17, 0.35);
-  --card-border-blue: rgba(53, 167, 255, 0.3);
-  --card-border-orange: rgba(255, 127, 17, 0.35);
-  --chart-bg: #061a24;
-  --chart-grid: #38618c;
-  --chart-text: #7aaab8;
-  --chart-tooltip-bg: #003249;
-  --chart-tooltip-border: #38618c;
-  --hero-bg: linear-gradient(135deg, #061a24 0%, #003249 50%, #061a24 100%);
-  --footer-bg: linear-gradient(180deg, #38618c 0%, #003249 100%);
-  --section-gradient: linear-gradient(180deg, #051520 0%, #061a24 50%, #051520 100%);
-  --mitra-bg: rgba(53, 167, 255, 0.05);
-  --mitra-border: rgba(53, 167, 255, 0.15);
-  --accent-blue: #35a7ff;
-  --accent-orange: #ff7f11;
-  --accent-green: #35a7ff;
-  --accent-red: #ff7f11;
-  --glass-bg: rgba(0, 50, 73, 0.6);
-  --glass-border: rgba(53, 167, 255, 0.3);
-  --scrollbar-track: #061a24;
-  --toggle-bg: rgba(204, 219, 220, 0.1);
-  --toggle-border: rgba(204, 219, 220, 0.2);
-  --toggle-icon: #ff7f11;
-}
-
-/* ============================================================
-   LIGHT THEME
-   ============================================================ */
 html[data-theme="light"] {
   --brand-1: #165176;
   --brand-2: #1a8284;
@@ -90,6 +47,49 @@ html[data-theme="light"] {
   --scrollbar-track: #f0f5f7;
   --toggle-bg: rgba(0, 50, 73, 0.08);
   --toggle-border: rgba(0, 50, 73, 0.15);
+  --toggle-icon: #ff7f11;
+}
+
+/* ============================================================
+   DARK THEME
+   ============================================================ */
+html[data-theme="dark"] {
+  --bg-primary: #061a24;
+  --bg-secondary: #0a2535;
+  --bg-page: #061a24;
+  --bg-section: #051520;
+  --bg-section-alt: #072030;
+  --bg-card: rgba(0, 50, 73, 0.85);
+  --bg-navbar: rgba(6, 26, 36, 0.92);
+  --bg-navbar-solid: rgba(6, 26, 36, 0.97);
+  --text-primary: #ccdbdc;
+  --text-secondary: #35a7ff;
+  --text-muted: #5a8a9c;
+  --text-feature: #b8cfd0;
+  --border-subtle: rgba(53, 167, 255, 0.2);
+  --border-faint: rgba(53, 167, 255, 0.1);
+  --card-border-red: rgba(255, 127, 17, 0.35);
+  --card-border-blue: rgba(53, 167, 255, 0.3);
+  --card-border-orange: rgba(255, 127, 17, 0.35);
+  --chart-bg: #061a24;
+  --chart-grid: #38618c;
+  --chart-text: #7aaab8;
+  --chart-tooltip-bg: #003249;
+  --chart-tooltip-border: #38618c;
+  --hero-bg: linear-gradient(135deg, #061a24 0%, #003249 50%, #061a24 100%);
+  --footer-bg: linear-gradient(180deg, #38618c 0%, #003249 100%);
+  --section-gradient: linear-gradient(180deg, #051520 0%, #061a24 50%, #051520 100%);
+  --mitra-bg: rgba(53, 167, 255, 0.05);
+  --mitra-border: rgba(53, 167, 255, 0.15);
+  --accent-blue: #35a7ff;
+  --accent-orange: #ff7f11;
+  --accent-green: #35a7ff;
+  --accent-red: #ff7f11;
+  --glass-bg: rgba(0, 50, 73, 0.6);
+  --glass-border: rgba(53, 167, 255, 0.3);
+  --scrollbar-track: #061a24;
+  --toggle-bg: rgba(204, 219, 220, 0.1);
+  --toggle-border: rgba(204, 219, 220, 0.2);
   --toggle-icon: #ff7f11;
 }
 

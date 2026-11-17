@@ -60,8 +60,8 @@ export default function HeroSection() {
             {/* Title & Description */}
             <div className="space-y-1.5">
               <h1
-                className="text-xl sm:text-2xl font-black tracking-tight leading-[1.2] text-black"
-                style={{ color: '#000000' }}
+                className="text-xl sm:text-2xl font-black tracking-tight leading-[1.2]"
+                style={{ color: 'var(--text-primary)' }}
               >
                 Manajemen Data Bencana
               </h1>

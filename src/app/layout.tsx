@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={cn("font-sans", inter.variable)}>
+    <html lang="id" data-theme="light" className={cn("font-sans", inter.variable)}>
       <body className="antialiased">
         <ThemeProvider>
           {children}
