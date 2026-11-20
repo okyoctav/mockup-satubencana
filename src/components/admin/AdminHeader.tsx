@@ -6,6 +6,7 @@ import ChevronLeftIcon from 'nexticons/outline/ChevronLeftIcon';
 import MapIcon from 'nexticons/outline/MapIcon';
 import SignOutIcon from 'nexticons/outline/SignOutIcon';
 import AlertTicker from '@/components/dashboard/AlertTicker';
+import { DEFAULT_DASHBOARD_PATH, LOGIN_PATH } from '@/lib/routes';
 
 interface AdminHeaderProps {
   isSidebarOpen: boolean;
@@ -31,15 +32,18 @@ export default function AdminHeader({
   const handleLogout = async () => {
     localStorage.removeItem('is_logged_in');
     try {
-      const { getSupabaseBrowserClient } = await import('@/lib/supabase/client');
-      const client = getSupabaseBrowserClient();
-      if (client) {
-        await client.auth.signOut();
+      const mode = (process.env.NEXT_PUBLIC_AUTH_MODE || '').toLowerCase();
+      if (mode === 'local' || (!process.env.NEXT_PUBLIC_SUPABASE_URL && mode !== 'supabase')) {
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      } else {
+        const { getSupabaseBrowserClient } = await import('@/lib/supabase/client');
+        const client = getSupabaseBrowserClient();
+        if (client) await client.auth.signOut();
       }
     } catch {
       // ignore
     }
-    window.location.href = '/login';
+    window.location.href = LOGIN_PATH;
   };
 
   return (
@@ -93,7 +97,7 @@ export default function AdminHeader({
 
           {showDashboardLink && (
             <Link
-              href="/dashboard_k5"
+              href={DEFAULT_DASHBOARD_PATH}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all text-xs font-semibold cursor-pointer shadow-xs"
             >
               <span className="text-slate-500 dark:text-slate-400 flex items-center justify-center">

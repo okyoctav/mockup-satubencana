@@ -19,6 +19,7 @@ import MapIcon from 'nexticons/outline/MapIcon';
 import HomeSecondIcon from 'nexticons/outline/HomeSecondIcon';
 import SearchUsersIcon from 'nexticons/outline/SearchUsersIcon';
 import XIcon from 'nexticons/outline/XIcon';
+import { SIMULASI_DAMPAK_PATH, SIMULASI_MODELING_PATH } from '@/lib/routes';
 
 type AdminLayoutProps = {
   children: React.ReactNode;
@@ -93,8 +94,8 @@ export function AdminLayout({ children, title, subtitle, disableMainPadding = fa
 
   const menuItems = [
     { key: '/admin', label: 'Dashboard', href: '/admin', icon: <HomeIcon width={18} height={18} /> },
-    { key: '/admin/simulasi-k3', label: 'Simulasi K3', href: '/admin/simulasi-k3', icon: <MapIcon width={18} height={18} /> },
-    { key: '/admin/simulasi-k4', label: 'Simulasi K4', href: '/admin/simulasi-k4', icon: <MapIcon width={18} height={18} /> },
+    { key: SIMULASI_DAMPAK_PATH, label: 'Simulasi Dampak', href: SIMULASI_DAMPAK_PATH, icon: <MapIcon width={18} height={18} /> },
+    { key: SIMULASI_MODELING_PATH, label: 'Simulasi Modeling', href: SIMULASI_MODELING_PATH, icon: <MapIcon width={18} height={18} /> },
     { key: '/management', label: 'Management Data', href: '/management', icon: <HomeSecondIcon width={18} height={18} /> },
     { key: '/admin/roles', label: 'Users & Roles', href: '/admin/roles', icon: <SearchUsersIcon width={18} height={18} /> },
   ];

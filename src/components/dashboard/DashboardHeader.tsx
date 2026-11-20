@@ -2,13 +2,13 @@
 
 import dynamic from 'next/dynamic';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Wilayah } from '@/data/wilayah';
+import type { WilayahItem } from '@/lib/wilayahStore';
 import { Database, Lock, ArrowLeft, Map, Sun, Moon } from 'lucide-react';
 
 const SearchDaerah = dynamic(() => import('./SearchDaerah'), { ssr: false });
 
 interface Props {
-  onSearch: (w: Wilayah) => void;
+  onSearch: (w: WilayahItem) => void;
 }
 
 export default function DashboardHeader({ onSearch }: Props) {
@@ -48,34 +48,6 @@ export default function DashboardHeader({ onSearch }: Props) {
 
       {/* Right side */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-        {/* Live indicator */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '4px 10px',
-            borderRadius: 20,
-            background: 'rgba(34,197,94,0.1)',
-            border: '1px solid rgba(34,197,94,0.25)',
-            fontSize: 11,
-            color: '#22C55E',
-            fontWeight: 600,
-          }}
-        >
-          <span
-            style={{
-              width: 7,
-              height: 7,
-              borderRadius: '50%',
-              background: '#22C55E',
-              animation: 'pulse-dot 1.5s infinite',
-              display: 'inline-block',
-            }}
-          />
-          LIVE
-        </div>
-
         {/* Theme toggle */}
         <button
           onClick={toggle}
@@ -179,13 +151,6 @@ export default function DashboardHeader({ onSearch }: Props) {
           </a>
         </div>
       </div>
-
-      <style>{`
-        @keyframes pulse-dot {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
-        }
-      `}</style>
     </header>
   );
 }

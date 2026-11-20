@@ -2,91 +2,25 @@
 
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { Search, ChevronDown, Check, X } from 'lucide-react';
-import bencanaData from '@/data/bencana.json';
+import {
+  PROVINSI_LIST,
+  KAB_BY_PROV,
+  PROV_CENTER,
+  KODE_KEMENDAGRI_PROVINSI,
+} from '@/lib/wilayahStore';
 
-type KejadianBase = {
-  provinsi: string;
-  kabupaten: string;
-  lat: number;
-  lng: number;
-};
-
-// Build lookup dari bencana.json langsung
-const allKejadian = bencanaData.kejadian as KejadianBase[];
-
-// Unique provinsi sorted A-Z
-const PROVINSI_LIST = Array.from(new Set(allKejadian.map((k) => k.provinsi))).sort((a, b) =>
-  a.localeCompare(b, 'id')
-);
-
-// Kabupaten per provinsi
-const KAB_BY_PROV: Record<string, { nama: string; lat: number; lng: number }[]> = {};
-for (const k of allKejadian) {
-  if (!KAB_BY_PROV[k.provinsi]) KAB_BY_PROV[k.provinsi] = [];
-  if (!KAB_BY_PROV[k.provinsi].find((x) => x.nama === k.kabupaten)) {
-    KAB_BY_PROV[k.provinsi].push({ nama: k.kabupaten, lat: k.lat, lng: k.lng });
-  }
-}
-for (const arr of Object.values(KAB_BY_PROV)) {
-  arr.sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
-}
-
-// Center of provinsi = average lat/lng of its records
-const PROV_CENTER: Record<string, { lat: number; lng: number }> = {};
-for (const prov of PROVINSI_LIST) {
-  const recs = allKejadian.filter((k) => k.provinsi === prov);
-  const lat = recs.reduce((s, r) => s + r.lat, 0) / recs.length;
-  const lng = recs.reduce((s, r) => s + r.lng, 0) / recs.length;
-  PROV_CENTER[prov] = { lat, lng };
-}
-
-// Pemetaan Kode Kemendagri 2-digit resmi untuk 38 Provinsi Indonesia
-export const KODE_KEMENDAGRI_PROVINSI: Record<string, string> = {
-  'ACEH': '11',
-  'SUMATERA UTARA': '12',
-  'SUMATERA BARAT': '13',
-  'RIAU': '14',
-  'JAMBI': '15',
-  'SUMATERA SELATAN': '16',
-  'BENGKULU': '17',
-  'LAMPUNG': '18',
-  'KEPULAUAN BANGKA BELITUNG': '19',
-  'KEPULAUAN RIAU': '21',
-  'DKI JAKARTA': '31',
-  'JAWA BARAT': '32',
-  'JAWA TENGAH': '33',
-  'DI YOGYAKARTA': '34',
-  'DAERAH ISTIMEWA YOGYAKARTA': '34',
-  'D.I. YOGYAKARTA': '34',
-  'JAWA TIMUR': '35',
-  'BANTEN': '36',
-  'BALI': '51',
-  'NUSA TENGGARA BARAT': '52',
-  'NUSA TENGGARA TIMUR': '53',
-  'KALIMANTAN BARAT': '61',
-  'KALIMANTAN TENGAH': '62',
-  'KALIMANTAN SELATAN': '63',
-  'KALIMANTAN TIMUR': '64',
-  'KALIMANTAN UTARA': '65',
-  'SULAWESI UTARA': '71',
-  'SULAWESI TENGAH': '72',
-  'SULAWESI SELATAN': '73',
-  'SULAWESI TENGGARA': '74',
-  'GORONTALO': '75',
-  'SULAWESI BARAT': '76',
-  'MALUKU': '81',
-  'MALUKU UTARA': '82',
-  'PAPUA BARAT': '91',
-  'PAPUA': '92',
-  'PAPUA SELATAN': '93',
-  'PAPUA TENGAH': '94',
-  'PAPUA PEGUNUNGAN': '95',
-  'PAPUA BARAT DAYA': '96',
-};
+export { KODE_KEMENDAGRI_PROVINSI };
 
 export type FilterWilayah =
   | { tipe: 'provinsi'; nama: string; kodeKemendagri?: string; lat: number; lng: number }
-  | { tipe: 'kabupaten'; nama: string; provinsi: string; kodeKemendagri?: string; lat: number; lng: number };
+  | {
+      tipe: 'kabupaten' | 'kota';
+      nama: string;
+      provinsi: string;
+      kodeKemendagri?: string;
+      lat: number;
+      lng: number;
+    };
 
 interface Props {
   onSelect: (w: FilterWilayah | null) => void;
@@ -95,7 +29,8 @@ interface Props {
 
 export default function WilayahDropdown({ onSelect, theme }: Props) {
   const [selectedProv, setSelectedProv] = useState('');
-  const [selectedKab, setSelectedKab] = useState('');
+  /** Key unik kab/kota (kode), bukan nama — agar Kab & Kota se-nama bisa dipilih. */
+  const [selectedKabKey, setSelectedKabKey] = useState('');
 
   // Dropdown open states
   const [isProvOpen, setIsProvOpen] = useState(false);
@@ -129,8 +64,18 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
   const filteredKabList = useMemo(() => {
     if (!kabSearch.trim()) return kabList;
     const query = kabSearch.toLowerCase();
-    return kabList.filter((k) => k.nama.toLowerCase().includes(query));
+    return kabList.filter(
+      (k) =>
+        k.nama.toLowerCase().includes(query) ||
+        k.label.toLowerCase().includes(query) ||
+        (k.kode || '').includes(query)
+    );
   }, [kabList, kabSearch]);
+
+  const selectedKabItem = useMemo(
+    () => kabList.find((k) => k.key === selectedKabKey) || null,
+    [kabList, selectedKabKey]
+  );
 
   // Click outside listener to close dropdowns
   useEffect(() => {
@@ -148,7 +93,7 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
 
   const handleProvSelect = (prov: string) => {
     setSelectedProv(prov);
-    setSelectedKab('');
+    setSelectedKabKey('');
     setIsProvOpen(false);
     setProvSearch('');
     setKabSearch('');
@@ -159,30 +104,32 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
     }
 
     const c = PROV_CENTER[prov];
-    const kode = KODE_KEMENDAGRI_PROVINSI[prov.toUpperCase()] || '';
+    if (!c) return;
+    const kode = KODE_KEMENDAGRI_PROVINSI[prov.toUpperCase()] || c.kode || '';
     onSelect({ tipe: 'provinsi', nama: prov, kodeKemendagri: kode, lat: c.lat, lng: c.lng });
   };
 
-  const handleKabSelect = (kab: string) => {
-    setSelectedKab(kab);
+  const handleKabSelect = (kabKey: string) => {
+    setSelectedKabKey(kabKey);
     setIsKabOpen(false);
     setKabSearch('');
 
-    if (!kab) {
+    if (!kabKey) {
       const c = PROV_CENTER[selectedProv];
-      const kode = KODE_KEMENDAGRI_PROVINSI[selectedProv.toUpperCase()] || '';
+      if (!c) return;
+      const kode = KODE_KEMENDAGRI_PROVINSI[selectedProv.toUpperCase()] || c.kode || '';
       onSelect({ tipe: 'provinsi', nama: selectedProv, kodeKemendagri: kode, lat: c.lat, lng: c.lng });
       return;
     }
 
-    const found = kabList.find((k) => k.nama === kab);
+    const found = kabList.find((k) => k.key === kabKey);
     if (!found) return;
-    const kode = KODE_KEMENDAGRI_PROVINSI[selectedProv.toUpperCase()] || '';
+    const kodeProv = KODE_KEMENDAGRI_PROVINSI[selectedProv.toUpperCase()] || '';
     onSelect({
-      tipe: 'kabupaten',
-      nama: kab,
+      tipe: found.tipe,
+      nama: found.nama,
       provinsi: selectedProv,
-      kodeKemendagri: kode,
+      kodeKemendagri: found.kode || kodeProv,
       lat: found.lat,
       lng: found.lng,
     });
@@ -190,7 +137,7 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
 
   const handleClear = () => {
     setSelectedProv('');
-    setSelectedKab('');
+    setSelectedKabKey('');
     setIsProvOpen(false);
     setIsKabOpen(false);
     setProvSearch('');
@@ -199,13 +146,13 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
   };
 
   return (
-    <div className="flex items-center gap-2 flex-wrap text-xs">
-      <span className="font-bold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap">
+    <div className="flex items-center gap-1.5 sm:gap-2 text-xs flex-nowrap min-w-0">
+      <span className="font-bold text-slate-500 uppercase tracking-wider text-[11px] whitespace-nowrap shrink-0 hidden sm:inline">
         Filter:
       </span>
 
       {/* 1. PROVINSI SEARCH SELECT DROPDOWN */}
-      <div className="relative min-w-[190px]" ref={provRef}>
+      <div className="relative min-w-0 w-[148px] sm:w-[190px] shrink" ref={provRef}>
         <button
           type="button"
           onClick={() => {
@@ -236,7 +183,7 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
         {/* Dropdown Menu Panel */}
         {isProvOpen && (
           <div
-            className={`absolute left-0 top-9 z-[9999] w-64 rounded-2xl shadow-2xl border p-2 space-y-2 animate-in fade-in duration-100 ${
+            className={`absolute left-0 top-9 z-50 w-64 rounded-2xl shadow-2xl border p-2 space-y-2 animate-in fade-in duration-100 ${
               isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-800'
             }`}
           >
@@ -308,7 +255,7 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
       </div>
 
       {/* 2. KABUPATEN / KOTA SEARCH SELECT DROPDOWN */}
-      <div className="relative min-w-[190px]" ref={kabRef}>
+      <div className="relative min-w-0 w-[148px] sm:w-[190px] shrink" ref={kabRef}>
         <button
           type="button"
           disabled={!selectedProv}
@@ -325,8 +272,8 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
           }`}
         >
           <span className="truncate">
-            {selectedKab ? (
-              <span>{selectedKab}</span>
+            {selectedKabItem ? (
+              <span>{selectedKabItem.label}</span>
             ) : (
               <span className="text-slate-400 font-normal">— Semua Kab/Kota —</span>
             )}
@@ -337,7 +284,7 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
         {/* Dropdown Menu Panel */}
         {isKabOpen && selectedProv && (
           <div
-            className={`absolute left-0 top-9 z-[9999] w-64 rounded-2xl shadow-2xl border p-2 space-y-2 animate-in fade-in duration-100 ${
+            className={`absolute left-0 top-9 z-50 w-72 rounded-2xl shadow-2xl border p-2 space-y-2 animate-in fade-in duration-100 ${
               isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-800'
             }`}
           >
@@ -364,7 +311,7 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
                 type="button"
                 onClick={() => handleKabSelect('')}
                 className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between ${
-                  !selectedKab
+                  !selectedKabKey
                     ? 'bg-[#1f8080]/15 text-[#1f8080] font-bold'
                     : isDark
                     ? 'hover:bg-slate-800 text-slate-300'
@@ -372,20 +319,20 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
                 }`}
               >
                 <span>— Semua Kab/Kota —</span>
-                {!selectedKab && <Check className="w-3.5 h-3.5 text-[#1f8080]" />}
+                {!selectedKabKey && <Check className="w-3.5 h-3.5 text-[#1f8080]" />}
               </button>
 
               {filteredKabList.length === 0 ? (
                 <div className="p-3 text-center text-xs text-slate-400">Kabupaten/Kota tidak ditemukan</div>
               ) : (
                 filteredKabList.map((k) => {
-                  const isSelected = selectedKab === k.nama;
+                  const isSelected = selectedKabKey === k.key;
                   return (
                     <button
-                      key={k.nama}
+                      key={k.key}
                       type="button"
-                      onClick={() => handleKabSelect(k.nama)}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between ${
+                      onClick={() => handleKabSelect(k.key)}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between gap-2 ${
                         isSelected
                           ? 'bg-[#1f8080]/15 text-[#1f8080] font-bold'
                           : isDark
@@ -393,7 +340,16 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
                           : 'hover:bg-slate-100 text-slate-700'
                       }`}
                     >
-                      <span className="truncate">{k.nama}</span>
+                      <span className="truncate">
+                        <span
+                          className={`mr-1.5 text-[10px] font-bold uppercase ${
+                            k.tipe === 'kota' ? 'text-orange-500' : 'text-emerald-600'
+                          }`}
+                        >
+                          {k.tipe === 'kota' ? 'Kota' : 'Kab.'}
+                        </span>
+                        {k.nama}
+                      </span>
                       {isSelected && <Check className="w-3.5 h-3.5 text-[#1f8080] shrink-0" />}
                     </button>
                   );
@@ -405,15 +361,15 @@ export default function WilayahDropdown({ onSelect, theme }: Props) {
       </div>
 
       {/* 3. RESET CLEAR FILTER BUTTON */}
-      {(selectedProv || selectedKab) && (
+      {(selectedProv || selectedKabKey) && (
         <button
           type="button"
           onClick={handleClear}
           title="Reset Filter Wilayah"
-          className="h-8 px-2.5 rounded-xl border border-slate-200 hover:border-rose-300 bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 font-bold transition-colors flex items-center gap-1 shadow-xs"
+          className="h-8 px-2 sm:px-2.5 rounded-xl border border-slate-200 hover:border-rose-300 bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 font-bold transition-colors flex items-center gap-1 shadow-xs shrink-0"
         >
           <X className="w-3.5 h-3.5" />
-          <span>Reset</span>
+          <span className="hidden sm:inline">Reset</span>
         </button>
       )}
     </div>

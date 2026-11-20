@@ -78,7 +78,7 @@ const MITRA_LIST = [
 const STATS_DATA = [
   { label: 'Instansi Mitra Terhubung', value: '12+', icon: Building2, color: 'text-sky-500' },
   { label: 'Cakupan Wilayah Spasial', value: '38 Provinsi', icon: Layers, color: 'text-emerald-500' },
-  { label: 'Status Integrasi System', value: 'Realtime 24/7', icon: CheckCircle2, color: 'text-indigo-500' },
+  { label: 'Status Integrasi Data', value: 'Sebagian live', icon: CheckCircle2, color: 'text-teal-600' },
   { label: 'Kategori Kejadian Terdata', value: '8 Jenis Bencana', icon: ShieldAlert, color: 'text-amber-500' },
 ];
 
@@ -103,10 +103,16 @@ export default function InformasiMitraSection() {
             Pengumpulan, penggabungan, dan penggunaan data bencana Kementerian/Lembaga dalam satu sistem manajemen data bencana nasional
           </p>
 
-          <div className="pt-2 flex items-center gap-4 flex-wrap">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-400 text-xs font-extrabold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-              API Feed Live: BNPB · BMKG · BIG · PVMBG · BRIN
+          <div className="pt-2 flex items-center gap-3 flex-wrap">
+            <span
+              title="Sebagian layer/API memang live (mis. BMKG, WMS BNPB). Tidak semua mitra punya feed realtime 24/7."
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-500/15 border border-teal-200 dark:border-teal-500/30 text-teal-900 dark:text-teal-300 text-[11px] font-bold"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-600" />
+              Integrasi sebagian live
+            </span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+              BMKG ticker &amp; banyak layer WMS/REST · sisanya snapshot/cache/estimasi
             </span>
           </div>
         </div>

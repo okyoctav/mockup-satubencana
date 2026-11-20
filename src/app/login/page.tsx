@@ -7,83 +7,74 @@ import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import LoginBackground from '@/components/three/LoginBackground';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DEFAULT_DASHBOARD_PATH } from '@/lib/routes';
+
+type AuthMode = 'local' | 'supabase';
+
+function resolveClientAuthMode(): AuthMode {
+  const raw = (process.env.NEXT_PUBLIC_AUTH_MODE || '').toLowerCase();
+  if (raw === 'local' || raw === 'supabase') return raw;
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return 'supabase';
+  }
+  return 'local';
+}
 
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [notice, setNotice] = useState('');
-  const isConfigured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  const authMode = resolveClientAuthMode();
 
   useEffect(() => {
+    const nextUrl =
+      new URLSearchParams(window.location.search).get('next') || DEFAULT_DASHBOARD_PATH;
+
+    if (authMode === 'local') {
+      fetch('/api/auth/me', { credentials: 'include', cache: 'no-store' })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data?.ok && data?.user) router.replace(nextUrl);
+        })
+        .catch(() => {});
+      return;
+    }
+
     const client = getSupabaseBrowserClient();
     if (!client) return;
-
     client.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        const nextUrl = new URLSearchParams(window.location.search).get('next') || '/dashboard_k5'; localStorage.setItem('is_logged_in', 'true'); router.replace(nextUrl);
-      }
+      if (session) router.replace(nextUrl);
     });
-  }, [router]);
+  }, [router, authMode]);
 
-  const handleAccountLogin = async (email: string, password: string) => {
-    if (!email.trim() || !password.trim()) {
-      setError('Email dan password wajib diisi.');
-      return false;
+  const handleLocalLogin = async (email: string, password: string) => {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data?.ok) {
+      throw new Error(data?.error || 'Gagal masuk.');
     }
+    const nextUrl =
+      new URLSearchParams(window.location.search).get('next') || DEFAULT_DASHBOARD_PATH;
+    router.push(nextUrl);
+  };
 
-    setLoading(true);
-    setError('');
-    setNotice('');
-
-    try {
-      if (!isConfigured) {
-        setNotice('Mode demo aktif. Anda akan diarahkan ke dashboard admin.');
-        const nextUrl = new URLSearchParams(window.location.search).get('next') || '/dashboard_k5'; localStorage.setItem('is_logged_in', 'true'); router.push(nextUrl);
-        return true;
-      }
-
-      const client = getSupabaseBrowserClient();
-      if (!client) {
-        throw new Error('Supabase client belum siap. Coba refresh halaman atau cek konfigurasi environment.');
-      }
-
-      const signInResult = await client.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (signInResult.error) {
-        const shouldCreate = signInResult.error.message?.includes('Invalid login credentials') || signInResult.error.status === 400 || signInResult.error.status === 403 || signInResult.error.message?.includes('user not found');
-        if (!shouldCreate) {
-          throw signInResult.error;
-        }
-
-        const signUpResult = await client.auth.signUp({ email, password });
-        if (signUpResult.error) {
-          throw signUpResult.error;
-        }
-
-        if (signUpResult.data.session) {
-          const nextUrl = new URLSearchParams(window.location.search).get('next') || '/dashboard_k5'; localStorage.setItem('is_logged_in', 'true'); router.push(nextUrl);
-          return true;
-        }
-
-        const retryResult = await client.auth.signInWithPassword({ email, password });
-        if (retryResult.error) {
-          throw retryResult.error;
-        }
-      }
-
-      const nextUrl = new URLSearchParams(window.location.search).get('next') || '/dashboard_k5'; localStorage.setItem('is_logged_in', 'true'); router.push(nextUrl);
-      return true;
-    } catch (err: unknown) {
-      const messageText = err instanceof Error ? err.message : 'Gagal masuk. Coba lagi.';
-      setError(messageText);
-      return false;
-    } finally {
-      setLoading(false);
+  const handleSupabaseLogin = async (email: string, password: string) => {
+    const client = getSupabaseBrowserClient();
+    if (!client) {
+      throw new Error('Supabase belum dikonfigurasi. Set env Vercel atau pakai AUTH_MODE=local.');
     }
+    const signInResult = await client.auth.signInWithPassword({ email, password });
+    if (signInResult.error) {
+      throw signInResult.error;
+    }
+    const nextUrl =
+      new URLSearchParams(window.location.search).get('next') || DEFAULT_DASHBOARD_PATH;
+    router.push(nextUrl);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -97,20 +88,40 @@ export default function LoginPage() {
       return;
     }
 
-    await handleAccountLogin(emailInput.value, passwordInput.value);
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    if (!email || !password) {
+      setError('Email dan password wajib diisi.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    try {
+      if (authMode === 'local') {
+        await handleLocalLogin(email, password);
+      } else {
+        await handleSupabaseLogin(email, password);
+      }
+    } catch (err: unknown) {
+      const messageText = err instanceof Error ? err.message : 'Gagal masuk. Coba lagi.';
+      setError(messageText);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <div className="flex min-h-screen w-full flex-col lg:flex-row">
-          <div className="relative hidden flex-1 overflow-hidden lg:flex">
+        <div className="relative hidden flex-1 overflow-hidden lg:flex">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.25),_transparent_45%)]" />
           <LoginBackground />
           <div className="relative z-10 flex h-full flex-col justify-between p-10 text-white">
             <div>
               <img
                 src="/logo/logo_mdb_alone.png"
-                alt="Logo SDB"
+                alt="Logo MDB"
                 className="w-[300px] h-auto object-contain brightness-0 invert"
               />
             </div>
@@ -119,7 +130,6 @@ export default function LoginPage() {
 
         <div className="flex w-full flex-1 items-center justify-center bg-white px-6 py-10 lg:w-[42%] lg:px-8 xl:px-10">
           <div className="w-full max-w-md">
-            {/* Mobile Logo (Shown only on mobile / small screens without effects) */}
             <div className="mb-6 flex justify-center lg:hidden">
               <img
                 src="/logo/logo_mdb_alone.png"
@@ -128,9 +138,16 @@ export default function LoginPage() {
               />
             </div>
 
-            <h1 className="text-2xl font-semibold text-slate-900">Sign In</h1>
+            <h1 className="text-2xl font-semibold text-slate-900">Masuk</h1>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              with your MDB Account. This account will be available to other MDB apps in the browser
+              Masuk dengan akun MDB / SatuBencana.
+              {authMode === 'local' ? (
+                <span className="mt-1 block text-xs text-emerald-700">
+                  Mode lokal (Postgres) — seed: superadmin@satubencana.id / admin123
+                </span>
+              ) : (
+                <span className="mt-1 block text-xs text-slate-400">Mode Supabase (Vercel)</span>
+              )}
             </p>
 
             <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
@@ -139,7 +156,7 @@ export default function LoginPage() {
                 <Input
                   type="email"
                   name="email"
-                  placeholder="admin@admin.com"
+                  placeholder="superadmin@satubencana.id"
                   required
                   className="h-11 rounded-xl border-slate-200 bg-slate-50 px-4"
                 />
@@ -162,14 +179,12 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {notice && (
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-700">
-                  {notice}
-                </div>
-              )}
-
-              <Button type="submit" className="h-11 w-full rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-semibold shadow-sm" disabled={loading}>
-                {loading ? 'Memverifikasi...' : isConfigured ? 'Masuk' : 'Masuk ke mode demo'}
+              <Button
+                type="submit"
+                className="h-11 w-full rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-semibold shadow-sm"
+                disabled={loading}
+              >
+                {loading ? 'Memverifikasi...' : 'Masuk'}
               </Button>
             </form>
 

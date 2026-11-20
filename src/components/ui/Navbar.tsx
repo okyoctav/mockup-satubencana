@@ -5,12 +5,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Info, Menu, X, Sun, Moon } from 'lucide-react';
+import { DEFAULT_DASHBOARD_PATH } from '@/lib/routes';
 
 const NAV_ITEMS = [
   { label: 'Beranda', href: '/' },
   { label: 'Sejarah Kebencanaan', href: '/sejarah-kebencanaan' },
   { label: 'Data Kebencanaan', href: '/analisis-data' },
-  { label: 'Dashboard Asesmen Dampak', href: '/dashboard_k5' },
+  { label: 'Dashboard Asesmen Dampak', href: DEFAULT_DASHBOARD_PATH },
 ];
 
 function ThemeToggle() {

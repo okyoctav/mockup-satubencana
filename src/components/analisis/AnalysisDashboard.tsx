@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, PieChart, Pie, Cell, Legend
@@ -76,16 +76,30 @@ export default function AnalysisDashboard() {
   const [selectedModalProvince, setSelectedModalProvince] = useState<string | null>(null);
   const [isKarhutlaMode, setIsKarhutlaMode] = useState<boolean>(false);
 
+  // Buka modul SIPONGI jika URL punya mode=sipongi (shareable)
   useEffect(() => {
-    fetch('/20260505_072732.json')
-      .then(res => res.json())
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      if (sp.get('mode') === 'sipongi') setIsKarhutlaMode(true);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    // API lokal: 50k baris lengkap (field analisis), tanpa unduh file mentah 42MB
+    fetch('/api/dibi-events')
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((json) => {
-        const rows: BencanaData[] = json.Sheet1 ?? json;
+        const rows: BencanaData[] = Array.isArray(json.rows) ? json.rows : [];
         setData(rows);
         setLoading(false);
       })
-      .catch(err => {
-        console.error('Error fetching data', err);
+      .catch((err) => {
+        console.error('Error fetching DIBI events', err);
         setLoading(false);
       });
   }, []);
@@ -432,7 +446,6 @@ export default function AnalysisDashboard() {
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden text-xs font-sans select-none" style={{ color: 'var(--text-primary)' }}>
-      
       {/* ============================================================
           1. MATERIAL APP BAR & COMMAND FILTER TOOLBAR (z-depth-1)
           ============================================================ */}
@@ -639,7 +652,16 @@ export default function AnalysisDashboard() {
 
       {isKarhutlaMode ? (
         <div className="flex-1 min-h-0 w-full overflow-hidden">
-          <SipongiKarhutlaDashboard onBackToGeneral={() => setIsKarhutlaMode(false)} />
+          <Suspense
+            fallback={
+              <div className="w-full h-full flex items-center justify-center text-sm text-slate-500 gap-2">
+                <Flame className="w-4 h-4 text-orange-500 animate-pulse" />
+                Memuat modul SIPONGI…
+              </div>
+            }
+          >
+            <SipongiKarhutlaDashboard onBackToGeneral={() => setIsKarhutlaMode(false)} />
+          </Suspense>
         </div>
       ) : (
         <>

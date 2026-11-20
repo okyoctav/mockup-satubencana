@@ -1,16 +1,16 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { WILAYAH, Wilayah } from '@/data/wilayah';
 import { useTheme } from '@/contexts/ThemeContext';
+import { formatWilayahLabel, searchWilayah, type WilayahItem } from '@/lib/wilayahStore';
 
 interface Props {
-  onSelect: (w: Wilayah) => void;
+  onSelect: (w: WilayahItem) => void;
 }
 
 export default function SearchDaerah({ onSelect }: Props) {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Wilayah[]>([]);
+  const [results, setResults] = useState<WilayahItem[]>([]);
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -33,18 +33,14 @@ export default function SearchDaerah({ onSelect }: Props) {
       setOpen(false);
       return;
     }
-    const q = val.toLowerCase();
-    const filtered = WILAYAH.filter(
-      (w) =>
-        w.nama.toLowerCase().includes(q) ||
-        w.provinsi.toLowerCase().includes(q)
-    ).slice(0, 8);
-    setResults(filtered);
+    setResults(searchWilayah(val, 8));
     setOpen(true);
   };
 
-  const handleSelect = (w: Wilayah) => {
-    setQuery(`${w.nama}${w.tipe !== 'provinsi' ? `, ${w.provinsi}` : ''}`);
+  const handleSelect = (w: WilayahItem) => {
+    setQuery(
+      w.tipe === 'provinsi' ? w.nama : `${formatWilayahLabel(w)}, ${w.provinsi}`
+    );
     setOpen(false);
     onSelect(w);
   };
@@ -120,7 +116,7 @@ export default function SearchDaerah({ onSelect }: Props) {
         >
           {results.map((w) => (
             <button
-              key={`${w.tipe}-${w.nama}`}
+              key={w.kode || `${w.tipe}-${w.nama}-${w.provinsi}`}
               onClick={() => handleSelect(w)}
               style={{
                 display: 'flex',

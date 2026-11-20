@@ -489,7 +489,7 @@ CREATE POLICY "Allow anon all in dev" ON public.dashboard_layers FOR ALL TO anon
               <div className="text-2xl font-black text-emerald-700 mt-2">
                 {stats.active}
               </div>
-              <div className="text-[11px] text-slate-500 mt-1">Muncul di menu Dashboard K5</div>
+              <div className="text-[11px] text-slate-500 mt-1">Muncul di menu Dashboard</div>
             </div>
 
             <div className="p-4 rounded-2xl bg-white border border-slate-300 shadow-sm">

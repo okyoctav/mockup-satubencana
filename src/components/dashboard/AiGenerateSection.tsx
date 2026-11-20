@@ -199,7 +199,7 @@ function renderFormattedMarkdown(content: string) {
 }
 
 export default function AiGenerateSection({ estimationData }: Props) {
-  const [apiKey, setApiKey] = useState<string>('sk-69d85b197b53b2e9-6vjduo-ddf53562');
+  const [apiKey, setApiKey] = useState<string>('');
   const [endpoint, setEndpoint] = useState<string>('https://rzh4rfn.abc-tunnel.us/v1');
   const [selectedModel, setSelectedModel] = useState<string>('ag/gpt-oss-120b-medium');
   const [maxTokens, setMaxTokens] = useState<number>(4096);

@@ -1,7 +1,7 @@
 # 📚 DOKUMEN METODOLOGI & KERANGKA TEKNIS
 ## SIMULASI PEMODELAN GENANGAN BENCANA
 ### *(FastFlood 2D & Multi-Sector Impact Assessment Engine)*
-**Platform Satu Data Kebencanaan (Dashboard K5)**  
+**Platform Satu Data Kebencanaan (Dashboard + Simulasi Modeling)**  
 *Versi 1.0 — September 2026*
 
 ---

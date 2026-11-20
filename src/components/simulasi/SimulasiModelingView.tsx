@@ -239,7 +239,7 @@ export default function SimulasiModelingView({ embedded = false }: SimulasiModel
         <div className="flex items-center gap-3 shrink-0">
           {!embedded && (
             <Link
-              href="/dashboard_k5"
+              href="/dashboard"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-all border border-slate-700"
               title="Kembali ke Dashboard Utama"
             >

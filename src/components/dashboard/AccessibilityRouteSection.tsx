@@ -234,13 +234,19 @@ export default function AccessibilityRouteSection({ estimationData }: Props) {
         </button>
       </div>
 
-      {/* LIVE SYNC BANNER FROM MAP DRAW */}
       {estimationData && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-900 text-xs font-medium space-y-3 shadow-xs">
-          <div className="flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-800 text-xs font-medium space-y-3 shadow-xs">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <span
+              title="Hasil model/kalkulasi dari polygon di peta, bukan hitungan resmi"
+              className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wide text-slate-600 bg-slate-100 border border-slate-300 rounded px-1.5 py-0.5"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+              Estimasi
+            </span>
             <span>
-              <strong>Data Terhubung Dari Simulasi Polygon Peta:</strong> Total Populasi Terestimasi <strong>{estimationData.totalPopulasi.toLocaleString('id')} Jiwa</strong>
+              <strong>Dari polygon peta:</strong> populasi terhitung{' '}
+              <strong>{estimationData.totalPopulasi.toLocaleString('id')} jiwa</strong>
             </span>
           </div>
 

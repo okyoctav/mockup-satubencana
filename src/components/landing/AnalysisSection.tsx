@@ -373,7 +373,7 @@ export default function AnalysisSection() {
           Siap menganalisis data bencana secara mendalam?
         </p>
         <a
-          href="/dashboard_k5"
+          href="/dashboard"
           className="inline-flex items-center gap-3 px-10 py-5 rounded-full font-bold text-white text-lg transition-all duration-300 hover:scale-105"
           style={{
             background: 'linear-gradient(135deg, #0EA5E9 0%, #0284C7 50%, #22C55E 100%)',

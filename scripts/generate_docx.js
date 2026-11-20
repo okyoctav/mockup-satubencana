@@ -193,7 +193,7 @@ function generateDocxXml() {
   doc += p('SIMULASI PEMODELAN GENANGAN BENCANA', { align: 'center', bold: true, color: '0B3C5D', size: 36, spaceBefore: 60, spaceAfter: 60 });
   doc += p('(FASTFLOOD 2D & MULTI-SECTOR IMPACT ASSESSMENT ENGINE)', { align: 'center', bold: true, color: '0B3C5D', size: 22, spaceBefore: 40, spaceAfter: 180 });
   
-  doc += p('Sistem Platform Terpadu Satu Data Kebencanaan (Dashboard K5)', { align: 'center', italic: true, color: '64748B', size: 20, spaceAfter: 60 });
+  doc += p('Sistem Platform Terpadu Satu Data Kebencanaan (Dashboard & Simulasi Modeling)', { align: 'center', italic: true, color: '64748B', size: 20, spaceAfter: 60 });
   doc += p('Versi 1.0 — Tahun 2026', { align: 'center', bold: true, color: '334155', size: 20, spaceAfter: 400 });
 
   doc += callout(

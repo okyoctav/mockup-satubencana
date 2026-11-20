@@ -1,39 +1,143 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-const ALERTS = [
-  { id: 1, jenis: 'gempa', level: 'tinggi', pesan: 'Gempa M5.6 — Lampung Barat, kedalaman 10 km', waktu: '2 menit lalu', lat: -5.0, lng: 104.1, color: '#EF4444', icon: '🔴' },
-  { id: 2, jenis: 'tsunami', level: 'sedang', pesan: 'Peringatan Dini Tsunami — Pantai Barat Aceh, pergerakan laut abnormal', waktu: '15 menit lalu', lat: 4.2, lng: 95.8, color: '#F97316', icon: '🟠' },
-  { id: 3, jenis: 'banjir', level: 'tinggi', pesan: 'Banjir Bandang Aktif — Tulang Bawang, Lampung, 4.200 warga terancam', waktu: '1 jam lalu', lat: -4.4, lng: 105.7, color: '#EF4444', icon: '🔴' },
-  { id: 4, jenis: 'longsor', level: 'sedang', pesan: 'Longsor Kritis — Karo, Sumatera Utara, akses jalan terputus', waktu: '2 jam lalu', lat: 3.1, lng: 98.4, color: '#F97316', icon: '🟠' },
-  { id: 5, jenis: 'erupsi', level: 'tinggi', pesan: 'Erupsi Gunung Semeru — Level AWAS, radius 8 km zona bahaya', waktu: '3 jam lalu', lat: -8.1, lng: 112.9, color: '#EF4444', icon: '🔴' },
-];
-
+import type { BmkgAlertItem } from '@/types/bmkgAlert';
+import { useTheme } from '@/contexts/ThemeContext';
 interface Props {
   onAlertClick: (lat: number, lng: number) => void;
 }
 
+type LoadState = 'loading' | 'ready' | 'empty' | 'error';
+
+/** Latar solid (tidak tembus) supaya konten di bawah tidak nyaru saat sticky. */
+function solidTint(hex: string, isDark: boolean, strength: number): string {
+  // strength 0–1: seberapa kuat warna alert dicampur ke base
+  const base = isDark ? [10, 22, 40] : [255, 255, 255]; // #0A1628 / #FFFFFF
+  const raw = hex.replace('#', '');
+  if (raw.length !== 6) return isDark ? '#0A1628' : '#FFFFFF';
+  const r = parseInt(raw.slice(0, 2), 16);
+  const g = parseInt(raw.slice(2, 4), 16);
+  const b = parseInt(raw.slice(4, 6), 16);
+  const mix = (c: number, i: number) => Math.round(c * strength + base[i] * (1 - strength));
+  return `rgb(${mix(r, 0)}, ${mix(g, 1)}, ${mix(b, 2)})`;
+}
+
+/**
+ * Banner early warning di dalam aplikasi (bukan SMS/WA).
+ * Banner early warning: feed BMKG via /api/bmkg-alerts.
+ */
 export default function AlertTicker({ onAlertClick }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const [alerts, setAlerts] = useState<BmkgAlertItem[]>([]);
   const [current, setCurrent] = useState(0);
   const [dismissed, setDismissed] = useState(false);
+  const [loadState, setLoadState] = useState<LoadState>('loading');
+  const [fetchedAt, setFetchedAt] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const res = await fetch('/api/bmkg-alerts', { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (cancelled) return;
+
+        const list = Array.isArray(data.alerts) ? (data.alerts as BmkgAlertItem[]) : [];
+        setAlerts(list);
+        setFetchedAt(typeof data.fetchedAt === 'string' ? data.fetchedAt : null);
+        setLoadState(list.length > 0 ? 'ready' : 'empty');
+        setCurrent(0);
+      } catch {
+        if (cancelled) return;
+        setAlerts([]);
+        setLoadState('error');
+      }
+    };
+
+    load();
+    // Refresh berkala ~2 menit (BMKG rate limit ~60/menit; kita jauh di bawah itu)
+    const refresh = setInterval(load, 120_000);
+    return () => {
+      cancelled = true;
+      clearInterval(refresh);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (alerts.length <= 1) return;
     const t = setInterval(() => {
-      setCurrent((c) => (c + 1) % ALERTS.length);
+      setCurrent((c) => (c + 1) % alerts.length);
     }, 5000);
     return () => clearInterval(t);
-  }, []);
+  }, [alerts.length]);
 
   if (dismissed) return null;
 
-  const alert = ALERTS[current];
+  if (loadState === 'loading') {
+    return (
+      <div
+        style={{
+          background: solidTint('#0EA5E9', isDark, 0.12),
+          borderBottom: '1px solid rgba(14,165,233,0.35)',
+          padding: '0 24px',
+          height: 40,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          fontSize: 12,
+          color: 'var(--text-muted)',
+        }}
+      >
+        <Badge color="#0EA5E9" label="BMKG" />
+        <span>Memuat peringatan gempa…</span>
+      </div>
+    );
+  }
+
+  if (loadState === 'error' || loadState === 'empty') {
+    return (
+      <div
+        style={{
+          background: solidTint('#64748B', isDark, 0.12),
+          borderBottom: '1px solid rgba(100,116,139,0.35)',
+          padding: '0 24px',
+          height: 40,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          fontSize: 12,
+          color: 'var(--text-muted)',
+        }}
+      >
+        <Badge color="#64748B" label="BMKG" />
+        <span>
+          {loadState === 'error'
+            ? 'Gagal memuat data gempa BMKG. Coba refresh halaman.'
+            : 'Tidak ada data gempa BMKG saat ini.'}
+        </span>
+        <button
+          type="button"
+          onClick={() => setDismissed(true)}
+          style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18 }}
+        >
+          ×
+        </button>
+      </div>
+    );
+  }
+
+  const alert = alerts[Math.min(current, alerts.length - 1)];
+  if (!alert) return null;
 
   return (
     <div
       style={{
-        background: `linear-gradient(90deg, ${alert.color}18 0%, ${alert.color}08 100%)`,
-        borderBottom: `1px solid ${alert.color}40`,
+        // Latar solid — jangan pakai alpha hex (…18 / …08) supaya tidak tembus konten saat sticky
+        background: `linear-gradient(90deg, ${solidTint(alert.color, isDark, 0.22)} 0%, ${solidTint(alert.color, isDark, 0.1)} 100%)`,
+        borderBottom: `1px solid ${alert.color}55`,
         padding: '0 24px',
         height: 40,
         display: 'flex',
@@ -41,9 +145,9 @@ export default function AlertTicker({ onAlertClick }: Props) {
         gap: 12,
         overflow: 'hidden',
         position: 'relative',
+        zIndex: 1,
       }}
     >
-      {/* Badge */}
       <div
         style={{
           display: 'flex',
@@ -54,18 +158,39 @@ export default function AlertTicker({ onAlertClick }: Props) {
           padding: '2px 10px',
           flexShrink: 0,
         }}
+        title="Peringatan dini gempa di dalam aplikasi (sumber BMKG)"
       >
         <span style={{ fontSize: 10, fontWeight: 800, color: '#fff', textTransform: 'uppercase', letterSpacing: 1 }}>
-          ⚠ EARLY WARNING
+          ⚠ GEMPA BMKG
         </span>
       </div>
 
-      {/* Ticker dot nav */}
+      {(alert.pinned || alert.source === 'autogempa') && (
+        <span
+          title="Ini gempa terbaru dari BMKG (autogempa) — dipin di slot pertama"
+          style={{
+            fontSize: 9,
+            fontWeight: 800,
+            letterSpacing: 0.4,
+            color: '#9A3412',
+            background: '#FED7AA',
+            borderRadius: 4,
+            padding: '2px 6px',
+            flexShrink: 0,
+          }}
+        >
+          TERBARU
+        </span>
+      )}
+
       <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-        {ALERTS.map((_, i) => (
+        {alerts.map((_, i) => (
           <button
-            key={i}
+            key={alerts[i].id}
+            type="button"
             onClick={() => setCurrent(i)}
+            aria-label={`Alert ${i + 1}`}
+            title={alerts[i].pinned ? 'Gempa terbaru (dipin)' : alerts[i].waktu}
             style={{
               width: i === current ? 16 : 6,
               height: 6,
@@ -80,8 +205,8 @@ export default function AlertTicker({ onAlertClick }: Props) {
         ))}
       </div>
 
-      {/* Message */}
       <button
+        type="button"
         onClick={() => onAlertClick(alert.lat, alert.lng)}
         style={{
           flex: 1,
@@ -123,8 +248,17 @@ export default function AlertTicker({ onAlertClick }: Props) {
         </span>
       </button>
 
-      {/* Dismiss */}
+      {fetchedAt && (
+        <span
+          title={fetchedAt}
+          style={{ fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}
+        >
+          {new Date(fetchedAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+        </span>
+      )}
+
       <button
+        type="button"
         onClick={() => setDismissed(true)}
         style={{
           background: 'none',
@@ -135,7 +269,28 @@ export default function AlertTicker({ onAlertClick }: Props) {
           lineHeight: 1,
           flexShrink: 0,
         }}
-      >×</button>
+      >
+        ×
+      </button>
     </div>
+  );
+}
+
+function Badge({ color, label }: { color: string; label: string }) {
+  return (
+    <span
+      style={{
+        fontSize: 9,
+        fontWeight: 800,
+        letterSpacing: 0.6,
+        color: '#fff',
+        background: color,
+        borderRadius: 4,
+        padding: '2px 6px',
+        flexShrink: 0,
+      }}
+    >
+      {label}
+    </span>
   );
 }

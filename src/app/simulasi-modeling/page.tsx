@@ -30,14 +30,23 @@ export default function SimulasiModelingPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Authentication check matching dashboard_k5
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        const mode = (process.env.NEXT_PUBLIC_AUTH_MODE || '').toLowerCase();
+        if (mode === 'local' || (!process.env.NEXT_PUBLIC_SUPABASE_URL && mode !== 'supabase')) {
+          const res = await fetch('/api/auth/me', { credentials: 'include', cache: 'no-store' });
+          if (!res.ok) {
+            window.location.href = '/login?next=/simulasi-modeling';
+            return;
+          }
+          return;
+        }
+
         const { getSupabaseBrowserClient } = await import('@/lib/supabase/client');
         const client = getSupabaseBrowserClient();
         if (!client) {
-          setAuthLoading(false);
+          window.location.href = '/login?next=/simulasi-modeling';
           return;
         }
 
@@ -45,14 +54,11 @@ export default function SimulasiModelingPage() {
           data: { session },
         } = await client.auth.getSession();
         if (!session) {
-          const localAuth = localStorage.getItem('is_logged_in') === 'true';
-          if (!localAuth) {
-            window.location.href = '/login?next=/simulasi-modeling';
-            return;
-          }
+          window.location.href = '/login?next=/simulasi-modeling';
+          return;
         }
       } catch {
-        // continue
+        window.location.href = '/login?next=/simulasi-modeling';
       } finally {
         setAuthLoading(false);
       }
@@ -61,12 +67,14 @@ export default function SimulasiModelingPage() {
   }, []);
 
   const handleLogout = async () => {
-    localStorage.removeItem('is_logged_in');
     try {
-      const { getSupabaseBrowserClient } = await import('@/lib/supabase/client');
-      const client = getSupabaseBrowserClient();
-      if (client) {
-        await client.auth.signOut();
+      const mode = (process.env.NEXT_PUBLIC_AUTH_MODE || '').toLowerCase();
+      if (mode === 'local' || (!process.env.NEXT_PUBLIC_SUPABASE_URL && mode !== 'supabase')) {
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      } else {
+        const { getSupabaseBrowserClient } = await import('@/lib/supabase/client');
+        const client = getSupabaseBrowserClient();
+        if (client) await client.auth.signOut();
       }
     } catch {
       // ignore
@@ -87,7 +95,7 @@ export default function SimulasiModelingPage() {
 
   return (
     <div className="min-h-screen flex bg-white text-slate-800 font-sans selection:bg-[#1f8080] selection:text-white antialiased relative">
-      {/* 1. LEFT SIDEBAR NAVIGATION (Identik dengan Dashboard K5) */}
+      {/* 1. LEFT SIDEBAR NAVIGATION */}
       <aside
         className={`${
           isSidebarOpen ? 'w-64' : 'w-20'
@@ -123,7 +131,7 @@ export default function SimulasiModelingPage() {
             )}
             <nav className="space-y-1">
               <Link
-                href="/dashboard_k5"
+                href="/dashboard"
                 className={`w-full flex items-center ${
                   isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'
                 } py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-slate-300 hover:bg-white/10 hover:text-white`}
@@ -152,7 +160,7 @@ export default function SimulasiModelingPage() {
               </div>
 
               <Link
-                href="/dashboard_k5?tab=ai"
+                href="/dashboard?tab=ai"
                 className={`w-full flex items-center ${
                   isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'
                 } py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-slate-300 hover:bg-white/10 hover:text-white`}
@@ -293,7 +301,7 @@ export default function SimulasiModelingPage() {
 
       {/* 2. MAIN CONTENT AREA: HEADER DENGAN ALERT TICKER + FULL HEIGHT SIMULASI MODELING BANJIR 2D SAJA */}
       <div className="flex-1 flex flex-col min-w-0 bg-slate-100 dark:bg-slate-900 h-screen overflow-hidden">
-        {/* Top Header Wrapper with Integrated Early Warning Ticker (Identik dengan Dashboard K5) */}
+        {/* Top Header Wrapper with Integrated Early Warning Ticker */}
         <header className="sticky top-0 z-[700] bg-white border-b border-slate-200 shadow-2xs shrink-0">
           {/* Integrated Early Warning Alert Ticker */}
           <div className="border-b border-teal-800 text-white">
@@ -334,7 +342,7 @@ export default function SimulasiModelingPage() {
 
             <div className="flex items-center gap-3">
               <Link
-                href="/dashboard_k5"
+                href="/dashboard"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-[#0a1e36] transition-all text-xs font-semibold cursor-pointer shadow-xs"
               >
                 <LayoutDashboard className="w-3.5 h-3.5 text-slate-500" />

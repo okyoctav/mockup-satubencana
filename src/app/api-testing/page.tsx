@@ -34,7 +34,7 @@ export default function ApiTestingPage() {
         <div className="flex items-center justify-between border-b border-slate-800 pb-6">
           <div className="flex items-center gap-4">
             <Link
-              href="/dashboard_k5"
+              href="/dashboard"
               className="p-2.5 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 transition-all"
             >
               <ArrowLeft className="w-5 h-5" />

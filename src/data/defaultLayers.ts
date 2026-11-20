@@ -73,8 +73,10 @@ export const DEFAULT_DASHBOARD_LAYERS: DashboardLayer[] = [
   { id: 'nasa_firms_active_fires', label: 'Kebakaran Hutan & Lahan Realtime (NASA FIRMS / GIBS NOAA-20)', color: '#DC2626', emoji: '🔥', url: 'https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi', type: 'WMS', group: 'NASA', group_name: 'NASA', layersParam: 'VIIRS_NOAA20_Thermal_Anomalies_375m_All', layers_param: 'VIIRS_NOAA20_Thermal_Anomalies_375m_All', disasterTypes: ['kebakaran'], disaster_types: ['kebakaran'], is_active: true, sort_order: 49 },
   
   // ESDM / PVMBG MAGMA
-  { id: 'magma_volcanoes', label: 'Status Gunung Api Aktif Siaga (PVMBG MAGMA Indonesia)', color: '#DC2626', emoji: '🌋', url: '/api/volcanoes', type: 'Dapodik', group: 'ESDM', group_name: 'ESDM', disasterTypes: ['erupsi'], disaster_types: ['erupsi'], is_active: true, sort_order: 50 },
-  { id: 'magma_volcanoes_v2', label: 'Status Gunung Api 2 (PVMBG MAGMA 69 Gunung)', color: '#F59E0B', emoji: '🌋', url: '/api/volcanoes-v2', type: 'Dapodik', group: 'ESDM', group_name: 'ESDM', disasterTypes: ['erupsi'], disaster_types: ['erupsi'], is_active: true, sort_order: 51 },
+  { id: 'magma_status', label: 'Status Gunung Api', color: '#DC2626', emoji: '🌋', url: '/api/volcanoes?vona=1', type: 'Dapodik', group: 'ESDM', group_name: 'ESDM', disasterTypes: ['erupsi'], disaster_types: ['erupsi'], is_active: true, sort_order: 50 },
+  /** Id lama — nonaktif, tanpa tag disaster agar tidak dobel di skenario erupsi. */
+  { id: 'magma_volcanoes', label: 'Status Gunung Api (nonaktif)', color: '#DC2626', emoji: '🌋', url: '/api/volcanoes', type: 'Dapodik', group: 'ESDM', group_name: 'ESDM', disasterTypes: [], disaster_types: [], is_active: false, sort_order: 51 },
+  { id: 'magma_volcanoes_v2', label: 'Status Gunung Api alternatif (nonaktif)', color: '#F59E0B', emoji: '🌋', url: '/api/volcanoes', type: 'Dapodik', group: 'ESDM', group_name: 'ESDM', disasterTypes: [], disaster_types: [], is_active: false, sort_order: 52 },
   
   // BMKG Cuaca & Seismisitas
   { id: 'bmkg_curah_hujan_bulanan', label: 'Prakiraan Curah Hujan Bulanan (BMKG)', color: '#0284C7', emoji: '☔', url: 'https://gis.bmkg.go.id/arcgis/rest/services/prakiraan_hujan_bulanan/Prakiraan_Curah_Hujan_Bulanan/MapServer', type: 'MapServer', group: 'BMKG', group_name: 'BMKG', useLngLat: false, use_lng_lat: false, layersParam: 'show:all', layers_param: 'show:all', disasterTypes: ['banjir', 'longsor'], disaster_types: ['banjir', 'longsor'], is_active: true, sort_order: 52 },

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   Flame, Radio, TrendingUp, MapPin, ArrowLeft,
   Search, BarChart3, Layers, Info, ExternalLink, ChevronRight,
@@ -11,6 +12,10 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Cell
 } from 'recharts';
+import {
+  buildSipongiNamaToKode,
+  matchProvinsiOption,
+} from '@/lib/sipongiGeo';
 
 // Dynamically import Leaflet Hotspot Map
 const SipongiHotspotMap = dynamic(() => import('./SipongiHotspotMap'), {
@@ -61,24 +66,73 @@ const BULAN_LABELS = [
 
 const ALL_YEARS = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
 
-export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKarhutlaDashboardProps) {
-  // Main subtab
-  const [activeTab, setActiveTab] = useState<'hotspot' | 'grafik' | 'luas_provinsi' | 'luas_kabupaten'>('hotspot');
+type SipongiTab = 'hotspot' | 'grafik' | 'luas_provinsi' | 'luas_kabupaten';
 
-  // Hotspot states (Tab 1)
+function readSipongiUrlState(sp: URLSearchParams): {
+  late: '24' | '48' | null;
+  conf: string | null;
+  sat: string | null;
+  tab: SipongiTab | null;
+  prov: string | null;
+} {
+  const lateRaw = sp.get('late');
+  const late: '24' | '48' | null =
+    lateRaw === '24' || lateRaw === '48' ? lateRaw : null;
+  const confRaw = sp.get('conf');
+  const conf =
+    confRaw === 'high' || confRaw === 'medium' || confRaw === 'low' || confRaw === 'all'
+      ? confRaw
+      : null;
+  const satRaw = sp.get('sat');
+  const sat =
+    satRaw === 'all-nasa' ||
+    satRaw === 'NASA-MODIS' ||
+    satRaw === 'NASA-SNPP' ||
+    satRaw === 'NASA-NOAA20'
+      ? satRaw
+      : null;
+  const tabRaw = sp.get('tab');
+  const tab: SipongiTab | null =
+    tabRaw === 'hotspot' ||
+    tabRaw === 'grafik' ||
+    tabRaw === 'luas_provinsi' ||
+    tabRaw === 'luas_kabupaten'
+      ? tabRaw
+      : null;
+  const prov = sp.get('prov');
+  return { late, conf, sat, tab, prov };
+}
+
+export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKarhutlaDashboardProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlHydratedRef = useRef(false);
+
+  // Main subtab
+  const [activeTab, setActiveTab] = useState<SipongiTab>('hotspot');
+
+  // Hotspot states (Tab 1) — default confidence High untuk briefing
   const [timeframe, setTimeframe] = useState<'24' | '48'>('48');
-  const [selectedConfidence, setSelectedConfidence] = useState<string>('all');
+  const [selectedConfidence, setSelectedConfidence] = useState<string>('high');
   const [selectedSatelit, setSelectedSatelit] = useState<string>('all-nasa');
+  const [selectedProvinsi, setSelectedProvinsi] = useState<string>('all');
   const [hotspotData, setHotspotData] = useState<HotspotItem[]>([]);
   const [loadingHotspot, setLoadingHotspot] = useState<boolean>(true);
+  const [hotspotFeed, setHotspotFeed] = useState<'live' | 'cache' | 'fallback' | 'empty' | 'error' | 'loading'>('loading');
   const [selectedMapKabupaten, setSelectedMapKabupaten] = useState<string | null>(null);
+  const [luasCutoffLabel, setLuasCutoffLabel] = useState<string>('');
+  const [namaToKode, setNamaToKode] = useState<Map<string, string>>(() => new Map());
 
   // Map View Mode: Satupeta Leaflet vs Official SIPONGI WebGIS iframe
   const [mapViewMode, setMapViewMode] = useState<'satupeta' | 'sipongi'>('satupeta');
 
-  // Dedicated 24h & 48h totals for summary cards
+  // Baseline nasional (satu sumber) untuk kartu KPI — tidak ikut filter peta
   const [hotspot24Total, setHotspot24Total] = useState<number | null>(null);
   const [hotspot48Total, setHotspot48Total] = useState<number | null>(null);
+  const [hotspot24High, setHotspot24High] = useState<number | null>(null);
+  const [hotspot48High, setHotspot48High] = useState<number | null>(null);
+  const [baselineFeed, setBaselineFeed] = useState<'live' | 'cache' | 'fallback' | 'error' | 'loading'>('loading');
 
   // Grafik hotspot states with year range (Tab 2)
   const [startGrafikTahun, setStartGrafikTahun] = useState<number>(2015);
@@ -125,55 +179,167 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
     setKabupatenPage(1);
   };
 
-  // 1. Fetch Hotspot Realtime
+  // Hydrate filter dari URL (shareable)
   useEffect(() => {
-    let isMounted = true;
-    setLoadingHotspot(true);
-    fetch(`/api/sipongi?action=sebaran&late=${timeframe}&satelit=${selectedSatelit}&confidence=${selectedConfidence}&provinsi=all`)
-      .then((res) => res.json())
-      .then((json) => {
-        if (!isMounted) return;
-        const list = json.data || [];
-        setHotspotData(list);
-        setLoadingHotspot(false);
-        const currentSum = list.reduce((acc: number, h: HotspotItem) => acc + (h.counter || 0), 0);
-        if (timeframe === '24' && selectedConfidence === 'all' && selectedSatelit === 'all-nasa') {
-          setHotspot24Total(currentSum);
-        } else if (timeframe === '48' && selectedConfidence === 'all' && selectedSatelit === 'all-nasa') {
-          setHotspot48Total(currentSum);
+    if (urlHydratedRef.current) return;
+    urlHydratedRef.current = true;
+    const parsed = readSipongiUrlState(searchParams);
+    if (parsed.late) setTimeframe(parsed.late);
+    if (parsed.conf) setSelectedConfidence(parsed.conf);
+    if (parsed.sat) setSelectedSatelit(parsed.sat);
+    if (parsed.tab) setActiveTab(parsed.tab);
+    if (parsed.prov) setSelectedProvinsi(parsed.prov);
+  }, [searchParams]);
+
+  // Persist filter ke URL tanpa reload
+  useEffect(() => {
+    if (!urlHydratedRef.current) return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('mode', 'sipongi');
+    params.set('late', timeframe);
+    params.set('conf', selectedConfidence);
+    params.set('sat', selectedSatelit);
+    params.set('tab', activeTab);
+    if (selectedProvinsi && selectedProvinsi !== 'all') params.set('prov', selectedProvinsi);
+    else params.delete('prov');
+
+    const next = params.toString();
+    if (next === searchParams.toString()) return;
+    router.replace(`${pathname}?${next}`, { scroll: false });
+  }, [
+    timeframe,
+    selectedConfidence,
+    selectedSatelit,
+    selectedProvinsi,
+    activeTab,
+    pathname,
+    router,
+    searchParams,
+  ]);
+
+  const handleBack = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    ['mode', 'late', 'conf', 'sat', 'tab', 'prov'].forEach((k) => params.delete(k));
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    onBackToGeneral();
+  }, [onBackToGeneral, pathname, router, searchParams]);
+
+  const sumHotspots = (list: HotspotItem[]) =>
+    list.reduce((acc, h) => acc + (h.counter || 0), 0);
+  const sumHigh = (list: HotspotItem[]) =>
+    list.reduce(
+      (acc, h) => acc + (String(h.confidence).toLowerCase() === 'high' ? h.counter || 0 : 0),
+      0,
+    );
+
+  // Baseline nasional tunggal (24 + 48) — untuk kartu KPI
+  useEffect(() => {
+    const ac = new AbortController();
+    const loadBaseline = async () => {
+      setBaselineFeed('loading');
+      try {
+        const [res24, res48] = await Promise.all([
+          fetch(
+            '/api/sipongi?action=sebaran&late=24&satelit=all-nasa&confidence=all&provinsi=all',
+            { cache: 'no-store', signal: ac.signal },
+          ),
+          fetch(
+            '/api/sipongi?action=sebaran&late=48&satelit=all-nasa&confidence=all&provinsi=all',
+            { cache: 'no-store', signal: ac.signal },
+          ),
+        ]);
+        if (ac.signal.aborted) return;
+        const cacheHdr = (res48.headers.get('x-cache') || res24.headers.get('x-cache') || '').toUpperCase();
+        const [j24, j48] = await Promise.all([
+          res24.json().catch(() => ({})),
+          res48.json().catch(() => ({})),
+        ]);
+        if (ac.signal.aborted) return;
+        if (!res24.ok || !res48.ok || j24?.error || j48?.error) {
+          setBaselineFeed('error');
+          return;
         }
+        const list24: HotspotItem[] = Array.isArray(j24?.data) ? j24.data : [];
+        const list48: HotspotItem[] = Array.isArray(j48?.data) ? j48.data : [];
+        setHotspot24Total(sumHotspots(list24));
+        setHotspot48Total(sumHotspots(list48));
+        setHotspot24High(sumHigh(list24));
+        setHotspot48High(sumHigh(list48));
+        if (cacheHdr === 'FALLBACK_STALE') setBaselineFeed('fallback');
+        else if (cacheHdr === 'CACHE' || cacheHdr === 'HIT') setBaselineFeed('cache');
+        else setBaselineFeed('live');
+      } catch (err) {
+        if (ac.signal.aborted) return;
+        console.error('Error fetching SIPONGI baseline:', err);
+        setBaselineFeed('error');
+      }
+    };
+    loadBaseline();
+    const timer = window.setInterval(loadBaseline, 5 * 60 * 1000);
+    return () => {
+      ac.abort();
+      window.clearInterval(timer);
+    };
+  }, []);
+
+  // Index kode Kemendagri dari luas kab (nasional, sekali)
+  useEffect(() => {
+    const ac = new AbortController();
+    fetch('/api/sipongi?action=luas_kabupaten&provinsi=all&tahunAwal=2026&tahunAkhir=2026', {
+      cache: 'no-store',
+      signal: ac.signal,
+    })
+      .then(async (res) => {
+        const json = await res.json().catch(() => ({}));
+        if (ac.signal.aborted) return;
+        const rows = Array.isArray(json?.data) ? json.data : [];
+        setNamaToKode(buildSipongiNamaToKode(rows));
+      })
+      .catch(() => {});
+    return () => ac.abort();
+  }, []);
+
+  // Fetch hotspot peta mengikuti filter (terpisah dari baseline KPI)
+  useEffect(() => {
+    const ac = new AbortController();
+    setLoadingHotspot(true);
+    setHotspotFeed('loading');
+    setSelectedMapKabupaten(null);
+
+    const provParam = encodeURIComponent(selectedProvinsi || 'all');
+    fetch(
+      `/api/sipongi?action=sebaran&late=${timeframe}&satelit=${encodeURIComponent(selectedSatelit)}&confidence=${encodeURIComponent(selectedConfidence)}&provinsi=${provParam}`,
+      { cache: 'no-store', signal: ac.signal },
+    )
+      .then(async (res) => {
+        const cacheHdr = (res.headers.get('x-cache') || '').toUpperCase();
+        const json = await res.json().catch(() => ({}));
+        if (ac.signal.aborted) return;
+        if (!res.ok || json?.error) {
+          setHotspotData([]);
+          setHotspotFeed('error');
+          setLoadingHotspot(false);
+          return;
+        }
+        const list: HotspotItem[] = Array.isArray(json?.data) ? json.data : [];
+        setHotspotData(list);
+        if (list.length === 0) setHotspotFeed('empty');
+        else if (cacheHdr === 'FALLBACK_STALE') setHotspotFeed('fallback');
+        else if (cacheHdr === 'CACHE' || cacheHdr === 'HIT') setHotspotFeed('cache');
+        else setHotspotFeed('live');
+        setLoadingHotspot(false);
       })
       .catch((err) => {
+        if (ac.signal.aborted) return;
         console.error('Error fetching hotspot data:', err);
-        if (isMounted) setLoadingHotspot(false);
+        setHotspotData([]);
+        setHotspotFeed('error');
+        setLoadingHotspot(false);
       });
 
-    return () => { isMounted = false; };
-  }, [timeframe, selectedSatelit, selectedConfidence]);
-
-  // Fetch baseline 24h and 48h totals for summary cards
-  useEffect(() => {
-    let isMounted = true;
-    fetch('/api/sipongi?action=sebaran&late=24&satelit=all-nasa&confidence=all&provinsi=all')
-      .then((res) => res.json())
-      .then((json) => {
-        if (!isMounted) return;
-        const tot = (json.data || []).reduce((acc: number, item: HotspotItem) => acc + (item.counter || 0), 0);
-        setHotspot24Total(tot);
-      })
-      .catch(() => {});
-
-    fetch('/api/sipongi?action=sebaran&late=48&satelit=all-nasa&confidence=all&provinsi=all')
-      .then((res) => res.json())
-      .then((json) => {
-        if (!isMounted) return;
-        const tot = (json.data || []).reduce((acc: number, item: HotspotItem) => acc + (item.counter || 0), 0);
-        setHotspot48Total(tot);
-      })
-      .catch(() => {});
-
-    return () => { isMounted = false; };
-  }, []);
+    return () => ac.abort();
+  }, [timeframe, selectedSatelit, selectedConfidence, selectedProvinsi]);
 
   // 2. Fetch Hotspot Data for all years in selected range (Tab 2)
   useEffect(() => {
@@ -212,45 +378,57 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
     return () => { isMounted = false; };
   }, [activeTab, startGrafikTahun, endGrafikTahun, hotspotYearsMap]);
 
-  // 3. Fetch Luas Kebakaran Provinsi (Tab 3)
+  // 3. Fetch Luas Kebakaran Provinsi (Tab 3 + insight banner)
   useEffect(() => {
-    let isMounted = true;
+    const ac = new AbortController();
     setLoadingProvinsi(true);
-    fetch(`/api/sipongi?action=luas_provinsi&tahunAwal=2015&tahunAkhir=2026`)
-      .then((res) => res.json())
-      .then((json) => {
-        if (!isMounted) return;
-        setProvinsiList(json.data || []);
-        setTotalLuasNasional(json.total || []);
+    fetch(`/api/sipongi?action=luas_provinsi&tahunAwal=2015&tahunAkhir=2026`, {
+      cache: 'no-store',
+      signal: ac.signal,
+    })
+      .then(async (res) => {
+        const json = await res.json().catch(() => ({}));
+        if (ac.signal.aborted) return;
+        setProvinsiList(Array.isArray(json?.data) ? json.data : []);
+        setTotalLuasNasional(Array.isArray(json?.total) ? json.total : []);
+        setLuasCutoffLabel(typeof json?.last === 'string' ? json.last : '');
         setLoadingProvinsi(false);
       })
       .catch((err) => {
+        if (ac.signal.aborted) return;
         console.error('Error fetching luas provinsi:', err);
-        if (isMounted) setLoadingProvinsi(false);
+        setLoadingProvinsi(false);
       });
 
-    return () => { isMounted = false; };
+    return () => ac.abort();
   }, []);
 
-  // 4. Fetch Luas Kebakaran Kabupaten (Tab 4)
+  // 4. Fetch Luas Kebakaran Kabupaten (Tab 4) — ikut filter provinsi bila dipilih
   useEffect(() => {
-    if (activeTab !== 'luas_kabupaten' || kabupatenList.length > 0) return;
-    let isMounted = true;
+    if (activeTab !== 'luas_kabupaten') return;
+    const ac = new AbortController();
     setLoadingKabupaten(true);
-    fetch(`/api/sipongi?action=luas_kabupaten&provinsi=all&tahunAwal=2015&tahunAkhir=2026`)
-      .then((res) => res.json())
-      .then((json) => {
-        if (!isMounted) return;
-        setKabupatenList(json.data || []);
+    setKabupatenPage(1);
+    const provParam = encodeURIComponent(selectedProvinsi || 'all');
+    fetch(
+      `/api/sipongi?action=luas_kabupaten&provinsi=${provParam}&tahunAwal=2015&tahunAkhir=2026`,
+      { cache: 'no-store', signal: ac.signal },
+    )
+      .then(async (res) => {
+        const json = await res.json().catch(() => ({}));
+        if (ac.signal.aborted) return;
+        setKabupatenList(Array.isArray(json?.data) ? json.data : []);
         setLoadingKabupaten(false);
       })
       .catch((err) => {
+        if (ac.signal.aborted) return;
         console.error('Error fetching luas kabupaten:', err);
-        if (isMounted) setLoadingKabupaten(false);
+        setKabupatenList([]);
+        setLoadingKabupaten(false);
       });
 
-    return () => { isMounted = false; };
-  }, [activeTab, kabupatenList.length]);
+    return () => ac.abort();
+  }, [activeTab, selectedProvinsi]);
 
   // Helper untuk parsing angka desimal Indonesia ("202.004,30" -> 202004.30)
   const parseIndoNumber = (str?: string): number => {
@@ -267,6 +445,61 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
       maximumFractionDigits: decimals
     }).format(num);
   };
+
+  const provinsiOptions = useMemo(() => {
+    const names = provinsiList.map((p) => p.nama_provinsi).filter(Boolean);
+    return Array.from(new Set(names)).sort((a, b) => a.localeCompare(b, 'id'));
+  }, [provinsiList]);
+
+  // Samakan nama provinsi dari URL ke opsi resmi SIPONGI
+  useEffect(() => {
+    if (!provinsiOptions.length || selectedProvinsi === 'all') return;
+    const matched = matchProvinsiOption(selectedProvinsi, provinsiOptions);
+    if (matched && matched !== selectedProvinsi) setSelectedProvinsi(matched);
+  }, [provinsiOptions, selectedProvinsi]);
+
+  const isFilterScoped =
+    selectedProvinsi !== 'all' ||
+    selectedConfidence !== 'all' ||
+    selectedSatelit !== 'all-nasa';
+
+  const filterScopeLabel = useMemo(() => {
+    const parts: string[] = [];
+    parts.push(selectedProvinsi === 'all' ? 'Nasional' : selectedProvinsi);
+    parts.push(
+      selectedConfidence === 'all'
+        ? 'Semua confidence'
+        : `Confidence ${selectedConfidence}`,
+    );
+    if (selectedSatelit !== 'all-nasa') parts.push(selectedSatelit);
+    parts.push(`${timeframe} jam`);
+    return parts.join(' · ');
+  }, [selectedProvinsi, selectedConfidence, selectedSatelit, timeframe]);
+
+  /** Insight luas nasional dari total live (bukan teks hardcoded). */
+  const luasInsight = useMemo(() => {
+    if (!totalLuasNasional.length) return null;
+    const byYear: Record<number, number> = {};
+    totalLuasNasional.forEach((row) => {
+      const y = parseInt(String(row.tahun), 10);
+      if (!Number.isFinite(y)) return;
+      byYear[y] = parseIndoNumber(row.total);
+    });
+    const years = Object.keys(byYear).map(Number).sort((a, b) => a - b);
+    const currentYear = years[years.length - 1];
+    if (!currentYear || !byYear[currentYear]) return null;
+    const currentHa = byYear[currentYear];
+    const baselines = [currentYear - 1, 2023, 2019].filter(
+      (y) => y !== currentYear && byYear[y] != null && byYear[y] > 0,
+    );
+    const comparisons = baselines.map((y) => {
+      const base = byYear[y];
+      const delta = currentHa - base;
+      const pct = (delta / base) * 100;
+      return { year: y, baseHa: base, deltaHa: delta, pct };
+    });
+    return { currentYear, currentHa, comparisons, cutoff: luasCutoffLabel };
+  }, [totalLuasNasional, luasCutoffLabel]);
 
   // Hotspot summary calculations (Tab 1)
   const totalHotspotCount = useMemo(() => {
@@ -531,19 +764,61 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
         }}
       >
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          {/* Title & Live Status */}
+          {/* Title */}
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-red-600 via-orange-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 shrink-0">
               <Flame className="w-4 h-4 animate-pulse" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-sm font-black tracking-tight flex items-center gap-1.5" style={{ color: 'var(--text-primary)' }}>
                   <span>Sistem Monitoring Karhutla (SIPONGI)</span>
                 </h2>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-red-100 dark:bg-red-950/70 text-red-700 dark:text-red-300 border border-red-300 dark:border-red-800">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping inline-block" />
-                  Live KLHK
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-orange-100 dark:bg-orange-950/70 text-orange-800 dark:text-orange-300 border border-orange-300 dark:border-orange-800">
+                  KLHK
+                </span>
+                <span
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${
+                    hotspotFeed === 'live'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800'
+                      : hotspotFeed === 'cache'
+                        ? 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800'
+                        : hotspotFeed === 'fallback'
+                          ? 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800'
+                          : hotspotFeed === 'loading'
+                            ? 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
+                            : hotspotFeed === 'empty'
+                              ? 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
+                              : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800'
+                  }`}
+                  title="Status feed sebaran hotspot"
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      hotspotFeed === 'live'
+                        ? 'bg-emerald-500'
+                        : hotspotFeed === 'cache'
+                          ? 'bg-sky-500'
+                          : hotspotFeed === 'fallback'
+                            ? 'bg-amber-500'
+                            : hotspotFeed === 'loading'
+                              ? 'bg-slate-400 animate-pulse'
+                              : hotspotFeed === 'empty'
+                                ? 'bg-slate-400'
+                                : 'bg-rose-500'
+                    }`}
+                  />
+                  {hotspotFeed === 'live'
+                    ? 'Live'
+                    : hotspotFeed === 'cache'
+                      ? 'Cache'
+                      : hotspotFeed === 'fallback'
+                        ? 'Cadangan'
+                        : hotspotFeed === 'loading'
+                          ? 'Memuat'
+                          : hotspotFeed === 'empty'
+                            ? 'Kosong'
+                            : 'Gagal'}
                 </span>
               </div>
               <p className="text-[10px] text-slate-500 dark:text-slate-400">
@@ -554,7 +829,7 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
 
           {/* Action Back Button */}
           <button
-            onClick={onBackToGeneral}
+            onClick={handleBack}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-xs border hover:opacity-90 active:scale-95 shrink-0"
             style={{
               backgroundColor: 'var(--bg-page)',
@@ -636,17 +911,47 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
             </div>
             <div className="space-y-1">
               <div className="text-[11.5px] leading-snug">
-                <strong className="text-red-700 dark:text-red-400 font-extrabold">Catatan Resmi Analisis Areal Karhutla (KLHK):</strong>{' '}
-                <span className="text-slate-700 dark:text-slate-200">
-                  Jumlah areal karhutla di Indonesia periode <strong>Januari – Juli 2026 (202.004,30 ha)</strong> mengalami{' '}
-                  <span className="font-extrabold text-red-600 dark:text-red-400">PENINGKATAN sebesar 47% (64.996,88 ha)</span> dibandingkan tahun 2019 dan{' '}
-                  <span className="font-extrabold text-red-600 dark:text-red-400">80% (109.080,25 ha)</span> dibandingkan tahun 2023. Jika dibandingkan tahun 2025, luas areal karhutla tahun 2026 naik sebesar{' '}
-                  <span className="font-extrabold text-red-600 dark:text-red-400">69% (82.791,04 ha)</span>.
-                </span>
+                <strong className="text-red-700 dark:text-red-400 font-extrabold">Ringkasan Luas Karhutla (SIPONGI live):</strong>{' '}
+                {loadingProvinsi && !luasInsight ? (
+                  <span className="text-slate-500">Menghitung dari data resmi…</span>
+                ) : luasInsight ? (
+                  <span className="text-slate-700 dark:text-slate-200">
+                    Areal karhutla nasional tahun <strong>{luasInsight.currentYear}</strong>
+                    {luasInsight.cutoff ? (
+                      <>
+                        {' '}
+                        (kumulatif s.d. <strong>{luasInsight.cutoff}</strong>)
+                      </>
+                    ) : null}
+                    : <strong>{formatIndoNumber(luasInsight.currentHa)} ha</strong>
+                    {luasInsight.comparisons.length > 0 ? (
+                      <>
+                        .{' '}
+                        {luasInsight.comparisons.map((c, idx) => {
+                          const naik = c.deltaHa >= 0;
+                          return (
+                            <span key={c.year}>
+                              {idx > 0 ? '; ' : ''}
+                              <span className={`font-extrabold ${naik ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                                {naik ? 'naik' : 'turun'} {formatIndoNumber(Math.abs(c.pct), 0)}% ({formatIndoNumber(Math.abs(c.deltaHa))} ha)
+                              </span>
+                              {' '}vs {c.year}
+                            </span>
+                          );
+                        })}
+                        .
+                      </>
+                    ) : (
+                      '.'
+                    )}
+                  </span>
+                ) : (
+                  <span className="text-slate-500">Data luas nasional belum tersedia.</span>
+                )}
               </div>
               <div className="text-[10px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-3 gap-y-0.5">
-                <span>* Luas kawasan hutan wilayah tertentu yang ditunjuk dan/atau ditetapkan oleh pemerintah untuk dipertahankan keberadaannya sebagai hutan tetap.</span>
-                <span>*** Data input terverifikasi sampai dengan Juli 2026.</span>
+                <span>* Angka tahun berjalan biasanya kumulatif hingga bulan cutoff SIPONGI; bandingkan hati-hati dengan tahun penuh.</span>
+                {luasInsight?.cutoff ? <span>*** Input terverifikasi sampai dengan {luasInsight.cutoff}.</span> : null}
               </div>
             </div>
           </div>
@@ -705,9 +1010,10 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                     onChange={(e) => setSelectedConfidence(e.target.value)}
                     className="p-1 px-2 rounded-lg text-[10.5px] font-bold border outline-none cursor-pointer"
                     style={{ backgroundColor: 'var(--bg-page)', borderColor: 'var(--border-subtle)' }}
+                    title="High direkomendasikan untuk briefing operasional"
                   >
+                    <option value="high">High (briefing)</option>
                     <option value="all">Semua (High / Med / Low)</option>
-                    <option value="high">Hanya High</option>
                     <option value="medium">Medium</option>
                     <option value="low">Low</option>
                   </select>
@@ -727,16 +1033,73 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                     <option value="NASA-NOAA20">NASA-NOAA20</option>
                   </select>
                 </div>
+
+                <div className="flex items-center gap-1">
+                  <span className="font-bold text-[11px] text-slate-500">Provinsi:</span>
+                  <select
+                    value={selectedProvinsi}
+                    onChange={(e) => setSelectedProvinsi(e.target.value)}
+                    className="p-1 px-2 rounded-lg text-[10.5px] font-bold border outline-none cursor-pointer max-w-[180px]"
+                    style={{ backgroundColor: 'var(--bg-page)', borderColor: 'var(--border-subtle)' }}
+                    title="Filter sebaran hotspot ke provinsi"
+                  >
+                    <option value="all">Semua Provinsi</option>
+                    {provinsiOptions.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              {/* KPI Pill */}
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] text-slate-500">Total Hotspot:</span>
+              {/* KPI Pill — hasil filter peta (bukan kartu nasional) */}
+              <div className="flex items-center gap-2 flex-wrap justify-end">
+                <span
+                  className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider border ${
+                    hotspotFeed === 'live'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : hotspotFeed === 'cache'
+                        ? 'bg-sky-50 text-sky-700 border-sky-200'
+                        : hotspotFeed === 'fallback'
+                          ? 'bg-amber-50 text-amber-800 border-amber-200'
+                          : hotspotFeed === 'error'
+                            ? 'bg-rose-50 text-rose-700 border-rose-200'
+                            : 'bg-slate-50 text-slate-600 border-slate-200'
+                  }`}
+                >
+                  {hotspotFeed === 'live'
+                    ? 'Live'
+                    : hotspotFeed === 'cache'
+                      ? 'Cache 5m'
+                      : hotspotFeed === 'fallback'
+                        ? 'Cadangan'
+                        : hotspotFeed === 'error'
+                          ? 'Gagal'
+                          : hotspotFeed === 'empty'
+                            ? 'Kosong'
+                            : '…'}
+                </span>
+                <span
+                  className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider border ${
+                    isFilterScoped
+                      ? 'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-800'
+                      : 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
+                  }`}
+                  title={filterScopeLabel}
+                >
+                  {isFilterScoped ? 'Hasil filter' : 'Nasional'}
+                </span>
                 <span className="px-2.5 py-1 rounded-xl bg-orange-600 text-white font-black text-xs shadow-xs">
                   {totalHotspotCount.toLocaleString('id-ID')} Titik
                 </span>
               </div>
             </div>
+
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 px-0.5 leading-relaxed">
+              Pill oranye = hasil filter peta saat ini ({filterScopeLabel}). Kartu KPI di bawah tetap menampilkan angka{' '}
+              <strong>nasional</strong> (semua confidence) agar tidak tercampur. Marker = agregat kab/kota, bukan pixel satelit.
+            </p>
 
             {/* Map and Top Lists Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 h-[460px]">
@@ -790,10 +1153,24 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                       </a>
                     </div>
                   </div>
-                ) : loadingHotspot ? (
+                ) : loadingHotspot || hotspotFeed === 'loading' ? (
                   <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center gap-3 text-slate-300">
                     <div className="w-10 h-10 border-3 border-orange-500 border-t-transparent rounded-full animate-spin" />
                     <div className="text-xs font-bold text-orange-400">Mengunduh Sebaran Hotspot SIPONGI ({timeframe} Jam)...</div>
+                  </div>
+                ) : hotspotFeed === 'error' ? (
+                  <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center gap-2 text-slate-300 px-6 text-center">
+                    <ShieldAlert className="w-8 h-8 text-rose-400" />
+                    <div className="text-xs font-bold text-rose-300">Gagal memuat sebaran hotspot SIPONGI</div>
+                    <div className="text-[10px] text-slate-400">Coba ubah filter atau buka Peta Resmi SIPONGI.</div>
+                  </div>
+                ) : hotspotFeed === 'empty' ? (
+                  <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center gap-2 text-slate-300 px-6 text-center">
+                    <Flame className="w-8 h-8 text-slate-500" />
+                    <div className="text-xs font-bold text-slate-300">Tidak ada hotspot pada filter ini</div>
+                    <div className="text-[10px] text-slate-400">
+                      {selectedProvinsi === 'all' ? 'Nasional' : selectedProvinsi} · {timeframe} jam
+                    </div>
                   </div>
                 ) : (
                   <SipongiHotspotMap
@@ -801,6 +1178,8 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                     selectedKabupaten={selectedMapKabupaten}
                     onSelectKabupaten={(kab) => setSelectedMapKabupaten(kab)}
                     timeframe={timeframe}
+                    focusProvinsi={selectedProvinsi}
+                    namaToKode={namaToKode}
                   />
                 )}
               </div>
@@ -996,21 +1375,28 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                 <div className="relative z-10 flex items-center justify-between gap-2 mb-2">
                   <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                     <Flame className="w-4 h-4 text-orange-600 shrink-0" />
-                    <span>Total Hotspot Hari Ini</span>
+                    <span>Hotspot Nasional 24 Jam</span>
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800 shrink-0 shadow-2xs">
-                    24 Jam
+                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shrink-0 shadow-2xs">
+                    Nasional
                   </span>
                 </div>
                 <div className="relative z-10 my-1 max-w-[60%]">
                   <div className="text-2xl font-black text-orange-600 tracking-tight">
-                    {(hotspot24Total != null ? hotspot24Total : totalHotspotCount).toLocaleString('id-ID')}
+                    {baselineFeed === 'loading' && hotspot24Total == null
+                      ? '…'
+                      : (hotspot24Total ?? 0).toLocaleString('id-ID')}
                     <span className="text-xs font-bold text-slate-400 ml-1.5">Titik</span>
                   </div>
                 </div>
-                <div className="relative z-10 text-[10px] text-slate-400 mt-1 flex items-center justify-between">
-                  <span>Sensor MODIS / VIIRS NASA</span>
-                  <span className="text-orange-600 font-bold bg-orange-50/80 dark:bg-orange-950/40 px-1.5 py-0.5 rounded-md">Realtime</span>
+                <div className="relative z-10 text-[10px] text-slate-400 mt-1 flex items-center justify-between gap-2">
+                  <span>Semua confidence · NASA</span>
+                  <span
+                    title="Angka nasional tetap, tidak berubah saat filter peta"
+                    className="text-orange-800 font-bold bg-orange-50/80 dark:bg-orange-950/40 px-1.5 py-0.5 rounded-md border border-orange-200/80 shrink-0"
+                  >
+                    24 jam
+                  </span>
                 </div>
               </div>
 
@@ -1029,21 +1415,25 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                 <div className="relative z-10 flex items-center justify-between gap-2 mb-2">
                   <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                     <TrendingUp className="w-4 h-4 text-amber-600 shrink-0" />
-                    <span>Akumulasi 48 Jam</span>
+                    <span>Hotspot Nasional 48 Jam</span>
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shrink-0 shadow-2xs">
-                    2 Hari
+                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shrink-0 shadow-2xs">
+                    Nasional
                   </span>
                 </div>
                 <div className="relative z-10 my-1 max-w-[60%]">
                   <div className="text-2xl font-black text-amber-600 tracking-tight">
-                    {(hotspot48Total != null ? hotspot48Total : Math.round(totalHotspotCount * 1.8)).toLocaleString('id-ID')}
+                    {baselineFeed === 'loading' && hotspot48Total == null
+                      ? '…'
+                      : (hotspot48Total ?? 0).toLocaleString('id-ID')}
                     <span className="text-xs font-bold text-slate-400 ml-1.5">Titik</span>
                   </div>
                 </div>
-                <div className="relative z-10 text-[10px] text-slate-400 mt-1 flex items-center justify-between">
-                  <span>Tren Sebaran Nasional</span>
-                  <span className="text-amber-600 font-bold bg-amber-50/80 dark:bg-amber-950/40 px-1.5 py-0.5 rounded-md">Kumulatif</span>
+                <div className="relative z-10 text-[10px] text-slate-400 mt-1 flex items-center justify-between gap-2">
+                  <span>Semua confidence · NASA</span>
+                  <span className="text-amber-600 font-bold bg-amber-50/80 dark:bg-amber-950/40 px-1.5 py-0.5 rounded-md shrink-0">
+                    48 jam
+                  </span>
                 </div>
               </div>
 
@@ -1062,21 +1452,25 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                 <div className="relative z-10 flex items-center justify-between gap-2 mb-2">
                   <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                     <ShieldAlert className="w-4 h-4 text-red-600 shrink-0" />
-                    <span>Kepercayaan Tinggi</span>
+                    <span>High Confidence Nasional</span>
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 shrink-0 shadow-2xs">
-                    High Conf
+                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shrink-0 shadow-2xs">
+                    Nasional
                   </span>
                 </div>
                 <div className="relative z-10 my-1 max-w-[60%]">
                   <div className="text-2xl font-black text-red-600 tracking-tight">
-                    {(highConfidenceTotal > 0 ? highConfidenceTotal : Math.round(totalHotspotCount * 0.12)).toLocaleString('id-ID')}
+                    {baselineFeed === 'loading' && hotspot48High == null
+                      ? '…'
+                      : ((timeframe === '24' ? hotspot24High : hotspot48High) ?? 0).toLocaleString('id-ID')}
                     <span className="text-xs font-bold text-slate-400 ml-1.5">Titik</span>
                   </div>
                 </div>
-                <div className="relative z-10 text-[10px] text-slate-400 mt-1 flex items-center justify-between">
-                  <span>Prioritas Ground Check Patroli</span>
-                  <span className="text-red-600 font-bold bg-red-50/80 dark:bg-red-950/40 px-1.5 py-0.5 rounded-md">Kritis</span>
+                <div className="relative z-10 text-[10px] text-slate-400 mt-1 flex items-center justify-between gap-2">
+                  <span>Prioritas ground check · {timeframe} jam</span>
+                  <span className="text-red-600 font-bold bg-red-50/80 dark:bg-red-950/40 px-1.5 py-0.5 rounded-md shrink-0">
+                    High
+                  </span>
                 </div>
               </div>
 
@@ -1099,23 +1493,37 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
                 <div className="relative z-10 flex items-center justify-between gap-2 mb-2">
                   <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 truncate">
                     <MapPin className="w-4 h-4 text-rose-600 shrink-0" />
-                    <span className="truncate">Wilayah Paling Kritis</span>
+                    <span className="truncate">Kab Teratas (Filter)</span>
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 shrink-0 shadow-2xs">
-                    Top 1
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase shrink-0 shadow-2xs border ${
+                      isFilterScoped
+                        ? 'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/50 dark:text-violet-300 dark:border-violet-800'
+                        : 'bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800'
+                    }`}
+                  >
+                    {isFilterScoped ? 'Filter' : 'Nasional'}
                   </span>
                 </div>
                 <div className="relative z-10 my-1 max-w-[60%]">
                   <div className="text-base font-black text-rose-600 truncate tracking-tight uppercase" title={top10KabHotspot[0]?.kabupaten || '-'}>
-                    {top10KabHotspot[0]?.kabupaten || 'Sedang memuat...'}
+                    {loadingHotspot
+                      ? 'Memuat…'
+                      : top10KabHotspot[0]?.kabupaten || 'Tidak ada hotspot'}
                   </div>
                   <div className="text-[11px] font-extrabold text-slate-600 dark:text-slate-300 mt-0.5">
-                    {top10KabHotspot[0]?.count ? `${top10KabHotspot[0].count.toLocaleString('id-ID')} Titik Panas` : '-'}
+                    {top10KabHotspot[0]?.count
+                      ? `${top10KabHotspot[0].count.toLocaleString('id-ID')} Titik Panas`
+                      : '—'}
                   </div>
                 </div>
-                <div className="relative z-10 text-[10px] text-slate-400 mt-1 flex items-center justify-between truncate">
-                  <span className="truncate">{top10KabHotspot[0]?.provinsi || 'Indonesia'}</span>
-                  <span className="text-rose-600 font-bold shrink-0 bg-rose-50/80 dark:bg-rose-950/40 px-1.5 py-0.5 rounded-md">Fokus Utama ↗</span>
+                <div className="relative z-10 text-[10px] text-slate-400 mt-1 flex items-center justify-between truncate gap-2">
+                  <span className="truncate" title={filterScopeLabel}>
+                    {top10KabHotspot[0]?.provinsi || filterScopeLabel}
+                  </span>
+                  <span className="text-rose-600 font-bold shrink-0 bg-rose-50/80 dark:bg-rose-950/40 px-1.5 py-0.5 rounded-md">
+                    Top 1 ↗
+                  </span>
                 </div>
               </div>
             </div>
@@ -1578,6 +1986,23 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
             >
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-bold text-[11px] text-slate-500 uppercase tracking-wide">Pencarian & Rentang Tahun:</span>
+
+                <div className="flex items-center gap-1">
+                  <span className="text-[10.5px] text-slate-400">Provinsi:</span>
+                  <select
+                    value={selectedProvinsi}
+                    onChange={(e) => setSelectedProvinsi(e.target.value)}
+                    className="p-1 px-2 rounded-xl text-xs font-bold border outline-none cursor-pointer max-w-[170px]"
+                    style={{ backgroundColor: 'var(--bg-page)', borderColor: 'var(--border-subtle)' }}
+                  >
+                    <option value="all">Semua Provinsi</option>
+                    {provinsiOptions.map((name) => (
+                      <option key={`kab-prov-${name}`} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 
                 {/* Search Input */}
                 <div className="relative">

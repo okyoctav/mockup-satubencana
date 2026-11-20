@@ -1,6 +1,6 @@
-# 📚 Dokumentasi Metodologi & Rumus Penghitungan Analisis Kebencanaan (Dashboard K5)
+# Dokumentasi Metodologi & Rumus Penghitungan Analisis Kebencanaan (Dashboard)
 
-Dokumen ini menyajikan penjelasan komprehensif mengenai **sumber data**, **metode/standar acuan**, **rumus penghitungan matematis**, serta **rasio estimasi demografi** yang digunakan dalam 5 Modul Analisis Kebencanaan Cepat pada **Dashboard K5 (Antigravity Disaster Analytics)**.
+Dokumen ini menyajikan penjelasan komprehensif mengenai **sumber data**, **metode/standar acuan**, **rumus penghitungan matematis**, serta **rasio estimasi demografi** yang digunakan dalam modul analisis kebencanaan cepat pada **Dashboard Asesmen Dampak (`/dashboard`)**.
 
 ---
 

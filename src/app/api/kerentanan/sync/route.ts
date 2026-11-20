@@ -1,39 +1,55 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { toInariskKerentananKabCode } from '@/lib/inariskKerentananCode';
+import { fetchUpstream } from '@/lib/upstreamFetch';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
-    const code = body.code || '7172';
+    const code = toInariskKerentananKabCode(body.code);
+    if (!code) {
+      return NextResponse.json(
+        {
+          error:
+            'Kode kab/kota tidak valid. Gunakan kode Kemendagri 4+ digit (bukan hanya provinsi).',
+        },
+        { status: 400 },
+      );
+    }
+    const targetUrl = `https://inarisk2.bnpb.go.id/api/kerentanan/get-data/${code}`;
 
-    const targetUrl = 'https://inarisk2.bnpb.go.id/api/kerentanan/get-data/' + code;
-    const res = await fetch(targetUrl, {
-      cache: 'no-store',
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
-      },
+    const live = await fetchUpstream(targetUrl, {
+      timeoutMs: 15_000,
+      maxAttempts: 3,
+      headers: { Accept: 'application/json' },
     });
 
-    if (!res.ok) {
-      return NextResponse.json({ error: 'Gagal fetch dari InARISK' }, { status: res.status });
+    if (!live.ok) {
+      return NextResponse.json(
+        {
+          error: 'Gagal fetch dari InARISK',
+          detail: live.text.slice(0, 200),
+          attempts: live.attempts,
+        },
+        { status: live.status || 502 }
+      );
     }
 
-    const rawText = await res.text();
     const dstDir = path.join(process.cwd(), 'public', 'data');
-    if (!fs.existsSync(dstDir)) {
-      fs.mkdirSync(dstDir, { recursive: true });
-    }
+    if (!fs.existsSync(dstDir)) fs.mkdirSync(dstDir, { recursive: true });
 
-    const fileName = 'kerentanan_' + code + '.json';
+    const fileName = `kerentanan_${code}.json`;
     const filePath = path.join(dstDir, fileName);
-    fs.writeFileSync(filePath, rawText, 'utf-8');
+    fs.writeFileSync(filePath, live.text, 'utf-8');
 
     return NextResponse.json({
       success: true,
-      message: 'File public/data/' + fileName + ' berhasil diperbarui secara realtime!',
-      bytes: rawText.length,
+      message: `File public/data/${fileName} berhasil diperbarui`,
+      bytes: live.text.length,
+      attempts: live.attempts,
       updatedAt: new Date().toISOString(),
     });
   } catch (err: unknown) {

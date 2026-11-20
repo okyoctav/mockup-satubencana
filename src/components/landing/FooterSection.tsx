@@ -1,5 +1,7 @@
 'use client';
 
+import { DEFAULT_DASHBOARD_PATH } from '@/lib/routes';
+
 const MITRA = [
   { nama: 'BNPB', kepanjangan: 'Badan Nasional Penanggulangan Bencana', url: 'https://bnpb.go.id', logo: '/logo/logo_bnpb.png' },
   { nama: 'BPBD', kepanjangan: 'Badan Penanggulangan Bencana Daerah', url: '#', logo: '/logo/logo_bnpb.png' },
@@ -12,7 +14,7 @@ const MITRA = [
 const LINKS = {
   Platform: [
     { label: 'Landing Page', href: '/' },
-    { label: 'Dashboard', href: '/dashboard_k5' },
+    { label: 'Dashboard', href: DEFAULT_DASHBOARD_PATH },
     { label: 'Peta Bencana', href: '#peta' },
     { label: 'Analisis Data', href: '#dashboard-info' },
   ],

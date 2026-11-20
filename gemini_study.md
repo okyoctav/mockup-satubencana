@@ -30,9 +30,11 @@ managementdatabencana/
 │   ├── admin/
 │   │   └── page.tsx          # Panel Backend Admin (diarahkan ke /login jika belum login)
 │   ├── dashboard/
-│   │   └── page.tsx          # Executive Dashboard (Halaman Utama Dashboard)
-│   ├── dashboard_k2/
-│   │   └── page.tsx          # Alternatif visualisasi / mockup dashboard
+│   │   └── page.tsx          # Executive Dashboard (kanonik; path lama dashboard_k* di-redirect)
+│   ├── admin/simulasi-dampak/
+│   │   └── page.tsx          # WebGIS simulasi dampak
+│   ├── simulasi-modeling/
+│   │   └── page.tsx          # FastFlood 2D modeling
 │   ├── login/
 │   │   └── page.tsx          # Halaman autentikasi admin (hardcoded credentials)
 │   ├── management/

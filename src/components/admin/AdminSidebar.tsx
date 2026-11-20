@@ -16,6 +16,12 @@ import GroupIcon from 'nexticons/outline/GroupIcon';
 import SignOutIcon from 'nexticons/outline/SignOutIcon';
 import MoonIcon from 'nexticons/outline/MoonIcon';
 import UpdatesIcon from 'nexticons/outline/UpdatesIcon';
+import {
+  DEFAULT_DASHBOARD_PATH,
+  LOGIN_PATH,
+  SIMULASI_DAMPAK_PATH,
+  SIMULASI_MODELING_PATH,
+} from '@/lib/routes';
 
 interface AdminSidebarProps {
   isSidebarOpen: boolean;
@@ -32,22 +38,25 @@ export default function AdminSidebar({
   const { theme, toggle } = useTheme();
 
   const handleLogout = async () => {
-    localStorage.removeItem('is_logged_in');
     try {
-      const { getSupabaseBrowserClient } = await import('@/lib/supabase/client');
-      const client = getSupabaseBrowserClient();
-      if (client) {
-        await client.auth.signOut();
+      const mode = (process.env.NEXT_PUBLIC_AUTH_MODE || '').toLowerCase();
+      if (mode === 'local' || (!process.env.NEXT_PUBLIC_SUPABASE_URL && mode !== 'supabase')) {
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      } else {
+        const { getSupabaseBrowserClient } = await import('@/lib/supabase/client');
+        const client = getSupabaseBrowserClient();
+        if (client) await client.auth.signOut();
       }
     } catch {
       // ignore
     }
-    window.location.href = '/login';
+    window.location.href = LOGIN_PATH;
   };
 
   const isRouteActive = (path: string) => {
-    if (path === '/dashboard_k5' && currentPath === '/dashboard_k5') return true;
-    if (path === '/simulasi-modeling' && currentPath === '/simulasi-modeling') return true;
+    if (path === DEFAULT_DASHBOARD_PATH && currentPath === DEFAULT_DASHBOARD_PATH) return true;
+    if (path === SIMULASI_DAMPAK_PATH && currentPath === SIMULASI_DAMPAK_PATH) return true;
+    if (path === SIMULASI_MODELING_PATH && currentPath === SIMULASI_MODELING_PATH) return true;
     if (path === '/manajemen-data-bencana' && (currentPath === '/manajemen-data-bencana' || currentPath === '/management')) return true;
     if (path === '/admin/roles' && currentPath === '/admin/roles') return true;
     if (path === '/api-testing' && currentPath === '/api-testing') return true;
@@ -71,7 +80,7 @@ export default function AdminSidebar({
         } bg-[#08182b]`}
       >
         {isSidebarOpen ? (
-          <Link href="/dashboard_k5">
+          <Link href={DEFAULT_DASHBOARD_PATH}>
             <img
               src="/logo/logo_mdb.png"
               alt="Logo MDB"
@@ -80,7 +89,7 @@ export default function AdminSidebar({
           </Link>
         ) : (
           <Link
-            href="/dashboard_k5"
+            href={DEFAULT_DASHBOARD_PATH}
             className="w-10 h-10 rounded-xl bg-[#132c4d] border border-[#1e4273] flex items-center justify-center font-bold text-white tracking-widest hover:bg-[#1a3b66] transition-all cursor-pointer shadow-xs"
           >
             MDB
@@ -99,11 +108,11 @@ export default function AdminSidebar({
           )}
           <nav className="space-y-1">
             <Link
-              href="/dashboard_k5"
+              href={DEFAULT_DASHBOARD_PATH}
               className={`w-full flex items-center ${
                 isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'
               } py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                isRouteActive('/dashboard_k5')
+                isRouteActive(DEFAULT_DASHBOARD_PATH)
                   ? 'bg-[#1f8080] text-white shadow-sm'
                   : 'text-slate-300 hover:bg-[#132c4d] hover:text-white'
               }`}
@@ -116,11 +125,28 @@ export default function AdminSidebar({
             </Link>
 
             <Link
-              href="/simulasi-modeling"
+              href={SIMULASI_DAMPAK_PATH}
               className={`w-full flex items-center ${
                 isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'
               } py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                isRouteActive('/simulasi-modeling')
+                isRouteActive(SIMULASI_DAMPAK_PATH)
+                  ? 'bg-[#1f8080] text-white shadow-sm'
+                  : 'text-slate-300 hover:bg-[#132c4d] hover:text-white'
+              }`}
+              title={!isSidebarOpen ? 'Simulasi Dampak' : undefined}
+            >
+              <span className="shrink-0 flex items-center justify-center w-5 h-5 text-sky-300">
+                <MapIcon width={18} height={18} />
+              </span>
+              {isSidebarOpen && <span>Simulasi Dampak</span>}
+            </Link>
+
+            <Link
+              href={SIMULASI_MODELING_PATH}
+              className={`w-full flex items-center ${
+                isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'
+              } py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                isRouteActive(SIMULASI_MODELING_PATH)
                   ? 'bg-[#1f8080] text-white shadow-sm'
                   : 'text-slate-300 hover:bg-[#132c4d] hover:text-white'
               }`}
@@ -140,7 +166,7 @@ export default function AdminSidebar({
             </Link>
 
             <Link
-              href="/dashboard_k5?tab=ai"
+              href="/dashboard?tab=ai"
               className={`w-full flex items-center ${
                 isSidebarOpen ? 'gap-3 px-3' : 'justify-center px-0'
               } py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-slate-300 hover:bg-[#132c4d] hover:text-white`}

@@ -311,7 +311,7 @@ export default function HeroSection() {
 
                 <div>
                   <Link
-                    href="/dashboard_k5"
+                    href="/dashboard"
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-xs sm:text-sm shadow-md transition-all duration-200 hover:scale-105 active:scale-95 group/btn"
                   >
                     <span>Buka Dashboard</span>

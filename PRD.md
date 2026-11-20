@@ -26,16 +26,17 @@ We are building an Admin Dashboard. The login logic to Supabase is already worki
   * [x] If a user tries to access `/admin/*` or `/admin` without a valid session, redirect them immediately to `/login`.
   * [x] If they are logged in, allow them to proceed.
 
-### **PHASE 3: WebGIS Map Layout (`/admin/simulasi-k3`)**
+### **PHASE 3: WebGIS Map Layout (`/admin/simulasi-dampak`)**
 
 **Objective:** Create a specialized full-screen map layout inside the admin panel.
 
-* [x] **Task:** Create the page `/admin/simulasi-k3/page.tsx`.
+* [x] **Task:** Create the page `/admin/simulasi-dampak/page.tsx` (legacy `/admin/simulasi-k3` and `/admin/simulasi-k4` redirect here).
 * [x] **Requirement:**
   * [x] The admin sidebar and header MUST remain visible.
   * [x] The content area for the map MUST be full-size (taking up 100% of the remaining width and height of the viewport).
   * [x] Remove any default padding or margin from the content container specifically for this page.
   * [x] Use Tailwind utilities like `h-[calc(100vh-header_height)]`, `w-full`, `overflow-hidden` so it behaves exactly like a WebGIS interface.
+  * [x] Impact sources: Dukcapil online and HexKab local aggregation; flood modeling lives at `/simulasi-modeling`.
 
 ### **PHASE 4: Data & User Roles Management**
 

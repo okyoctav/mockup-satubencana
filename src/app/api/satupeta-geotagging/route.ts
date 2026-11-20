@@ -1,75 +1,89 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { fetchUpstreamJson } from "@/lib/upstreamFetch";
 
-// Allow self-signed or unverified SSL certificates for remote Bappenas API
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+export const dynamic = "force-dynamic";
+
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Cache-Control": "no-store",
+};
+
+function readLocalFallback(localFilePath: string) {
+  if (!fs.existsSync(localFilePath)) return null;
+  const fileContent = fs.readFileSync(localFilePath, "utf-8");
+  return JSON.parse(fileContent);
+}
 
 export async function GET() {
-  const targetUrl = "https://simrenas-webgis.bappenas.go.id/satupeta/api/survey_dtsen_kk";
-  const localFilePath = path.join(process.cwd(), "public", "data", "satupeta_geotagging.json");
+  const targetUrl =
+    "https://simrenas-webgis.bappenas.go.id/satupeta/api/survey_dtsen_kk";
+  const localFilePath = path.join(
+    process.cwd(),
+    "public",
+    "data",
+    "satupeta_geotagging.json",
+  );
 
-  // 1. Try Live API Fetch first to ensure data is always fresh & updated
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+  const live = await fetchUpstreamJson(targetUrl, {
+    timeoutMs: 10_000,
+    maxAttempts: 3,
+  });
 
-    const res = await fetch(targetUrl, {
-      cache: "no-store",
-      signal: controller.signal,
+  if (live.data != null) {
+    try {
+      const dstDir = path.join(process.cwd(), "public", "data");
+      if (!fs.existsSync(dstDir)) fs.mkdirSync(dstDir, { recursive: true });
+      fs.writeFileSync(
+        localFilePath,
+        JSON.stringify(live.data, null, 2),
+        "utf-8",
+      );
+    } catch (err) {
+      console.error("[satupeta] gagal simpan cache:", err);
+    }
+
+    return NextResponse.json(live.data, {
+      status: 200,
       headers: {
-        "Accept": "application/json, text/plain, */*",
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        ...CORS,
+        "X-Cache": "LIVE",
+        "X-Data-Source": "simrenas-webgis.bappenas.go.id",
+        "X-Upstream-Attempts": String(live.meta.attempts),
       },
     });
-    clearTimeout(timeoutId);
-
-    if (res.ok) {
-      const data = await res.json();
-      
-      // Cache fresh data to public/data/satupeta_geotagging.json
-      try {
-        const dstDir = path.join(process.cwd(), "public", "data");
-        if (!fs.existsSync(dstDir)) fs.mkdirSync(dstDir, { recursive: true });
-        fs.writeFileSync(localFilePath, JSON.stringify(data, null, 2), "utf-8");
-      } catch (err) {
-        console.error("Gagal menyimpan cache ke satupeta_geotagging.json:", err);
-      }
-
-      return NextResponse.json(data, {
-        status: 200,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          "Cache-Control": "no-store",
-        },
-      });
-    }
-  } catch (err) {
-    console.warn("Live fetch ke Satupeta API bermasalah/timeout, menggunakan cache lokal:", err);
   }
 
-  // 2. Fallback to local cached JSON file if live fetch failed or timed out
+  console.warn("[satupeta] live gagal, fallback lokal:", live.error);
+
   try {
-    if (fs.existsSync(localFilePath)) {
-      const fileContent = fs.readFileSync(localFilePath, "utf-8");
-      const jsonData = JSON.parse(fileContent);
+    const jsonData = readLocalFallback(localFilePath);
+    if (jsonData) {
       return NextResponse.json(jsonData, {
         status: 200,
         headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          "Cache-Control": "no-store",
+          ...CORS,
+          "X-Cache": "FALLBACK_LOCAL",
+          "X-Data-Source": "satupeta_geotagging.json",
+          "X-Upstream-Error": String(live.error || "upstream gagal").slice(0, 120),
         },
       });
     }
   } catch (err) {
-    console.error("Gagal membaca file lokal fallback satupeta_geotagging.json:", err);
+    console.error("[satupeta] gagal baca fallback lokal:", err);
   }
 
-  return NextResponse.json({ status: 500, error: "Gagal mengambil data Satupeta Geotagging" }, { status: 500 });
+  return NextResponse.json(
+    {
+      status: 500,
+      error: "Gagal mengambil data Satupeta Geotagging",
+      fallback: false,
+    },
+    { status: 500, headers: CORS },
+  );
 }
 
 export async function POST() {
@@ -77,12 +91,5 @@ export async function POST() {
 }
 
 export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
-  });
+  return new NextResponse(null, { status: 200, headers: CORS });
 }

@@ -3,31 +3,36 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { AdminLayout } from '@/app/admin/AdminLayout';
+import {
+  DEFAULT_DASHBOARD_PATH,
+  SIMULASI_DAMPAK_PATH,
+  SIMULASI_MODELING_PATH,
+} from '@/lib/routes';
 
 export default function AdminPage() {
   const [activeFilter, setActiveFilter] = useState('Semua');
 
   const quickLinks = [
     {
-      label: 'Dashboard Bencana',
-      desc: 'Pantau kondisi terkini dan tren kejadian bencana.',
-      href: '/dashboard',
+      label: 'Dashboard Asesmen Dampak',
+      desc: 'Dashboard resmi: pantau kondisi, peta, dan asesmen dampak bencana.',
+      href: DEFAULT_DASHBOARD_PATH,
       accent: 'from-blue-500 to-cyan-500',
-      meta: 'Real-time monitoring',
+      meta: 'Dashboard resmi',
     },
     {
-      label: 'Simulasi K3',
-      desc: 'Buka peta interaktif fullscreen untuk simulasi K3 dan dampak wilayah.',
-      href: '/admin/simulasi-k3',
+      label: 'Simulasi Dampak',
+      desc: 'Draw AOI: estimasi Dukcapil online atau agregasi HexKab lokal (offline).',
+      href: SIMULASI_DAMPAK_PATH,
       accent: 'from-emerald-500 to-lime-500',
-      meta: 'Peta fullscreen',
+      meta: 'WebGIS dampak',
     },
     {
-      label: 'Simulasi K4',
-      desc: 'Buka peta interaktif fullscreen untuk simulasi K4 lokal dengan GeoJSON HexKab.',
-      href: '/admin/simulasi-k4',
+      label: 'Simulasi Modeling',
+      desc: 'Pemodelan banjir FastFlood (DAS Girian) dengan parameter hidrologi dan dampak AOI.',
+      href: SIMULASI_MODELING_PATH,
       accent: 'from-cyan-500 to-sky-500',
-      meta: 'GeoJSON lokal',
+      meta: 'Model banjir',
     },
     {
       label: 'Management Data',

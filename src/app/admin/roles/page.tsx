@@ -10,7 +10,7 @@ import { AdminLayout } from '@/app/admin/AdminLayout';
 
 type AppRoleRow = {
   id: string;
-  role: 'admin' | 'viewer';
+  role: 'admin' | 'user';
   active: boolean;
   created_at: string;
   updated_at: string;
@@ -20,7 +20,7 @@ export default function AdminRolesPage() {
   const [rows, setRows] = useState<AppRoleRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
-  const [newRole, setNewRole] = useState<AppRoleRow['role']>('viewer');
+  const [newRole, setNewRole] = useState<AppRoleRow['role']>('user');
   const [newActive, setNewActive] = useState(true);
 
   const fetchRoles = async () => {
@@ -75,7 +75,7 @@ export default function AdminRolesPage() {
         return;
       }
 
-      setNewRole('viewer');
+      setNewRole('user');
       setNewActive(true);
       await fetchRoles();
     } finally {
@@ -106,7 +106,7 @@ export default function AdminRolesPage() {
               disabled={creating}
             >
               <option value="admin">Admin</option>
-              <option value="viewer">Viewer</option>
+              <option value="user">User</option>
             </select>
 
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text-muted)' }}>
