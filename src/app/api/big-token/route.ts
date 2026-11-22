@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-/** In-memory cache only — no hardcoded stub token. */
-let cachedToken: string | null = null;
-let tokenExpiresAt = 0;
+let cachedToken: string | null =
+  's_jkRPZ9qSxzeqNURM4W2LpL91xwVYS6-L43QkaxznPKcHOGEtYpgamnPxQZ9UQMK-7-cm_kvomEMZbMNjUrhZgJnZLGP6MTho9ejP102cU1dicLUKnmmyEqPFifTqP68d_DA0-XmLFdKZH7hsmb2chqY2LibIiKnnSszrlZgV0.';
+let tokenExpiresAt = 1795586651788;
 
 async function generateBigToken(username: string, password: string): Promise<{ token: string; expires: number } | { error: string; status: number }> {
   const tokenUrl = 'https://geoservices.big.go.id/portal/sharing/rest/generateToken';
