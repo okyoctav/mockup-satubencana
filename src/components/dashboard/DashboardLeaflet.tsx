@@ -3526,7 +3526,7 @@ export default function DashboardLeaflet({
       const content = `
         <div style="font-family:sans-serif; min-width:260px; font-size:11px; color:#0F172A;">
           <div style="border-bottom:1.5px solid #E2E8F0; padding-bottom:6px; margin-bottom:8px;">
-            <div style="font-weight:700; color:#0a1e36; line-height:1.3;">Area terdampak</div>
+            <div style="font-weight:700; color:#0a1e36; line-height:1.3;">Estimasi Cepat Area terdampak</div>
           </div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👨 Laki-laki:</span><b>${stats.totalLakiLaki.toLocaleString('id')}</b></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👩 Perempuan:</span><b>${stats.totalPerempuan.toLocaleString('id')}</b></div>
