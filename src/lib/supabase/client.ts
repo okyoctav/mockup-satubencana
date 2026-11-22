@@ -20,6 +20,21 @@ export function getSupabaseBrowserClient() {
         detectSessionInUrl: true,
       },
     });
+
+    try {
+      const projectRef = new URL(url).hostname.split('.')[0];
+      const cookieName = `sb-${projectRef}-auth-token`;
+      browserClient.auth.onAuthStateChange((_event, session) => {
+        if (typeof document === 'undefined') return;
+        if (session) {
+          document.cookie = `${cookieName}=${session.access_token}; path=/; max-age=604800; SameSite=Lax`;
+        } else {
+          document.cookie = `${cookieName}=; path=/; max-age=0; SameSite=Lax`;
+        }
+      });
+    } catch {
+      // ignore URL parsing error
+    }
   }
 
   return browserClient;

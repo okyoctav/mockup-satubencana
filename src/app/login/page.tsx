@@ -43,7 +43,7 @@ export default function LoginPage() {
     const client = getSupabaseBrowserClient();
     if (!client) return;
     client.auth.getSession().then(({ data: { session } }) => {
-      if (session) router.replace(nextUrl);
+      if (session) window.location.href = nextUrl;
     });
   }, [router, authMode]);
 
@@ -60,7 +60,7 @@ export default function LoginPage() {
     }
     const nextUrl =
       new URLSearchParams(window.location.search).get('next') || DEFAULT_DASHBOARD_PATH;
-    router.push(nextUrl);
+    window.location.href = nextUrl;
   };
 
   const handleSupabaseLogin = async (email: string, password: string) => {
@@ -74,7 +74,7 @@ export default function LoginPage() {
     }
     const nextUrl =
       new URLSearchParams(window.location.search).get('next') || DEFAULT_DASHBOARD_PATH;
-    router.push(nextUrl);
+    window.location.href = nextUrl;
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {

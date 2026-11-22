@@ -57,17 +57,9 @@ export async function middleware(req: NextRequest) {
 
   const mode = getAuthMode();
 
-  // Mode supabase: proteksi penuh di middleware terbatas (cookie supabase beda).
-  // Tetap arahkan ke login jika tidak ada indikasi sesi; page-level tetap cek.
+  // Mode supabase: sesi disimpan oleh Supabase SDK di browser (localStorage).
+  // Validasi sesi dan hak akses (role) dilakukan di masing-masing page/layout.
   if (mode === 'supabase') {
-    const hasSb =
-      req.cookies.getAll().some((c) => c.name.includes('sb-') && c.name.includes('auth-token'));
-    if (!hasSb && isProtected(pathname)) {
-      const url = req.nextUrl.clone();
-      url.pathname = '/login';
-      url.searchParams.set('next', pathname);
-      return NextResponse.redirect(url);
-    }
     return NextResponse.next();
   }
 
