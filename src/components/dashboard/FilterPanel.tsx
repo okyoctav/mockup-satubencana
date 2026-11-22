@@ -17,7 +17,6 @@ export const JENIS_CONFIG: Record<
   tsunami: { label: 'Tsunami', icon: '🌊', color: '#06b6d4' },
   kekeringan: { label: 'Kekeringan', icon: '☀️', color: '#ca8a04' },
   'angin puting beliung': { label: 'Cuaca Ekstrem', icon: '🌪️', color: '#4f46e5' },
-  lainnya: { label: 'Lainnya', icon: '📍', color: '#64748b' },
 };
 
 export const JENIS_LIST = Object.keys(JENIS_CONFIG);
