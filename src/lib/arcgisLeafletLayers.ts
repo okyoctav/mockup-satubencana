@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /** Shared ArcGIS → Leaflet tile helpers (MapServer export, ImageServer, VectorTile). */
 
 export function tileToBbox3857(x: number, y: number, z: number): string {

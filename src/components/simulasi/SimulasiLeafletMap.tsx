@@ -128,6 +128,7 @@ export default function SimulasiLeafletMap({
       map.remove();
       mapInstanceRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 2. Fly to region when preset changes

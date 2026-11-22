@@ -75,7 +75,7 @@ export default function BmkgGempaPanel({
         if (cancelled) return;
         const raw = (json?.Infogempa?.gempa || []) as Array<Record<string, string>>;
         const list: BmkgListItem[] = [];
-        raw.forEach((g, i) => {
+        raw.forEach((g) => {
           const c = parseCoords(g.Coordinates);
           if (!c) return;
           const key = `${g.DateTime || `${g.Tanggal}|${g.Jam}`}|${g.Coordinates}`;

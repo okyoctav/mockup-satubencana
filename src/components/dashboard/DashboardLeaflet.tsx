@@ -1533,7 +1533,7 @@ export default function DashboardLeaflet({
         } else {
           setKerentananFeed('live');
         }
-      } catch (err) {
+      } catch {
         if (ac.signal.aborted) return;
         setKerentananData([]);
         setKerentananFeed('error');
@@ -2319,7 +2319,7 @@ export default function DashboardLeaflet({
       ? bmkgAutoData 
       : bmkgData;
 
-    currentList.forEach((g, i) => {
+    currentList.forEach((g) => {
       const parts = g.Coordinates.split(',');
       if (parts.length < 2) return;
       const lat = parseFloat(parts[0]);
@@ -2470,6 +2470,7 @@ export default function DashboardLeaflet({
         }
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draftBasemap, draftOverlays, draftOpacities, showLayerModal]);
 
   // Update Main Map Basemap
@@ -3090,6 +3091,7 @@ export default function DashboardLeaflet({
         }
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeOverlays, kodeKemendagri, layerOpacities]);
 
   // Fetch status gunung saat layer aktif (terpisah dari def layersList)

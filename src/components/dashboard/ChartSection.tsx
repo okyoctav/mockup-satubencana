@@ -111,12 +111,10 @@ export default function ChartSection({ theme, filteredData, regionLabel }: Props
   const textColor = theme === 'dark' ? '#7aaab8' : '#38618c';
 
   const [bundle, setBundle] = useState<ChartBundle>(FALLBACK);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      setLoading(true);
       try {
         const res = await fetch('/api/dibi-aggregates', { cache: 'no-store' });
         const json = await res.json();
@@ -133,8 +131,6 @@ export default function ChartSection({ theme, filteredData, regionLabel }: Props
         });
       } catch {
         if (!cancelled) setBundle(FALLBACK);
-      } finally {
-        if (!cancelled) setLoading(false);
       }
     })();
     return () => {

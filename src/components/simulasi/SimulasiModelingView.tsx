@@ -124,6 +124,7 @@ export default function SimulasiModelingView({ embedded = false }: SimulasiModel
   // Run simulation on initial mount or when region changes
   useEffect(() => {
     executeSimulation(selectedRegion, params, currentTimelineIndex);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRegion]);
 
   // When timeline step changes, update the grid

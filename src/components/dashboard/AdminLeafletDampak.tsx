@@ -17,7 +17,6 @@ import {
   ADMIN_DRAW_TOOLS,
   ADMIN_JENIS_COLOR,
   ADMIN_LEGEND_ITEMS,
-  type AdminBnpbLayer,
 } from '@/lib/adminSimulasiMapConfig';
 import {
   createArcGISExportLayer,
@@ -48,8 +47,6 @@ interface Props {
   flyTo: { lat: number; lng: number; zoom: number } | null;
   theme: string;
 }
-
-type BnpbLayer = AdminBnpbLayer;
 
 interface MapServerLegendItem {
   label: string;

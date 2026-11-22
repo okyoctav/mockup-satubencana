@@ -558,13 +558,6 @@ export default function SipongiKarhutlaDashboard({ onBackToGeneral }: SipongiKar
     };
   }, [selectedMapKabupaten, hotspotData]);
 
-  // Total high confidence hotspots in current dataset
-  const highConfidenceTotal = useMemo(() => {
-    return hotspotData
-      .filter((h) => (h.confidence || '').toLowerCase() === 'high')
-      .reduce((acc, h) => acc + (h.counter || 0), 0);
-  }, [hotspotData]);
-
   // ----------------------------------------------------------------------
   // TAB 2: HOTSPOT CHART LOGIC (Single Year -> Bulan, Multi Year -> Tahun)
   // ----------------------------------------------------------------------

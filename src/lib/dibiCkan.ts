@@ -204,7 +204,6 @@ export async function fetchDibiAggregatesFromCkan(): Promise<DibiAggregates> {
     const label = titleJenis(key);
     const ung = ungIdx.get(key);
     const rum = rumIdx.get(key);
-    const hil = hilIdx.get(key);
     const men = menIdx.get(key);
     perJenis.push({
       jenis: label,

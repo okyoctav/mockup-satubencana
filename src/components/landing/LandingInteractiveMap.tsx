@@ -357,7 +357,7 @@ export default function LandingInteractiveMap({ onSelectDisaster, rightExtraCont
     });
 
     setActiveHighlightIndex((prev) => (prev >= sortedDisasters.length ? 0 : prev));
-  }, [sortedDisasters, onSelectDisaster]);
+  }, [sortedDisasters, onSelectDisaster, theme]);
 
   // Auto-tour ticker & progress bar
   useEffect(() => {
