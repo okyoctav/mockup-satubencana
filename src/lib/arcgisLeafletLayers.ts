@@ -39,20 +39,34 @@ export function createVectorTileLayer(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const VG = (L as any).vectorGrid ?? (window as any).L?.vectorGrid;
   if (!VG) return null;
+
+  // Clean, crisp circle marker point dot style
+  const pointStyle = {
+    radius: options?.radius ?? 4,
+    weight: 1,
+    color: '#FFFFFF',
+    fillColor: color,
+    fillOpacity: 0.85,
+    opacity: 1,
+    fill: true,
+  };
+
+  const rendererFactory =
+    (L as any).canvas?.tile || (window as any).L?.canvas?.tile || (L as any).svg?.tile;
+
   return VG.protobuf(tileUrl, {
-    // render all sub-layers with a single style so features are visible
+    rendererFactory,
+    // render all sub-layers with clean point dot styling
     vectorTileLayerStyles: new Proxy(
-      {},
       {
-        get: () => ({
-          radius: options?.radius ?? 4,
-          weight: 1,
-          color,
-          fillColor: color,
-          fillOpacity: 0.7,
-          opacity: 0.9,
-          fill: true,
-        }),
+        geotagging_bitung: pointStyle,
+      },
+      {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        get: (target: any, prop: string) => {
+          if (prop in target) return target[prop];
+          return pointStyle;
+        },
       },
     ),
     interactive: options?.interactive ?? true,

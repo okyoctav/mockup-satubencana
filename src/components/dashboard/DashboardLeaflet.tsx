@@ -2728,7 +2728,7 @@ export default function DashboardLeaflet({
           .then((json) => {
             if (!mapRef.current) return;
             const items = Array.isArray(json) ? json : json?.data || [];
-            const markers: L.Marker[] = [];
+            const markers: L.Layer[] = [];
 
             items.forEach((item: Record<string, unknown>) => {
               const kk = (item.kepala_keluarga as Record<string, unknown>) || {};
@@ -2740,21 +2740,21 @@ export default function DashboardLeaflet({
               const lng = parseFloat(String(lngVal));
               if (isNaN(lat) || isNaN(lng)) return;
 
-              // Emerald Geotag Icon (#059669)
-              const icon = L.divIcon({
-                className: '',
-                html: '<div style="background:#059669; width:22px; height:22px; border-radius:50%; border:2px solid #FFFFFF; box-shadow:0 2px 6px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; color:#FFF; font-size:12px; font-weight:bold;">📍</div>',
-                iconSize: [22, 22],
-                iconAnchor: [11, 11],
-              });
-
               const anggotaList = (item.anggota_keluarga as Array<Record<string, unknown>>) || [];
 
-              const marker = L.marker([lat, lng], { icon });
+              // Point Titik Bulat Berwarna (#059669) dengan border putih bersih
+              const marker = L.circleMarker([lat, lng], {
+                radius: 5,
+                fillColor: '#059669',
+                color: '#FFFFFF',
+                weight: 1.5,
+                opacity: 1,
+                fillOpacity: 0.85,
+              });
               marker.bindPopup(`
                 <div style="font-family:sans-serif; min-width:270px; max-width:320px; font-size:11px; color:#333; line-height:1.5;">
                   <div style="font-weight:bold; color:#059669; font-size:12px; border-bottom:1px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px; display:flex; align-items:center; gap:4px;">
-                    <span>📍 Satupeta Geotagging (BAPPENAS DTSEN)</span>
+                    <span>🟢 Satupeta Geotagging (BAPPENAS DTSEN)</span>
                   </div>
                   <div style="font-size:10.5px; margin-bottom:4px; background:#ECFDF5; padding:4px 6px; border-radius:4px; border:1px solid #A7F3D0; color:#065F46;">
                     <b>No. KK:</b> ${maskNikOrKk(item.no_kk as string)} &nbsp;|&nbsp; <b>Geotag:</b> ${item.geotag_status ? '✅ Terverifikasi' : '❌ Belum'}
@@ -2814,7 +2814,7 @@ export default function DashboardLeaflet({
               const content = `
                 <div style="font-family:sans-serif; min-width:220px; font-size:11px; color:#333; line-height:1.4;">
                   <div style="font-weight:bold; color:#059669; font-size:12px; border-bottom:1px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px;">
-                    📍 ${def.label}
+                    🟢 ${def.label}
                   </div>
                   ${p.nama ? `<div><b>Nama:</b> ${p.nama}</div>` : ''}
                   ${p.hub ? `<div><b>Hubungan:</b> ${p.hub}</div>` : ''}
