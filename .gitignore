@@ -43,4 +43,6 @@ next-env.d.ts
 *.tfw
 *.vat.dbf
 public/modeling/27.*
+DATAMDB.json
+*.geojsonl
 .env*

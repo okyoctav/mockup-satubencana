@@ -2794,9 +2794,38 @@ export default function DashboardLeaflet({
           if (!mapRef.current || overlayLayersRef.current[id]) return;
           const vl = createVectorTileLayer(L, def.url, def.color);
           if (!vl) {
-            const existing = document.getElementById('leaflet-vectorgrid-js');
-            if (existing) existing.addEventListener('load', tryAddVector, { once: true });
+            let existing = document.getElementById('leaflet-vectorgrid-js') as HTMLScriptElement | null;
+            if (!existing) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (window as any).L = L;
+              existing = document.createElement('script');
+              existing.id = 'leaflet-vectorgrid-js';
+              existing.src = 'https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.min.js';
+              document.head.appendChild(existing);
+            }
+            existing.addEventListener('load', tryAddVector, { once: true });
             return;
+          }
+          if (vl.on) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            vl.on('click', (e: any) => {
+              const p = e.layer?.properties;
+              if (!p || !mapRef.current) return;
+              const content = `
+                <div style="font-family:sans-serif; min-width:220px; font-size:11px; color:#333; line-height:1.4;">
+                  <div style="font-weight:bold; color:#059669; font-size:12px; border-bottom:1px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px;">
+                    📍 ${def.label}
+                  </div>
+                  ${p.nama ? `<div><b>Nama:</b> ${p.nama}</div>` : ''}
+                  ${p.hub ? `<div><b>Hubungan:</b> ${p.hub}</div>` : ''}
+                  ${p.jk ? `<div><b>Jenis Kelamin:</b> ${p.jk}</div>` : ''}
+                  ${p.usia ? `<div><b>Usia:</b> ${p.usia} thn</div>` : ''}
+                  ${p.disabilitas ? `<div><b>Disabilitas:</b> ${p.disabilitas}</div>` : ''}
+                  ${p.lansia ? `<div><b>Lansia:</b> ${p.lansia}</div>` : ''}
+                </div>
+              `;
+              L.popup().setLatLng(e.latlng).setContent(content).openOn(mapRef.current);
+            });
           }
           overlayLayersRef.current[id] = vl;
           vl.addTo(mapRef.current);

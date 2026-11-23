@@ -18,9 +18,23 @@ export function tileToBbox4326(x: number, y: number, z: number): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createVectorTileLayer(L: any, serviceUrl: string, color: string): any {
-  // ArcGIS VectorTileServer: tile/{z}/{y}/{x}.pbf  (row then col)
-  const tileUrl = `${serviceUrl}/tile/{z}/{y}/{x}.pbf`;
+export function createVectorTileLayer(
+  L: any,
+  serviceUrl: string,
+  color: string,
+  options?: {
+    interactive?: boolean;
+    attribution?: string;
+    maxNativeZoom?: number;
+    maxZoom?: number;
+    minZoom?: number;
+    radius?: number;
+  },
+): any {
+  // Support both direct MVT URL templates (e.g. /tiles/bitung/{z}/{x}/{y}.pbf) and ArcGIS VectorTileServer
+  const tileUrl = serviceUrl.includes('{z}')
+    ? serviceUrl
+    : `${serviceUrl}/tile/{z}/{y}/{x}.pbf`;
   // vectorGrid is injected onto window.L by the non-bundled CDN script
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const VG = (L as any).vectorGrid ?? (window as any).L?.vectorGrid;
@@ -31,19 +45,21 @@ export function createVectorTileLayer(L: any, serviceUrl: string, color: string)
       {},
       {
         get: () => ({
+          radius: options?.radius ?? 4,
           weight: 1,
           color,
           fillColor: color,
-          fillOpacity: 0.35,
-          opacity: 0.8,
+          fillOpacity: 0.7,
+          opacity: 0.9,
           fill: true,
         }),
       },
     ),
-    interactive: false,
-    attribution: '© BIG RBI',
-    maxNativeZoom: 14,
-    maxZoom: 20,
+    interactive: options?.interactive ?? true,
+    attribution: options?.attribution ?? '© BAPPENAS / MDB Bitung',
+    minZoom: options?.minZoom ?? 9,
+    maxNativeZoom: options?.maxNativeZoom ?? 16,
+    maxZoom: options?.maxZoom ?? 20,
   });
 }
 
