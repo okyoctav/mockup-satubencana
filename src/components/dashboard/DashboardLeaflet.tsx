@@ -3,7 +3,7 @@
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Layers, Search, Check, X, Eye, Activity, MapPin, Pencil, Home, Maximize2, Minimize2, BookOpen, ChevronDown, ChevronUp, RotateCcw, Sparkles, Flame, CloudLightning } from 'lucide-react';
+import { Layers, Search, Check, X, Eye, Activity, MapPin, Pencil, Home, Maximize2, Minimize2, BookOpen, ChevronDown, ChevronUp, RotateCcw, Sparkles, Flame, CloudLightning, Download, Users } from 'lucide-react';
 import { JENIS_CONFIG } from '@/components/dashboard/FilterPanel';
 import { DISASTER_CATEGORIES, DashboardLayer } from '@/types/layer';
 import { DEFAULT_DASHBOARD_LAYERS } from '@/data/defaultLayers';
@@ -906,6 +906,94 @@ async function queryAtrBpnHakAtasTanah(drawLayer: L.Layer): Promise<HakAtasTanah
   }
 }
 
+export type GeotaggingBitungItem = {
+  id: number;
+  nama: string;
+  hub: string;
+  jk: string;
+  usia: string;
+  disabilitas: string;
+  lansia: string;
+  lat: number;
+  lng: number;
+};
+
+export type GeotaggingBitungStats = {
+  total: number;
+  lakiLaki: number;
+  perempuan: number;
+  lansia: number;
+  disabilitas: number;
+  items: GeotaggingBitungItem[];
+};
+
+async function queryGeotaggingBitung(drawLayer: L.Layer): Promise<GeotaggingBitungStats> {
+  const empty: GeotaggingBitungStats = {
+    total: 0,
+    lakiLaki: 0,
+    perempuan: 0,
+    lansia: 0,
+    disabilitas: 0,
+    items: [],
+  };
+
+  try {
+    let payload: Record<string, unknown> = {};
+
+    if (drawLayer instanceof L.Circle) {
+      const center = drawLayer.getLatLng();
+      const radius = drawLayer.getRadius();
+      payload = {
+        type: 'circle',
+        center: { lat: center.lat, lng: center.lng },
+        radius: radius,
+      };
+    } else {
+      const esri = layerToEsriPolygon(drawLayer);
+      if (!esri || !esri.geometry) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const bounds = (drawLayer as any).getBounds ? (drawLayer as any).getBounds() : null;
+        if (!bounds) return empty;
+        payload = {
+          type: 'bbox',
+          minLat: bounds.getSouth(),
+          maxLat: bounds.getNorth(),
+          minLng: bounds.getWest(),
+          maxLng: bounds.getEast(),
+        };
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const rings = (esri.geometry as any).rings;
+        if (!rings || !rings[0]) return empty;
+        payload = {
+          type: 'polygon',
+          ring: rings[0],
+        };
+      }
+    }
+
+    const res = await fetch('/api/geotagging-bitung', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) return empty;
+    const json = await res.json();
+    return {
+      total: json.total || 0,
+      lakiLaki: json.lakiLaki || 0,
+      perempuan: json.perempuan || 0,
+      lansia: json.lansia || 0,
+      disabilitas: json.disabilitas || 0,
+      items: json.items || [],
+    };
+  } catch (err) {
+    console.warn('Gagal query geotagging bitung:', err);
+    return empty;
+  }
+}
+
 export default function DashboardLeaflet({
   data,
   flyTo,
@@ -1047,6 +1135,95 @@ export default function DashboardLeaflet({
   const [layerGroupFilter, setLayerGroupFilter] = useState('ALL');
   const [modalDisasterFilter, setModalDisasterFilter] = useState<string>('ALL');
   const [isDisasterTrayOpen, setIsDisasterTrayOpen] = useState(true);
+
+  // Geotagging Bitung Selected Modal states
+  const [selectedGeotaggingBitungData, setSelectedGeotaggingBitungData] = useState<GeotaggingBitungItem[]>([]);
+  const [showGeotaggingModal, setShowGeotaggingModal] = useState(false);
+  const [geotaggingSearch, setGeotaggingSearch] = useState('');
+  const [geotaggingJkFilter, setGeotaggingJkFilter] = useState<'ALL' | 'L' | 'P' | 'LANSIA' | 'DISABILITAS'>('ALL');
+  const [geotaggingPage, setGeotaggingPage] = useState(1);
+
+  // Global window handler to open Geotagging Bitung modal from Leaflet popup
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).__openGeotaggingBitungModal = () => {
+      setGeotaggingPage(1);
+      setGeotaggingSearch('');
+      setGeotaggingJkFilter('ALL');
+      setShowGeotaggingModal(true);
+    };
+    return () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (window as any).__openGeotaggingBitungModal;
+    };
+  }, []);
+
+  // Geotagging Bitung filtered items & pagination
+  const filteredGeotaggingItems = useMemo(() => {
+    return selectedGeotaggingBitungData.filter((item) => {
+      if (geotaggingJkFilter === 'L' && item.jk !== 'L') return false;
+      if (geotaggingJkFilter === 'P' && item.jk !== 'P') return false;
+      if (geotaggingJkFilter === 'LANSIA') {
+        const val = item.lansia?.toLowerCase();
+        if (!val || val === 'tidak' || val === '0') return false;
+      }
+      if (geotaggingJkFilter === 'DISABILITAS') {
+        const val = item.disabilitas?.toLowerCase();
+        if (!val || val === 'tidak' || val === '0') return false;
+      }
+      if (geotaggingSearch.trim()) {
+        const q = geotaggingSearch.toLowerCase();
+        const matchNama = item.nama?.toLowerCase().includes(q);
+        const matchHub = item.hub?.toLowerCase().includes(q);
+        const matchId = String(item.id).includes(q);
+        if (!matchNama && !matchHub && !matchId) return false;
+      }
+      return true;
+    });
+  }, [selectedGeotaggingBitungData, geotaggingJkFilter, geotaggingSearch]);
+
+  const geotaggingPageSize = 25;
+  const geotaggingTotalPages = Math.max(1, Math.ceil(filteredGeotaggingItems.length / geotaggingPageSize));
+  const paginatedGeotaggingItems = useMemo(() => {
+    const start = (geotaggingPage - 1) * geotaggingPageSize;
+    return filteredGeotaggingItems.slice(start, start + geotaggingPageSize);
+  }, [filteredGeotaggingItems, geotaggingPage]);
+
+  const geotaggingStatsSummary = useMemo(() => {
+    let l = 0, p = 0, lansia = 0, dis = 0;
+    selectedGeotaggingBitungData.forEach((it) => {
+      if (it.jk === 'L') l++;
+      else if (it.jk === 'P') p++;
+      if (it.lansia && it.lansia.toLowerCase() !== 'tidak' && it.lansia !== '0') lansia++;
+      if (it.disabilitas && it.disabilitas.toLowerCase() !== 'tidak' && it.disabilitas !== '0') dis++;
+    });
+    return { l, p, lansia, dis, total: selectedGeotaggingBitungData.length };
+  }, [selectedGeotaggingBitungData]);
+
+  const handleExportGeotaggingCsv = () => {
+    if (!selectedGeotaggingBitungData.length) return;
+    const headers = ['No', 'ID', 'Nama Lengkap', 'Hubungan Keluarga', 'Jenis Kelamin', 'Usia', 'Lansia', 'Disabilitas', 'Latitude', 'Longitude'];
+    const rows = selectedGeotaggingBitungData.map((item, idx) => [
+      idx + 1,
+      item.id,
+      `"${(item.nama || '').replace(/"/g, '""')}"`,
+      `"${(item.hub || '').replace(/"/g, '""')}"`,
+      item.jk === 'L' ? 'Laki-laki' : item.jk === 'P' ? 'Perempuan' : item.jk,
+      item.usia || '',
+      item.lansia || 'Tidak',
+      item.disabilitas || 'Tidak',
+      item.lat,
+      item.lng,
+    ]);
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `geotagging_bitung_terpilih_${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   // Modal searchable select dropdown states
   const [isDisasterDropdownOpen, setIsDisasterDropdownOpen] = useState(false);
@@ -2811,7 +2988,7 @@ export default function DashboardLeaflet({
             vl.on('click', (e: any) => {
               const p = e.layer?.properties;
               if (!p || !mapRef.current) return;
-              const content = `
+      const content = `
                 <div style="font-family:sans-serif; min-width:220px; font-size:11px; color:#333; line-height:1.4;">
                   <div style="font-weight:bold; color:#059669; font-size:12px; border-bottom:1px solid #E2E8F0; padding-bottom:4px; margin-bottom:6px;">
                     🟢 ${def.label}
@@ -3469,13 +3646,18 @@ export default function DashboardLeaflet({
       .openOn(map);
 
     try {
-      const [stats, kelList, sekolahList, landCoverList, hakAtasTanahList] = await Promise.all([
+      const [stats, kelList, sekolahList, landCoverList, hakAtasTanahList, bitungStats] = await Promise.all([
         queryHexbinRes9Stats(layer),
         queryDukcapilKelurahan(layer),
         queryDapodikSekolahDampak(layer, kodeKemendagri),
         queryBitungBasemapLayer18(layer),
         queryAtrBpnHakAtasTanah(layer),
+        queryGeotaggingBitung(layer),
       ]);
+
+      if (bitungStats?.items) {
+        setSelectedGeotaggingBitungData(bitungStats.items);
+      }
 
       // Group kelurahanDampak by Provinsi & Kabupaten for clean popup display
       type RegionGroup = { prov: string; kab: string; kels: string[] };
@@ -3552,6 +3734,49 @@ export default function DashboardLeaflet({
            </div>`
         : '';
 
+      const geotaggingBitungHtml = bitungStats.total > 0
+        ? `<div style="margin-top:8px; padding-top:6px; border-top:1.5px solid #E2E8F0;">
+             <div style="font-weight:700; color:#059669; margin-bottom:4px; font-size:11px; display:flex; align-items:center; justify-content:space-between;">
+               <span>🟢 Geotagging Penduduk (Kota Bitung):</span>
+               <span style="font-size:9.5px; background:#ECFDF5; color:#065F46; padding:1px 5px; border-radius:4px; font-weight:700; border:1px solid #A7F3D0;">
+                 ${bitungStats.total.toLocaleString('id')} Jiwa
+               </span>
+             </div>
+             <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:6px; padding:5px 8px; font-size:10px; color:#1E293B;">
+               <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                 <span>👨 Laki-laki:</span>
+                 <b style="color:#0284C7;">${bitungStats.lakiLaki.toLocaleString('id')} Jiwa</b>
+               </div>
+               <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                 <span>👩 Perempuan:</span>
+                 <b style="color:#EC4899;">${bitungStats.perempuan.toLocaleString('id')} Jiwa</b>
+               </div>
+               ${bitungStats.lansia > 0 ? `
+               <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                 <span>👴 Lansia:</span>
+                 <b style="color:#D97706;">${bitungStats.lansia.toLocaleString('id')} Jiwa</b>
+               </div>` : ''}
+               ${bitungStats.disabilitas > 0 ? `
+               <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                 <span>♿ Disabilitas:</span>
+                 <b style="color:#7C3AED;">${bitungStats.disabilitas.toLocaleString('id')} Jiwa</b>
+               </div>` : ''}
+               <div style="margin-top:6px; padding-top:4px; border-top:1px dashed #86EFAC;">
+                 <button 
+                   id="btn-open-geotagging-modal"
+                   type="button"
+                   onclick="window.__openGeotaggingBitungModal && window.__openGeotaggingBitungModal()"
+                   style="width:100%; padding:5px 8px; background:#059669; color:#FFFFFF; border:none; border-radius:5px; font-size:10px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; box-shadow:0 1px 2px rgba(0,0,0,0.05);"
+                   onmouseover="this.style.background='#047857'"
+                   onmouseout="this.style.background='#059669'"
+                 >
+                   <span>📋 Tampilkan Data (${bitungStats.total.toLocaleString('id')})</span>
+                 </button>
+               </div>
+             </div>
+           </div>`
+        : '';
+
       const content = `
         <div style="font-family:sans-serif; min-width:260px; font-size:11px; color:#0F172A;">
           <div style="border-bottom:1.5px solid #E2E8F0; padding-bottom:6px; margin-bottom:8px;">
@@ -3567,6 +3792,7 @@ export default function DashboardLeaflet({
           ${kelHtml}
           ${landCoverHtml}
           ${hakAtasTanahHtml}
+          ${geotaggingBitungHtml}
         </div>
       `;
       popup.setContent(content);
@@ -5216,6 +5442,292 @@ export default function DashboardLeaflet({
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DETAIL DATA GEOTAGGING BITUNG TERPILIH */}
+      {showGeotaggingModal && (
+        <div className="fixed inset-0 z-[10000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 select-none animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-800 via-teal-800 to-slate-900 text-white flex items-center justify-between shrink-0 shadow-md">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 text-emerald-300 shadow-inner">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
+                    <span>Data Geotagging Penduduk Terpilih</span>
+                    <span className="text-[11px] font-bold bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 px-2 py-0.5 rounded-full">
+                      Kota Bitung
+                    </span>
+                  </h3>
+                  <p className="text-xs text-emerald-100/80 font-medium">
+                    Total: <b className="text-white font-bold">{selectedGeotaggingBitungData.length.toLocaleString('id')}</b> jiwa terselect di area terdampak
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleExportGeotaggingCsv}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-all border border-white/20 active:scale-95"
+                  title="Unduh data terseleksi dalam format CSV"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export CSV</span>
+                </button>
+                <button
+                  onClick={() => setShowGeotaggingModal(false)}
+                  className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors"
+                  title="Tutup Modal"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Filter Toolbar */}
+            <div className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700/60 flex flex-wrap items-center justify-between gap-3 shrink-0">
+              {/* Search input */}
+              <div className="relative flex-1 min-w-[220px]">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Cari nama, ID, hubungan keluarga..."
+                  value={geotaggingSearch}
+                  onChange={(e) => {
+                    setGeotaggingSearch(e.target.value);
+                    setGeotaggingPage(1);
+                  }}
+                  className="w-full pl-9 pr-8 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 outline-none focus:border-emerald-500 transition-colors shadow-2xs"
+                />
+                {geotaggingSearch && (
+                  <button
+                    onClick={() => {
+                      setGeotaggingSearch('');
+                      setGeotaggingPage(1);
+                    }}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Gender & Vulnerability Filter Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                <button
+                  onClick={() => {
+                    setGeotaggingJkFilter('ALL');
+                    setGeotaggingPage(1);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    geotaggingJkFilter === 'ALL'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100'
+                  }`}
+                >
+                  Semua ({geotaggingStatsSummary.total})
+                </button>
+                <button
+                  onClick={() => {
+                    setGeotaggingJkFilter('L');
+                    setGeotaggingPage(1);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                    geotaggingJkFilter === 'L'
+                      ? 'bg-sky-600 text-white shadow-xs'
+                      : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sky-700 dark:text-sky-300 hover:bg-sky-50 dark:hover:bg-sky-950/40'
+                  }`}
+                >
+                  <span>👨 Laki-laki ({geotaggingStatsSummary.l})</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setGeotaggingJkFilter('P');
+                    setGeotaggingPage(1);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                    geotaggingJkFilter === 'P'
+                      ? 'bg-pink-600 text-white shadow-xs'
+                      : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-pink-700 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/40'
+                  }`}
+                >
+                  <span>👩 Perempuan ({geotaggingStatsSummary.p})</span>
+                </button>
+                {geotaggingStatsSummary.lansia > 0 && (
+                  <button
+                    onClick={() => {
+                      setGeotaggingJkFilter('LANSIA');
+                      setGeotaggingPage(1);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                      geotaggingJkFilter === 'LANSIA'
+                        ? 'bg-amber-600 text-white shadow-xs'
+                        : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-amber-700 dark:text-amber-300 hover:bg-amber-50'
+                    }`}
+                  >
+                    <span>👴 Lansia ({geotaggingStatsSummary.lansia})</span>
+                  </button>
+                )}
+                {geotaggingStatsSummary.dis > 0 && (
+                  <button
+                    onClick={() => {
+                      setGeotaggingJkFilter('DISABILITAS');
+                      setGeotaggingPage(1);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                      geotaggingJkFilter === 'DISABILITAS'
+                        ? 'bg-purple-600 text-white shadow-xs'
+                        : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-purple-700 dark:text-purple-300 hover:bg-purple-50'
+                    }`}
+                  >
+                    <span>♿ Disabilitas ({geotaggingStatsSummary.dis})</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Table Content */}
+            <div className="flex-1 overflow-auto p-3 sm:p-5">
+              {filteredGeotaggingItems.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center text-slate-400">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+                    <Search className="w-6 h-6 text-slate-400" />
+                  </div>
+                  <div className="text-sm font-bold text-slate-700 dark:text-slate-300">Tidak ada data ditemukan</div>
+                  <div className="text-xs text-slate-400 max-w-sm mt-1">Coba sesuaikan kata kunci pencarian atau filter jenis kelamin di atas.</div>
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-100/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10.5px] border-b border-slate-200 dark:border-slate-700">
+                        <th className="py-3 px-3.5 font-bold w-12 text-center">No</th>
+                        <th className="py-3 px-3 font-bold w-20">ID</th>
+                        <th className="py-3 px-4 font-bold">Nama Lengkap</th>
+                        <th className="py-3 px-3 font-bold text-center">JK</th>
+                        <th className="py-3 px-4 font-bold">Hub. Keluarga</th>
+                        <th className="py-3 px-3 font-bold text-center">Usia</th>
+                        <th className="py-3 px-3 font-bold text-center">Status Kerentanan</th>
+                        <th className="py-3 px-4 font-bold text-right">Koordinat (Lat, Lng)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                      {paginatedGeotaggingItems.map((item, idx) => {
+                        const rowNum = (geotaggingPage - 1) * geotaggingPageSize + idx + 1;
+                        const isL = item.jk === 'L';
+                        const isP = item.jk === 'P';
+                        const isLansia = item.lansia && item.lansia.toLowerCase() !== 'tidak' && item.lansia !== '0';
+                        const isDis = item.disabilitas && item.disabilitas.toLowerCase() !== 'tidak' && item.disabilitas !== '0';
+
+                        return (
+                          <tr
+                            key={`${item.id}-${idx}`}
+                            className="hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-colors"
+                          >
+                            <td className="py-2.5 px-3.5 text-center text-slate-400 font-mono text-[11px]">{rowNum}</td>
+                            <td className="py-2.5 px-3 text-slate-500 font-mono text-[11px]">{item.id}</td>
+                            <td className="py-2.5 px-4 font-bold text-[#0a1e36] dark:text-slate-100">
+                              {item.nama || '—'}
+                            </td>
+                            <td className="py-2.5 px-3 text-center">
+                              {isL ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300">
+                                  👨 L
+                                </span>
+                              ) : isP ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-pink-100 text-pink-700 dark:bg-pink-950/60 dark:text-pink-300">
+                                  👩 P
+                                </span>
+                              ) : (
+                                <span className="text-slate-400 text-[10px]">—</span>
+                              )}
+                            </td>
+                            <td className="py-2.5 px-4 text-slate-600 dark:text-slate-300">
+                              <span className="inline-block px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[10.5px] font-medium">
+                                {item.hub || 'Anggota'}
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-3 text-center text-slate-700 dark:text-slate-200 font-semibold">
+                              {item.usia ? `${item.usia} thn` : '—'}
+                            </td>
+                            <td className="py-2.5 px-3 text-center">
+                              <div className="flex items-center justify-center gap-1 flex-wrap">
+                                {isLansia && (
+                                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 text-[10px] font-bold" title="Lansia">
+                                    👴 Lansia
+                                  </span>
+                                )}
+                                {isDis && (
+                                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 text-[10px] font-bold" title={item.disabilitas}>
+                                    ♿ Disabilitas
+                                  </span>
+                                )}
+                                {!isLansia && !isDis && (
+                                  <span className="text-slate-400 text-[11px]">—</span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-2.5 px-4 text-right font-mono text-[10.5px] text-slate-500">
+                              {item.lat.toFixed(5)}, {item.lng.toFixed(5)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer with Pagination */}
+            <div className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/70 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3 shrink-0">
+              <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Menampilkan{' '}
+                <b className="text-slate-800 dark:text-slate-100">
+                  {filteredGeotaggingItems.length > 0 ? (geotaggingPage - 1) * geotaggingPageSize + 1 : 0}
+                </b>{' '}
+                -{' '}
+                <b className="text-slate-800 dark:text-slate-100">
+                  {Math.min(geotaggingPage * geotaggingPageSize, filteredGeotaggingItems.length)}
+                </b>{' '}
+                dari{' '}
+                <b className="text-slate-800 dark:text-slate-100">
+                  {filteredGeotaggingItems.length.toLocaleString('id')}
+                </b>{' '}
+                data jiwa
+              </div>
+
+              {/* Pagination controls */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setGeotaggingPage((prev) => Math.max(1, prev - 1))}
+                  disabled={geotaggingPage <= 1}
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:pointer-events-none hover:bg-white dark:hover:bg-slate-700 transition-all shadow-2xs"
+                >
+                  Sebelumnya
+                </button>
+                <span className="text-xs font-semibold px-2 text-slate-600 dark:text-slate-300">
+                  Hal. {geotaggingPage} / {geotaggingTotalPages}
+                </span>
+                <button
+                  onClick={() => setGeotaggingPage((prev) => Math.min(geotaggingTotalPages, prev + 1))}
+                  disabled={geotaggingPage >= geotaggingTotalPages}
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:pointer-events-none hover:bg-white dark:hover:bg-slate-700 transition-all shadow-2xs"
+                >
+                  Selanjutnya
+                </button>
+                <button
+                  onClick={() => setShowGeotaggingModal(false)}
+                  className="ml-2 px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold shadow-md transition-all active:scale-95"
+                >
+                  Tutup
+                </button>
               </div>
             </div>
           </div>
