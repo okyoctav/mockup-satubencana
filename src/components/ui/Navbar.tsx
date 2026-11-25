@@ -74,7 +74,6 @@ export default function Navbar({ activePath }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const currentPath = activePath || pathname || '/';
-  const isHome = currentPath === '/';
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 50);
@@ -107,38 +106,36 @@ export default function Navbar({ activePath }: NavbarProps) {
           />
         </Link>
 
-        {/* Clean Modern Capsule Desktop Navigation Links (Middle) - Hidden on Beranda, visible on other pages */}
-        {!isHome && (
-          <nav className="hidden lg:flex items-center gap-1.5 p-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xs">
-            {NAV_ITEMS.map((item) => {
-              const isActive = currentPath === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all duration-200 whitespace-nowrap flex items-center gap-1.5 select-none ${
-                    isActive
-                      ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 shadow-xs border border-slate-200 dark:border-slate-700'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 hover:shadow-xs active:scale-98'
-                  }`}
-                >
-                  {isActive && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
-                  )}
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-        )}
+        {/* Clean Modern Capsule Desktop Navigation Links (Middle) */}
+        <nav className="hidden lg:flex items-center gap-1.5 p-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xs">
+          {NAV_ITEMS.map((item) => {
+            const isActive = currentPath === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all duration-200 whitespace-nowrap flex items-center gap-1.5 select-none cursor-pointer ${
+                  isActive
+                    ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 shadow-xs border border-blue-200/80 dark:border-blue-800/60'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 hover:shadow-xs active:scale-98'
+                }`}
+              >
+                {isActive && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 shrink-0" />
+                )}
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
 
         {/* Far Right: Informasi Pill Button + Theme Mode Switch */}
         <div className="hidden lg:flex items-center gap-3.5 shrink-0">
           <Link
             href="/informasi-mitra"
-            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all duration-200 shadow-2xs hover:scale-102 ${
+            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all duration-200 shadow-2xs hover:scale-102 cursor-pointer ${
               currentPath === '/informasi-mitra'
-                ? 'border-rose-500 text-rose-600 bg-rose-50 dark:text-rose-400 dark:bg-rose-950 dark:border-rose-500'
+                ? 'border-blue-500 text-blue-700 bg-blue-50 dark:text-blue-300 dark:bg-blue-950/70 dark:border-blue-500'
                 : 'border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700'
             }`}
           >
@@ -153,9 +150,9 @@ export default function Navbar({ activePath }: NavbarProps) {
         <div className="lg:hidden flex items-center gap-2">
           <Link
             href="/informasi-mitra"
-            className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold border transition-all duration-200 shadow-2xs ${
+            className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold border transition-all duration-200 shadow-2xs cursor-pointer ${
               currentPath === '/informasi-mitra'
-                ? 'border-rose-500 text-rose-600 bg-rose-50 dark:text-rose-400 dark:bg-rose-950 dark:border-rose-500'
+                ? 'border-blue-500 text-blue-700 bg-blue-50 dark:text-blue-300 dark:bg-blue-950/70 dark:border-blue-500'
                 : 'border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800'
             }`}
           >
@@ -165,20 +162,18 @@ export default function Navbar({ activePath }: NavbarProps) {
 
           <ThemeToggle />
 
-          {!isHome && (
-            <button
-              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-200"
-              onClick={() => setMenuOpen(!menuOpen)}
-              aria-label="Toggle menu"
-            >
-              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          )}
+          <button
+            className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-200 cursor-pointer"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </div>
 
-      {/* Mobile Drawer Menu - Only on other pages */}
-      {!isHome && menuOpen && (
+      {/* Mobile Drawer Menu */}
+      {menuOpen && (
         <div
           className="lg:hidden px-6 pb-6 pt-3 space-y-2 max-h-[85vh] overflow-y-auto"
           style={{
@@ -193,9 +188,9 @@ export default function Navbar({ activePath }: NavbarProps) {
                 key={item.href}
                 href={item.href}
                 onClick={() => setMenuOpen(false)}
-                className={`block p-3 rounded-xl text-xs font-bold transition-colors ${
+                className={`block p-3 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                   isActive
-                    ? 'bg-rose-50 text-rose-600 dark:bg-rose-950 dark:text-rose-400'
+                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-black'
                     : 'text-slate-900 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >

@@ -1,191 +1,146 @@
 'use client';
 
+import Link from 'next/link';
+import {
+  ShieldCheck,
+  ExternalLink,
+} from 'lucide-react';
 import { DEFAULT_DASHBOARD_PATH } from '@/lib/routes';
 
-const MITRA = [
-  { nama: 'BNPB', kepanjangan: 'Badan Nasional Penanggulangan Bencana', url: 'https://bnpb.go.id', logo: '/logo/logo_bnpb.png' },
-  { nama: 'BPBD', kepanjangan: 'Badan Penanggulangan Bencana Daerah', url: '#', logo: '/logo/logo_bnpb.png' },
-  { nama: 'BMKG', kepanjangan: 'Badan Meteorologi, Klimatologi, dan Geofisika', url: 'https://bmkg.go.id', logo: '/logo/logo_bmkg.png' },
-  { nama: 'BIG', kepanjangan: 'Badan Informasi Geospasial', url: 'https://big.go.id', logo: '/logo/logo_big.png' },
-  { nama: 'BRIN', kepanjangan: 'Badan Riset dan Inovasi Nasional', url: 'https://brin.go.id', logo: '/logo/logo_brin.png' },
-  { nama: 'Kemendagri', kepanjangan: 'Kementerian Dalam Negeri', url: 'https://kemendagri.go.id', logo: '/logo/logo_kemendagri.png' },
-];
-
-const LINKS = {
-  Platform: [
-    { label: 'Landing Page', href: '/' },
-    { label: 'Dashboard', href: DEFAULT_DASHBOARD_PATH },
-    { label: 'Peta Bencana', href: '#peta' },
-    { label: 'Analisis Data', href: '#dashboard-info' },
+const FOOTER_LINKS = {
+  Navigasi: [
+    { label: 'Beranda Utama', href: '/' },
+    { label: 'Impact Assessment Dashboard', href: DEFAULT_DASHBOARD_PATH },
+    { label: 'Basis Data Kebencanaan', href: '/analisis-data' },
+    { label: 'Sejarah Kebencanaan', href: '/sejarah-kebencanaan' },
+    { label: 'Simulasi & Modeling', href: '/simulasi-modeling' },
+    { label: 'Informasi Mitra', href: '/informasi-mitra' },
   ],
-  Sumber: [
-    { label: 'Data BNPB', href: 'https://bnpb.go.id/datainformasi/data-bencana' },
-    { label: 'GeoJSON BIG', href: 'https://big.go.id' },
-    { label: 'Data BMKG', href: 'https://bmkg.go.id' },
-    { label: 'Open Data Bencana', href: '#' },
+  'Sumber Walidata': [
+    { label: 'Portal Data BNPB (DIBI)', href: 'https://dibi.bnpb.go.id' },
+    { label: 'Early Warning BMKG', href: 'https://bmkg.go.id' },
+    { label: 'Geoportal BIG (Ina-Geoportal)', href: 'https://tanahair.indonesia.go.id' },
+    { label: 'Magma Indonesia PVMBG', href: 'https://magma.esdm.go.id' },
+    { label: 'SIPONGI Karhutla KLHK', href: 'https://sipongi.menlhk.go.id' },
   ],
-  Informasi: [
-    { label: 'Tentang Proyek', href: '#' },
-    { label: 'Metodologi', href: '#' },
-    { label: 'Kontak', href: '#' },
-    { label: 'Kebijakan Data', href: '#' },
+  Layanan: [
+    { label: 'Unduh Dokumen Metodologi', href: '/api/download-metodologi-docx' },
+    { label: 'API Testing & Integrasi', href: '/api-testing' },
+    { label: 'Panduan Penggunaan GIS', href: '/informasi-mitra' },
+    { label: 'Portal Administrasi', href: '/admin' },
   ],
 };
 
 export default function FooterSection() {
   return (
-    <footer
-      id="footer"
-      className="relative pt-20 pb-8"
-      style={{
-        background: 'var(--footer-bg)',
-        borderTop: '1px solid var(--border-faint)',
-      }}
-    >
-      {/* Glow top */}
+    <footer className="relative pt-16 pb-10 bg-slate-100 dark:bg-slate-950 border-t border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+      
+      {/* Decorative Top Accent Glow */}
       <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-1 rounded-full"
-        style={{ background: 'linear-gradient(90deg, transparent, #0EA5E9, transparent)' }}
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 max-w-4xl h-0.5 rounded-full"
+        style={{
+          background: 'linear-gradient(90deg, transparent, #2563EB, #059669, transparent)',
+        }}
       />
 
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Top section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-16">
-          {/* Brand */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center gap-3 mb-4">
-            <img
-              src="/logo/logo_mdb_alone.png"
-              alt="Logo DataBencana"
-              style={{ height: 40, width: 'auto', objectFit: 'contain' }}
-            />
-          </div>
-            <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--text-muted)' }}>
-              Platform geospasial terpadu untuk manajemen dan analisis data bencana nasional.
-              Mendukung pengambilan keputusan berbasis data dari pra hingga pasca-bencana.
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-12 mb-14">
+          
+          {/* Brand & Mandate (2 Cols) */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center gap-3">
+              <img
+                src="/logo/logo_mdb.png"
+                alt="Logo Manajemen Data Bencana"
+                style={{ height: 38, width: 'auto', objectFit: 'contain' }}
+              />
+              <div className="h-6 w-px bg-slate-300 dark:bg-slate-700" />
+              <img
+                src="/logo/Logo_kewilayahan.png"
+                alt="Logo Kedeputian Pembangunan Kewilayahan"
+                style={{ height: 30, width: 'auto', objectFit: 'contain' }}
+              />
+            </div>
+
+            <p className="text-xs sm:text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+              Platform intelijen geospasial terpadu untuk manajemen data bencana nasional. Mendukung orkestrasi perencanaan pembangunan kewilayahan yang tangguh dari prabencana, tanggap darurat, hingga pascabencana.
             </p>
-            {/* Status indicator */}
-            <div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs"
-              style={{
-                backgroundColor: 'rgba(34,197,94,0.1)',
-                border: '1px solid rgba(34,197,94,0.2)',
-                color: '#22C55E',
-              }}
-            >
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse inline-block" />
-              Sistem Aktif · Data Diperbarui Setiap Jam
+
+            {/* Institution Badge */}
+            <div className="pt-1">
+              <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
+                Penyelenggara Sistem:
+              </span>
+              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                Kedeputian Pembangunan Kewilayahan
+              </p>
+            </div>
+
+            {/* Operational Status */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Sistem Operasional · Sinkronisasi 24/7</span>
             </div>
           </div>
 
-          {/* Links */}
-          {Object.entries(LINKS).map(([group, links]) => (
-            <div key={group}>
-              <h4 className="font-semibold text-sm mb-4" style={{ color: 'var(--text-primary)' }}>
-                {group}
+          {/* Links Columns (3 Cols) */}
+          {Object.entries(FOOTER_LINKS).map(([category, links]) => (
+            <div key={category} className="space-y-3">
+              <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                {category}
               </h4>
-              <ul className="space-y-3">
-                {links.map((link) => (
-                  <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="text-sm transition-colors duration-200 hover:text-sky-400"
-                      style={{ color: 'var(--text-muted)' }}
-                      {...(link.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
+              <ul className="space-y-2">
+                {links.map((link) => {
+                  const isExternal = link.href.startsWith('http');
+                  return (
+                    <li key={link.label}>
+                      {isExternal ? (
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        >
+                          <span>{link.label}</span>
+                          <ExternalLink className="w-3 h-3 opacity-60" />
+                        </a>
+                      ) : (
+                        <Link
+                          href={link.href}
+                          className="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        >
+                          <span>{link.label}</span>
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
+
         </div>
 
-        {/* Mitra section */}
-        <div className="mb-12">
-          <h4 className="text-xs font-semibold tracking-widest mb-6 text-center" style={{ color: 'var(--text-secondary)' }}>
-            MITRA & ORGANISASI TERLIBAT
-          </h4>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-            {MITRA.map((m) => (
-              <a
-                key={m.nama}
-                href={m.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={m.kepanjangan}
-                className="rounded-2xl px-4 py-4 text-center transition-all duration-200 hover:scale-105 group"
-                style={{
-                  backgroundColor: 'var(--mitra-bg)',
-                  border: '1px solid var(--mitra-border)',
-                }}
-              >
-                {m.logo ? (
-                  <img
-                    src={m.logo}
-                    alt={`Logo ${m.nama}`}
-                    className="mx-auto mb-2"
-                    style={{ maxHeight: 40, width: 'auto', objectFit: 'contain' }}
-                  />
-                ) : (
-                  <div
-                    className="text-lg font-bold mb-1 transition-colors group-hover:text-sky-400"
-                    style={{ color: 'var(--text-feature)' }}
-                  >
-                    {m.nama}
-                  </div>
-                )}
-                <div className="text-xs leading-tight" style={{ color: 'var(--text-muted)' }}>
-                  {m.kepanjangan.split(', ').slice(0, 2).join(', ')}
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* Stats bar */}
-        <div
-          className="rounded-2xl p-6 mb-10 grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
-          style={{
-            backgroundColor: 'var(--mitra-bg)',
-            border: '1px solid var(--mitra-border)',
-          }}
-        >
-          {[
-            { value: '342', label: 'Kejadian 2024', color: '#0EA5E9' },
-            { value: '38', label: 'Provinsi', color: '#22C55E' },
-            { value: '127', label: 'Jiwa Terdampak', color: '#EF4444' },
-            { value: '89.340', label: 'Pengungsi', color: '#F97316' },
-          ].map((s) => (
-            <div key={s.label}>
-              <div className="text-2xl font-bold mb-1" style={{ color: s.color }}>{s.value}</div>
-              <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Bottom bar */}
-        <div
-          className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6"
-          style={{ borderTop: '1px solid var(--border-faint)' }}
-        >
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            © 2026 DataBencana — Sistem Analisis Data Bencana Nasional. Semua hak dilindungi.
+        {/* Bottom Strip: Copyright & Disclaimers */}
+        <div className="pt-8 border-t border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+          <p>
+            © {new Date().getFullYear()} Satu Bencana · Kedeputian Pembangunan Kewilayahan. Seluruh hak cipta dilindungi undang-undang.
           </p>
-          <div className="flex items-center gap-4">
-            {['Kebijakan Privasi', 'Syarat Penggunaan', 'API'].map((item) => (
-              <a
-                key={item}
-                href="#"
-                className="text-xs transition-colors hover:text-sky-400"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                {item}
-              </a>
-            ))}
+
+          <div className="flex items-center gap-4 text-[11px] font-semibold">
+            <span className="inline-flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Standar Satu Data Indonesia</span>
+            </span>
+            <span className="text-slate-300 dark:text-slate-700">|</span>
+            <Link href="/informasi-mitra" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              Kebijakan Data
+            </Link>
           </div>
         </div>
+
       </div>
     </footer>
   );
