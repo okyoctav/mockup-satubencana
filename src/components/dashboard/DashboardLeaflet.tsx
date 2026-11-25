@@ -3,7 +3,7 @@
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Layers, Search, Check, X, Eye, EyeOff, ShieldCheck, Activity, MapPin, Pencil, Home, Maximize2, Minimize2, BookOpen, ChevronDown, ChevronUp, RotateCcw, Sparkles, Flame, CloudLightning, Download, Users } from 'lucide-react';
+import { Layers, Search, Check, X, Eye, EyeOff, Lock, Unlock, Activity, MapPin, Pencil, Home, Maximize2, Minimize2, BookOpen, ChevronDown, ChevronUp, RotateCcw, Sparkles, Flame, CloudLightning, Download, Users } from 'lucide-react';
 import { JENIS_CONFIG } from '@/components/dashboard/FilterPanel';
 import { DISASTER_CATEGORIES, DashboardLayer } from '@/types/layer';
 import { DEFAULT_DASHBOARD_LAYERS } from '@/data/defaultLayers';
@@ -1158,6 +1158,33 @@ export default function DashboardLeaflet({
   const [geotaggingJkFilter, setGeotaggingJkFilter] = useState<'ALL' | 'L' | 'P' | 'LAINNYA' | 'LANSIA' | 'DISABILITAS' | 'ANAK' | 'BALITA'>('ALL');
   const [geotaggingPage, setGeotaggingPage] = useState(1);
   const [isGeotaggingMasked, setIsGeotaggingMasked] = useState(true);
+  const [showGeotaggingPasswordModal, setShowGeotaggingPasswordModal] = useState(false);
+  const [geotaggingPasswordInput, setGeotaggingPasswordInput] = useState('');
+  const [geotaggingPasswordError, setGeotaggingPasswordError] = useState('');
+  const [showGeotaggingPasswordText, setShowGeotaggingPasswordText] = useState(false);
+
+  const handleToggleGeotaggingMask = () => {
+    if (isGeotaggingMasked) {
+      setShowGeotaggingPasswordModal(true);
+      setGeotaggingPasswordInput('');
+      setGeotaggingPasswordError('');
+      setShowGeotaggingPasswordText(false);
+    } else {
+      setIsGeotaggingMasked(true);
+    }
+  };
+
+  const handleVerifyGeotaggingPassword = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (geotaggingPasswordInput === 'mdb#1sampai10') {
+      setIsGeotaggingMasked(false);
+      setShowGeotaggingPasswordModal(false);
+      setGeotaggingPasswordInput('');
+      setGeotaggingPasswordError('');
+    } else {
+      setGeotaggingPasswordError('Kata sandi salah! Akses ditolak.');
+    }
+  };
 
   // Global window handler to open Geotagging Bitung modal from Leaflet popup
   useEffect(() => {
@@ -1167,6 +1194,9 @@ export default function DashboardLeaflet({
       setGeotaggingSearch('');
       setGeotaggingJkFilter('ALL');
       setIsGeotaggingMasked(true);
+      setShowGeotaggingPasswordModal(false);
+      setGeotaggingPasswordInput('');
+      setGeotaggingPasswordError('');
       setShowGeotaggingModal(true);
     };
     return () => {
@@ -5522,18 +5552,27 @@ export default function DashboardLeaflet({
               </div>
 
               <div className="flex items-center gap-2">
-                {/* Toggle Sensor / Masking Nama */}
+                {/* Toggle Sensor / Masking Nama dengan Verifikasi Password */}
                 <button
-                  onClick={() => setIsGeotaggingMasked((prev) => !prev)}
+                  onClick={handleToggleGeotaggingMask}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border active:scale-95 ${
                     isGeotaggingMasked
                       ? 'bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border-sky-400/40'
-                      : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border-amber-400/40'
+                      : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border-emerald-400/40'
                   }`}
-                  title={isGeotaggingMasked ? 'Klik untuk membuka sensor nama' : 'Klik untuk menyensor nama demi privasi'}
+                  title={isGeotaggingMasked ? 'Klik untuk membuka sensor nama (memerlukan kata sandi)' : 'Klik untuk mengunci kembali sensor nama'}
                 >
-                  {isGeotaggingMasked ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                  <span className="hidden sm:inline">{isGeotaggingMasked ? 'Sensor Aktif' : 'Sensor Dibuka'}</span>
+                  {isGeotaggingMasked ? (
+                    <>
+                      <Lock className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Sensor Aktif (Blur)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Unlock className="w-3.5 h-3.5 text-emerald-300" />
+                      <span className="hidden sm:inline">Sensor Dibuka</span>
+                    </>
+                  )}
                 </button>
                 <button
                   onClick={handleExportGeotaggingCsv}
@@ -5721,9 +5760,9 @@ export default function DashboardLeaflet({
                           <div className="flex items-center gap-1.5">
                             <span>Nama Lengkap</span>
                             {isGeotaggingMasked && (
-                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9.5px] font-semibold bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800" title="Nama disensor untuk kerahasiaan data pribadi">
-                                <ShieldCheck className="w-2.5 h-2.5" />
-                                <span>Tersensor</span>
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9.5px] font-semibold bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800" title="Nama disensor dengan efek animasi blur demi kerahasiaan data">
+                                <Lock className="w-2.5 h-2.5" />
+                                <span>Blur</span>
                               </span>
                             )}
                           </div>
@@ -5753,8 +5792,17 @@ export default function DashboardLeaflet({
                           >
                             <td className="py-2.5 px-3.5 text-center text-slate-400 font-mono text-[11px]">{rowNum}</td>
                             <td className="py-2.5 px-3 text-slate-500 font-mono text-[11px]">{item.id}</td>
-                            <td className="py-2.5 px-4 font-bold text-[#0a1e36] dark:text-slate-100 font-mono text-xs">
-                              {isGeotaggingMasked ? maskName(item.nama) : (item.nama || '—')}
+                            <td className="py-2.5 px-4 font-bold text-[#0a1e36] dark:text-slate-100 text-xs">
+                              <span
+                                className={`inline-block transition-all duration-300 ease-in-out ${
+                                  isGeotaggingMasked
+                                    ? 'filter blur-[5px] select-none pointer-events-none opacity-60 text-slate-700 dark:text-slate-300 tracking-wide'
+                                    : 'filter-none opacity-100'
+                                }`}
+                                title={isGeotaggingMasked ? 'Data nama disensor (blur)' : (item.nama || '—')}
+                              >
+                                {item.nama || '—'}
+                              </span>
                             </td>
                             <td className="py-2.5 px-3 text-center">
                               {isL ? (
@@ -5862,6 +5910,95 @@ export default function DashboardLeaflet({
               </div>
             </div>
           </div>
+
+          {/* MODAL VERIFIKASI KATA SANDI UNTUK BUKA SENSOR */}
+          {showGeotaggingPasswordModal && (
+            <div className="fixed inset-0 z-[10100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-sm w-full overflow-hidden animate-in zoom-in-95 duration-200">
+                {/* Modal Header */}
+                <div className="bg-[#0a1e36] text-white p-4 flex items-center justify-between border-b border-white/10">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-sky-400">
+                      <Lock className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-white">Buka Sensor Data</h4>
+                      <p className="text-[10.5px] text-slate-300">Autentikasi Akses PII</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowGeotaggingPasswordModal(false);
+                      setGeotaggingPasswordInput('');
+                      setGeotaggingPasswordError('');
+                    }}
+                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Form */}
+                <form onSubmit={handleVerifyGeotaggingPassword} className="p-5 flex flex-col gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                      Masukkan Kata Sandi Administrator
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showGeotaggingPasswordText ? 'text' : 'password'}
+                        autoFocus
+                        value={geotaggingPasswordInput}
+                        onChange={(e) => {
+                          setGeotaggingPasswordInput(e.target.value);
+                          setGeotaggingPasswordError('');
+                        }}
+                        placeholder="Ketik password di sini..."
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowGeotaggingPasswordText(!showGeotaggingPasswordText)}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        title={showGeotaggingPasswordText ? 'Sembunyikan password' : 'Lihat password'}
+                      >
+                        {showGeotaggingPasswordText ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {geotaggingPasswordError && (
+                      <p className="text-[11px] text-rose-500 font-semibold mt-1.5 flex items-center gap-1">
+                        <span>⚠️</span> {geotaggingPasswordError}
+                      </p>
+                    )}
+                    <p className="text-[10.5px] text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                      Kerahasiaan data nama penduduk terproteksi. Memasukkan kata sandi yang valid akan menghilangkan efek blur animasi pada tabel data.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowGeotaggingPasswordModal(false);
+                        setGeotaggingPasswordInput('');
+                        setGeotaggingPasswordError('');
+                      }}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-[#0a1e36] hover:bg-[#102d4f] text-white shadow-md transition-all active:scale-95 flex items-center gap-1.5"
+                    >
+                      <Unlock className="w-3.5 h-3.5" />
+                      <span>Buka Sensor</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
