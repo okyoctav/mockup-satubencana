@@ -104,7 +104,20 @@ export async function POST(req: NextRequest) {
 
     if (!data.length) {
       return NextResponse.json(
-        { status: "empty", total: 0, lakiLaki: 0, perempuan: 0, lansia: 0, disabilitas: 0, items: [] },
+        {
+          status: "empty",
+          total: 0,
+          lakiLaki: 0,
+          perempuan: 0,
+          lainnya: 0,
+          lansia: 0,
+          disabilitas: 0,
+          anakTotal: 0,
+          anakBalita: 0,
+          anakSd: 0,
+          anakRemaja: 0,
+          items: [],
+        },
         { status: 200, headers: CORS }
       );
     }
@@ -162,6 +175,10 @@ export async function POST(req: NextRequest) {
     let lainnya = 0;
     let lansia = 0;
     let disabilitas = 0;
+    let anakTotal = 0;
+    let anakBalita = 0; // 0-4 thn
+    let anakSd = 0;     // 5-11 thn
+    let anakRemaja = 0; // 12-17 thn
     const items: Array<{
       id: number;
       nama: string;
@@ -205,6 +222,21 @@ export async function POST(req: NextRequest) {
           disabilitas++;
         }
 
+        const rawUsia = (row[4] || "").trim();
+        if (rawUsia) {
+          const usiaNum = parseInt(rawUsia, 10);
+          if (!isNaN(usiaNum) && usiaNum >= 0 && usiaNum < 18) {
+            anakTotal++;
+            if (usiaNum <= 4) {
+              anakBalita++;
+            } else if (usiaNum <= 11) {
+              anakSd++;
+            } else {
+              anakRemaja++;
+            }
+          }
+        }
+
         // Simpan seluruh data matched tanpa terpotong (hingga 50.000 titik)
         if (items.length < 50000) {
           items.push({
@@ -233,6 +265,10 @@ export async function POST(req: NextRequest) {
         lainnya,
         lansia,
         disabilitas,
+        anakTotal,
+        anakBalita,
+        anakSd,
+        anakRemaja,
         items,
       },
       { status: 200, headers: CORS }

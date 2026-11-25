@@ -925,6 +925,10 @@ export type GeotaggingBitungStats = {
   lainnya: number;
   lansia: number;
   disabilitas: number;
+  anakTotal: number;
+  anakBalita: number;
+  anakSd: number;
+  anakRemaja: number;
   items: GeotaggingBitungItem[];
 };
 
@@ -936,6 +940,10 @@ async function queryGeotaggingBitung(drawLayer: L.Layer): Promise<GeotaggingBitu
     lainnya: 0,
     lansia: 0,
     disabilitas: 0,
+    anakTotal: 0,
+    anakBalita: 0,
+    anakSd: 0,
+    anakRemaja: 0,
     items: [],
   };
 
@@ -989,6 +997,10 @@ async function queryGeotaggingBitung(drawLayer: L.Layer): Promise<GeotaggingBitu
       lainnya: json.lainnya || 0,
       lansia: json.lansia || 0,
       disabilitas: json.disabilitas || 0,
+      anakTotal: json.anakTotal || 0,
+      anakBalita: json.anakBalita || 0,
+      anakSd: json.anakSd || 0,
+      anakRemaja: json.anakRemaja || 0,
       items: json.items || [],
     };
   } catch (err) {
@@ -1143,7 +1155,7 @@ export default function DashboardLeaflet({
   const [selectedGeotaggingBitungData, setSelectedGeotaggingBitungData] = useState<GeotaggingBitungItem[]>([]);
   const [showGeotaggingModal, setShowGeotaggingModal] = useState(false);
   const [geotaggingSearch, setGeotaggingSearch] = useState('');
-  const [geotaggingJkFilter, setGeotaggingJkFilter] = useState<'ALL' | 'L' | 'P' | 'LAINNYA' | 'LANSIA' | 'DISABILITAS'>('ALL');
+  const [geotaggingJkFilter, setGeotaggingJkFilter] = useState<'ALL' | 'L' | 'P' | 'LAINNYA' | 'LANSIA' | 'DISABILITAS' | 'ANAK' | 'BALITA'>('ALL');
   const [geotaggingPage, setGeotaggingPage] = useState(1);
 
   // Global window handler to open Geotagging Bitung modal from Leaflet popup
@@ -1175,6 +1187,14 @@ export default function DashboardLeaflet({
         const val = item.disabilitas?.toLowerCase();
         if (!val || val === 'tidak' || val === '0') return false;
       }
+      if (geotaggingJkFilter === 'ANAK') {
+        const u = item.usia ? parseInt(item.usia, 10) : NaN;
+        if (isNaN(u) || u < 0 || u >= 18) return false;
+      }
+      if (geotaggingJkFilter === 'BALITA') {
+        const u = item.usia ? parseInt(item.usia, 10) : NaN;
+        if (isNaN(u) || u < 0 || u > 4) return false;
+      }
       if (geotaggingSearch.trim()) {
         const q = geotaggingSearch.toLowerCase();
         const matchNama = item.nama?.toLowerCase().includes(q);
@@ -1194,15 +1214,20 @@ export default function DashboardLeaflet({
   }, [filteredGeotaggingItems, geotaggingPage]);
 
   const geotaggingStatsSummary = useMemo(() => {
-    let l = 0, p = 0, lainnya = 0, lansia = 0, dis = 0;
+    let l = 0, p = 0, lainnya = 0, lansia = 0, dis = 0, anak = 0, balita = 0;
     selectedGeotaggingBitungData.forEach((it) => {
       if (it.jk === 'L') l++;
       else if (it.jk === 'P') p++;
       else lainnya++;
       if (it.lansia && it.lansia.toLowerCase() !== 'tidak' && it.lansia !== '0') lansia++;
       if (it.disabilitas && it.disabilitas.toLowerCase() !== 'tidak' && it.disabilitas !== '0') dis++;
+      const u = it.usia ? parseInt(it.usia, 10) : NaN;
+      if (!isNaN(u) && u >= 0 && u < 18) {
+        anak++;
+        if (u <= 4) balita++;
+      }
     });
-    return { l, p, lainnya, lansia, dis, total: selectedGeotaggingBitungData.length };
+    return { l, p, lainnya, lansia, dis, anak, balita, total: selectedGeotaggingBitungData.length };
   }, [selectedGeotaggingBitungData]);
 
   const handleExportGeotaggingCsv = () => {
@@ -3761,6 +3786,16 @@ export default function DashboardLeaflet({
                  <span>❓ Belum Tercatat:</span>
                  <b style="color:#64748B;">${bitungStats.lainnya.toLocaleString('id')} Jiwa</b>
                </div>` : ''}
+               ${bitungStats.anakTotal > 0 ? `
+               <div style="display:flex; justify-content:space-between; margin-bottom:2px; margin-top:4px; padding-top:3px; border-top:1px dashed #A7F3D0;">
+                 <span>🧒 Anak-anak (&lt;18 thn):</span>
+                 <b style="color:#0D9488;">${bitungStats.anakTotal.toLocaleString('id')} Jiwa</b>
+               </div>
+               <div style="display:flex; justify-content:space-between; font-size:9px; color:#475569; margin-bottom:3px; background:#E6FFFA; padding:2px 5px; border-radius:4px; border:1px solid #CCFBF1;">
+                 <span>👶 Balita (0-4): <b style="color:#0F766E;">${bitungStats.anakBalita.toLocaleString('id')}</b></span>
+                 <span>🧒 Anak (5-11): <b style="color:#0F766E;">${bitungStats.anakSd.toLocaleString('id')}</b></span>
+                 <span>🧑 Remaja (12-17): <b style="color:#0F766E;">${bitungStats.anakRemaja.toLocaleString('id')}</b></span>
+               </div>` : ''}
                ${bitungStats.lansia > 0 ? `
                <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
                  <span>👴 Lansia:</span>
@@ -5585,6 +5620,36 @@ export default function DashboardLeaflet({
                     <span>❓ Belum Tercatat ({geotaggingStatsSummary.lainnya})</span>
                   </button>
                 )}
+                {geotaggingStatsSummary.anak > 0 && (
+                  <button
+                    onClick={() => {
+                      setGeotaggingJkFilter('ANAK');
+                      setGeotaggingPage(1);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                      geotaggingJkFilter === 'ANAK'
+                        ? 'bg-teal-600 text-white shadow-xs'
+                        : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/40'
+                    }`}
+                  >
+                    <span>🧒 Anak-anak &lt;18 ({geotaggingStatsSummary.anak})</span>
+                  </button>
+                )}
+                {geotaggingStatsSummary.balita > 0 && (
+                  <button
+                    onClick={() => {
+                      setGeotaggingJkFilter('BALITA');
+                      setGeotaggingPage(1);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                      geotaggingJkFilter === 'BALITA'
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
+                    }`}
+                  >
+                    <span>👶 Balita 0-4 ({geotaggingStatsSummary.balita})</span>
+                  </button>
+                )}
                 {geotaggingStatsSummary.lansia > 0 && (
                   <button
                     onClick={() => {
@@ -5648,6 +5713,9 @@ export default function DashboardLeaflet({
                         const rowNum = (geotaggingPage - 1) * geotaggingPageSize + idx + 1;
                         const isL = item.jk === 'L';
                         const isP = item.jk === 'P';
+                        const usiaNum = item.usia ? parseInt(item.usia, 10) : NaN;
+                        const isBalita = !isNaN(usiaNum) && usiaNum >= 0 && usiaNum <= 4;
+                        const isAnak = !isNaN(usiaNum) && usiaNum > 4 && usiaNum < 18;
                         const isLansia = item.lansia && item.lansia.toLowerCase() !== 'tidak' && item.lansia !== '0';
                         const isDis = item.disabilitas && item.disabilitas.toLowerCase() !== 'tidak' && item.disabilitas !== '0';
 
@@ -5684,6 +5752,16 @@ export default function DashboardLeaflet({
                             </td>
                             <td className="py-2.5 px-3 text-center">
                               <div className="flex items-center justify-center gap-1 flex-wrap">
+                                {isBalita && (
+                                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-teal-100 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300 text-[10px] font-bold" title={`Balita: ${item.usia} thn`}>
+                                    👶 Balita
+                                  </span>
+                                )}
+                                {isAnak && (
+                                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 text-[10px] font-bold" title={`Anak: ${item.usia} thn`}>
+                                    🧒 Anak
+                                  </span>
+                                )}
                                 {isLansia && (
                                   <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 text-[10px] font-bold" title="Lansia">
                                     👴 Lansia
@@ -5694,7 +5772,7 @@ export default function DashboardLeaflet({
                                     ♿ Disabilitas
                                   </span>
                                 )}
-                                {!isLansia && !isDis && (
+                                {!isBalita && !isAnak && !isLansia && !isDis && (
                                   <span className="text-slate-400 text-[11px]">—</span>
                                 )}
                               </div>
