@@ -3,7 +3,7 @@
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Layers, Search, Check, X, Eye, Activity, MapPin, Pencil, Home, Maximize2, Minimize2, BookOpen, ChevronDown, ChevronUp, RotateCcw, Sparkles, Flame, CloudLightning, Download, Users } from 'lucide-react';
+import { Layers, Search, Check, X, Eye, EyeOff, ShieldCheck, Activity, MapPin, Pencil, Home, Maximize2, Minimize2, BookOpen, ChevronDown, ChevronUp, RotateCcw, Sparkles, Flame, CloudLightning, Download, Users } from 'lucide-react';
 import { JENIS_CONFIG } from '@/components/dashboard/FilterPanel';
 import { DISASTER_CATEGORIES, DashboardLayer } from '@/types/layer';
 import { DEFAULT_DASHBOARD_LAYERS } from '@/data/defaultLayers';
@@ -1157,6 +1157,7 @@ export default function DashboardLeaflet({
   const [geotaggingSearch, setGeotaggingSearch] = useState('');
   const [geotaggingJkFilter, setGeotaggingJkFilter] = useState<'ALL' | 'L' | 'P' | 'LAINNYA' | 'LANSIA' | 'DISABILITAS' | 'ANAK' | 'BALITA'>('ALL');
   const [geotaggingPage, setGeotaggingPage] = useState(1);
+  const [isGeotaggingMasked, setIsGeotaggingMasked] = useState(true);
 
   // Global window handler to open Geotagging Bitung modal from Leaflet popup
   useEffect(() => {
@@ -1165,6 +1166,7 @@ export default function DashboardLeaflet({
       setGeotaggingPage(1);
       setGeotaggingSearch('');
       setGeotaggingJkFilter('ALL');
+      setIsGeotaggingMasked(true);
       setShowGeotaggingModal(true);
     };
     return () => {
@@ -1197,7 +1199,9 @@ export default function DashboardLeaflet({
       }
       if (geotaggingSearch.trim()) {
         const q = geotaggingSearch.toLowerCase();
-        const matchNama = item.nama?.toLowerCase().includes(q);
+        const rawNama = item.nama?.toLowerCase() || '';
+        const maskedNama = maskName(item.nama).toLowerCase();
+        const matchNama = rawNama.includes(q) || maskedNama.includes(q);
         const matchHub = item.hub?.toLowerCase().includes(q);
         const matchId = String(item.id).includes(q);
         if (!matchNama && !matchHub && !matchId) return false;
@@ -1236,7 +1240,7 @@ export default function DashboardLeaflet({
     const rows = selectedGeotaggingBitungData.map((item, idx) => [
       idx + 1,
       item.id,
-      `"${(item.nama || '').replace(/"/g, '""')}"`,
+      `"${((isGeotaggingMasked ? maskName(item.nama) : item.nama) || '').replace(/"/g, '""')}"`,
       `"${(item.hub || '').replace(/"/g, '""')}"`,
       item.jk === 'L' ? 'Laki-laki' : item.jk === 'P' ? 'Perempuan' : item.jk,
       item.usia || '',
@@ -5498,29 +5502,42 @@ export default function DashboardLeaflet({
       {showGeotaggingModal && (
         <div className="fixed inset-0 z-[10000] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 select-none animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden">
-            {/* Header */}
-            <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-800 via-teal-800 to-slate-900 text-white flex items-center justify-between shrink-0 shadow-md">
+            {/* Header - Samakan warnanya biru seperti sidebar (#0a1e36) */}
+            <div className="p-4 sm:p-5 bg-[#0a1e36] text-white flex items-center justify-between shrink-0 border-b border-white/10 shadow-md">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 text-emerald-300 shadow-inner">
+                <div className="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 text-sky-400 shadow-inner">
                   <Users className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
                     <span>Data Geotagging Penduduk Terpilih</span>
-                    <span className="text-[11px] font-bold bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] font-bold bg-sky-500/20 text-sky-300 border border-sky-400/30 px-2 py-0.5 rounded-full">
                       Kota Bitung
                     </span>
                   </h3>
-                  <p className="text-xs text-emerald-100/80 font-medium">
+                  <p className="text-xs text-slate-300 font-medium">
                     Total: <b className="text-white font-bold">{selectedGeotaggingBitungData.length.toLocaleString('id')}</b> jiwa terselect di area terdampak
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
+                {/* Toggle Sensor / Masking Nama */}
+                <button
+                  onClick={() => setIsGeotaggingMasked((prev) => !prev)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border active:scale-95 ${
+                    isGeotaggingMasked
+                      ? 'bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border-sky-400/40'
+                      : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border-amber-400/40'
+                  }`}
+                  title={isGeotaggingMasked ? 'Klik untuk membuka sensor nama' : 'Klik untuk menyensor nama demi privasi'}
+                >
+                  {isGeotaggingMasked ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  <span className="hidden sm:inline">{isGeotaggingMasked ? 'Sensor Aktif' : 'Sensor Dibuka'}</span>
+                </button>
                 <button
                   onClick={handleExportGeotaggingCsv}
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-all border border-white/20 active:scale-95"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all border border-white/20 active:scale-95"
                   title="Unduh data terseleksi dalam format CSV"
                 >
                   <Download className="w-3.5 h-3.5" />
@@ -5573,7 +5590,7 @@ export default function DashboardLeaflet({
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                     geotaggingJkFilter === 'ALL'
-                      ? 'bg-emerald-600 text-white shadow-xs'
+                      ? 'bg-[#0a1e36] text-white shadow-xs'
                       : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100'
                   }`}
                 >
@@ -5700,7 +5717,17 @@ export default function DashboardLeaflet({
                       <tr className="bg-slate-100/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10.5px] border-b border-slate-200 dark:border-slate-700">
                         <th className="py-3 px-3.5 font-bold w-12 text-center">No</th>
                         <th className="py-3 px-3 font-bold w-20">ID</th>
-                        <th className="py-3 px-4 font-bold">Nama Lengkap</th>
+                        <th className="py-3 px-4 font-bold">
+                          <div className="flex items-center gap-1.5">
+                            <span>Nama Lengkap</span>
+                            {isGeotaggingMasked && (
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9.5px] font-semibold bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800" title="Nama disensor untuk kerahasiaan data pribadi">
+                                <ShieldCheck className="w-2.5 h-2.5" />
+                                <span>Tersensor</span>
+                              </span>
+                            )}
+                          </div>
+                        </th>
                         <th className="py-3 px-3 font-bold text-center">JK</th>
                         <th className="py-3 px-4 font-bold">Hub. Keluarga</th>
                         <th className="py-3 px-3 font-bold text-center">Usia</th>
@@ -5722,12 +5749,12 @@ export default function DashboardLeaflet({
                         return (
                           <tr
                             key={`${item.id}-${idx}`}
-                            className="hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-colors"
+                            className="hover:bg-sky-50/40 dark:hover:bg-sky-950/20 transition-colors"
                           >
                             <td className="py-2.5 px-3.5 text-center text-slate-400 font-mono text-[11px]">{rowNum}</td>
                             <td className="py-2.5 px-3 text-slate-500 font-mono text-[11px]">{item.id}</td>
-                            <td className="py-2.5 px-4 font-bold text-[#0a1e36] dark:text-slate-100">
-                              {item.nama || '—'}
+                            <td className="py-2.5 px-4 font-bold text-[#0a1e36] dark:text-slate-100 font-mono text-xs">
+                              {isGeotaggingMasked ? maskName(item.nama) : (item.nama || '—')}
                             </td>
                             <td className="py-2.5 px-3 text-center">
                               {isL ? (
