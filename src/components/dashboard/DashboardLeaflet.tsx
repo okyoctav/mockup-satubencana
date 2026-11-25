@@ -922,6 +922,7 @@ export type GeotaggingBitungStats = {
   total: number;
   lakiLaki: number;
   perempuan: number;
+  lainnya: number;
   lansia: number;
   disabilitas: number;
   items: GeotaggingBitungItem[];
@@ -932,6 +933,7 @@ async function queryGeotaggingBitung(drawLayer: L.Layer): Promise<GeotaggingBitu
     total: 0,
     lakiLaki: 0,
     perempuan: 0,
+    lainnya: 0,
     lansia: 0,
     disabilitas: 0,
     items: [],
@@ -984,6 +986,7 @@ async function queryGeotaggingBitung(drawLayer: L.Layer): Promise<GeotaggingBitu
       total: json.total || 0,
       lakiLaki: json.lakiLaki || 0,
       perempuan: json.perempuan || 0,
+      lainnya: json.lainnya || 0,
       lansia: json.lansia || 0,
       disabilitas: json.disabilitas || 0,
       items: json.items || [],
@@ -1140,7 +1143,7 @@ export default function DashboardLeaflet({
   const [selectedGeotaggingBitungData, setSelectedGeotaggingBitungData] = useState<GeotaggingBitungItem[]>([]);
   const [showGeotaggingModal, setShowGeotaggingModal] = useState(false);
   const [geotaggingSearch, setGeotaggingSearch] = useState('');
-  const [geotaggingJkFilter, setGeotaggingJkFilter] = useState<'ALL' | 'L' | 'P' | 'LANSIA' | 'DISABILITAS'>('ALL');
+  const [geotaggingJkFilter, setGeotaggingJkFilter] = useState<'ALL' | 'L' | 'P' | 'LAINNYA' | 'LANSIA' | 'DISABILITAS'>('ALL');
   const [geotaggingPage, setGeotaggingPage] = useState(1);
 
   // Global window handler to open Geotagging Bitung modal from Leaflet popup
@@ -1163,6 +1166,7 @@ export default function DashboardLeaflet({
     return selectedGeotaggingBitungData.filter((item) => {
       if (geotaggingJkFilter === 'L' && item.jk !== 'L') return false;
       if (geotaggingJkFilter === 'P' && item.jk !== 'P') return false;
+      if (geotaggingJkFilter === 'LAINNYA' && item.jk !== '-') return false;
       if (geotaggingJkFilter === 'LANSIA') {
         const val = item.lansia?.toLowerCase();
         if (!val || val === 'tidak' || val === '0') return false;
@@ -1190,14 +1194,15 @@ export default function DashboardLeaflet({
   }, [filteredGeotaggingItems, geotaggingPage]);
 
   const geotaggingStatsSummary = useMemo(() => {
-    let l = 0, p = 0, lansia = 0, dis = 0;
+    let l = 0, p = 0, lainnya = 0, lansia = 0, dis = 0;
     selectedGeotaggingBitungData.forEach((it) => {
       if (it.jk === 'L') l++;
       else if (it.jk === 'P') p++;
+      else lainnya++;
       if (it.lansia && it.lansia.toLowerCase() !== 'tidak' && it.lansia !== '0') lansia++;
       if (it.disabilitas && it.disabilitas.toLowerCase() !== 'tidak' && it.disabilitas !== '0') dis++;
     });
-    return { l, p, lansia, dis, total: selectedGeotaggingBitungData.length };
+    return { l, p, lainnya, lansia, dis, total: selectedGeotaggingBitungData.length };
   }, [selectedGeotaggingBitungData]);
 
   const handleExportGeotaggingCsv = () => {
@@ -3751,6 +3756,11 @@ export default function DashboardLeaflet({
                  <span>👩 Perempuan:</span>
                  <b style="color:#EC4899;">${bitungStats.perempuan.toLocaleString('id')} Jiwa</b>
                </div>
+               ${bitungStats.lainnya > 0 ? `
+               <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                 <span>❓ Belum Tercatat:</span>
+                 <b style="color:#64748B;">${bitungStats.lainnya.toLocaleString('id')} Jiwa</b>
+               </div>` : ''}
                ${bitungStats.lansia > 0 ? `
                <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
                  <span>👴 Lansia:</span>
@@ -3781,6 +3791,7 @@ export default function DashboardLeaflet({
         <div style="font-family:sans-serif; min-width:260px; font-size:11px; color:#0F172A;">
           <div style="border-bottom:1.5px solid #E2E8F0; padding-bottom:6px; margin-bottom:8px;">
             <div style="font-weight:700; color:#0a1e36; line-height:1.3;">Estimasi Cepat Area terdampak</div>
+            <div style="font-size:9.5px; color:#64748B; margin-top:2px;">(Estimasi Agregat SEPAKAT & Hexbin)</div>
           </div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👨 Laki-laki:</span><b>${stats.totalLakiLaki.toLocaleString('id')}</b></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>👩 Perempuan:</span><b>${stats.totalPerempuan.toLocaleString('id')}</b></div>
@@ -5559,6 +5570,21 @@ export default function DashboardLeaflet({
                 >
                   <span>👩 Perempuan ({geotaggingStatsSummary.p})</span>
                 </button>
+                {geotaggingStatsSummary.lainnya > 0 && (
+                  <button
+                    onClick={() => {
+                      setGeotaggingJkFilter('LAINNYA');
+                      setGeotaggingPage(1);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                      geotaggingJkFilter === 'LAINNYA'
+                        ? 'bg-slate-600 text-white shadow-xs'
+                        : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span>❓ Belum Tercatat ({geotaggingStatsSummary.lainnya})</span>
+                  </button>
+                )}
                 {geotaggingStatsSummary.lansia > 0 && (
                   <button
                     onClick={() => {

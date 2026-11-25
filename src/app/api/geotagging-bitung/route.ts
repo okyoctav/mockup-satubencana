@@ -159,6 +159,7 @@ export async function POST(req: NextRequest) {
 
     let lakiLaki = 0;
     let perempuan = 0;
+    let lainnya = 0;
     let lansia = 0;
     let disabilitas = 0;
     const items: Array<{
@@ -179,9 +180,20 @@ export async function POST(req: NextRequest) {
       const lng = row[8];
 
       if (filterFn(lat, lng)) {
-        const jk = row[3];
-        if (jk === "L") lakiLaki++;
-        else if (jk === "P") perempuan++;
+        const rawJk = (row[3] || "").trim().toUpperCase();
+        const rawHub = (row[2] || "").trim().toUpperCase();
+
+        let jk = "-";
+        if (rawJk.startsWith("L") || rawJk === "LK" || rawJk === "LAKI") {
+          jk = "L";
+          lakiLaki++;
+        } else if (rawJk.startsWith("P") || rawJk === "PR" || rawJk === "PEREMPUAN" || rawHub === "ISTRI") {
+          jk = "P";
+          perempuan++;
+        } else {
+          jk = "-";
+          lainnya++;
+        }
 
         const lansiaVal = row[6];
         if (lansiaVal && lansiaVal.toLowerCase() !== "tidak" && lansiaVal !== "0") {
@@ -193,13 +205,13 @@ export async function POST(req: NextRequest) {
           disabilitas++;
         }
 
-        // Limit detail items to 5,000 for network payload sanity
-        if (items.length < 5000) {
+        // Simpan seluruh data matched tanpa terpotong (hingga 50.000 titik)
+        if (items.length < 50000) {
           items.push({
             id: row[0],
             nama: row[1],
             hub: row[2],
-            jk: row[3],
+            jk,
             usia: row[4],
             disabilitas: row[5],
             lansia: row[6],
@@ -210,12 +222,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const total = items.length;
+
     return NextResponse.json(
       {
         status: "success",
-        total: lakiLaki + perempuan,
+        total,
         lakiLaki,
         perempuan,
+        lainnya,
         lansia,
         disabilitas,
         items,
