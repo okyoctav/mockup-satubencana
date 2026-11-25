@@ -34,7 +34,8 @@ export default function SimulasiModelingPage() {
     const checkAuth = async () => {
       try {
         const mode = (process.env.NEXT_PUBLIC_AUTH_MODE || '').toLowerCase();
-        if (mode === 'local' || (!process.env.NEXT_PUBLIC_SUPABASE_URL && mode !== 'supabase')) {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL_DEV || process.env.NEXT_PUBLIC_SUPABASE_URL;
+        if (mode === 'local' || (!supabaseUrl && mode !== 'supabase')) {
           const res = await fetch('/api/auth/me', { credentials: 'include', cache: 'no-store' });
           if (!res.ok) {
             window.location.href = '/login?next=/simulasi-modeling';
@@ -69,7 +70,8 @@ export default function SimulasiModelingPage() {
   const handleLogout = async () => {
     try {
       const mode = (process.env.NEXT_PUBLIC_AUTH_MODE || '').toLowerCase();
-      if (mode === 'local' || (!process.env.NEXT_PUBLIC_SUPABASE_URL && mode !== 'supabase')) {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL_DEV || process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (mode === 'local' || (!supabaseUrl && mode !== 'supabase')) {
         await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
       } else {
         const { getSupabaseBrowserClient } = await import('@/lib/supabase/client');

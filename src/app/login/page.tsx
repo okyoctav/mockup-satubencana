@@ -14,7 +14,9 @@ type AuthMode = 'local' | 'supabase';
 function resolveClientAuthMode(): AuthMode {
   const raw = (process.env.NEXT_PUBLIC_AUTH_MODE || '').toLowerCase();
   if (raw === 'local' || raw === 'supabase') return raw;
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL_DEV || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (supabaseUrl && supabaseAnon) {
     return 'supabase';
   }
   return 'local';

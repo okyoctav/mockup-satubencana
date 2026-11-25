@@ -10,9 +10,11 @@ export function getAuthMode(): AuthMode {
     .toLowerCase()
     .trim();
   if (raw === 'local' || raw === 'supabase') return raw;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL_DEV || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   // Fallback: kalau ada DATABASE_URL tanpa Supabase → local
-  if (process.env.DATABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL) return 'local';
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  if (process.env.DATABASE_URL && !supabaseUrl) return 'local';
+  if (supabaseUrl && supabaseAnon) {
     return 'supabase';
   }
   return 'local';

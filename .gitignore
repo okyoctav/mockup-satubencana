@@ -26,7 +26,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
+.env*
+!.env.example.local
 
 # vercel
 .vercel
@@ -46,3 +47,4 @@ public/modeling/27.*
 DATAMDB.json
 *.geojsonl
 .env*
+!.env.example

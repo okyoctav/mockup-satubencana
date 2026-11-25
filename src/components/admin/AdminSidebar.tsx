@@ -40,7 +40,8 @@ export default function AdminSidebar({
   const handleLogout = async () => {
     try {
       const mode = (process.env.NEXT_PUBLIC_AUTH_MODE || '').toLowerCase();
-      if (mode === 'local' || (!process.env.NEXT_PUBLIC_SUPABASE_URL && mode !== 'supabase')) {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL_DEV || process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (mode === 'local' || (!supabaseUrl && mode !== 'supabase')) {
         await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
       } else {
         const { getSupabaseBrowserClient } = await import('@/lib/supabase/client');
