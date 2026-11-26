@@ -1082,43 +1082,64 @@ function DashboardPageInner() {
 
           {activeTab === 'logistics' && (
             <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
-              <LogisticAnalysisSection estimationData={drawEstimation} />
+              <LogisticAnalysisSection
+                key={drawEstimation ? `${drawEstimation.totalPopulasi}-${drawEstimation.sumberData}` : 'logistics-default'}
+                estimationData={drawEstimation}
+              />
             </section>
           )}
 
           {activeTab === 'medical' && (
             <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
-              <MedicalEmergencySection estimationData={drawEstimation} />
+              <MedicalEmergencySection
+                key={drawEstimation ? `${drawEstimation.totalPopulasi}-${drawEstimation.sumberData}` : 'medical-default'}
+                estimationData={drawEstimation}
+              />
             </section>
           )}
 
           {activeTab === 'infrastructure' && (
             <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
-              <InfrastructureEducationSection estimationData={drawEstimation} />
+              <InfrastructureEducationSection
+                key={drawEstimation ? `${drawEstimation.totalPopulasi}-${drawEstimation.sumberData}` : 'infra-default'}
+                estimationData={drawEstimation}
+              />
             </section>
           )}
 
           {activeTab === 'economic' && (
             <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
-              <EconomicAgricultureLossSection estimationData={drawEstimation} />
+              <EconomicAgricultureLossSection
+                key={drawEstimation ? `${drawEstimation.totalPopulasi}-${drawEstimation.sumberData}` : 'econ-default'}
+                estimationData={drawEstimation}
+              />
             </section>
           )}
 
           {activeTab === 'utilities' && (
             <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
-              <UtilitiesEnergySection estimationData={drawEstimation} />
+              <UtilitiesEnergySection
+                key={drawEstimation ? `${drawEstimation.totalPopulasi}-${drawEstimation.sumberData}` : 'util-default'}
+                estimationData={drawEstimation}
+              />
             </section>
           )}
 
           {activeTab === 'routes' && (
             <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
-              <AccessibilityRouteSection estimationData={drawEstimation} />
+              <AccessibilityRouteSection
+                key={drawEstimation ? `${drawEstimation.totalPopulasi}-${drawEstimation.sumberData}` : 'routes-default'}
+                estimationData={drawEstimation}
+              />
             </section>
           )}
 
           {activeTab === 'ai' && (
             <section className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
-              <AiGenerateSection estimationData={drawEstimation} />
+              <AiGenerateSection
+                key={drawEstimation ? `${drawEstimation.totalPopulasi}-${drawEstimation.sumberData}` : 'ai-default'}
+                estimationData={drawEstimation}
+              />
             </section>
           )}
         </main>

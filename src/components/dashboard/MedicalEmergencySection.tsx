@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { HeartPulse, Stethoscope, Building2, Pill, RefreshCw, ChevronDown, ChevronUp, Info, X } from 'lucide-react';
 import { EstimationData } from './LogisticAnalysisSection';
 
@@ -14,6 +14,12 @@ export default function MedicalEmergencySection({ estimationData }: Props) {
   const [estimasiKorbanLukaPct, setEstimasiKorbanLukaPct] = useState<number>(5);
   const [isVariableOpen, setIsVariableOpen] = useState(false);
   const [activeInfoModal, setActiveInfoModal] = useState<{ title: string; content: string } | null>(null);
+
+  useEffect(() => {
+    if (estimationData?.totalPopulasi && estimationData.totalPopulasi > 0) {
+      setPopulasi(estimationData.totalPopulasi);
+    }
+  }, [estimationData]);
 
   const PARAM_INFOS = {
     populasi: {
@@ -91,6 +97,11 @@ export default function MedicalEmergencySection({ estimationData }: Props) {
               <strong>Dari polygon peta:</strong> populasi terhitung{' '}
               <strong>{estimationData.totalPopulasi.toLocaleString('id')} jiwa</strong>
             </span>
+            {estimationData.sumberData && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-100/90 border border-emerald-300 rounded-full px-2.5 py-0.5">
+                {estimationData.sumberData}
+              </span>
+            )}
           </div>
 
           {/* Rincian Demografi Lengkap (Sama Seperti Popup Estimasi Peta) */}

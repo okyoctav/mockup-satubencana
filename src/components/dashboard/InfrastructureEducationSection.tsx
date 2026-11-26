@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { School, Building, Zap, RefreshCw, ChevronDown, ChevronUp, Info, X } from 'lucide-react';
 import { EstimationData } from './LogisticAnalysisSection';
 
@@ -15,6 +15,12 @@ export default function InfrastructureEducationSection({ estimationData }: Props
 
   const [isVariableOpen, setIsVariableOpen] = useState(false);
   const [activeInfoModal, setActiveInfoModal] = useState<{ title: string; content: string } | null>(null);
+
+  useEffect(() => {
+    if (estimationData?.totalPopulasi && estimationData.totalPopulasi > 0) {
+      setPopulasi(estimationData.totalPopulasi);
+    }
+  }, [estimationData]);
 
   const PARAM_INFOS = {
     populasi: {
@@ -89,6 +95,11 @@ export default function InfrastructureEducationSection({ estimationData }: Props
               <strong>{estimationData.totalPopulasi.toLocaleString('id')} jiwa</strong>
               {' '}({totalSiswaTerdampak.toLocaleString('id')} siswa usia sekolah)
             </span>
+            {estimationData.sumberData && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-100/90 border border-emerald-300 rounded-full px-2.5 py-0.5">
+                {estimationData.sumberData}
+              </span>
+            )}
           </div>
 
           {/* Rincian Demografi Lengkap (Sama Seperti Popup Estimasi Peta) */}

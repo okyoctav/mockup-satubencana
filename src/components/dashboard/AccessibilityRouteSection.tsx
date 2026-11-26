@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Truck, Compass, Route, RefreshCw, ChevronDown, ChevronUp, Info, X, MapPin, Navigation } from 'lucide-react';
 import { EstimationData } from './LogisticAnalysisSection';
 
@@ -194,6 +194,12 @@ export default function AccessibilityRouteSection({ estimationData }: Props) {
   const [populasi, setPopulasi] = useState<number>(defaultPop);
   const [estimasiJarakKm, setEstimasiJarakKm] = useState<number>(45); // 45 Km ke gudang BPBD/BNPB
 
+  useEffect(() => {
+    if (estimationData?.totalPopulasi && estimationData.totalPopulasi > 0) {
+      setPopulasi(estimationData.totalPopulasi);
+    }
+  }, [estimationData]);
+
   // 1. Kebutuhan Armada Mobilisasi & Truk Logistik
   const trukLogistik6Roda = Math.ceil(populasi / 1000); // 1 truk (6 Ton) per 1000 jiwa
   const mobilOperasionalDoubleCabin = Math.max(2, Math.ceil(populasi / 1500));
@@ -248,6 +254,11 @@ export default function AccessibilityRouteSection({ estimationData }: Props) {
               <strong>Dari polygon peta:</strong> populasi terhitung{' '}
               <strong>{estimationData.totalPopulasi.toLocaleString('id')} jiwa</strong>
             </span>
+            {estimationData.sumberData && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-100/90 border border-emerald-300 rounded-full px-2.5 py-0.5">
+                {estimationData.sumberData}
+              </span>
+            )}
           </div>
 
           {/* Rincian Demografi Lengkap (Sama Seperti Popup Estimasi Peta) */}

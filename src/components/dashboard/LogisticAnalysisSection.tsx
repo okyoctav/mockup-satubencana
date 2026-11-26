@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PackageCheck, Droplets, Tent, Utensils, Shirt, HeartPulse, HeartHandshake, RefreshCw, ChevronDown, ChevronUp, Info, X } from 'lucide-react';
 
 export interface SekolahDampakItem {
@@ -25,6 +25,10 @@ export interface EstimationData {
   totalPd1: number;
   totalPd2: number;
   totalKeluarga: number;
+  sumberData?: string;
+  anakTotal?: number;
+  anakSd?: number;
+  anakRemaja?: number;
   kelurahanDampak?: { namaKelurahan: string; namaKecamatan: string; namaKabupaten: string; namaProvinsi: string; kodeKemendagri?: string }[];
   sekolahDampak?: SekolahDampakItem[];
 }
@@ -50,6 +54,19 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
   const [persenLansia, setPersenLansia] = useState<number>(calcLansiaPct);
   const [persenBalita, setPersenBalita] = useState<number>(calcBalitaPct);
   const [persenDisabilitas] = useState<number>(calcDifabelPct);
+
+  // Sync state whenever estimationData updates
+  useEffect(() => {
+    if (estimationData && estimationData.totalPopulasi > 0) {
+      setPopulasi(estimationData.totalPopulasi);
+      if (estimationData.totalBalita !== undefined) {
+        setPersenBalita(Number(((estimationData.totalBalita / estimationData.totalPopulasi) * 100).toFixed(2)));
+      }
+      if (estimationData.totalLansia !== undefined) {
+        setPersenLansia(Number(((estimationData.totalLansia / estimationData.totalPopulasi) * 100).toFixed(2)));
+      }
+    }
+  }, [estimationData]);
 
   const [isVariableOpen, setIsVariableOpen] = useState(false);
   const [activeInfoModal, setActiveInfoModal] = useState<{ title: string; content: string } | null>(null);
@@ -161,10 +178,15 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
               <strong>Dari polygon peta:</strong> populasi terhitung{' '}
               <strong>{estimationData.totalPopulasi.toLocaleString('id')} jiwa</strong>
             </span>
+            {estimationData.sumberData && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-100/90 border border-emerald-300 rounded-full px-2.5 py-0.5">
+                {estimationData.sumberData}
+              </span>
+            )}
           </div>
 
           {/* Rincian Demografi Lengkap (Sama Seperti Popup Estimasi Peta) */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 pt-2 border-t border-emerald-200/80">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 pt-2 border-t border-emerald-200/80">
             <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
               <span className="text-[10px] text-slate-500 font-semibold block">👨 Laki-laki</span>
               <span className="font-extrabold text-[#0a1e36] text-xs">{estimationData.totalLakiLaki.toLocaleString('id')}</span>
@@ -173,12 +195,18 @@ export default function LogisticAnalysisSection({ estimationData }: Props) {
               <span className="text-[10px] text-slate-500 font-semibold block">👩 Perempuan</span>
               <span className="font-extrabold text-[#0a1e36] text-xs">{estimationData.totalPerempuan.toLocaleString('id')}</span>
             </div>
+            {estimationData.anakTotal !== undefined && estimationData.anakTotal > 0 && (
+              <div className="bg-white/80 border border-teal-200 p-2 rounded-xl text-center">
+                <span className="text-[10px] text-teal-700 font-semibold block">🧒 Anak (&lt;18)</span>
+                <span className="font-extrabold text-teal-700 text-xs">{estimationData.anakTotal.toLocaleString('id')}</span>
+              </div>
+            )}
             <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
               <span className="text-[10px] text-slate-500 font-semibold block">👴 Lansia</span>
               <span className="font-extrabold text-[#0a1e36] text-xs">{estimationData.totalLansia.toLocaleString('id')}</span>
             </div>
             <div className="bg-white/80 border border-emerald-200 p-2 rounded-xl text-center">
-              <span className="text-[10px] text-slate-500 font-semibold block">🧒 Balita</span>
+              <span className="text-[10px] text-slate-500 font-semibold block">👶 Balita</span>
               <span className="font-extrabold text-[#0a1e36] text-xs">{estimationData.totalBalita.toLocaleString('id')}</span>
             </div>
             <div className="bg-white/80 border border-cyan-200 p-2 rounded-xl text-center">

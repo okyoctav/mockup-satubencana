@@ -89,6 +89,10 @@ interface Props {
     totalPd1: number;
     totalPd2: number;
     totalKeluarga: number;
+    sumberData?: string;
+    anakTotal?: number;
+    anakSd?: number;
+    anakRemaja?: number;
     kelurahanDampak?: { namaKelurahan: string; namaKecamatan: string; namaKabupaten: string; namaProvinsi: string; kodeKemendagri?: string }[];
     sekolahDampak?: SekolahDampakItem[];
   }) => void;
@@ -3851,6 +3855,9 @@ export default function DashboardLeaflet({
                  >
                    <span>📋 Tampilkan Data (${bitungStats.total.toLocaleString('id')})</span>
                  </button>
+                 <div style="font-size:9px; color:#047857; margin-top:4px; font-weight:700; text-align:center;">
+                   ✓ Basis data otomatis untuk Analisis Logistik, Medis, & Rute Evakuasi
+                 </div>
                </div>
              </div>
            </div>`
@@ -3879,15 +3886,23 @@ export default function DashboardLeaflet({
       layer.bindPopup(content);
 
       if (onDrawEstimation) {
+        const hasBitung = bitungStats && bitungStats.total > 0;
+
         onDrawEstimation({
-          totalPopulasi: stats.totalLakiLaki + stats.totalPerempuan,
-          totalLakiLaki: stats.totalLakiLaki,
-          totalPerempuan: stats.totalPerempuan,
-          totalLansia: stats.totalLansia,
-          totalBalita: stats.totalBalita,
-          totalPd1: stats.totalPd1,
-          totalPd2: stats.totalPd2,
-          totalKeluarga: stats.totalKeluarga,
+          totalPopulasi: hasBitung ? bitungStats.total : (stats.totalLakiLaki + stats.totalPerempuan),
+          totalLakiLaki: hasBitung ? bitungStats.lakiLaki : stats.totalLakiLaki,
+          totalPerempuan: hasBitung ? bitungStats.perempuan : stats.totalPerempuan,
+          totalLansia: hasBitung ? bitungStats.lansia : stats.totalLansia,
+          totalBalita: hasBitung ? bitungStats.anakBalita : stats.totalBalita,
+          totalPd1: hasBitung ? 0 : stats.totalPd1,
+          totalPd2: hasBitung ? bitungStats.disabilitas : stats.totalPd2,
+          totalKeluarga: hasBitung
+            ? Math.max(1, Math.round(bitungStats.total / 4))
+            : stats.totalKeluarga,
+          sumberData: hasBitung ? '🟢 Geotagging Penduduk (Kota Bitung)' : 'Estimasi Agregat SEPAKAT & Hexbin',
+          anakTotal: hasBitung ? bitungStats.anakTotal : undefined,
+          anakSd: hasBitung ? bitungStats.anakSd : undefined,
+          anakRemaja: hasBitung ? bitungStats.anakRemaja : undefined,
           kelurahanDampak: kelList,
           sekolahDampak: sekolahList,
         });

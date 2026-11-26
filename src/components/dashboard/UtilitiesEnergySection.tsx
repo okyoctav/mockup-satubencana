@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Zap, Radio, Lightbulb, RefreshCw, ChevronDown, ChevronUp, Info, X } from 'lucide-react';
 import { EstimationData } from './LogisticAnalysisSection';
 
@@ -25,6 +25,12 @@ export default function UtilitiesEnergySection({ estimationData }: Props) {
   const defaultPop = estimationData?.totalPopulasi && estimationData.totalPopulasi > 0 ? estimationData.totalPopulasi : 1000;
   const [populasi, setPopulasi] = useState<number>(defaultPop);
   const [estimasiBlackoutHari, setEstimasiBlackoutHari] = useState<number>(5);
+
+  useEffect(() => {
+    if (estimationData?.totalPopulasi && estimationData.totalPopulasi > 0) {
+      setPopulasi(estimationData.totalPopulasi);
+    }
+  }, [estimationData]);
 
   // 1. Kebutuhan Listrik Genset & Bahan Bakar (BBM Solar)
   const totalGensetKva = Math.ceil(populasi / 400) * 20; // 20 KVA per 400 jiwa
@@ -81,6 +87,11 @@ export default function UtilitiesEnergySection({ estimationData }: Props) {
               <strong>Dari polygon peta:</strong> populasi terhitung{' '}
               <strong>{estimationData.totalPopulasi.toLocaleString('id')} jiwa</strong>
             </span>
+            {estimationData.sumberData && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-100/90 border border-emerald-300 rounded-full px-2.5 py-0.5">
+                {estimationData.sumberData}
+              </span>
+            )}
           </div>
 
           {/* Rincian Demografi Lengkap (Sama Seperti Popup Estimasi Peta) */}
